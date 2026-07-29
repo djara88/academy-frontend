@@ -26,9 +26,10 @@ const Dashboard: React.FC = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-extrabold text-[#e6edf3] mb-6">Dashboard</h1>
+      <h1 className="text-3xl font-extrabold text-[#e6edf3] mb-6">
+        Dashboard {user ? `- ${user.nombre_completo}` : ''}
+      </h1>
 
-      {/* Tarjetas KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div className="card p-6">
           <div className="flex items-center justify-between">
@@ -70,7 +71,6 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Lista de jugadores */}
       <div className="card p-6">
         <h2 className="text-xl font-bold text-[#e6edf3] mb-4">Lista de Jugadores</h2>
         {isLoading && (
