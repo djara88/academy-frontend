@@ -2,14 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+
 @layer base {
+  html {
+    font-family: 'Montserrat', sans-serif;
+  }
   body {
-    @apply bg-gray-50 text-gray-800;
+    @apply bg-[#0d1117] text-[#e6edf3];
   }
   input, select, textarea {
-    @apply border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500;
+    @apply bg-[#1c2331] border border-[#2d3a4f] text-[#e6edf3] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00e676] transition-all duration-200;
+  }
+  input::placeholder, textarea::placeholder {
+    @apply text-[#8b949e];
   }
   button {
-    @apply font-medium transition-colors;
+    @apply font-semibold transition-all duration-200;
+  }
+  .label {
+    @apply block text-sm font-semibold text-[#8b949e] mb-1;
+  }
+  .card {
+    @apply bg-[#161b22] rounded-xl border border-[#2d3a4f] shadow-lg;
+  }
+  .btn-primary {
+    @apply bg-[#00e676] text-[#0d1117] hover:bg-[#00c853] py-3 px-6 rounded-lg font-bold;
+  }
+  .btn-secondary {
+    @apply bg-[#2d3a4f] text-[#e6edf3] hover:bg-[#3d4a5f] py-2 px-4 rounded-lg;
+  }
+  .btn-danger {
+    @apply bg-[#e74c3c] text-white hover:bg-[#c0392b] py-2 px-4 rounded-lg;
+  }
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-[#8b949e] hover:bg-[#2d3a4f] hover:text-[#e6edf3] transition-all duration-200;
+  }
+  .sidebar-link.active {
+    @apply bg-[#2d3a4f] text-[#00e676] font-bold;
   }
 }
