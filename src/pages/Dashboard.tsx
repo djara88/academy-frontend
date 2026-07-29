@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 
 interface Jugador {
@@ -14,6 +15,7 @@ interface Jugador {
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const { data: jugadores, isLoading, error } = useQuery({
     queryKey: ['jugadores'],
@@ -29,14 +31,23 @@ const Dashboard: React.FC = () => {
         <h1 className="text-2xl font-bold text-gray-800">
           Dashboard - {user?.nombre_completo}
         </h1>
-        <button
-          onClick={logout}
-          className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
-        >
-          Cerrar Sesión
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => navigate('/matricula')}
+            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+          >
+            📝 Nueva Matrícula
+          </button>
+          <button
+            onClick={logout}
+            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+          >
+            Cerrar Sesión
+          </button>
+        </div>
       </div>
 
+      {/* Resto del Dashboard igual que antes */}
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
           <div className="text-center">
@@ -45,7 +56,6 @@ const Dashboard: React.FC = () => {
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
             <p className="text-gray-500">Cargando datos...</p>
-            <p className="text-xs text-gray-400 mt-1">El servidor puede tardar unos segundos en responder.</p>
           </div>
         </div>
       ) : (
