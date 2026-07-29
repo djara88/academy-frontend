@@ -32,7 +32,6 @@ const Layout: React.FC = () => {
     <div className="flex min-h-screen">
       {/* Sidebar */}
       <aside className="w-72 bg-[#161b22] border-r border-[#2d3a4f] flex flex-col p-6 fixed h-full overflow-y-auto">
-        {/* Logo y nombre */}
         <div className="flex items-center gap-3 mb-8">
           <div className="w-12 h-12 bg-[#00e676] rounded-full flex items-center justify-center text-2xl font-bold text-[#0d1117]">
             ⚽
@@ -43,13 +42,11 @@ const Layout: React.FC = () => {
           </div>
         </div>
 
-        {/* Nombre del usuario */}
         <div className="mb-6 p-3 bg-[#1c2331] rounded-lg border border-[#2d3a4f]">
           <p className="text-sm text-[#8b949e]">Bienvenido</p>
           <p className="font-bold text-[#e6edf3]">{user?.nombre_completo || 'Usuario'}</p>
         </div>
 
-        {/* Navegación */}
         <nav className="flex-1 space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -67,7 +64,6 @@ const Layout: React.FC = () => {
           })}
         </nav>
 
-        {/* Cerrar sesión */}
         <button
           onClick={logout}
           className="sidebar-link text-red-400 hover:text-red-300 hover:bg-red-900/30 mt-4"
@@ -77,7 +73,6 @@ const Layout: React.FC = () => {
         </button>
       </aside>
 
-      {/* Contenido principal */}
       <main className="ml-72 flex-1 p-8 bg-[#0d1117] min-h-screen">
         <Outlet />
       </main>
