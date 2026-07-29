@@ -1,7 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 
 interface Jugador {
@@ -15,7 +15,6 @@ interface Jugador {
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
 
   const { data: jugadores, isLoading, error } = useQuery({
     queryKey: ['jugadores'],
@@ -25,29 +24,33 @@ const Dashboard: React.FC = () => {
     },
   });
 
+  const totalAlumnos = jugadores?.length || 0;
+  const uniformesPendientes = jugadores?.filter(j => j.estado_uniforme === 'Pendiente').length || 0;
+
   return (
     <div className="p-6">
+      {/* Header con botones */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">
           Dashboard - {user?.nombre_completo}
         </h1>
         <div className="flex gap-2">
-          <button
-            onClick={() => navigate('/matricula')}
-            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+          <Link
+            to="/matricula"
+            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
           >
             📝 Nueva Matrícula
-          </button>
+          </Link>
           <button
             onClick={logout}
-            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
           >
             Cerrar Sesión
           </button>
         </div>
       </div>
 
-      {/* Resto del Dashboard igual que antes */}
+      {/* Estado de carga */}
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
           <div className="text-center">
@@ -56,20 +59,20 @@ const Dashboard: React.FC = () => {
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
             <p className="text-gray-500">Cargando datos...</p>
+            <p className="text-xs text-gray-400 mt-1">El servidor puede tardar unos segundos en responder.</p>
           </div>
         </div>
       ) : (
         <>
+          {/* Tarjetas KPI */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
               <div className="text-sm text-gray-500">Total Alumnos</div>
-              <div className="text-2xl font-bold">{jugadores?.length || 0}</div>
+              <div className="text-2xl font-bold">{totalAlumnos}</div>
             </div>
             <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
               <div className="text-sm text-gray-500">Uniforme Pendiente</div>
-              <div className="text-2xl font-bold">
-                {jugadores?.filter(j => j.estado_uniforme === 'Pendiente').length || 0}
-              </div>
+              <div className="text-2xl font-bold">{uniformesPendientes}</div>
             </div>
             <div className="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
               <div className="text-sm text-gray-500">Próximos Partidos</div>
@@ -81,6 +84,7 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
+          {/* Tabla de jugadores */}
           <div className="bg-white p-4 rounded-lg shadow">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Lista de Jugadores</h2>
             {error && <p className="text-red-600">Error al cargar jugadores</p>}
