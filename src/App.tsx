@@ -3,14 +3,15 @@ import { useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Matricula from './pages/Matricula';
+import Layout from './layouts/Layout';
 
 function App() {
   const { user, loading } = useAuth();
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-500">Cargando...</div>
+      <div className="min-h-screen flex items-center justify-center bg-[#0d1117]">
+        <div className="text-[#e6edf3]">Cargando...</div>
       </div>
     );
   }
@@ -18,9 +19,11 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
-      <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
-      <Route path="/matricula" element={user ? <Matricula /> : <Navigate to="/login" />} />
-      <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} />} />
+      <Route path="*" element={user ? <Layout /> : <Navigate to="/login" />}>
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="matricula" element={<Matricula />} />
+        <Route path="*" element={<Navigate to="/dashboard" />} />
+      </Route>
     </Routes>
   );
 }
