@@ -24,12 +24,8 @@ const Dashboard: React.FC = () => {
     },
   });
 
-  const totalAlumnos = jugadores?.length || 0;
-  const uniformesPendientes = jugadores?.filter(j => j.estado_uniforme === 'Pendiente').length || 0;
-
   return (
     <div className="p-6">
-      {/* Header con botones */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">
           Dashboard - {user?.nombre_completo}
@@ -37,42 +33,60 @@ const Dashboard: React.FC = () => {
         <div className="flex gap-2">
           <Link
             to="/matricula"
-            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
+            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
           >
             📝 Nueva Matrícula
           </Link>
           <button
             onClick={logout}
-            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
+            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
           >
             Cerrar Sesión
           </button>
         </div>
       </div>
 
-      {/* Estado de carga */}
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
           <div className="text-center">
-            <svg className="animate-spin h-12 w-12 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <svg
+              className="animate-spin h-12 w-12 text-blue-600 mx-auto mb-4"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
             </svg>
             <p className="text-gray-500">Cargando datos...</p>
-            <p className="text-xs text-gray-400 mt-1">El servidor puede tardar unos segundos en responder.</p>
+            <p className="text-xs text-gray-400 mt-1">
+              El servidor puede tardar unos segundos en responder.
+            </p>
           </div>
         </div>
       ) : (
         <>
-          {/* Tarjetas KPI */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
               <div className="text-sm text-gray-500">Total Alumnos</div>
-              <div className="text-2xl font-bold">{totalAlumnos}</div>
+              <div className="text-2xl font-bold">{jugadores?.length || 0}</div>
             </div>
             <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
               <div className="text-sm text-gray-500">Uniforme Pendiente</div>
-              <div className="text-2xl font-bold">{uniformesPendientes}</div>
+              <div className="text-2xl font-bold">
+                {jugadores?.filter((j) => j.estado_uniforme === 'Pendiente').length || 0}
+              </div>
             </div>
             <div className="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
               <div className="text-sm text-gray-500">Próximos Partidos</div>
@@ -84,7 +98,6 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Tabla de jugadores */}
           <div className="bg-white p-4 rounded-lg shadow">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Lista de Jugadores</h2>
             {error && <p className="text-red-600">Error al cargar jugadores</p>}
@@ -110,11 +123,13 @@ const Dashboard: React.FC = () => {
                       <td className="p-2">{jugador.talla_uniforme}</td>
                       <td className="p-2">#{jugador.numero_camiseta}</td>
                       <td className="p-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          jugador.estado_uniforme === 'Entregado' 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-red-100 text-red-700'
-                        }`}>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            jugador.estado_uniforme === 'Entregado'
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-red-100 text-red-700'
+                          }`}
+                        >
                           {jugador.estado_uniforme}
                         </span>
                       </td>
