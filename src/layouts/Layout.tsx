@@ -30,7 +30,6 @@ const Layout: React.FC = () => {
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar */}
       <aside className="w-72 bg-[#161b22] border-r border-[#2d3a4f] flex flex-col p-6 fixed h-full overflow-y-auto">
         <div className="flex items-center gap-3 mb-8">
           <div className="w-12 h-12 bg-[#00e676] rounded-full flex items-center justify-center text-2xl font-bold text-[#0d1117]">
