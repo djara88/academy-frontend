@@ -26,10 +26,19 @@ const Torneos: React.FC = () => {
       setTorneos(response.data.data || []);
       setError('');
     } catch (err: any) {
+      console.error('Error al cargar torneos:', err);
       setError(err.response?.data?.error || 'Error al cargar torneos');
     } finally {
       setLoading(false);
     }
+  };
+
+  const irANuevoTorneo = () => {
+    navigate('/torneos/nuevo');
+  };
+
+  const verPartidos = (torneoId: string) => {
+    navigate(`/torneos/${torneoId}/partidos`);
   };
 
   return (
@@ -45,10 +54,7 @@ const Torneos: React.FC = () => {
       <div className="card p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-[#e6edf3]">Lista de Torneos</h2>
-          <button
-            onClick={() => navigate('/torneos/nuevo')}
-            className="btn-primary"
-          >
+          <button onClick={irANuevoTorneo} className="btn-primary">
             + Nuevo Torneo
           </button>
         </div>
@@ -85,7 +91,12 @@ const Torneos: React.FC = () => {
                       </span>
                     </td>
                     <td className="p-3">
-                      <button className="btn-secondary text-xs mr-2">Ver</button>
+                      <button
+                        onClick={() => verPartidos(torneo.id)}
+                        className="btn-secondary text-xs mr-2"
+                      >
+                        Ver Partidos
+                      </button>
                       <button className="btn-secondary text-xs">Editar</button>
                     </td>
                   </tr>
