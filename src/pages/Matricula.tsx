@@ -5,7 +5,6 @@ import api from '../api/axiosConfig';
 const Matricula: React.FC = () => {
   const navigate = useNavigate();
 
-  // Estados del formulario
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -63,26 +62,44 @@ const Matricula: React.FC = () => {
     };
     const nuevas = skillsMap[jugador.posicion_cancha] || skillsMap['Delantero'];
     setHabilidades(nuevas);
-    // Reiniciar evaluación
     const nuevaEval: Record<string, number> = {};
     nuevas.forEach(skill => { nuevaEval[skill] = 50; });
     setEvaluacion(nuevaEval);
   }, [jugador.posicion_cancha]);
 
-  // Formatear RUT con guión
+  // ============================================================
+  // VALIDACIÓN Y FORMATEO DE RUT CHILENO
+  // ============================================================
   const formatRut = (value: string) => {
-    // Eliminar caracteres no numéricos
     let clean = value.replace(/\D/g, '');
     if (clean.length === 0) return '';
-    // Si tiene más de 8 dígitos, truncar
     if (clean.length > 9) clean = clean.slice(0, 9);
-    // Agregar guión antes del último dígito (o los dos últimos si son 9 dígitos)
-    if (clean.length > 8) {
-      return clean.slice(0, -2) + '-' + clean.slice(-2);
-    } else if (clean.length > 1) {
-      return clean.slice(0, -1) + '-' + clean.slice(-1);
+    if (clean.length > 1) {
+      const cuerpo = clean.slice(0, -1);
+      const dv = clean.slice(-1);
+      return cuerpo + '-' + dv;
     }
     return clean;
+  };
+
+  const validarRut = (rut: string): boolean => {
+    const clean = rut.replace(/[.-]/g, '');
+    if (clean.length < 2) return false;
+    const cuerpo = clean.slice(0, -1);
+    const dv = clean.slice(-1).toUpperCase();
+    let suma = 0;
+    let multiplo = 2;
+    for (let i = cuerpo.length - 1; i >= 0; i--) {
+      suma += parseInt(cuerpo[i]) * multiplo;
+      multiplo = multiplo === 7 ? 2 : multiplo + 1;
+    }
+    const resto = suma % 11;
+    const dvCalculado = 11 - resto;
+    let dvEsperado = '';
+    if (dvCalculado === 11) dvEsperado = '0';
+    else if (dvCalculado === 10) dvEsperado = 'K';
+    else dvEsperado = dvCalculado.toString();
+    return dv === dvEsperado;
   };
 
   const handleRutChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -131,6 +148,13 @@ const Matricula: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    // Validar RUT antes de enviar
+    if (!validarRut(tutor.rut)) {
+      setError('RUT inválido. Verifica el formato y dígito verificador.');
+      setLoading(false);
+      return;
+    }
 
     try {
       const payload = {
