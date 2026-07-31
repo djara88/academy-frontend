@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Matricula from './pages/Matricula';
 import Jugadores from './pages/Jugadores';
 import Torneos from './pages/Torneos';
+import NuevoTorneo from './pages/NuevoTorneo';
 import Partidos from './pages/Partidos';
 import Layout from './layouts/Layout';
 
@@ -27,6 +28,7 @@ function App() {
         <Route path="matricula" element={<Matricula />} />
         <Route path="jugadores" element={<Jugadores />} />
         <Route path="torneos" element={<Torneos />} />
+        <Route path="torneos/nuevo" element={<NuevoTorneo />} />
         <Route path="torneos/:torneoId/partidos" element={<Partidos />} />
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Route>
