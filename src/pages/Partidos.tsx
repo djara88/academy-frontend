@@ -33,6 +33,7 @@ const Partidos: React.FC = () => {
       setPartidos(response.data.data || []);
       setError('');
     } catch (err: any) {
+      console.error('Error al cargar partidos:', err);
       setError(err.response?.data?.error || 'Error al cargar partidos');
     } finally {
       setLoading(false);
@@ -41,7 +42,15 @@ const Partidos: React.FC = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-extrabold text-[#e6edf3] mb-6">⚽ Partidos</h1>
+      <div className="flex items-center gap-4 mb-6">
+        <button
+          onClick={() => navigate('/torneos')}
+          className="btn-secondary"
+        >
+          ← Volver
+        </button>
+        <h1 className="text-3xl font-extrabold text-[#e6edf3]">⚽ Partidos</h1>
+      </div>
 
       {error && (
         <div className="bg-[#2c1a1a] border border-[#e74c3c] text-[#e74c3c] px-4 py-3 rounded-lg mb-6">
@@ -52,12 +61,7 @@ const Partidos: React.FC = () => {
       <div className="card p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold text-[#e6edf3]">Lista de Partidos</h2>
-          <button
-            onClick={() => navigate(`/torneos/${torneoId}/partidos/nuevo`)}
-            className="btn-primary"
-          >
-            + Programar Partido
-          </button>
+          <button className="btn-primary">+ Programar Partido</button>
         </div>
 
         {loading ? (
@@ -87,9 +91,7 @@ const Partidos: React.FC = () => {
                     <td className="p-3">{partido.categoria_jugando}</td>
                     <td className="p-3">
                       {partido.estado === 'Jugado' ? (
-                        <span className="font-bold">
-                          {partido.goles_axf} - {partido.goles_rival}
-                        </span>
+                        <span className="font-bold">{partido.goles_axf} - {partido.goles_rival}</span>
                       ) : (
                         <span className="text-[#8b949e]">Por jugar</span>
                       )}
