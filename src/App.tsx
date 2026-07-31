@@ -3,6 +3,9 @@ import { useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Matricula from './pages/Matricula';
+import Jugadores from './pages/Jugadores';
+import Torneos from './pages/Torneos';
+import Partidos from './pages/Partidos';
 import Layout from './layouts/Layout';
 
 function App() {
@@ -22,6 +25,9 @@ function App() {
       <Route path="*" element={user ? <Layout /> : <Navigate to="/login" />}>
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="matricula" element={<Matricula />} />
+        <Route path="jugadores" element={<Jugadores />} />
+        <Route path="torneos" element={<Torneos />} />
+        <Route path="torneos/:torneoId/partidos" element={<Partidos />} />
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Route>
     </Routes>
