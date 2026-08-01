@@ -8,6 +8,7 @@ import Torneos from './pages/Torneos';
 import NuevoTorneo from './pages/NuevoTorneo';
 import Partidos from './pages/Partidos';
 import Layout from './layouts/Layout';
+import SaaSAdmin from './pages/SaaSAdmin';
 
 function App() {
   const { user, loading } = useAuth();
@@ -31,6 +32,7 @@ function App() {
         <Route path="torneos/nuevo" element={<NuevoTorneo />} />
         <Route path="torneos/:torneoId/partidos" element={<Partidos />} />
         <Route path="*" element={<Navigate to="/dashboard" />} />
+        <Route path="/saas-admin" element={<SaaSAdmin />} />
       </Route>
     </Routes>
   );
