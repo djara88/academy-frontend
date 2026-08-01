@@ -26,7 +26,7 @@ const App = () => {
             <Route path="/torneos" element={<Torneos />} />
             <Route path="/nuevo-torneo" element={<NuevoTorneo />} />
             <Route path="/partidos" element={<Partidos />} />
-            <Route path="/saas-admin" element={<SaaSAdmin />} />
+            <Route path="/admin" element={<SaaSAdmin />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/login" replace />} />
