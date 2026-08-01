@@ -1,41 +1,38 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './contexts/AuthContext';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
+// Importación de tus pantallas
 import Matricula from './pages/Matricula';
-import Jugadores from './pages/Jugadores';
-import Torneos from './pages/Torneos';
-import NuevoTorneo from './pages/NuevoTorneo';
-import Partidos from './pages/Partidos';
-import Layout from './layouts/Layout';
 import SaaSAdmin from './pages/SaaSAdmin';
 
-function App() {
-  const { user, loading } = useAuth();
+// Importa aquí tus otras pantallas si las tienes (ej: Dashboard, Login)
+// import Dashboard from './pages/Dashboard';
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0d1117]">
-        <div className="text-[#e6edf3]">Cargando...</div>
-      </div>
-    );
-  }
-
+const App = () => {
   return (
-    <Routes>
-      <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
-      <Route path="*" element={user ? <Layout /> : <Navigate to="/login" />}>
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="matricula" element={<Matricula />} />
-        <Route path="jugadores" element={<Jugadores />} />
-        <Route path="torneos" element={<Torneos />} />
-        <Route path="torneos/nuevo" element={<NuevoTorneo />} />
-        <Route path="torneos/:torneoId/partidos" element={<Partidos />} />
-        <Route path="*" element={<Navigate to="/dashboard" />} />
+    <BrowserRouter>
+      <Routes>
+        
+        {/* Ruta base que redirige a la matrícula (o a tu login) */}
+        <Route path="/" element={<Navigate to="/matricula" replace />} />
+        
+        {/* Rutas principales al MISMO NIVEL (Sin anidaciones conflictivas) */}
+        <Route path="/matricula" element={<Matricula />} />
         <Route path="/saas-admin" element={<SaaSAdmin />} />
-      </Route>
-    </Routes>
+        
+        {/* Si tuvieras un dashboard, iría aquí: */}
+        {/* <Route path="/dashboard" element={<Dashboard />} /> */}
+
+        {/* 
+          RUTA DE RESCATE (404)
+          Si el usuario escribe una URL que no existe, lo manda a la raíz.
+          Nota: El asterisco (*) siempre debe ir al final, solo y sin anidar otras rutas dentro de él.
+        */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+
+      </Routes>
+    </BrowserRouter>
   );
-}
+};
 
 export default App;
