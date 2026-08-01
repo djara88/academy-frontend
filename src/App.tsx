@@ -1,13 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-
-// 1. Contexto de Autenticación
 import { AuthProvider } from './contexts/AuthContext';
-
-// 2. Tu Menú Lateral (Layout)
 import Layout from './layouts/Layout';
 
-// 3. Tus Pantallas
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Jugadores from './pages/Jugadores';
@@ -22,12 +17,10 @@ const App = () => {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/matricula" element={<Matricula />} />
           
-          {/* El Layout envuelve a las rutas privadas SIN usar "/*" */}
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/jugadores" element={<Jugadores />} />
@@ -38,7 +31,6 @@ const App = () => {
           </Route>
 
           <Route path="*" element={<Navigate to="/login" replace />} />
-          
         </Routes>
       </BrowserRouter>
     </AuthProvider>
