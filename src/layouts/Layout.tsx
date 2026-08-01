@@ -87,7 +87,7 @@ const Layout = () => {
           
           {/* BOTÓN AL PANEL MAESTRO SAAS (Solo debería verse para tu usuario super-admin) */}
           <Link
-            to="/saas-admin"
+            to="/admin"
             className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
               isActive('/saas-admin') 
                 ? 'bg-orange-600 text-white font-bold' 
