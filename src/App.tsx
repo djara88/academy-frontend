@@ -23,19 +23,11 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           
-          {/* =========================================
-              RUTAS PÚBLICAS (Sin el menú de navegación)
-              ========================================= */}
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/matricula" element={<Matricula />} />
           
-          {/* =========================================
-              RUTAS PRIVADAS (Con el menú lateral)
-              ========================================= 
-              Usamos <Route element={<Layout />}> sin rutas "/*"
-              Esto inyecta el menú sin romper la aplicación.
-          */}
+          {/* El Layout envuelve a las rutas privadas SIN usar "/*" */}
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/jugadores" element={<Jugadores />} />
@@ -45,9 +37,6 @@ const App = () => {
             <Route path="/saas-admin" element={<SaaSAdmin />} />
           </Route>
 
-          {/* =========================================
-              RUTA DE RESCATE (404)
-              ========================================= */}
           <Route path="*" element={<Navigate to="/login" replace />} />
           
         </Routes>
