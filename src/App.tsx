@@ -1,34 +1,40 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-// Importación de tus pantallas
+// 1. Importación de tus pantallas
 import Matricula from './pages/Matricula';
 import SaaSAdmin from './pages/SaaSAdmin';
 
-// Importa aquí tus otras pantallas si las tienes (ej: Dashboard, Login)
-// import Dashboard from './pages/Dashboard';
+// Si tienes un componente Layout (como un menú o sidebar), impórtalo aquí.
+// import Layout from './components/Layout'; 
 
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
         
-        {/* Ruta base que redirige a la matrícula (o a tu login) */}
-        <Route path="/" element={<Navigate to="/matricula" replace />} />
-        
-        {/* Rutas principales al MISMO NIVEL (Sin anidaciones conflictivas) */}
-        <Route path="/matricula" element={<Matricula />} />
-        <Route path="/saas-admin" element={<SaaSAdmin />} />
-        
-        {/* Si tuvieras un dashboard, iría aquí: */}
-        {/* <Route path="/dashboard" element={<Dashboard />} /> */}
-
         {/* 
-          RUTA DE RESCATE (404)
-          Si el usuario escribe una URL que no existe, lo manda a la raíz.
-          Nota: El asterisco (*) siempre debe ir al final, solo y sin anidar otras rutas dentro de él.
+          LA SOLUCIÓN:
+          Si envuelves tus rutas bajo una ruta principal con "/*",
+          las rutas hijas deben escribirse SIN el "/" inicial.
+          Ejemplo: path="saas-admin" (CORRECTO) vs path="/saas-admin" (INCORRECTO)
         */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/*">
+          
+          {/* Redirección inicial */}
+          <Route index element={<Navigate to="matricula" replace />} />
+          
+          {/* Pantallas principales SIN barra diagonal al principio */}
+          <Route path="matricula" element={<Matricula />} />
+          <Route path="saas-admin" element={<SaaSAdmin />} />
+          
+          {/* 
+            Ruta 404 (Rescate)
+            Cualquier cosa que no exista, manda a matrícula
+          */}
+          <Route path="*" element={<Navigate to="matricula" replace />} />
+          
+        </Route>
 
       </Routes>
     </BrowserRouter>
