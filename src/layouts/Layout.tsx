@@ -1,4 +1,3 @@
-import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 // Si usas un contexto de autenticación para el logout, lo puedes importar aquí.
 // import { useAuth } from '../contexts/AuthContext'; 
