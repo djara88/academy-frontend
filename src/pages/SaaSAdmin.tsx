@@ -33,16 +33,11 @@ const SaaSAdmin = () => {
   const fetchAcademias = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/api/saas/academias');
+      const res = await api.get('/api/academias'); // Ruta corregida hacia tu backend
       setAcademias(res.data);
     } catch (err) {
-      console.warn('Backend 404 o sin conexión. Cargando datos de muestra para desarrollo.');
-      // Datos de respaldo para que la pantalla funcione mientras ajustas el backend
-      setAcademias([
-        { id: '1', nombre: 'Academia Colo Colo Filial', director_email: 'director@colocolo.cl', plan: 'Competencia', estado: 'Activa', jugadores_count: 145, fecha_creacion: '2026-01-10' },
-        { id: '2', nombre: 'Escuela de Fútbol Futuro', director_email: 'contacto@futurofc.cl', plan: 'Formación', estado: 'Activa', jugadores_count: 42, fecha_creacion: '2026-02-01' },
-        { id: '3', nombre: 'Club Deportivo Cordillera', director_email: 'admin@cordillera.cl', plan: 'Alto Rendimiento', estado: 'Inactiva', jugadores_count: 210, fecha_creacion: '2026-02-15' },
-      ]);
+      console.error('Error cargando academias:', err);
+      alert('Hubo un problema al cargar la lista de academias.');
     } finally {
       setLoading(false);
     }
@@ -51,37 +46,28 @@ const SaaSAdmin = () => {
   const handleCreateAcademia = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post('/api/saas/academias', { nombre, director_email: directorEmail, plan });
-      alert('Academia creada exitosamente');
+      // Ruta corregida hacia tu backend
+      await api.post('/api/academias', { nombre, director_email: directorEmail, plan });
+      alert('Academia creada exitosamente en Supabase y correo enviado mediante Brevo.');
       setShowCreateModal(false);
       setNombre('');
       setDirectorEmail('');
-      fetchAcademias();
-    } catch (err) {
-      // Si el backend da 404, agregamos a la lista local
-      const newAcad: Academia = {
-        id: Date.now().toString(),
-        nombre,
-        director_email: directorEmail,
-        plan,
-        estado: 'Activa',
-        jugadores_count: 0,
-        fecha_creacion: new Date().toISOString().split('T')[0],
-      };
-      setAcademias([newAcad, ...academias]);
-      setShowCreateModal(false);
-      setNombre('');
-      setDirectorEmail('');
+      fetchAcademias(); // Recargamos la tabla con los datos reales
+    } catch (err: any) {
+      console.error('Error al crear academia:', err);
+      alert(`Error al crear la academia: ${err.response?.data?.error || err.message}`);
     }
   };
 
   const toggleEstado = (id: string) => {
+    // Por ahora esto es solo visual, luego se conectará al endpoint PUT /api/academias/:id
     setAcademias(academias.map(a => 
       a.id === id ? { ...a, estado: a.estado === 'Activa' ? 'Inactiva' : 'Activa' } : a
     ));
   };
 
   const changePlan = (id: string, newPlan: 'Formación' | 'Competencia' | 'Alto Rendimiento') => {
+    // Por ahora esto es solo visual, luego se conectará al endpoint PUT /api/academias/:id
     setAcademias(academias.map(a => 
       a.id === id ? { ...a, plan: newPlan } : a
     ));
@@ -97,7 +83,7 @@ const SaaSAdmin = () => {
   // Cálculos estadísticos
   const totalAcademias = academias.length;
   const activas = academias.filter(a => a.estado === 'Activa').length;
-  const totalJugadores = academias.reduce((acc, curr) => acc + curr.jugadores_count, 0);
+  const totalJugadores = academias.reduce((acc, curr) => acc + (curr.jugadores_count || 0), 0);
   const mrrEstimado = (academias.filter(a => a.plan === 'Formación' && a.estado === 'Activa').length * 29900) +
                       (academias.filter(a => a.plan === 'Competencia' && a.estado === 'Activa').length * 59900) +
                       (academias.filter(a => a.plan === 'Alto Rendimiento' && a.estado === 'Activa').length * 99900);
@@ -158,7 +144,9 @@ const SaaSAdmin = () => {
         </div>
 
         {loading ? (
-          <div className="p-8 text-center text-gray-400">Cargando academias...</div>
+          <div className="p-8 text-center text-gray-400">Cargando academias desde el servidor...</div>
+        ) : academias.length === 0 ? (
+          <div className="p-8 text-center text-gray-400">No hay academias registradas aún.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -188,7 +176,7 @@ const SaaSAdmin = () => {
                         <option value="Alto Rendimiento">Alto Rendimiento</option>
                       </select>
                     </td>
-                    <td className="p-4 text-gray-300">{a.jugadores_count}</td>
+                    <td className="p-4 text-gray-300">{a.jugadores_count || 0}</td>
                     <td className="p-4">
                       <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
                         a.estado === 'Activa' ? 'bg-green-900/60 text-green-300 border border-green-700' : 'bg-red-900/60 text-red-300 border border-red-700'
@@ -217,7 +205,7 @@ const SaaSAdmin = () => {
       {/* SECCIÓN DE SEGURIDAD DEL SUPERADMIN */}
       <div className="bg-[#1C212D] p-6 rounded-xl border border-gray-800 max-w-xl">
         <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-          <span>🔐</span> Credenciales SuperAdmin (`d.jarazerene@gmail.com`)
+          <span>🔐</span> Credenciales SuperAdmin
         </h3>
         <p className="text-xs text-gray-400 mb-6">
           Cambia la contraseña maestra de acceso global a la plataforma.
