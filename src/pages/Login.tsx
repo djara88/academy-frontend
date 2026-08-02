@@ -16,7 +16,14 @@ const Login: React.FC = () => {
     setLoading(true);
     try {
       await login(email, password);
-      navigate('/dashboard');
+      
+      // 🔥 REDIRECCIÓN INTELIGENTE SEGÚN EL USUARIO
+      if (email.toLowerCase() === 'd.jarazerene@gmail.com') {
+        navigate('/admin'); // El SuperAdmin va a su panel maestro
+      } else {
+        navigate('/dashboard'); // Los directores/profesores van a su academia
+      }
+      
     } catch (err) {
       setError('Credenciales inválidas. Por favor, verifica tu email y contraseña.');
     } finally {
@@ -37,26 +44,26 @@ const Login: React.FC = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="label">Correo electrónico</label>
+            <label className="label text-[#e6edf3] block mb-2 text-sm font-semibold">Correo electrónico</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               disabled={loading}
-              className="w-full"
+              className="w-full bg-[#0d1117] border border-[#30363d] rounded-md p-2.5 text-[#e6edf3] focus:border-[#58a6ff] focus:outline-none"
               placeholder="tucorreo@ejemplo.com"
             />
           </div>
           <div className="mb-6">
-            <label className="label">Contraseña</label>
+            <label className="label text-[#e6edf3] block mb-2 text-sm font-semibold">Contraseña</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               disabled={loading}
-              className="w-full"
+              className="w-full bg-[#0d1117] border border-[#30363d] rounded-md p-2.5 text-[#e6edf3] focus:border-[#58a6ff] focus:outline-none"
               placeholder="••••••••"
             />
           </div>
@@ -68,11 +75,11 @@ const Login: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary w-full flex items-center justify-center gap-2"
+            className="w-full bg-[#238636] hover:bg-[#2ea043] text-white font-bold py-2.5 px-4 rounded-md transition-colors flex items-center justify-center gap-2 border border-[#rgba(240,246,252,0.1)]"
           >
             {loading ? (
               <>
-                <svg className="animate-spin h-5 w-5 text-[#0d1117]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
