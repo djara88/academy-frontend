@@ -60,10 +60,15 @@ const SaaSAdmin = () => {
 
   const openEditModal = (a: Academia) => {
     setEditingId(a.id);
-    setNombre(a.nombre); setLogoFile(null); setDireccion(a.direccion || ''); 
-    setTelefono(a.telefono || ''); setCorreoAcademia(a.correo_academia || ''); 
-    setNombreDirector(a.nombre_director || ''); setDirectorEmail(a.director_email);
-    setPlan(a.plan); setEstado(a.estado);
+    setNombre(a.nombre); 
+    setLogoFile(null); 
+    setDireccion(a.direccion || ''); 
+    setTelefono(a.telefono || ''); 
+    setCorreoAcademia(a.correo_academia || ''); 
+    setNombreDirector(a.nombre_director || ''); 
+    setDirectorEmail(a.director_email);
+    setPlan(a.plan); 
+    setEstado(a.estado);
     setShowModal(true);
   };
 
@@ -131,6 +136,8 @@ const SaaSAdmin = () => {
   const totalAcademias = academias.length;
   const activas = academias.filter(a => a.estado === 'Activa').length;
   const totalJugadores = academias.reduce((acc, curr) => acc + (curr.jugadores_count || 0), 0);
+  
+  // Puedes cambiar estos valores (29900, 59900, 99900) por los precios reales de tus planes
   const mrrEstimado = (academias.filter(a => a.plan === 'Formación' && a.estado === 'Activa').length * 29900) +
                       (academias.filter(a => a.plan === 'Competencia' && a.estado === 'Activa').length * 59900) +
                       (academias.filter(a => a.plan === 'Alto Rendimiento' && a.estado === 'Activa').length * 99900);
@@ -156,6 +163,7 @@ const SaaSAdmin = () => {
         <div className="bg-[#1C212D] p-6 rounded-xl border border-gray-800">
           <p className="text-xs text-gray-400 font-bold uppercase">Total Academias</p>
           <p className="text-3xl font-extrabold text-white mt-2">{totalAcademias}</p>
+          <p className="text-xs text-green-400 mt-2">Activas: {activas}</p>
         </div>
         <div className="bg-[#1C212D] p-6 rounded-xl border border-gray-800">
           <p className="text-xs text-gray-400 font-bold uppercase">Jugadores Registrados</p>
@@ -207,13 +215,14 @@ const SaaSAdmin = () => {
                       <div className="text-xs text-gray-500">{a.director_email}</div>
                     </td>
                     <td className="p-4">
+                      {/* Ahora esto es solo texto visual, no un <select> */}
                       <div className="font-semibold text-white">{a.plan}</div>
-                      <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${a.estado === 'Activa' ? 'bg-green-900/60 text-green-300' : 'bg-red-900/60 text-red-300'}`}>
+                      <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${a.estado === 'Activa' ? 'bg-green-900/60 text-green-300 border border-green-700' : 'bg-red-900/60 text-red-300 border border-red-700'}`}>
                         {a.estado}
                       </span>
                     </td>
                     <td className="p-4 text-center space-x-2">
-                      <button onClick={() => openEditModal(a)} title="Editar datos" className="p-2 bg-blue-900/50 hover:bg-blue-800 text-blue-300 rounded transition-colors">
+                      <button onClick={() => openEditModal(a)} title="Editar datos completos" className="p-2 bg-blue-900/50 hover:bg-blue-800 text-blue-300 rounded transition-colors">
                         ✏️
                       </button>
                       <button onClick={() => handleResetPassword(a.id, a.nombre)} title="Restablecer Contraseña" className="p-2 bg-yellow-900/50 hover:bg-yellow-800 text-yellow-300 rounded transition-colors">
