@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // 1. Contexto de Autenticación
 import { AuthProvider } from './contexts/AuthContext';
@@ -17,40 +18,42 @@ import NuevoTorneo from './pages/NuevoTorneo';
 import Partidos from './pages/Partidos';
 import SaaSAdmin from './pages/SaaSAdmin';
 
+// Inicialización de React Query
+const queryClient = new QueryClient();
+
 const App = () => {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          
-          {/* Página de Inicio Principal (Landing Page) */}
-          <Route path="/" element={<Home />} />
-          
-          {/* Rutas Públicas de Acceso */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/matricula" element={<Matricula />} />
-          
-          {/* 
-            RUTAS PRIVADAS (Enueltas en el Layout)
-            Nota: La ruta de administración ahora es "/admin"
-          */}
-          <Route element={<Layout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/jugadores" element={<Jugadores />} />
-            <Route path="/torneos" element={<Torneos />} />
-            <Route path="/nuevo-torneo" element={<NuevoTorneo />} />
-            <Route path="/partidos" element={<Partidos />} />
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
             
-            {/* Acceso Administrador del Negocio */}
-            <Route path="/admin" element={<SaaSAdmin />} />
-          </Route>
+            {/* Página de Inicio Principal (Landing Page) */}
+            <Route path="/" element={<Home />} />
+            
+            {/* Rutas Públicas */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/matricula" element={<Matricula />} />
+            
+            {/* Rutas Privadas en el Layout */}
+            <Route element={<Layout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/jugadores" element={<Jugadores />} />
+              <Route path="/torneos" element={<Torneos />} />
+              <Route path="/nuevo-torneo" element={<NuevoTorneo />} />
+              <Route path="/partidos" element={<Partidos />} />
+              
+              {/* Acceso Administrador General del Negocio */}
+              <Route path="/admin" element={<SaaSAdmin />} />
+            </Route>
 
-          {/* Ruta de Rescate (404) -> Redirige a la Home */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-          
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+            {/* Ruta de Rescate (404) */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+            
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 };
 
