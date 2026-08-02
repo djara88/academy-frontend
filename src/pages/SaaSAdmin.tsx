@@ -20,10 +20,11 @@ const SaaSAdmin = () => {
   const [academias, setAcademias] = useState<Academia[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
-  // Formulario nueva academia (Campos completos)
+  // Formulario nueva academia
   const [nombre, setNombre] = useState('');
-  const [logo, setLogo] = useState('');
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [direccion, setDireccion] = useState('');
   const [telefono, setTelefono] = useState('');
   const [correoAcademia, setCorreoAcademia] = useState('');
@@ -47,38 +48,51 @@ const SaaSAdmin = () => {
       setAcademias(res.data);
     } catch (err) {
       console.error('Error cargando academias:', err);
-      alert('Hubo un problema al cargar la lista de academias. Verifica los logs del servidor.');
+      alert('Hubo un problema al cargar la lista de academias.');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setLogoFile(e.target.files[0]);
+    }
+  };
+
   const handleCreateAcademia = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUploading(true);
     try {
-      const payload = {
-        nombre,
-        logo,
-        direccion,
-        telefono,
-        correo_academia: correoAcademia,
-        nombre_director: nombreDirector,
-        director_email: directorEmail,
-        plan
-      };
+      // Como estamos enviando un archivo, usamos FormData en lugar de un objeto JSON normal
+      const formData = new FormData();
+      formData.append('nombre', nombre);
+      if (logoFile) {
+        formData.append('logo', logoFile);
+      }
+      formData.append('direccion', direccion);
+      formData.append('telefono', telefono);
+      formData.append('correo_academia', correoAcademia);
+      formData.append('nombre_director', nombreDirector);
+      formData.append('director_email', directorEmail);
+      formData.append('plan', plan);
 
-      await api.post('/api/academias', payload);
+      // Axios configurará automáticamente los headers de 'multipart/form-data'
+      await api.post('/api/academias', formData);
+      
       alert('Academia creada exitosamente.');
       setShowCreateModal(false);
       
       // Limpiar formulario
-      setNombre(''); setLogo(''); setDireccion(''); setTelefono('');
+      setNombre(''); setLogoFile(null); setDireccion(''); setTelefono('');
       setCorreoAcademia(''); setNombreDirector(''); setDirectorEmail('');
       
       fetchAcademias();
     } catch (err: any) {
       console.error('Error al crear academia:', err);
       alert(`Error al crear la academia: ${err.response?.data?.error || err.message}`);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -101,7 +115,6 @@ const SaaSAdmin = () => {
     setNewPass('');
   };
 
-  // Cálculos estadísticos
   const totalAcademias = academias.length;
   const activas = academias.filter(a => a.estado === 'Activa').length;
   const totalJugadores = academias.reduce((acc, curr) => acc + (curr.jugadores_count || 0), 0);
@@ -181,9 +194,9 @@ const SaaSAdmin = () => {
                     <td className="p-4 font-semibold text-white">
                       <div className="flex items-center gap-3">
                         {a.logo ? (
-                          <img src={a.logo} alt={a.nombre} className="w-8 h-8 rounded-full object-cover bg-gray-800" />
+                          <img src={a.logo} alt={a.nombre} className="w-8 h-8 rounded-full object-cover bg-gray-800 border border-gray-600" />
                         ) : (
-                          <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center">🏫</div>
+                          <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center border border-gray-600">🏫</div>
                         )}
                         <span>{a.nombre}</span>
                       </div>
@@ -258,15 +271,15 @@ const SaaSAdmin = () => {
         </form>
       </div>
 
-      {/* MODAL CREAR ACADEMIA COMPLETO */}
+      {/* MODAL CREAR ACADEMIA */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 overflow-y-auto">
           <div className="bg-[#1C212D] p-6 rounded-xl border border-gray-800 max-w-2xl w-full my-8">
             <h3 className="text-xl font-bold text-white mb-6 border-b border-gray-800 pb-4">Registrar Nueva Academia</h3>
             
             <form onSubmit={handleCreateAcademia} className="space-y-6">
-              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
                 {/* DATOS DE LA ACADEMIA */}
                 <div className="space-y-4">
                   <h4 className="text-[#289E9D] text-sm font-bold uppercase">Datos Institucionales</h4>
@@ -276,8 +289,13 @@ const SaaSAdmin = () => {
                     <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} className="w-full bg-[#131722] border border-gray-700 rounded p-2.5 text-white text-sm focus:outline-none" required />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1">URL del Logo (Opcional)</label>
-                    <input type="url" value={logo} onChange={(e) => setLogo(e.target.value)} className="w-full bg-[#131722] border border-gray-700 rounded p-2.5 text-white text-sm focus:outline-none" placeholder="https://..." />
+                    <label className="block text-xs text-gray-400 mb-1">Logo de la Academia</label>
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={handleFileChange} 
+                      className="w-full bg-[#131722] border border-gray-700 rounded p-1.5 text-white text-sm focus:outline-none file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-[#289E9D] file:text-white hover:file:bg-[#1f7a79]" 
+                    />
                   </div>
                   <div>
                     <label className="block text-xs text-gray-400 mb-1">Dirección de Sede Principal</label>
@@ -317,11 +335,11 @@ const SaaSAdmin = () => {
               </div>
 
               <div className="flex gap-3 pt-6 border-t border-gray-800 mt-6">
-                <button type="button" onClick={() => setShowCreateModal(false)} className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 rounded transition-colors">
+                <button type="button" onClick={() => setShowCreateModal(false)} className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 rounded transition-colors" disabled={uploading}>
                   Cancelar
                 </button>
-                <button type="submit" className="flex-1 bg-[#289E9D] hover:bg-[#1f7a79] text-white font-bold py-3 rounded transition-colors">
-                  Crear Academia
+                <button type="submit" className="flex-1 bg-[#289E9D] hover:bg-[#1f7a79] text-white font-bold py-3 rounded transition-colors flex items-center justify-center" disabled={uploading}>
+                  {uploading ? 'Creando Academia...' : 'Crear Academia'}
                 </button>
               </div>
             </form>
