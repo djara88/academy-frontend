@@ -71,6 +71,18 @@ const Layout = () => {
                   <span className="mr-3">📊</span> Dashboard
                 </Link>
 
+                {/* 🔥 NUEVO BOTÓN DE MATRÍCULA AGREGADO AQUÍ 🔥 */}
+                <Link
+                  to="/matricula"
+                  className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                    isActive('/matricula') 
+                      ? 'bg-[#289E9D] text-white font-semibold' 
+                      : 'text-gray-400 hover:bg-[#131722] hover:text-white'
+                  }`}
+                >
+                  <span className="mr-3">📝</span> Nueva Matrícula
+                </Link>
+
                 <Link
                   to="/jugadores"
                   className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
