@@ -10,6 +10,7 @@ import Layout from './layouts/Layout';
 // 3. Páginas
 import Home from './pages/Home';
 import Login from './pages/Login';
+import Registro from './pages/Registro'; // 🔥 NUEVA PÁGINA IMPORTADA
 import Dashboard from './pages/Dashboard';
 import Jugadores from './pages/Jugadores';
 import Matricula from './pages/Matricula';
@@ -17,7 +18,7 @@ import Torneos from './pages/Torneos';
 import NuevoTorneo from './pages/NuevoTorneo';
 import Partidos from './pages/Partidos';
 import SaaSAdmin from './pages/SaaSAdmin';
-import CambiarPassword from './pages/CambiarPassword'; // 🔥 NUEVA PÁGINA AGREGADA
+import CambiarPassword from './pages/CambiarPassword';
 
 // Inicialización de React Query
 const queryClient = new QueryClient();
@@ -34,7 +35,8 @@ const App = () => {
             
             {/* Rutas Públicas y de Configuración Inicial */}
             <Route path="/login" element={<Login />} />
-            <Route path="/cambiar-password" element={<CambiarPassword />} /> {/* 🔥 RUTA REGISTRADA AQUÍ */}
+            <Route path="/registro" element={<Registro />} /> {/* 🔥 NUEVA RUTA REGISTRADA */}
+            <Route path="/cambiar-password" element={<CambiarPassword />} />
             
             {/* Rutas Privadas en el Layout (Incluye el Menú Lateral) */}
             <Route element={<Layout />}>
