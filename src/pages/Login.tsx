@@ -14,11 +14,17 @@ const Login: React.FC = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    
     try {
       await login(email, password);
       
-      // 🔥 REDIRECCIÓN INTELIGENTE SEGÚN EL USUARIO
-      if (email.toLowerCase() === 'd.jarazerene@gmail.com') {
+      // 🔥 LEER USUARIO GUARDADO POR EL CONTEXTO
+      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      // 🔥 LÓGICA DE REDIRECCIÓN INTELIGENTE
+      if (storedUser.requiere_cambio_password === true) {
+        navigate('/cambiar-password'); // Obligamos a cambiar clave
+      } else if (email.toLowerCase() === 'd.jarazerene@gmail.com' || storedUser.rol === 'superadmin') {
         navigate('/admin'); // El SuperAdmin va a su panel maestro
       } else {
         navigate('/dashboard'); // Los directores/profesores van a su academia
@@ -56,7 +62,7 @@ const Login: React.FC = () => {
             />
           </div>
           <div className="mb-6">
-            <label className="label text-[#e6edf3] block mb-2 text-sm font-semibold">Contraseña</label>
+            <label className="label text-[#e6edf3] block mb-2 text-sm font-semibold">Contraseña temporal</label>
             <input
               type="password"
               value={password}
@@ -77,23 +83,9 @@ const Login: React.FC = () => {
             disabled={loading}
             className="w-full bg-[#238636] hover:bg-[#2ea043] text-white font-bold py-2.5 px-4 rounded-md transition-colors flex items-center justify-center gap-2 border border-[#rgba(240,246,252,0.1)]"
           >
-            {loading ? (
-              <>
-                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Iniciando...
-              </>
-            ) : (
-              'Iniciar Sesión'
-            )}
+            {loading ? 'Verificando...' : 'Iniciar Sesión'}
           </button>
         </form>
-
-        <p className="mt-6 text-center text-xs text-[#8b949e]">
-          El sistema puede tardar unos segundos en despertar el servidor.
-        </p>
       </div>
     </div>
   );
