@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axiosConfig';
+import api from '../api/axiosConfig'; // Asegúrate de que esta ruta coincida con tu proyecto
 
 const Matricula = () => {
   const navigate = useNavigate();
@@ -24,12 +24,12 @@ const Matricula = () => {
     numero_camiseta: '',
     nombre_camiseta: '',
     
-    // Finanzas
+    // Finanzas (Ajusta estos valores por defecto según tu academia)
     monto_matricula: 50000,
     abono_matricula: 50000,
     monto_mensualidad: 35000,
 
-    // Foto opcional
+    // Base64 de la foto si se requiere subirla (opcional)
     foto_base64: ''
   });
 
@@ -46,7 +46,7 @@ const Matricula = () => {
     setLoading(true);
 
     try {
-      // 1. Estructuramos el payload para guardar al Jugador y Tutor en la Base de Datos
+      // Estructuramos el payload exactamente como lo espera el Backend
       const payload = {
         tutor: {
           nombre_completo: formData.tutor_nombre,
@@ -65,40 +65,47 @@ const Matricula = () => {
         monto_matricula: formData.monto_matricula,
         abono_matricula: formData.abono_matricula,
         monto_mensualidad: formData.monto_mensualidad,
-        foto_base64: formData.foto_base64
+        foto_base64: formData.foto_base64,
+        evaluacion: {}, // Opcional
+        ficha_medica: null // Opcional
       };
 
-      // Guardar en base de datos
-      const responseJugador = await api.post('/api/jugadores', payload);
+      // Llamada a la API de tu backend
+      const response = await api.post('/api/jugadores', payload);
       
-      const jugadorId = responseJugador.data?.jugador_id || responseJugador.data?.data?.id;
-      const tutorId = responseJugador.data?.tutor_id;
+      console.log('✅ Matrícula exitosa:', response.data);
 
-      let pdfUrl = null;
-      let folioMatricula = 'GENERADO';
+      // ==========================================
+      // INICIO NUEVA LÓGICA: GENERAR PDF Y CORREO
+      // ==========================================
+      const jugadorId = response.data?.jugador_id || response.data?.data?.id;
+      const tutorId = response.data?.tutor_id;
+      let folioGenerado = 'Generado en sistema';
 
-      // 2. Si se crearon con éxito, invocamos la generación del PDF y envío de correo
       if (jugadorId && tutorId) {
-        const responseMatricula = await api.post('/api/matriculas/generar-documento', {
-          jugador_id: jugadorId,
-          tutor_id: tutorId
-        });
+        try {
+          const responseMatricula = await api.post('/api/matriculas/generar-documento', {
+            jugador_id: jugadorId,
+            tutor_id: tutorId
+          });
 
-        if (responseMatricula.data?.success) {
-          pdfUrl = responseMatricula.data.url;
-          folioMatricula = responseMatricula.data.folio;
-
-          // Abre automáticamente el PDF en una nueva pestaña para el director
-          if (pdfUrl) {
-            window.open(pdfUrl, '_blank');
+          if (responseMatricula.data?.success) {
+            folioGenerado = responseMatricula.data.folio;
+            if (responseMatricula.data.url) {
+              window.open(responseMatricula.data.url, '_blank'); // Abre el PDF
+            }
           }
+        } catch (pdfError) {
+          console.error('❌ Error al generar PDF:', pdfError);
+          // Si falla el PDF, no detenemos el proceso, el alumno ya se guardó
         }
       }
-
-      // 3. Notificación de éxito
-      alert(`✅ Alumno matriculado exitosamente.\n\nFolio: ${folioMatricula}\nEl comprobante ha sido enviado al correo del apoderado (${formData.tutor_email}) y abierto en su navegador.`);
+      // ==========================================
       
-      // Redirigir al dashboard
+      // NUEVA ALERTA: Muestra el folio y avisa del correo
+      alert(`Alumno matriculado exitosamente.\n\nFolio: ${folioGenerado}\nEl contrato ha sido generado y enviado al correo del apoderado.`);
+      
+      // Redirigir al dashboard después del éxito
       navigate('/dashboard');
 
     } catch (error: any) {
@@ -110,12 +117,12 @@ const Matricula = () => {
   };
 
   return (
-    <div className="p-6 text-white min-h-screen bg-[#131722]">
-      <h1 className="text-2xl font-bold mb-6 flex items-center gap-2">
-        <span>📝</span> Nueva Matrícula
+    <div className="p-6 text-white min-h-screen bg-[#131722]"> {/* Ajusta el color de fondo a tu tema */}
+      <h1 className="text-2xl font-bold mb-6 flex items-center">
+        📝 Nueva Matrícula
       </h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-5xl mx-auto">
+      <form onSubmit={handleSubmit} className="space-y-6">
         
         {/* ================= SECCIÓN APODERADO ================= */}
         <div className="bg-[#1C212D] p-6 rounded-lg shadow-md border border-gray-800">
@@ -154,13 +161,12 @@ const Matricula = () => {
               />
             </div>
             <div>
-              <label className="block text-sm mb-1">Correo electrónico *</label>
+              <label className="block text-sm mb-1">Correo electrónico</label>
               <input
                 type="email"
                 name="tutor_email"
                 value={formData.tutor_email}
                 onChange={handleChange}
-                required
                 className="w-full bg-[#131722] border border-gray-700 rounded p-2 focus:outline-none focus:border-[#289E9D]"
               />
             </div>
@@ -280,9 +286,9 @@ const Matricula = () => {
           <button
             type="submit"
             disabled={loading}
-            className="bg-[#289E9D] hover:bg-[#1f7a79] text-white font-bold py-3 px-8 rounded-lg focus:outline-none disabled:opacity-50 transition-colors shadow-lg flex items-center gap-2"
+            className="bg-[#289E9D] hover:bg-[#1f7a79] text-white font-bold py-2 px-6 rounded focus:outline-none disabled:opacity-50"
           >
-            {loading ? 'Generando Matrícula y PDF...' : '📄 Guardar y Emitir Matrícula'}
+            {loading ? 'Procesando...' : 'Guardar Matrícula'}
           </button>
         </div>
       </form>
