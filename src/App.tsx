@@ -33,12 +33,12 @@ const App = () => {
             
             {/* Rutas Públicas */}
             <Route path="/login" element={<Login />} />
-            <Route path="/matricula" element={<Matricula />} />
             
-            {/* Rutas Privadas en el Layout */}
+            {/* Rutas Privadas en el Layout (Incluye el Menú Lateral) */}
             <Route element={<Layout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/jugadores" element={<Jugadores />} />
+              <Route path="/matricula" element={<Matricula />} /> {/* 🔥 RUTA MOVIDA AQUÍ ADENTRO */}
               <Route path="/torneos" element={<Torneos />} />
               <Route path="/nuevo-torneo" element={<NuevoTorneo />} />
               <Route path="/partidos" element={<Partidos />} />
