@@ -7,7 +7,7 @@ interface User {
   email: string;
   nombre_completo: string;
   rol: string;
-  academia_id?: string | null; // 🔥 Hacemos que sea opcional para el SuperAdmin
+  academia_id?: string | null;
   nombre_academia?: string;
   logo_url?: string;
   requiere_cambio_password?: boolean;
@@ -30,7 +30,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // 1. Cargar usuario inicial de localStorage
+    // 1. Cargar usuario inicial de localStorage (Para el login manual)
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
 
@@ -41,10 +41,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setToken(storedToken);
     }
 
-    // 2. Escuchar activamente la sesión de Supabase Auth
+    // 2. Escuchar activamente la sesión de Supabase Auth (Para las academias con Google)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
-        // Consultar la tabla de 'usuarios' en la BD
+        
         const { data: usuarioBD } = await supabase
           .from('usuarios')
           .select('*, academias(nombre, logo)')
@@ -52,13 +52,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           .maybeSingle();
 
         const currentPath = window.location.pathname;
-        const isMasterAdmin = session.user.email === 'd.jarazerene@gmail.com';
 
         if (usuarioBD) {
           const newUser: User = {
             id: usuarioBD.id,
             email: session.user.email || '',
-            nombre_completo: usuarioBD.nombre_completo || 'Administrador',
+            nombre_completo: usuarioBD.nombre_completo || 'Usuario',
             rol: usuarioBD.rol || 'director',
             academia_id: usuarioBD.academia_id,
             nombre_academia: usuarioBD.academias?.nombre,
@@ -69,37 +68,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUser(newUser);
           localStorage.setItem('user', JSON.stringify(newUser));
 
-          // REDIRECCIÓN INTELIGENTE
+          // REDIRECCIÓN INTELIGENTE GENERAL
           if (currentPath === '/' || currentPath === '/login' || currentPath === '/registro') {
-            if (isMasterAdmin || newUser.rol === 'SUPER_ADMIN') {
-              window.location.href = '/admin'; // Va al panel Maestro
+            if (newUser.rol === 'SUPER_ADMIN' || newUser.email === 'd.jarazerene@gmail.com') {
+              window.location.href = '/admin'; // El admin va a su panel
             } else if (newUser.requiere_cambio_password) {
               window.location.href = '/cambiar-password';
             } else {
-              window.location.href = '/dashboard';
+              window.location.href = '/dashboard'; // Directores van a su academia
             }
           }
-
         } else {
-          // 🔥 EL USUARIO NO EXISTE EN LA TABLA 'usuarios'
-          if (isMasterAdmin) {
-            // 🛡️ AUTO-RESCATE DEL SUPER ADMIN: 
-            // Si d.jarazerene se borró por error, el sistema lo vuelve a crear como Dios del sistema
-            await supabase.from('usuarios').insert([{
-              id: session.user.id,
-              email: session.user.email,
-              nombre_completo: 'Control Maestro SaaS',
-              rol: 'SUPER_ADMIN',
-              requiere_cambio_password: false
-            }]);
-
-            // Forzamos la entrada a su panel
-            window.location.href = '/admin';
-          } else {
-            // Si es un usuario normal (Director de Academia), lo mandamos a completar su perfil
-            if (currentPath !== '/completar-perfil') {
-              window.location.href = '/completar-perfil';
-            }
+          // Si el usuario es nuevo de Google y NO está en la BD, va a crear su academia
+          if (currentPath !== '/completar-perfil') {
+            window.location.href = '/completar-perfil';
           }
         }
       }
@@ -113,6 +95,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password: string) => {
     try {
+      // ESTE ES TU LOGIN MANUAL (CORREO Y CONTRASEÑA)
       const response = await api.post('/api/login', { email, password });
       const { token, user } = response.data;
       setToken(token);
