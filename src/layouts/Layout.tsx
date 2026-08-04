@@ -1,5 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../config/supabase';
 
 const Layout = () => {
   const location = useLocation();
@@ -9,20 +10,28 @@ const Layout = () => {
   const isActive = (path: string) => location.pathname === path;
 
   // Verificamos si es el SuperAdmin general
-  const isSuperAdmin = user?.email === 'd.jarazerene@gmail.com' || user?.rol === 'SUPER_ADMIN' || location.pathname === '/admin';
+  const isSuperAdmin =
+    user?.email === 'd.jarazerene@gmail.com' ||
+    user?.rol === 'SUPER_ADMIN' ||
+    user?.rol === 'superadmin' ||
+    location.pathname === '/admin';
 
-  // Leemos si el usuario tiene un logo guardado
+  // Datos dinámicos de la academia cargada
   const logoAcademia = user?.logo_url;
   const nombreAcademia = user?.nombre_academia;
 
-  const handleLogout = () => {
-    if (logout) {
-      logout();
-    } else {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+  const handleLogout = async () => {
+    try {
+      if (logout) {
+        await logout();
+      }
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    } finally {
+      localStorage.clear();
+      navigate('/login');
     }
-    navigate('/login');
   };
 
   return (
@@ -42,7 +51,11 @@ const Layout = () => {
             ) : null}
 
             <h1 className="text-2xl font-bold text-[#289E9D] tracking-wider truncate max-w-[200px]">
-              {nombreAcademia && !isSuperAdmin ? nombreAcademia : <>ACADEMIA<span className="text-white">PRO</span></>}
+              {nombreAcademia && !isSuperAdmin ? (
+                nombreAcademia
+              ) : (
+                <>ACADEMIA<span className="text-white">PRO</span></>
+              )}
             </h1>
             <p className="text-xs text-orange-400 mt-1 font-semibold">
               {isSuperAdmin ? '👑 Control Maestro SaaS' : 'SaaS Management'}
@@ -134,12 +147,12 @@ const Layout = () => {
         {/* SECCIÓN INFERIOR */}
         <div className="p-4 border-t border-gray-800 space-y-2">
           <div className="px-4 py-2 text-xs text-gray-400 border-b border-gray-800 mb-2">
-            Usuario: <span className="text-white font-semibold block truncate">{user?.email || 'd.jarazerene@gmail.com'}</span>
+            Usuario: <span className="text-white font-semibold block truncate">{user?.email || 'Sin usuario'}</span>
           </div>
 
           <button
             onClick={handleLogout}
-            className="w-full flex items-center px-4 py-3 rounded-lg text-gray-400 hover:bg-red-900 hover:text-red-200 transition-colors"
+            className="w-full flex items-center px-4 py-3 rounded-lg text-gray-400 hover:bg-red-900 hover:text-red-200 transition-colors cursor-pointer"
           >
             <span className="mr-3">🚪</span> Cerrar Sesión
           </button>
