@@ -7,6 +7,8 @@ interface User {
   nombre_completo: string;
   rol: string;
   academia_id: string;
+  nombre_academia?: string;
+  logo_url?: string;
 }
 
 interface AuthContextType {
