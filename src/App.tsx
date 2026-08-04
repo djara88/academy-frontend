@@ -10,7 +10,8 @@ import Layout from './layouts/Layout';
 // 3. Páginas
 import Home from './pages/Home';
 import Login from './pages/Login';
-import Registro from './pages/Registro'; // 🔥 NUEVA PÁGINA IMPORTADA
+import Registro from './pages/Registro'; 
+import CompletarPerfil from './pages/CompletarPerfil'; // 🔥 NUEVA PÁGINA IMPORTADA
 import Dashboard from './pages/Dashboard';
 import Jugadores from './pages/Jugadores';
 import Matricula from './pages/Matricula';
@@ -35,7 +36,8 @@ const App = () => {
             
             {/* Rutas Públicas y de Configuración Inicial */}
             <Route path="/login" element={<Login />} />
-            <Route path="/registro" element={<Registro />} /> {/* 🔥 NUEVA RUTA REGISTRADA */}
+            <Route path="/registro" element={<Registro />} /> 
+            <Route path="/completar-perfil" element={<CompletarPerfil />} /> {/* 🔥 NUEVA RUTA REGISTRADA */}
             <Route path="/cambiar-password" element={<CambiarPassword />} />
             
             {/* Rutas Privadas en el Layout (Incluye el Menú Lateral) */}
