@@ -41,7 +41,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     // 2. Escuchar activamente la sesión de Supabase Auth (para logins con Google)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    // 🔥 AQUÍ ESTÁ LA CORRECCIÓN: Le pusimos un guion bajo a _event
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
         // Consultar la tabla de 'usuarios' en la BD para traer la academia_id correcta
         const { data: usuarioBD } = await supabase
