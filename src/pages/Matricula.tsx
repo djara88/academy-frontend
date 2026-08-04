@@ -21,6 +21,9 @@ const Matricula: React.FC = () => {
   // Datos del jugador
   const [jugador, setJugador] = useState({
     nombre: '',
+    rut: '',                   // 🔥 NUEVO
+    tipo_alumno: 'Nuevo',      // 🔥 NUEVO
+    certificado_medico: 'Pendiente', // 🔥 NUEVO
     sexo: 'Masculino',
     fecha_nacimiento: '',
     posicion_cancha: 'Delantero',
@@ -290,6 +293,45 @@ const Matricula: React.FC = () => {
                 className="w-full"
               />
             </div>
+            <div>
+  <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">RUT del Jugador</label>
+  <input
+    name="rut"
+    type="text"
+    placeholder="Ej: 22.333.444-5"
+    value={jugador.rut}
+    onChange={handleJugadorChange} // o tu función para actualizar el estado
+    className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-white focus:border-[#289E9D] outline-none"
+  />
+</div>
+
+{/* Tipo de Alumno */}
+<div>
+  <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Tipo de Alumno *</label>
+  <select
+    name="tipo_alumno"
+    value={jugador.tipo_alumno}
+    onChange={handleJugadorChange}
+    className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-white focus:border-[#289E9D] outline-none"
+  >
+    <option value="Nuevo">Nuevo</option>
+    <option value="Antiguo">Antiguo (Renovación)</option>
+  </select>
+</div>
+
+{/* Certificado Médico */}
+<div>
+  <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Certificado Médico *</label>
+  <select
+    name="certificado_medico"
+    value={jugador.certificado_medico}
+    onChange={handleJugadorChange}
+    className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-white focus:border-[#289E9D] outline-none"
+  >
+    <option value="Pendiente">Pendiente (Debe entregarlo)</option>
+    <option value="Entregado">Entregado (Al día)</option>
+  </select>
+</div>
             <div>
               <label className="label">Sexo</label>
               <select
