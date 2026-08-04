@@ -29,18 +29,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // 1. Cargar usuario inicial de localStorage
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
 
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    if (storedToken) {
-      setToken(storedToken);
-    }
+    if (storedUser) setUser(JSON.parse(storedUser));
+    if (storedToken) setToken(storedToken);
 
-    // 2. Escuchar activamente la sesión de Supabase Auth
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
         
@@ -51,9 +45,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           .maybeSingle();
 
         const currentPath = window.location.pathname;
+        const isMasterAdmin = session.user.email?.toLowerCase() === 'd.jarazerene@gmail.com';
+
+        let newUser: User;
 
         if (usuarioBD) {
-          const newUser: User = {
+          newUser = {
             id: usuarioBD.id,
             email: session.user.email || '',
             nombre_completo: usuarioBD.nombre_completo || 'Usuario',
@@ -63,25 +60,36 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             logo_url: usuarioBD.academias?.logo,
             requiere_cambio_password: usuarioBD.requiere_cambio_password
           };
-
-          setUser(newUser);
-          localStorage.setItem('user', JSON.stringify(newUser));
-
-          // 🔥 REDIRECCIÓN INTELIGENTE
-          if (currentPath === '/' || currentPath === '/login' || currentPath === '/registro') {
-            // Validamos minúsculas y mayúsculas por si acaso
-            if (newUser.rol === 'SUPER_ADMIN' || newUser.rol === 'superadmin' || newUser.email === 'd.jarazerene@gmail.com') {
-              window.location.href = '/admin'; // El admin va a su panel maestro
-            } else if (newUser.requiere_cambio_password) {
-              window.location.href = '/cambiar-password';
-            } else {
-              window.location.href = '/dashboard'; // Los directores van a su academia
-            }
-          }
+        } else if (isMasterAdmin) {
+          // 🛡️ PASE VIP: Si la BD falla o no te encuentra, te construye en memoria
+          newUser = {
+            id: session.user.id,
+            email: session.user.email || '',
+            nombre_completo: 'Control Maestro SaaS',
+            rol: 'superadmin',
+            academia_id: null,
+            requiere_cambio_password: false
+          };
         } else {
-          // Si el usuario es nuevo (Google) y NO está en la BD, lo mandamos a crear la academia
+          // Si es un cliente real y no tiene perfil, lo mandamos a crearlo
           if (currentPath !== '/completar-perfil') {
             window.location.href = '/completar-perfil';
+          }
+          setLoading(false);
+          return;
+        }
+
+        setUser(newUser);
+        localStorage.setItem('user', JSON.stringify(newUser));
+
+        // REDIRECCIÓN INTELIGENTE
+        if (currentPath === '/' || currentPath === '/login' || currentPath === '/registro') {
+          if (newUser.rol === 'SUPER_ADMIN' || newUser.rol === 'superadmin' || isMasterAdmin) {
+            window.location.href = '/admin'; // El jefe SIEMPRE va aquí
+          } else if (newUser.requiere_cambio_password) {
+            window.location.href = '/cambiar-password';
+          } else {
+            window.location.href = '/dashboard';
           }
         }
       }
@@ -93,7 +101,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
   }, []);
 
-  // 🔥 LOGIN MANUAL NATIVO CON SUPABASE
   const login = async (email: string, password: string) => {
     try {
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -109,18 +116,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         .eq('id', authData.user.id)
         .maybeSingle();
 
-      if (!usuarioBD) throw new Error('Usuario no encontrado en la base de datos');
+      const isMasterAdmin = authData.user.email?.toLowerCase() === 'd.jarazerene@gmail.com';
+      let newUser: User;
 
-      const newUser: User = {
-        id: usuarioBD.id,
-        email: authData.user.email || '',
-        nombre_completo: usuarioBD.nombre_completo || 'Usuario',
-        rol: usuarioBD.rol || 'director',
-        academia_id: usuarioBD.academia_id,
-        nombre_academia: usuarioBD.academias?.nombre,
-        logo_url: usuarioBD.academias?.logo,
-        requiere_cambio_password: usuarioBD.requiere_cambio_password
-      };
+      if (usuarioBD) {
+        newUser = {
+          id: usuarioBD.id,
+          email: authData.user.email || '',
+          nombre_completo: usuarioBD.nombre_completo || 'Usuario',
+          rol: usuarioBD.rol || 'director',
+          academia_id: usuarioBD.academia_id,
+          nombre_academia: usuarioBD.academias?.nombre,
+          logo_url: usuarioBD.academias?.logo,
+          requiere_cambio_password: usuarioBD.requiere_cambio_password
+        };
+      } else if (isMasterAdmin) {
+        // 🛡️ PASE VIP EN LOGIN MANUAL
+        newUser = {
+          id: authData.user.id,
+          email: authData.user.email || '',
+          nombre_completo: 'Control Maestro SaaS',
+          rol: 'superadmin',
+          academia_id: null,
+          requiere_cambio_password: false
+        };
+      } else {
+        throw new Error('Usuario no encontrado en la base de datos');
+      }
 
       const newToken = authData.session.access_token;
 
