@@ -43,7 +43,7 @@ const CompletarPerfil: React.FC = () => {
     setError('');
 
     try {
-      // Como estamos enviando una imagen (logo), usamos FormData en lugar de un JSON normal
+      // Usamos FormData para enviar el archivo de imagen (logo) + textos
       const formData = new FormData();
       formData.append('auth_id', userData.id);
       formData.append('email', userData.email);
@@ -54,7 +54,6 @@ const CompletarPerfil: React.FC = () => {
         formData.append('logo', logo);
       }
 
-      // Enviamos todo al backend (Nota: el backend debe estar preparado para recibir archivos)
       const response = await api.post('/api/academias/completar-google', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -62,27 +61,47 @@ const CompletarPerfil: React.FC = () => {
       });
 
       if (response.data?.success) {
-        navigate('/dashboard');
+        // 🔥 GUARDAMOS EL USUARIO ACTUALIZADO EN LOCALSTORAGE
+        const userToSave = {
+          id: userData.id,
+          email: userData.email,
+          nombre_completo: nombreDirector,
+          rol: 'director',
+          academia_id: response.data.academia?.id,
+          requiere_cambio_password: false
+        };
+
+        localStorage.setItem('user', JSON.stringify(userToSave));
+
+        // 🔥 REFRESCAMOS COMPLETAMENTE LA APLICACIÓN AL IR AL DASHBOARD
+        window.location.href = '/dashboard';
       }
     } catch (err: any) {
       console.error('Error al completar perfil:', err);
-      setError('Hubo un problema al crear tu academia. Intenta de nuevo.');
+      setError(err.response?.data?.error || 'Hubo un problema al crear tu academia. Intenta de nuevo.');
     } finally {
       setLoading(false);
     }
   };
 
-  if (!userData) return <div className="min-h-screen bg-[#0d1117] flex items-center justify-center text-white">Cargando...</div>;
+  if (!userData) {
+    return (
+      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center text-white">
+        Cargando perfil...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0d1117] p-4 font-sans py-12">
       <div className="bg-[#161b22] p-8 rounded-xl border border-[#30363d] shadow-2xl w-full max-w-lg text-center">
         
+        {/* AVATAR DE GOOGLE */}
         <div className="w-16 h-16 mx-auto mb-4">
           <img 
             src={userData.user_metadata?.avatar_url || 'https://www.svgrepo.com/show/5125/avatar.svg'} 
             alt="Perfil" 
-            className="rounded-full border-2 border-[#289E9D]"
+            className="rounded-full border-2 border-[#289E9D] w-full h-full object-cover"
           />
         </div>
         
@@ -92,6 +111,8 @@ const CompletarPerfil: React.FC = () => {
         <p className="text-[#8b949e] mb-2 text-sm">
           Completa los datos de tu academia para configurar tu entorno.
         </p>
+        
+        {/* BANNER 15 DÍAS GRATIS */}
         <div className="bg-[#1f2937] text-[#58a6ff] text-xs font-bold py-1.5 px-3 rounded-full inline-block mb-6 border border-[#30363d]">
           🎁 Tienes 15 días de prueba gratis. Sin compromisos.
         </div>
@@ -101,31 +122,53 @@ const CompletarPerfil: React.FC = () => {
           {/* NOMBRE DE LA ACADEMIA */}
           <div>
             <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Nombre de la Academia *</label>
-            <input type="text" value={nombreAcademia} onChange={(e) => setNombreAcademia(e.target.value)} required disabled={loading}
+            <input 
+              type="text" 
+              value={nombreAcademia} 
+              onChange={(e) => setNombreAcademia(e.target.value)} 
+              required 
+              disabled={loading}
               className="w-full bg-[#0d1117] border border-[#30363d] rounded-md p-2.5 text-[#e6edf3] focus:border-[#289E9D] focus:outline-none" 
-              placeholder="Ej. Escuela Los Leones" />
+              placeholder="Ej. Escuela Los Leones" 
+            />
           </div>
 
           {/* NOMBRE DEL DIRECTOR */}
           <div>
             <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Nombre del Director *</label>
-            <input type="text" value={nombreDirector} onChange={(e) => setNombreDirector(e.target.value)} required disabled={loading}
+            <input 
+              type="text" 
+              value={nombreDirector} 
+              onChange={(e) => setNombreDirector(e.target.value)} 
+              required 
+              disabled={loading}
               className="w-full bg-[#0d1117] border border-[#30363d] rounded-md p-2.5 text-[#e6edf3] focus:border-[#289E9D] focus:outline-none" 
-              placeholder="Ej. Juan Pérez" />
+              placeholder="Ej. Juan Pérez" 
+            />
           </div>
 
           {/* DIRECCIÓN */}
           <div>
             <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Dirección / Sede Principal *</label>
-            <input type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} required disabled={loading}
+            <input 
+              type="text" 
+              value={direccion} 
+              onChange={(e) => setDireccion(e.target.value)} 
+              required 
+              disabled={loading}
               className="w-full bg-[#0d1117] border border-[#30363d] rounded-md p-2.5 text-[#e6edf3] focus:border-[#289E9D] focus:outline-none" 
-              placeholder="Ej. Av. Estadio 123, Santiago" />
+              placeholder="Ej. Av. Estadio 123, Santiago" 
+            />
           </div>
 
           {/* LOGO DE LA ACADEMIA */}
           <div>
             <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Logo de la Academia (Opcional)</label>
-            <input type="file" accept="image/*" onChange={handleFileChange} disabled={loading}
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleFileChange} 
+              disabled={loading}
               className="w-full text-sm text-[#8b949e] file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#30363d] file:text-white hover:file:bg-[#4b5563] cursor-pointer bg-[#0d1117] border border-[#30363d] rounded-md p-1" 
             />
           </div>
@@ -136,8 +179,11 @@ const CompletarPerfil: React.FC = () => {
             </div>
           )}
 
-          <button type="submit" disabled={loading}
-            className="w-full bg-[#289E9D] hover:bg-[#1f7a79] text-white font-bold py-3 px-4 rounded-md transition-colors mt-6 shadow-[0_0_10px_rgba(40,158,157,0.3)]">
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="w-full bg-[#289E9D] hover:bg-[#1f7a79] text-white font-bold py-3 px-4 rounded-md transition-colors mt-6 shadow-[0_0_10px_rgba(40,158,157,0.3)] cursor-pointer"
+          >
             {loading ? 'Preparando tu academia...' : 'Comenzar mis 15 días gratis'}
           </button>
         </form>
