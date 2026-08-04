@@ -61,7 +61,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             requiere_cambio_password: usuarioBD.requiere_cambio_password
           };
         } else if (isMasterAdmin) {
-          // 🛡️ PASE VIP: Si la BD falla o no te encuentra, te construye en memoria
+          // 🛡️ PASE VIP
           newUser = {
             id: session.user.id,
             email: session.user.email || '',
@@ -71,27 +71,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             requiere_cambio_password: false
           };
         } else {
-          // Si es un cliente real y no tiene perfil, lo mandamos a crearlo
-          if (currentPath !== '/completar-perfil') {
-            window.location.href = '/completar-perfil';
-          }
-          setLoading(false);
-          return;
+          // 🔥 CORRECCIÓN: Si es nuevo y no está en la BD, SÍ le creamos estado,
+          // pero con academia_id en null para que el App.tsx lo atrape.
+          newUser = {
+            id: session.user.id,
+            email: session.user.email || '',
+            nombre_completo: session.user.user_metadata?.full_name || 'Nuevo Usuario',
+            rol: 'director',
+            academia_id: null, // Esto disparará el guardián de App.tsx
+            requiere_cambio_password: false
+          };
         }
 
         setUser(newUser);
         localStorage.setItem('user', JSON.stringify(newUser));
 
-        // REDIRECCIÓN INTELIGENTE
+        // REDIRECCIÓN INTELIGENTE BÁSICA
         if (currentPath === '/' || currentPath === '/login' || currentPath === '/registro') {
-          if (newUser.rol === 'SUPER_ADMIN' || newUser.rol === 'superadmin' || isMasterAdmin) {
-            window.location.href = '/admin'; // El jefe SIEMPRE va aquí
+          if (newUser.rol === 'superadmin' || isMasterAdmin) {
+            window.location.href = '/admin'; 
           } else if (newUser.requiere_cambio_password) {
             window.location.href = '/cambiar-password';
+          } else if (!newUser.academia_id) {
+            window.location.href = '/completar-perfil'; // Lo mandamos a crear academia
           } else {
             window.location.href = '/dashboard';
           }
         }
+      } else {
+        // Si no hay sesión, limpiamos
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
       }
       setLoading(false);
     });
@@ -141,7 +153,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           requiere_cambio_password: false
         };
       } else {
-        throw new Error('Usuario no encontrado en la base de datos');
+        // 🔥 CORRECCIÓN: Permitir login de usuarios sin BD para que App.tsx los guíe a /completar-perfil
+        newUser = {
+          id: authData.user.id,
+          email: authData.user.email || '',
+          nombre_completo: authData.user.user_metadata?.full_name || 'Nuevo Usuario',
+          rol: 'director',
+          academia_id: null,
+          requiere_cambio_password: false
+        };
       }
 
       const newToken = authData.session.access_token;
@@ -162,6 +182,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setToken(null);
     setUser(null);
     localStorage.clear();
+    // Redirigir al inicio de forma segura
+    window.location.href = '/login';
   };
 
   return (
