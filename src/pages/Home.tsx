@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Logo } from '../components/Logo'; // <-- Importamos tu nuevo logo
 
 const Home = () => {
   return (
@@ -7,16 +8,9 @@ const Home = () => {
       {/* NAVEGACIÓN SUPERIOR */}
       <nav className="flex justify-between items-center px-8 py-6 bg-[#1C212D] border-b border-gray-800">
         
-        {/* LOGO VECTORIAL (SVG) + TEXTO */}
-        <div className="flex items-center gap-3">
-          <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="100" height="100" rx="20" fill="#289E9D" fillOpacity="0.1"/>
-            <path d="M50 20L80 75H20L50 20Z" stroke="#289E9D" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M50 45L65 75H35L50 45Z" fill="#289E9D"/>
-          </svg>
-          <span className="text-2xl font-bold tracking-wider">
-            ACADEMIA<span className="text-[#289E9D]">PRO</span>
-          </span>
+        {/* NUEVO LOGO COMPONENTIZADO */}
+        <div className="flex items-center">
+          <Logo className="h-10 hover:scale-105 transition-transform duration-300" />
         </div>
 
         {/* BOTONES DE ACCESO Y REGISTRO */}
@@ -135,9 +129,9 @@ const Home = () => {
         </div>
       </section>
 
-      {/* FOOTER */}
+      {/* FOOTER ACTUALIZADO */}
       <footer className="bg-black py-8 text-center text-gray-600 border-t border-gray-900">
-        <p>© 2026 AcademiaPro SaaS. Todos los derechos reservados.</p>
+        <p>© 2026 Syncademia SaaS. Todos los derechos reservados.</p>
       </footer>
 
     </div>
