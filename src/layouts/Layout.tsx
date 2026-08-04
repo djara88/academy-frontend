@@ -11,6 +11,10 @@ const Layout = () => {
   // Verificamos si es el SuperAdmin general
   const isSuperAdmin = user?.email === 'd.jarazerene@gmail.com' || user?.rol === 'SUPER_ADMIN' || location.pathname === '/admin';
 
+  // Leemos si el usuario tiene un logo guardado
+  const logoAcademia = user?.logo_url;
+  const nombreAcademia = user?.nombre_academia;
+
   const handleLogout = () => {
     if (logout) {
       logout();
@@ -27,10 +31,18 @@ const Layout = () => {
       {/* BARRA LATERAL */}
       <aside className="w-64 bg-[#1C212D] border-r border-gray-800 flex flex-col justify-between">
         <div>
-          {/* LOGO PLATAFORMA */}
-          <div className="p-6 border-b border-gray-800 text-center">
-            <h1 className="text-2xl font-bold text-[#289E9D] tracking-wider">
-              ACADEMIA<span className="text-white">PRO</span>
+          {/* LOGO PLATAFORMA / LOGO DE LA ACADEMIA */}
+          <div className="p-6 border-b border-gray-800 text-center flex flex-col items-center justify-center">
+            {logoAcademia && !isSuperAdmin ? (
+              <img 
+                src={logoAcademia} 
+                alt="Logo Academia" 
+                className="w-14 h-14 rounded-full object-cover border-2 border-[#289E9D] mb-2 shadow-md"
+              />
+            ) : null}
+
+            <h1 className="text-2xl font-bold text-[#289E9D] tracking-wider truncate max-w-[200px]">
+              {nombreAcademia && !isSuperAdmin ? nombreAcademia : <>ACADEMIA<span className="text-white">PRO</span></>}
             </h1>
             <p className="text-xs text-orange-400 mt-1 font-semibold">
               {isSuperAdmin ? '👑 Control Maestro SaaS' : 'SaaS Management'}
@@ -71,7 +83,6 @@ const Layout = () => {
                   <span className="mr-3">📊</span> Dashboard
                 </Link>
 
-                {/* 🔥 NUEVO BOTÓN DE MATRÍCULA AGREGADO AQUÍ 🔥 */}
                 <Link
                   to="/matricula"
                   className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
