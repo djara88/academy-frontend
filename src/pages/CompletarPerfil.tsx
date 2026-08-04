@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import { supabase } from '../config/supabase'; // Asegúrate de que esta ruta sea correcta
 
 const CrearAcademia: React.FC = () => {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
