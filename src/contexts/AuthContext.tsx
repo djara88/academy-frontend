@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import api from '../api/axiosConfig';
 import { supabase } from '../config/supabase';
 
 interface User {
@@ -30,7 +29,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // 1. Cargar usuario inicial de localStorage (Para el login manual)
+    // 1. Cargar usuario inicial de localStorage
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
 
@@ -41,7 +40,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setToken(storedToken);
     }
 
-    // 2. Escuchar activamente la sesión de Supabase Auth (Para las academias con Google)
+    // 2. Escuchar activamente la sesión de Supabase Auth
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
         
@@ -68,18 +67,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUser(newUser);
           localStorage.setItem('user', JSON.stringify(newUser));
 
-          // REDIRECCIÓN INTELIGENTE GENERAL
+          // 🔥 REDIRECCIÓN INTELIGENTE
           if (currentPath === '/' || currentPath === '/login' || currentPath === '/registro') {
-            if (newUser.rol === 'SUPER_ADMIN' || newUser.email === 'd.jarazerene@gmail.com') {
-              window.location.href = '/admin'; // El admin va a su panel
+            // Validamos minúsculas y mayúsculas por si acaso
+            if (newUser.rol === 'SUPER_ADMIN' || newUser.rol === 'superadmin' || newUser.email === 'd.jarazerene@gmail.com') {
+              window.location.href = '/admin'; // El admin va a su panel maestro
             } else if (newUser.requiere_cambio_password) {
               window.location.href = '/cambiar-password';
             } else {
-              window.location.href = '/dashboard'; // Directores van a su academia
+              window.location.href = '/dashboard'; // Los directores van a su academia
             }
           }
         } else {
-          // Si el usuario es nuevo de Google y NO está en la BD, va a crear su academia
+          // Si el usuario es nuevo (Google) y NO está en la BD, lo mandamos a crear la academia
           if (currentPath !== '/completar-perfil') {
             window.location.href = '/completar-perfil';
           }
@@ -93,15 +93,42 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
   }, []);
 
+  // 🔥 LOGIN MANUAL NATIVO CON SUPABASE
   const login = async (email: string, password: string) => {
     try {
-      // ESTE ES TU LOGIN MANUAL (CORREO Y CONTRASEÑA)
-      const response = await api.post('/api/login', { email, password });
-      const { token, user } = response.data;
-      setToken(token);
-      setUser(user);
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      if (authError) throw authError;
+
+      const { data: usuarioBD } = await supabase
+        .from('usuarios')
+        .select('*, academias(nombre, logo)')
+        .eq('id', authData.user.id)
+        .maybeSingle();
+
+      if (!usuarioBD) throw new Error('Usuario no encontrado en la base de datos');
+
+      const newUser: User = {
+        id: usuarioBD.id,
+        email: authData.user.email || '',
+        nombre_completo: usuarioBD.nombre_completo || 'Usuario',
+        rol: usuarioBD.rol || 'director',
+        academia_id: usuarioBD.academia_id,
+        nombre_academia: usuarioBD.academias?.nombre,
+        logo_url: usuarioBD.academias?.logo,
+        requiere_cambio_password: usuarioBD.requiere_cambio_password
+      };
+
+      const newToken = authData.session.access_token;
+
+      setToken(newToken);
+      setUser(newUser);
+      localStorage.setItem('token', newToken);
+      localStorage.setItem('user', JSON.stringify(newUser));
+
     } catch (error) {
       console.error('Login error:', error);
       throw new Error('Credenciales inválidas');
