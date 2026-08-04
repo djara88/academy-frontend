@@ -10,7 +10,8 @@ const Home = () => {
         
         {/* NUEVO LOGO COMPONENTIZADO */}
         <div className="flex items-center">
-          <Logo className="h-10 hover:scale-105 transition-transform duration-300" />
+          {/* Cambiamos h-10 por h-16 o h-20 */}
+          <Logo className="h-16 md:h-20 w-auto hover:scale-105 transition-transform duration-300" />
         </div>
 
         {/* BOTONES DE ACCESO Y REGISTRO */}
