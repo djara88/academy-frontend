@@ -19,13 +19,21 @@ const Home = () => {
           </span>
         </div>
 
-        {/* BOTÓN DE ACCESO UNIVERSAL */}
-        <Link 
-          to="/login" 
-          className="bg-[#289E9D] hover:bg-[#1f7a79] text-white px-6 py-2 rounded-lg font-semibold transition-all duration-300 shadow-[0_0_15px_rgba(40,158,157,0.4)]"
-        >
-          Acceso a la Plataforma
-        </Link>
+        {/* BOTONES DE ACCESO Y REGISTRO */}
+        <div className="flex items-center gap-4">
+          <Link 
+            to="/login" 
+            className="text-gray-300 hover:text-white font-semibold transition-colors hidden sm:block"
+          >
+            Iniciar Sesión
+          </Link>
+          <Link 
+            to="/registro" 
+            className="bg-[#289E9D] hover:bg-[#1f7a79] text-white px-6 py-2 rounded-lg font-semibold transition-all duration-300 shadow-[0_0_15px_rgba(40,158,157,0.4)]"
+          >
+            Crear Academia
+          </Link>
+        </div>
       </nav>
 
       {/* SECCIÓN HERO (PRINCIPAL) */}
@@ -37,10 +45,10 @@ const Home = () => {
           Centraliza jugadores, torneos, finanzas y comunicación en un solo lugar. Diseñado para directores, entrenadores y apoderados.
         </p>
         <Link 
-          to="/login" 
+          to="/registro" 
           className="inline-block border-2 border-[#289E9D] text-[#289E9D] hover:bg-[#289E9D] hover:text-white px-8 py-3 rounded-lg font-bold text-lg transition-colors"
         >
-          Comenzar ahora
+          Comenzar ahora gratis
         </Link>
       </header>
 
@@ -86,7 +94,9 @@ const Home = () => {
               <li>✔️ 2 perfiles de Profesor</li>
               <li>✔️ Acceso para apoderados</li>
             </ul>
-            <button className="w-full bg-gray-800 hover:bg-gray-700 text-white py-2 rounded font-bold transition-colors">Contactar</button>
+            <Link to="/registro" className="w-full block text-center bg-gray-800 hover:bg-gray-700 text-white py-2 rounded font-bold transition-colors">
+              Iniciar Gratis
+            </Link>
           </div>
 
           {/* Plan Pro (Destacado) */}
@@ -102,7 +112,9 @@ const Home = () => {
               <li>✔️ Módulo de Torneos y Finanzas</li>
               <li>✔️ Soporte prioritario</li>
             </ul>
-            <button className="w-full bg-[#289E9D] hover:bg-[#1f7a79] text-white py-2 rounded font-bold transition-colors">Elegir Plan</button>
+            <Link to="/registro" className="w-full block text-center bg-[#289E9D] hover:bg-[#1f7a79] text-white py-2 rounded font-bold transition-colors">
+              Elegir Plan
+            </Link>
           </div>
 
           {/* Plan Élite */}
@@ -115,7 +127,9 @@ const Home = () => {
               <li>✔️ Reportes avanzados exportables</li>
               <li>✔️ Capacitación presencial</li>
             </ul>
-            <button className="w-full bg-gray-800 hover:bg-gray-700 text-white py-2 rounded font-bold transition-colors">Contactar</button>
+            <Link to="/registro" className="w-full block text-center bg-gray-800 hover:bg-gray-700 text-white py-2 rounded font-bold transition-colors">
+              Elegir Plan
+            </Link>
           </div>
 
         </div>
