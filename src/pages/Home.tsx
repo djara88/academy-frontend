@@ -8,10 +8,10 @@ const Home = () => {
       {/* NAVEGACIÓN SUPERIOR */}
       <nav className="flex justify-between items-center px-8 py-6 bg-[#1C212D] border-b border-gray-800">
         
-        {/* NUEVO LOGO COMPONENTIZADO */}
-        <div className="flex items-center">
-          {/* Cambiamos h-10 por h-16 o h-20 */}
-          <Logo className="h-16 md:h-20 w-auto hover:scale-105 transition-transform duration-300" />
+        {/* LOGO EN TAMAÑO GIGANTE */}
+        <div className="flex items-center -ml-4"> 
+          {/* Usamos h-32 (aprox 128px) o h-[120px] */}
+          <Logo className="h-32 md:h-40 w-auto object-cover hover:scale-105 transition-transform duration-300" />
         </div>
 
         {/* BOTONES DE ACCESO Y REGISTRO */}
