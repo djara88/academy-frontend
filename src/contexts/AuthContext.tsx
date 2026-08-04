@@ -10,6 +10,7 @@ interface User {
   academia_id: string;
   nombre_academia?: string;
   logo_url?: string;
+  requiere_cambio_password?: boolean;
 }
 
 interface AuthContextType {
@@ -41,15 +42,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     // 2. Escuchar activamente la sesión de Supabase Auth (para logins con Google)
-    // 🔥 AQUÍ ESTÁ LA CORRECCIÓN: Le pusimos un guion bajo a _event
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
-        // Consultar la tabla de 'usuarios' en la BD para traer la academia_id correcta
+        // Consultar la tabla de 'usuarios' en la BD
         const { data: usuarioBD } = await supabase
           .from('usuarios')
           .select('*, academias(nombre, logo)')
           .eq('id', session.user.id)
           .maybeSingle();
+
+        const currentPath = window.location.pathname;
 
         if (usuarioBD) {
           const newUser: User = {
@@ -59,11 +61,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             rol: usuarioBD.rol || 'director',
             academia_id: usuarioBD.academia_id,
             nombre_academia: usuarioBD.academias?.nombre,
-            logo_url: usuarioBD.academias?.logo
+            logo_url: usuarioBD.academias?.logo,
+            requiere_cambio_password: usuarioBD.requiere_cambio_password
           };
 
           setUser(newUser);
           localStorage.setItem('user', JSON.stringify(newUser));
+
+          // 🔥 REDIRECCIÓN INTELIGENTE: Si vuelve de Google y aterriza en Inicio o Login
+          if (currentPath === '/' || currentPath === '/login' || currentPath === '/registro') {
+            if (newUser.email === 'd.jarazerene@gmail.com' || newUser.rol === 'SUPER_ADMIN') {
+              window.location.href = '/admin'; // Va al panel Maestro
+            } else if (newUser.requiere_cambio_password) {
+              window.location.href = '/cambiar-password'; // Si requiere cambio de clave
+            } else {
+              window.location.href = '/dashboard'; // Va a su Dashboard
+            }
+          }
+
+        } else {
+          // 🔥 Si el usuario NO existe en la BD (Es 100% nuevo de Google)
+          // Lo forzamos a ir a crear la Academia
+          if (currentPath !== '/completar-perfil') {
+            window.location.href = '/completar-perfil';
+          }
         }
       }
       setLoading(false);
