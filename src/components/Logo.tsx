@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const Logo = ({ className = "h-10" }: { className?: string }) => {
   return (
     <svg 
