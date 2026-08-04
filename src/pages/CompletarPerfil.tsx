@@ -61,13 +61,15 @@ const CompletarPerfil: React.FC = () => {
       });
 
       if (response.data?.success) {
-        // 🔥 GUARDAMOS EL USUARIO ACTUALIZADO EN LOCALSTORAGE
+        // 🔥 GUARDAMOS EL USUARIO CON SU LOGO Y NOMBRE DE ACADEMIA EN LOCALSTORAGE
         const userToSave = {
           id: userData.id,
           email: userData.email,
           nombre_completo: nombreDirector,
           rol: 'director',
           academia_id: response.data.academia?.id,
+          nombre_academia: nombreAcademia,
+          logo_url: response.data.academia?.logo || response.data.academia?.logo_url || null,
           requiere_cambio_password: false
         };
 
