@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
+import { useAuth } from '../contexts/AuthContext'; 
 
 const Matricula: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth(); // 🔥 OBTENEMOS AL USUARIO
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -159,6 +161,7 @@ const Matricula: React.FC = () => {
     try {
       // 1. Estructurar el payload
       const payload = {
+        academia_id: user?.academia_id,
         tutor,
         ...jugador,
         foto_base64: fotoBase64,
