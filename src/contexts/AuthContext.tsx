@@ -29,8 +29,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+    // 🔥 CAMBIO: Usamos sessionStorage en lugar de localStorage
+    const storedToken = sessionStorage.getItem('token');
+    const storedUser = sessionStorage.getItem('user');
 
     if (storedUser) setUser(JSON.parse(storedUser));
     if (storedToken) setToken(storedToken);
@@ -84,7 +85,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
 
         setUser(newUser);
-        localStorage.setItem('user', JSON.stringify(newUser));
+        // 🔥 CAMBIO: Usamos sessionStorage
+        sessionStorage.setItem('user', JSON.stringify(newUser));
 
         // REDIRECCIÓN INTELIGENTE BÁSICA
         if (currentPath === '/' || currentPath === '/login' || currentPath === '/registro') {
@@ -102,8 +104,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         // Si no hay sesión, limpiamos
         setUser(null);
         setToken(null);
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
+        // 🔥 CAMBIO: Usamos sessionStorage
+        sessionStorage.removeItem('user');
+        sessionStorage.removeItem('token');
       }
       setLoading(false);
     });
@@ -168,8 +171,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       setToken(newToken);
       setUser(newUser);
-      localStorage.setItem('token', newToken);
-      localStorage.setItem('user', JSON.stringify(newUser));
+      // 🔥 CAMBIO: Usamos sessionStorage
+      sessionStorage.setItem('token', newToken);
+      sessionStorage.setItem('user', JSON.stringify(newUser));
 
     } catch (error) {
       console.error('Login error:', error);
@@ -181,7 +185,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await supabase.auth.signOut();
     setToken(null);
     setUser(null);
-    localStorage.clear();
+    // 🔥 CAMBIO: Usamos sessionStorage
+    sessionStorage.clear();
     // Redirigir al inicio de forma segura
     window.location.href = '/login';
   };
