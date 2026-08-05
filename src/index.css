@@ -2,43 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+/* 1. Fuente Inter: El estándar para aplicaciones web modernas y serias */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   html {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif;
   }
+  
   body {
+    /* Fondo oscuro base unificado */
     @apply bg-[#0d1117] text-[#e6edf3];
   }
+  
   input, select, textarea {
-    @apply bg-[#1c2331] border border-[#2d3a4f] text-[#e6edf3] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00e676] transition-all duration-200;
+    /* Inputs unificados con el fondo para que no parezcan parches de color */
+    @apply bg-[#0d1117] border border-[#30363d] text-[#e6edf3] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#289E9D] transition-all duration-200;
   }
+  
   input::placeholder, textarea::placeholder {
     @apply text-[#8b949e];
   }
+  
   button {
     @apply font-semibold transition-all duration-200;
   }
+  
   .label {
     @apply block text-sm font-semibold text-[#8b949e] mb-1;
   }
-  .card {
-    @apply bg-[#161b22] rounded-xl border border-[#2d3a4f] shadow-lg;
+  
+  /* Unificamos las tarjetas para que toda la app tenga el mismo nivel de contraste */
+  .card, .card-uniforme {
+    @apply bg-[#161b22] rounded-xl border border-[#30363d] shadow-lg;
   }
+  
+  /* Botones adaptados al nuevo color corporativo (Turquesa elegante) */
   .btn-primary {
-    @apply bg-[#00e676] text-[#0d1117] hover:bg-[#00c853] py-3 px-6 rounded-lg font-bold;
+    @apply bg-[#289E9D] text-white hover:bg-[#207f7e] py-3 px-6 rounded-lg font-bold shadow-md;
   }
+  
   .btn-secondary {
-    @apply bg-[#2d3a4f] text-[#e6edf3] hover:bg-[#3d4a5f] py-2 px-4 rounded-lg;
+    @apply bg-[#21262d] border border-[#30363d] text-[#e6edf3] hover:bg-[#30363d] py-2 px-4 rounded-lg;
   }
+  
   .btn-danger {
-    @apply bg-[#e74c3c] text-white hover:bg-[#c0392b] py-2 px-4 rounded-lg;
+    @apply bg-[#da3633] text-white hover:bg-[#b62324] py-2 px-4 rounded-lg;
   }
+  
+  /* Links del menú lateral unificados */
   .sidebar-link {
-    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-[#8b949e] hover:bg-[#2d3a4f] hover:text-[#e6edf3] transition-all duration-200;
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-[#8b949e] hover:bg-[#21262d] hover:text-[#e6edf3] transition-all duration-200;
   }
+  
   .sidebar-link.active {
-    @apply bg-[#2d3a4f] text-[#00e676] font-bold;
+    @apply bg-[#21262d] text-[#289E9D] font-bold;
   }
 }
