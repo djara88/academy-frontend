@@ -4,4 +4,12 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = 'https://yihcktculicmuuzzxzik.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpaGNrdGN1bGljbXV1enp4emlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyNzA1ODIsImV4cCI6MjEwMDg0NjU4Mn0.ipvbcSacWn3rQhV3_O6Qg2gB7e-xEnSsaQRNADOud7M';
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// 🔥 Agregamos el objeto de configuración 'auth' con sessionStorage
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    storage: window.sessionStorage,
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+  },
+});
