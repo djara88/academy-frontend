@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // 1. Contexto de Autenticación
-import { AuthProvider, useAuth } from './contexts/AuthContext'; // 🔥 Asegúrate de exportar useAuth desde tu AuthContext
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 // 2. Menú Lateral (Layout)
 import Layout from './layouts/Layout';
@@ -20,6 +20,8 @@ import NuevoTorneo from './pages/NuevoTorneo';
 import Partidos from './pages/Partidos';
 import SaaSAdmin from './pages/SaaSAdmin';
 import CambiarPassword from './pages/CambiarPassword';
+// 🔥 IMPORTAMOS LA NUEVA PÁGINA
+import Terminos from './pages/Terminos'; 
 
 // Inicialización de React Query
 const queryClient = new QueryClient();
@@ -89,6 +91,9 @@ const App = () => {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/jugadores" element={<Jugadores />} />
               <Route path="/matricula" element={<Matricula />} />
+              {/* 🔥 AGREGAMOS LA RUTA DE TÉRMINOS AQUÍ */}
+              <Route path="/terminos" element={<Terminos />} />
+              
               <Route path="/torneos" element={<Torneos />} />
               <Route path="/nuevo-torneo" element={<NuevoTorneo />} />
               <Route path="/partidos" element={<Partidos />} />
