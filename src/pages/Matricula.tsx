@@ -40,14 +40,13 @@ const Matricula: React.FC = () => {
   const [habilidades, setHabilidades] = useState<string[]>([]);
   const [evaluacion, setEvaluacion] = useState<Record<string, number>>({});
 
-  // Ficha médica
+  // Ficha médica (Checkbox de 30 días eliminado)
   const [fichaMedica, setFichaMedica] = useState({
     tipo_sangre: 'No sabe',
     alergias: '',
     enfermedades_cronicas: '',
     contacto_em_nombre: '',
-    contacto_em_telefono: '',
-    compromiso_certificado: false
+    contacto_em_telefono: ''
   });
 
   // Finanzas
@@ -229,7 +228,7 @@ const Matricula: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* SECCIÓN: TUTOR */}
-        <div className="card p-6">
+        <div className="card-uniforme p-6 mb-6">
           <h2 className="text-xl font-bold text-[#e6edf3] mb-4">👤 Datos del Apoderado</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -279,7 +278,7 @@ const Matricula: React.FC = () => {
         </div>
 
         {/* SECCIÓN: JUGADOR */}
-        <div className="card p-6">
+        <div className="card-uniforme p-6 mb-6">
           <h2 className="text-xl font-bold text-[#e6edf3] mb-4">⚽ Datos del Jugador</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -294,44 +293,44 @@ const Matricula: React.FC = () => {
               />
             </div>
             <div>
-  <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">RUT del Jugador</label>
-  <input
-    name="rut"
-    type="text"
-    placeholder="Ej: 22.333.444-5"
-    value={jugador.rut}
-    onChange={handleJugadorChange} // o tu función para actualizar el estado
-    className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-white focus:border-[#289E9D] outline-none"
-  />
-</div>
+              <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">RUT del Jugador</label>
+              <input
+                name="rut"
+                type="text"
+                placeholder="Ej: 22.333.444-5"
+                value={jugador.rut}
+                onChange={handleJugadorChange} 
+                className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-white focus:border-[#289E9D] outline-none"
+              />
+            </div>
 
-{/* Tipo de Alumno */}
-<div>
-  <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Tipo de Alumno *</label>
-  <select
-    name="tipo_alumno"
-    value={jugador.tipo_alumno}
-    onChange={handleJugadorChange}
-    className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-white focus:border-[#289E9D] outline-none"
-  >
-    <option value="Nuevo">Nuevo</option>
-    <option value="Antiguo">Antiguo (Renovación)</option>
-  </select>
-</div>
+            {/* Tipo de Alumno */}
+            <div>
+              <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Tipo de Alumno *</label>
+              <select
+                name="tipo_alumno"
+                value={jugador.tipo_alumno}
+                onChange={handleJugadorChange}
+                className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-white focus:border-[#289E9D] outline-none"
+              >
+                <option value="Nuevo">Nuevo</option>
+                <option value="Antiguo">Antiguo (Renovación)</option>
+              </select>
+            </div>
 
-{/* Certificado Médico */}
-<div>
-  <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Certificado Médico *</label>
-  <select
-    name="certificado_medico"
-    value={jugador.certificado_medico}
-    onChange={handleJugadorChange}
-    className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-white focus:border-[#289E9D] outline-none"
-  >
-    <option value="Pendiente">Pendiente (Debe entregarlo)</option>
-    <option value="Entregado">Entregado (Al día)</option>
-  </select>
-</div>
+            {/* Certificado Médico */}
+            <div>
+              <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Certificado Médico *</label>
+              <select
+                name="certificado_medico"
+                value={jugador.certificado_medico}
+                onChange={handleJugadorChange}
+                className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-white focus:border-[#289E9D] outline-none"
+              >
+                <option value="Pendiente">Pendiente (Debe entregarlo)</option>
+                <option value="Entregado">Entregado (Al día)</option>
+              </select>
+            </div>
             <div>
               <label className="label">Sexo</label>
               <select
@@ -430,7 +429,7 @@ const Matricula: React.FC = () => {
         </div>
 
         {/* SECCIÓN: FOTO */}
-        <div className="card p-6">
+        <div className="card-uniforme p-6 mb-6">
           <h2 className="text-xl font-bold text-[#e6edf3] mb-4">📷 Foto del Alumno</h2>
           <input
             type="file"
@@ -448,7 +447,7 @@ const Matricula: React.FC = () => {
         </div>
 
         {/* SECCIÓN: EVALUACIÓN DINÁMICA */}
-        <div className="card p-6">
+        <div className="card-uniforme p-6 mb-6">
           <h2 className="text-xl font-bold text-[#e6edf3] mb-4">📊 Evaluación Inicial</h2>
           <p className="text-sm text-[#8b949e] mb-4">
             Habilidades para {jugador.posicion_cancha}
@@ -474,7 +473,7 @@ const Matricula: React.FC = () => {
         </div>
 
         {/* SECCIÓN: FICHA MÉDICA */}
-        <div className="card p-6">
+        <div className="card-uniforme p-6 mb-6">
           <h2 className="text-xl font-bold text-[#e6edf3] mb-4">🏥 Ficha Médica</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -536,23 +535,11 @@ const Matricula: React.FC = () => {
                 className="w-full"
               />
             </div>
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                name="compromiso_certificado"
-                checked={fichaMedica.compromiso_certificado}
-                onChange={handleFichaMedicaChange}
-                className="w-5 h-5 accent-[#00e676]"
-              />
-              <label className="text-sm font-medium text-[#e6edf3]">
-                Compromiso de certificado médico (30 días)
-              </label>
-            </div>
           </div>
         </div>
 
         {/* SECCIÓN: FINANZAS */}
-        <div className="card p-6">
+        <div className="card-uniforme p-6 mb-6">
           <h2 className="text-xl font-bold text-[#e6edf3] mb-4">💰 Datos Financieros</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
