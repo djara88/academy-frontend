@@ -107,6 +107,18 @@ const Layout = () => {
                   <span className="mr-3">📝</span> Nueva Matrícula
                 </Link>
 
+                {/* 🔥 NUEVO BOTÓN DE TÉRMINOS Y CONDICIONES */}
+                <Link
+                  to="/terminos"
+                  className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                    isActive('/terminos') 
+                      ? 'bg-[#289E9D] text-white font-semibold' 
+                      : 'text-gray-400 hover:bg-[#131722] hover:text-white'
+                  }`}
+                >
+                  <span className="mr-3">⚖️</span> Términos PDF
+                </Link>
+
                 <Link
                   to="/jugadores"
                   className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
