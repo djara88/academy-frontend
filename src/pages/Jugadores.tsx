@@ -37,19 +37,16 @@ const Jugadores: React.FC = () => {
   const [showAsignarCat, setShowAsignarCat] = useState(false);
   const [catAAsignar, setCatAAsignar] = useState('');
 
-  // Estados Modal Nueva Evaluación
   const [showModalEval, setShowModalEval] = useState(false);
   const [nuevaEvalDatos, setNuevaEvalDatos] = useState<Record<string, number>>({});
   const [comentariosEval, setComentariosEval] = useState('');
   const [guardandoEval, setGuardandoEval] = useState(false);
 
-  // Estados PDF
   const [showModalInforme, setShowModalInforme] = useState(false);
   const [comentariosInforme, setComentariosInforme] = useState('');
   const [generandoPDF, setGenerandoPDF] = useState(false);
   const pdfTemplateRef = useRef<HTMLDivElement>(null);
 
-  // Estados de Radar y Promedios
   const [modoRadar, setModoRadar] = useState<'historial' | 'categoria'>('historial');
   const [promedioCategoria, setPromedioCategoria] = useState<Record<string, number>>({});
 
@@ -89,13 +86,11 @@ const Jugadores: React.FC = () => {
   useEffect(() => { if (user?.academia_id) cargarDatos(); }, [user]);
   useEffect(() => { if (jugadorSeleccionado) cargarEvaluacionesYPromedio(jugadorSeleccionado); }, [jugadorSeleccionado]);
 
-  // Actualizar Semáforos e Insignias
   const toggleInsignia = async (insignia: string) => {
     if (!jugadorSeleccionado) return;
     const actuales = jugadorSeleccionado.insignias || [];
     const nuevas = actuales.includes(insignia) ? actuales.filter(i => i !== insignia) : [...actuales, insignia];
     
-    // Actualización optimista
     setJugadorSeleccionado({ ...jugadorSeleccionado, insignias: nuevas });
     setJugadores(jugadores.map(j => j.id === jugadorSeleccionado.id ? { ...j, insignias: nuevas } : j));
     
@@ -259,12 +254,12 @@ const Jugadores: React.FC = () => {
     <div className="max-w-7xl mx-auto space-y-6 relative overflow-hidden">
       
       {/* ========================================== */}
-      {/* PLANTILLA PDF (AHORA INCLUYE INSIGNIAS) */}
+      {/* PLANTILLA PDF */}
       {/* ========================================== */}
       {jugadorSeleccionado && (
         <div ref={pdfTemplateRef} className="absolute -left-[10000px] top-0 w-[800px] bg-white text-black p-10 font-sans">
           <div className="flex justify-between items-center border-b-4 border-green-700 pb-4 mb-6">
-            {user?.logo_url ? <img src={user.logo_url} className="w-20 h-20 object-contain" /> : <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center text-xs text-gray-500">Logo</div>}
+            {user?.logo_url ? <img src={user.logo_url} className="w-20 h-20 object-contain" alt="Logo" /> : <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center text-xs text-gray-500">Logo</div>}
             <div className="text-right">
               <h1 className="text-3xl font-black text-gray-800 tracking-tight">INFORME TÉCNICO DE CAPACIDADES</h1>
               <h2 className="text-xl text-gray-500 uppercase tracking-widest font-semibold mt-1">ACADEMIA DE FÚTBOL {user?.nombre_academia || 'PRO'}</h2>
@@ -272,7 +267,7 @@ const Jugadores: React.FC = () => {
           </div>
 
           <div className="flex gap-6 mb-8 bg-gray-50 p-6 rounded-xl border border-gray-100 shadow-sm">
-            <img src={jugadorSeleccionado.foto_base64 || 'https://via.placeholder.com/150'} className="w-32 h-32 object-cover rounded-lg border-2 border-gray-300 shadow-md" />
+            <img src={jugadorSeleccionado.foto_base64 || 'https://via.placeholder.com/150'} className="w-32 h-32 object-cover rounded-lg border-2 border-gray-300 shadow-md" alt="Foto" />
             <div className="flex-1">
               <h2 className="text-3xl font-black uppercase text-gray-900 mb-2">{jugadorSeleccionado.nombre}</h2>
               <p className="text-lg text-gray-700 font-medium mb-1">
@@ -292,7 +287,6 @@ const Jugadores: React.FC = () => {
             </div>
           </div>
 
-          {/* Sección de Insignias PDF */}
           {(jugadorSeleccionado.insignias && jugadorSeleccionado.insignias.length > 0) && (
             <div className="mb-6 border border-yellow-300 bg-yellow-50 rounded-lg p-4">
               <h3 className="text-sm font-bold text-yellow-800 uppercase tracking-widest mb-2 flex items-center gap-2">🏅 Reconocimientos Destacados</h3>
@@ -337,7 +331,7 @@ const Jugadores: React.FC = () => {
       )}
 
       {/* ========================================== */}
-      {/* VISTA PRINCIPAL (CON SEMÁFOROS) */}
+      {/* VISTA PRINCIPAL (UI REACT) */}
       {/* ========================================== */}
       <div className="flex justify-between items-end">
         <h1 className="text-3xl font-bold text-[#e6edf3]">🏃‍♂️ Gestión de Jugadores</h1>
@@ -363,6 +357,16 @@ const Jugadores: React.FC = () => {
                   </li>
                 ))}
               </ul>
+
+              {/* RESTAURADO: Formulario de Crear Categoría */}
+              <div className="mt-6 border-t border-[#30363d] pt-4">
+                <p className="text-xs text-gray-500 mb-2">Crear nueva categoría</p>
+                <form onSubmit={handleCrearCategoria} className="flex gap-2">
+                  <input type="text" value={nuevaCategoria} onChange={e => setNuevaCategoria(e.target.value)} placeholder="Ej: Sub-11" className="w-full text-sm py-2 px-3 bg-[#0d1117] border border-[#30363d] rounded text-white" />
+                  <button type="submit" className="bg-[#289E9D] text-white px-3 rounded font-bold hover:bg-[#207f7e]">+</button>
+                </form>
+              </div>
+
             </div>
           </div>
 
@@ -381,15 +385,13 @@ const Jugadores: React.FC = () => {
                   {jugadoresFiltrados.map(jugador => (
                     <tr key={jugador.id} onClick={() => setJugadorSeleccionado(jugador)} className="hover:bg-[#21262d] cursor-pointer group">
                       <td className="p-4 flex items-center gap-3">
-                        <img src={jugador.foto_base64 || 'https://via.placeholder.com/150'} className="w-10 h-10 rounded-full object-cover border border-[#30363d] group-hover:border-[#289E9D]" />
+                        <img src={jugador.foto_base64 || 'https://via.placeholder.com/150'} className="w-10 h-10 rounded-full object-cover border border-[#30363d] group-hover:border-[#289E9D]" alt="img" />
                         <span className="font-bold text-white">{jugador.nombre}</span>
                       </td>
                       <td className="p-4 text-gray-300">{jugador.posicion_cancha}</td>
                       <td className="p-4 text-gray-300">{calcularEdad(jugador.fecha_nacimiento)} años</td>
                       <td className="p-4 flex gap-2 justify-center items-center h-full mt-2">
-                        {/* Semáforo Financiero */}
                         <div title={jugador.estado_financiero} className={`w-3 h-3 rounded-full ${jugador.estado_financiero === 'Al Día' ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                        {/* Semáforo Médico */}
                         <div title={jugador.alerta_medica ? `Alerta Médica: ${jugador.alerta_medica}` : 'Salud OK'} className={`w-3 h-3 rounded-full ${jugador.alerta_medica ? 'bg-red-500' : 'bg-green-500'}`}></div>
                       </td>
                     </tr>
@@ -407,11 +409,10 @@ const Jugadores: React.FC = () => {
           </div>
 
           <div className="space-y-6 bg-[#0d1117] p-4 rounded-xl">
-            {/* Cabecera y Semáforos Interactivos */}
             <div className="card-uniforme p-6 flex flex-col md:flex-row items-center gap-6 relative">
-              <img src={jugadorSeleccionado.foto_base64 || 'https://via.placeholder.com/150'} className="w-32 h-32 rounded-lg object-cover border-4 border-[#289E9D] shadow-lg" />
+              <img src={jugadorSeleccionado.foto_base64 || 'https://via.placeholder.com/150'} className="w-32 h-32 rounded-lg object-cover border-4 border-[#289E9D] shadow-lg" alt="img" />
               <div className="flex-1 text-center md:text-left">
-                <div className="flex items-center justify-center md:justify-start gap-4 mb-2">
+                <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 mb-2">
                   <h2 className="text-3xl font-bold text-white uppercase">{jugadorSeleccionado.nombre}</h2>
                   <div className="flex gap-2">
                     <button onClick={cambiarEstadoFinanciero} title="Clic para cambiar Pago" className={`text-xs px-2 py-1 rounded-full font-bold border ${jugadorSeleccionado.estado_financiero === 'Al Día' ? 'bg-green-500/20 text-green-400 border-green-500/50' : 'bg-red-500/20 text-red-400 border-red-500/50'}`}>💰 {jugadorSeleccionado.estado_financiero}</button>
@@ -419,20 +420,34 @@ const Jugadores: React.FC = () => {
                   </div>
                 </div>
                 
+                {/* RESTAURADO: Edad y Año Nacimiento */}
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-1">
                   <p className="text-lg text-[#289E9D] font-semibold">{jugadorSeleccionado.posicion_cancha}</p>
                   <span className="text-gray-400">|</span>
                   <p className="text-sm text-gray-300">Edad: <strong className="text-white">{calcularEdad(jugadorSeleccionado.fecha_nacimiento)} años</strong></p>
+                  <span className="text-gray-400">|</span>
+                  <p className="text-sm text-gray-300">Año: <strong className="text-white">{obtenerAnio(jugadorSeleccionado.fecha_nacimiento)}</strong></p>
                 </div>
                 
-                <div className="mt-4 flex gap-2">
-                  {jugadorSeleccionado.categorias.map(c => <span key={c.id} className="text-xs bg-[#21262d] text-gray-300 border border-[#30363d] px-3 py-1 rounded-full">{c.nombre}</span>)}
-                  <button onClick={() => setShowAsignarCat(!showAsignarCat)} className="text-xs bg-[#1f2937] text-white border border-[#30363d] px-3 py-1 rounded-full">+ Asignar</button>
+                {/* RESTAURADO: Asignar Categoría */}
+                <div className="mt-4 flex flex-col gap-2">
+                  <div className="flex gap-2 flex-wrap items-center justify-center md:justify-start">
+                    {jugadorSeleccionado.categorias.map(c => <span key={c.id} className="text-xs bg-[#21262d] text-gray-300 border border-[#30363d] px-3 py-1 rounded-full">{c.nombre}</span>)}
+                    <button onClick={() => setShowAsignarCat(!showAsignarCat)} className="text-xs bg-[#1f2937] text-white border border-[#30363d] px-3 py-1 rounded-full">+ Asignar</button>
+                  </div>
+                  {showAsignarCat && (
+                    <div className="mt-2 flex gap-2 justify-center md:justify-start">
+                      <select value={catAAsignar} onChange={e => setCatAAsignar(e.target.value)} className="text-sm py-1 px-2 rounded bg-[#0d1117] border border-[#30363d] text-white outline-none">
+                        <option value="">Seleccionar...</option>
+                        {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+                      </select>
+                      <button onClick={handleAsignarCategoria} className="bg-[#289E9D] text-white py-1 px-3 rounded text-sm font-bold">Guardar</button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* SECCIÓN INSIGNIAS */}
             <div className="card-uniforme p-4 border-l-4 border-yellow-500 bg-[#161b22]">
               <h3 className="text-sm font-bold text-yellow-500 mb-3">🏅 Insignias Rápidas (Se imprimen en el PDF)</h3>
               <div className="flex flex-wrap gap-2">
@@ -488,7 +503,6 @@ const Jugadores: React.FC = () => {
         </div>
       )}
 
-      {/* MODALES IGUAL QUE ANTES (EVAL Y PDF) */}
       {showModalEval && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-[#161b22] border border-[#30363d] rounded-xl w-full max-w-lg p-6 shadow-2xl">
