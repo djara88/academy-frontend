@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import api from '../api/axiosConfig';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, 
   ResponsiveContainer, Tooltip, Legend
 } from 'recharts';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 interface Categoria { id: string; nombre: string; }
 interface Jugador {
@@ -36,6 +38,12 @@ const Jugadores: React.FC = () => {
   const [comentariosEval, setComentariosEval] = useState('');
   const [guardandoEval, setGuardandoEval] = useState(false);
 
+  // 🔥 Estados y Refs para Generar Informe PDF
+  const [showModalInforme, setShowModalInforme] = useState(false);
+  const [comentariosInforme, setComentariosInforme] = useState('');
+  const [generandoPDF, setGenerandoPDF] = useState(false);
+  const informeRef = useRef<HTMLDivElement>(null);
+
   const cargarDatos = async () => {
     setLoading(true);
     try {
@@ -64,9 +72,6 @@ const Jugadores: React.FC = () => {
   useEffect(() => { if (user?.academia_id) cargarDatos(); }, [user]);
   useEffect(() => { if (jugadorSeleccionado) cargarEvaluaciones(jugadorSeleccionado.id); }, [jugadorSeleccionado]);
 
-  // ==========================================
-  // UTILIDADES DE FECHAS (Edad y Año)
-  // ==========================================
   const calcularEdad = (fechaNacimiento: string) => {
     if (!fechaNacimiento) return 'N/A';
     const hoy = new Date();
@@ -82,9 +87,6 @@ const Jugadores: React.FC = () => {
     return new Date(fechaNacimiento).getFullYear().toString();
   };
 
-  // ==========================================
-  // FUNCIONES CRUD
-  // ==========================================
   const handleCrearCategoria = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nuevaCategoria.trim()) return;
@@ -102,9 +104,6 @@ const Jugadores: React.FC = () => {
     if (catObj) setJugadorSeleccionado({ ...jugadorSeleccionado, categorias: [...jugadorSeleccionado.categorias, catObj] });
   };
 
-  // ==========================================
-  // MODAL DE EVALUACIÓN
-  // ==========================================
   const abrirModalEval = () => {
     const skillsMap: Record<string, string[]> = {
       Arquero: ['Reflejos', 'Estirada', 'Saque de Mano', 'Saque de Meta', 'Juego de Pies', 'Valentía'],
@@ -115,7 +114,6 @@ const Jugadores: React.FC = () => {
     const habs = skillsMap[jugadorSeleccionado?.posicion_cancha || 'Delantero'];
     const evalInicial: Record<string, number> = {};
     
-    // Si ya tiene una evaluación anterior, cargamos esos datos como base para modificarlos
     if (evaluaciones.length > 0) {
       const ultimaEval = evaluaciones[0].datos_radar;
       habs.forEach(h => evalInicial[h] = ultimaEval[h] || 50);
@@ -137,11 +135,54 @@ const Jugadores: React.FC = () => {
         comentarios_profesor: comentariosEval
       });
       setShowModalEval(false);
-      cargarEvaluaciones(jugadorSeleccionado.id); // Refrescar radar
+      cargarEvaluaciones(jugadorSeleccionado.id);
     } catch (error) {
       console.error('Error guardando evaluación', error);
     } finally {
       setGuardandoEval(false);
+    }
+  };
+
+  // 🔥 LÓGICA DE PDF Y ENVÍO A BREVO
+  const handleGenerarPDF = async () => {
+    if (!informeRef.current || !jugadorSeleccionado) return;
+    setGenerandoPDF(true);
+    
+    try {
+      const canvas = await html2canvas(informeRef.current, {
+        scale: 2,
+        backgroundColor: '#0d1117',
+        useCORS: true
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      
+      const pdfBase64 = pdf.output('datauristring');
+
+      try {
+        await api.post(`/api/jugadores/${jugadorSeleccionado.id}/enviar-informe`, {
+          pdf_base64: pdfBase64,
+          comentarios: comentariosInforme
+        });
+        alert('✅ ¡Informe generado, descargado y ENVIADO al apoderado con éxito!');
+      } catch (emailError) {
+        console.error('Error al enviar correo:', emailError);
+        alert('⚠️ El PDF se descargó, pero hubo un problema al enviarlo al correo del apoderado (asegúrate de que tenga uno registrado).');
+      }
+
+      pdf.save(`Informe_${jugadorSeleccionado.nombre.replace(/\s+/g, '_')}.pdf`);
+      setShowModalInforme(false);
+    } catch (error) {
+      console.error('❌ Error al generar el PDF:', error);
+      alert('Hubo un error crítico al procesar el informe.');
+    } finally {
+      setGenerandoPDF(false);
     }
   };
 
@@ -175,7 +216,6 @@ const Jugadores: React.FC = () => {
       </div>
 
       {!jugadorSeleccionado ? (
-        /* VISTA 1: LISTADO EN FORMATO TABLA (Adiós a las tarjetas) */
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-1 space-y-4">
             <div className="card-uniforme p-4">
@@ -246,88 +286,102 @@ const Jugadores: React.FC = () => {
           </div>
         </div>
       ) : (
-        /* VISTA 2: FICHA TÉCNICA */
         <div className="space-y-6">
-          <div className="card-uniforme p-6 flex flex-col md:flex-row items-center gap-6">
-            <img src={jugadorSeleccionado.foto_base64 || 'https://via.placeholder.com/150/161b22/8b949e'} className="w-32 h-32 rounded-lg object-cover border-4 border-[#289E9D] shadow-lg" alt=""/>
-            <div className="flex-1 text-center md:text-left">
-              <h2 className="text-3xl font-bold text-white">{jugadorSeleccionado.nombre}</h2>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-1">
-                <p className="text-lg text-[#289E9D] font-semibold">{jugadorSeleccionado.posicion_cancha}</p>
-                <span className="text-sm text-gray-400">|</span>
-                <p className="text-sm text-gray-300">Edad: <strong className="text-white">{calcularEdad(jugadorSeleccionado.fecha_nacimiento)} años</strong></p>
-                <span className="text-sm text-gray-400">|</span>
-                <p className="text-sm text-gray-300">Nacimiento: <strong className="text-white">{obtenerAnio(jugadorSeleccionado.fecha_nacimiento)}</strong></p>
-              </div>
-              
-              <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start items-center">
-                {jugadorSeleccionado.categorias.map(c => <span key={c.id} className="text-xs bg-[#21262d] text-gray-300 border border-[#30363d] px-3 py-1 rounded-full">{c.nombre}</span>)}
-                <button onClick={() => setShowAsignarCat(!showAsignarCat)} className="text-xs bg-[#1f2937] text-white border border-[#30363d] px-3 py-1 rounded-full hover:bg-[#30363d] transition-colors">
-                  + Asignar
-                </button>
-              </div>
-              {showAsignarCat && (
-                <div className="mt-3 flex gap-2">
-                  <select value={catAAsignar} onChange={e => setCatAAsignar(e.target.value)} className="text-sm py-1 rounded bg-[#0d1117] border-[#30363d] text-white">
-                    <option value="">Seleccionar...</option>
-                    {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-                  </select>
-                  <button onClick={handleAsignarCategoria} className="bg-[#289E9D] text-white py-1 px-3 rounded-lg text-sm font-bold">Guardar</button>
-                </div>
-              )}
-            </div>
-            <div className="flex flex-col gap-2">
-              <button onClick={abrirModalEval} className="btn-primary text-sm shadow-[#289E9D]/20 shadow-lg">
-                📝 Nueva Evaluación
-              </button>
-              <button className="bg-orange-600 hover:bg-orange-700 text-white py-3 px-4 rounded-lg font-bold text-sm transition-colors shadow-orange-600/20 shadow-lg">
-                📄 Generar Informe PDF
-              </button>
-            </div>
+          <div className="flex justify-end gap-3 mb-2">
+            <button onClick={abrirModalEval} className="btn-primary text-sm shadow-[#289E9D]/20 shadow-lg">
+              📝 Nueva Evaluación
+            </button>
+            <button 
+              onClick={() => { setComentariosInforme(''); setShowModalInforme(true); }}
+              className="bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg font-bold text-sm transition-colors shadow-orange-600/20 shadow-lg"
+            >
+              📄 Generar Informe PDF
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="card-uniforme p-6 flex flex-col items-center">
-              <h3 className="text-xl font-bold mb-4 w-full text-left">📊 Evolución del Jugador</h3>
-              {evaluaciones.length > 0 ? (
-                <div className="w-full h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="50%" outerRadius="70%" data={generarDatosRadar()}>
-                      <PolarGrid stroke="#30363d" />
-                      <PolarAngleAxis dataKey="habilidad" tick={{ fill: '#8b949e', fontSize: 12 }} />
-                      <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#8b949e' }} />
-                      <Tooltip contentStyle={{ backgroundColor: '#161b22', borderColor: '#30363d', color: '#fff' }} itemStyle={{ color: '#fff' }} />
-                      <Legend />
-                      <Radar name="Evaluación Actual" dataKey="Actual" stroke="#289E9D" fill="#289E9D" fillOpacity={0.5} />
-                      {evaluaciones.length > 1 && <Radar name="Evaluación Anterior" dataKey="Anterior" stroke="#8b949e" fill="#8b949e" fillOpacity={0.3} />}
-                    </RadarChart>
-                  </ResponsiveContainer>
-                </div>
-              ) : (
-                <div className="h-80 flex items-center justify-center text-gray-500 w-full text-center">Aún no hay evaluaciones registradas.</div>
+          <div ref={informeRef} className="space-y-6 bg-[#0d1117] p-4 rounded-xl">
+            <div className="card-uniforme p-6 flex flex-col md:flex-row items-center gap-6 relative">
+              {user?.logo_url && (
+                <img src={user.logo_url} alt="Logo Academia" className="w-16 h-16 absolute top-4 right-6 opacity-30 rounded-full" />
               )}
-            </div>
-
-            <div className="card-uniforme p-6">
-              <h3 className="text-xl font-bold mb-4">🏆 Estadísticas y Partidos</h3>
-              <div className="bg-[#0d1117] rounded-lg p-4 border border-[#30363d] h-80 overflow-y-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="text-[#8b949e] border-b border-[#30363d]">
-                    <tr><th className="pb-2">Fecha</th><th className="pb-2">Competición</th><th className="pb-2">Desempeño</th></tr>
-                  </thead>
-                  <tbody className="text-gray-300">
-                    <tr><td className="py-3 border-b border-[#30363d]">12/08/2026</td><td className="py-3 border-b border-[#30363d]">Liga Formativa</td><td className="py-3 border-b border-[#30363d] text-green-400 font-bold">Destacado</td></tr>
-                  </tbody>
-                </table>
+              <img src={jugadorSeleccionado.foto_base64 || 'https://via.placeholder.com/150/161b22/8b949e'} className="w-32 h-32 rounded-lg object-cover border-4 border-[#289E9D] shadow-lg z-10" alt=""/>
+              <div className="flex-1 text-center md:text-left z-10">
+                <h2 className="text-3xl font-bold text-white uppercase">{jugadorSeleccionado.nombre}</h2>
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-1">
+                  <p className="text-lg text-[#289E9D] font-semibold">{jugadorSeleccionado.posicion_cancha}</p>
+                  <span className="text-sm text-gray-400">|</span>
+                  <p className="text-sm text-gray-300">Edad: <strong className="text-white">{calcularEdad(jugadorSeleccionado.fecha_nacimiento)} años</strong></p>
+                  <span className="text-sm text-gray-400">|</span>
+                  <p className="text-sm text-gray-300">Nacimiento: <strong className="text-white">{obtenerAnio(jugadorSeleccionado.fecha_nacimiento)}</strong></p>
+                </div>
+                
+                <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start items-center">
+                  {jugadorSeleccionado.categorias.map(c => <span key={c.id} className="text-xs bg-[#21262d] text-gray-300 border border-[#30363d] px-3 py-1 rounded-full">{c.nombre}</span>)}
+                  <button data-html2canvas-ignore onClick={() => setShowAsignarCat(!showAsignarCat)} className="text-xs bg-[#1f2937] text-white border border-[#30363d] px-3 py-1 rounded-full hover:bg-[#30363d] transition-colors">
+                    + Asignar
+                  </button>
+                </div>
+                {showAsignarCat && (
+                  <div data-html2canvas-ignore className="mt-3 flex gap-2">
+                    <select value={catAAsignar} onChange={e => setCatAAsignar(e.target.value)} className="text-sm py-1 rounded bg-[#0d1117] border-[#30363d] text-white">
+                      <option value="">Seleccionar...</option>
+                      {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+                    </select>
+                    <button onClick={handleAsignarCategoria} className="bg-[#289E9D] text-white py-1 px-3 rounded-lg text-sm font-bold">Guardar</button>
+                  </div>
+                )}
               </div>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="card-uniforme p-6 flex flex-col items-center">
+                <h3 className="text-xl font-bold mb-4 w-full text-left">📊 Radar de Evolución</h3>
+                {evaluaciones.length > 0 ? (
+                  <div className="w-full h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart cx="50%" cy="50%" outerRadius="70%" data={generarDatosRadar()}>
+                        <PolarGrid stroke="#30363d" />
+                        <PolarAngleAxis dataKey="habilidad" tick={{ fill: '#8b949e', fontSize: 12 }} />
+                        <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#8b949e' }} />
+                        <Tooltip contentStyle={{ backgroundColor: '#161b22', borderColor: '#30363d', color: '#fff' }} itemStyle={{ color: '#fff' }} />
+                        <Legend />
+                        <Radar name="Evaluación Actual" dataKey="Actual" stroke="#289E9D" fill="#289E9D" fillOpacity={0.5} isAnimationActive={false} />
+                        {evaluaciones.length > 1 && <Radar name="Anterior" dataKey="Anterior" stroke="#8b949e" fill="#8b949e" fillOpacity={0.3} isAnimationActive={false} />}
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div className="h-80 flex items-center justify-center text-gray-500 w-full text-center">Aún no hay evaluaciones registradas.</div>
+                )}
+              </div>
+
+              <div className="card-uniforme p-6">
+                <h3 className="text-xl font-bold mb-4">🏆 Estadísticas y Partidos</h3>
+                <div className="bg-[#0d1117] rounded-lg p-4 border border-[#30363d] h-80 overflow-y-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead className="text-[#8b949e] border-b border-[#30363d]">
+                      <tr><th className="pb-2">Fecha</th><th className="pb-2">Competición</th><th className="pb-2">Desempeño</th></tr>
+                    </thead>
+                    <tbody className="text-gray-300">
+                      <tr><td className="py-3 border-b border-[#30363d]">12/08/2026</td><td className="py-3 border-b border-[#30363d]">Liga Formativa</td><td className="py-3 border-b border-[#30363d] text-green-400 font-bold">Destacado</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            {comentariosInforme && (
+              <div className="card-uniforme p-6 border-t-4 border-t-orange-600 mt-6">
+                <h3 className="text-lg font-bold mb-2 text-orange-400">📝 Observaciones del Profesor:</h3>
+                <p className="text-gray-300 whitespace-pre-wrap leading-relaxed">{comentariosInforme}</p>
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* MODAL NUEVA EVALUACIÓN */}
       {showModalEval && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" data-html2canvas-ignore>
           <div className="bg-[#161b22] border border-[#30363d] rounded-xl w-full max-w-lg p-6 shadow-2xl">
             <h2 className="text-2xl font-bold text-white mb-4">📝 Evaluar a {jugadorSeleccionado?.nombre}</h2>
             <p className="text-sm text-gray-400 mb-6">Mueve los controles para calificar del 0 al 100.</p>
@@ -346,7 +400,7 @@ const Jugadores: React.FC = () => {
             </div>
 
             <div className="mt-6">
-              <label className="block text-sm font-semibold text-gray-400 mb-2">Comentarios del Profesor</label>
+              <label className="block text-sm font-semibold text-gray-400 mb-2">Comentarios internos de evaluación</label>
               <textarea 
                 value={comentariosEval} onChange={e => setComentariosEval(e.target.value)}
                 placeholder="Observaciones de esta evaluación..."
@@ -358,6 +412,32 @@ const Jugadores: React.FC = () => {
               <button onClick={() => setShowModalEval(false)} className="px-4 py-2 text-gray-400 hover:text-white transition-colors">Cancelar</button>
               <button onClick={handleGuardarEvaluacion} disabled={guardandoEval} className="bg-[#289E9D] text-white px-6 py-2 rounded-lg font-bold hover:bg-[#207f7e] transition-colors">
                 {guardandoEval ? 'Guardando...' : 'Guardar Evaluación'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showModalInforme && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" data-html2canvas-ignore>
+          <div className="bg-[#161b22] border border-[#30363d] rounded-xl w-full max-w-lg p-6 shadow-2xl">
+            <h2 className="text-2xl font-bold text-white mb-2">📄 Generar Informe</h2>
+            <p className="text-sm text-gray-400 mb-6">Agrega un comentario final que se imprimirá al final del PDF para el apoderado.</p>
+            
+            <textarea 
+              value={comentariosInforme} onChange={e => setComentariosInforme(e.target.value)}
+              placeholder="Ej: Mateo ha mostrado una gran evolución este semestre..."
+              className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-white focus:border-orange-500 outline-none resize-none h-32 mb-6"
+            />
+
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setShowModalInforme(false)} className="px-4 py-2 text-gray-400 hover:text-white transition-colors">Cancelar</button>
+              <button 
+                onClick={handleGenerarPDF} 
+                disabled={generandoPDF} 
+                className="bg-orange-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-orange-700 transition-colors flex items-center gap-2"
+              >
+                {generandoPDF ? '⏳ Procesando PDF...' : '📥 Descargar y Enviar PDF'}
               </button>
             </div>
           </div>
