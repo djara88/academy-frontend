@@ -9,19 +9,46 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
 interface Categoria { id: string; nombre: string; }
+
+interface Insignia {
+  id: string;
+  nombre: string;
+  fecha: string;
+}
+
 interface Jugador {
   id: string; nombre: string; posicion_cancha: string;
   tipo_alumno: string; foto_base64: string; fecha_nacimiento: string;
   categorias: Categoria[];
   estado_financiero?: string;
   alerta_medica?: string;
-  insignias?: string[];
+  insignias?: Insignia[]; // Ahora es un historial completo
 }
+
 interface Evaluacion {
   id: string; created_at: string; datos_radar: Record<string, number>; comentarios_profesor: string;
 }
 
-const INSIGNIAS_DISPONIBLES = ["Máximo Esfuerzo", "Asistencia Perfecta", "Compañerismo", "Líder Positivo", "Disciplina Táctica"];
+// 🏆 LISTAS DE INSIGNIAS AGRUPADAS
+const INSIGNIAS_DEPORTIVAS = [
+  "🌟 Jugador del Partido (MVP)",
+  "🥇 Medalla de Oro (Campeón)",
+  "🥈 Medalla de Plata",
+  "🥉 Medalla de Bronce",
+  "🧱 Muro Defensivo",
+  "🧤 Guante de Oro (Arquero)",
+  "⚽ Goleador de la Fecha"
+];
+
+const INSIGNIAS_FORMATIVAS = [
+  "🤝 Premio al Compañerismo y Empatía",
+  "🏃 Premio a la Perseverancia y Esfuerzo",
+  "🧠 Premio a la Resiliencia / Superación",
+  "⚖️ Premio al Fair Play (Juego Limpio)",
+  "👑 Premio al Liderazgo Positivo",
+  "⏱️ Premio a la Puntualidad y Compromiso",
+  "💬 Premio a la Buena Actitud y Escucha"
+];
 
 const Jugadores: React.FC = () => {
   const { user } = useAuth();
@@ -49,6 +76,8 @@ const Jugadores: React.FC = () => {
 
   const [modoRadar, setModoRadar] = useState<'historial' | 'categoria'>('historial');
   const [promedioCategoria, setPromedioCategoria] = useState<Record<string, number>>({});
+  
+  const [insigniaSeleccionada, setInsigniaSeleccionada] = useState<string>('');
 
   const cargarDatos = async () => {
     setLoading(true);
@@ -86,14 +115,36 @@ const Jugadores: React.FC = () => {
   useEffect(() => { if (user?.academia_id) cargarDatos(); }, [user]);
   useEffect(() => { if (jugadorSeleccionado) cargarEvaluacionesYPromedio(jugadorSeleccionado); }, [jugadorSeleccionado]);
 
-  const toggleInsignia = async (insignia: string) => {
-    if (!jugadorSeleccionado) return;
-    const actuales = jugadorSeleccionado.insignias || [];
-    const nuevas = actuales.includes(insignia) ? actuales.filter(i => i !== insignia) : [...actuales, insignia];
+  // 🏆 LÓGICA DE HISTORIAL DE INSIGNIAS
+  const handleAgregarInsignia = async () => {
+    if (!jugadorSeleccionado || !insigniaSeleccionada) return;
+    
+    const nuevaInsignia: Insignia = {
+      id: Date.now().toString(),
+      nombre: insigniaSeleccionada,
+      fecha: new Date().toISOString()
+    };
+    
+    // Normalizamos por si vienen datos viejos (strings) de pruebas anteriores
+    const actuales = (jugadorSeleccionado.insignias || []).map(ins => 
+      typeof ins === 'string' ? { id: Math.random().toString(), nombre: ins, fecha: new Date().toISOString() } : ins
+    );
+
+    const nuevas = [nuevaInsignia, ...actuales];
     
     setJugadorSeleccionado({ ...jugadorSeleccionado, insignias: nuevas });
     setJugadores(jugadores.map(j => j.id === jugadorSeleccionado.id ? { ...j, insignias: nuevas } : j));
+    setInsigniaSeleccionada('');
+    await api.put(`/api/jugadores/${jugadorSeleccionado.id}/datos-rapidos`, { insignias: nuevas });
+  };
+
+  const handleEliminarInsignia = async (idAEliminar: string) => {
+    if (!jugadorSeleccionado) return;
+    const actuales = (jugadorSeleccionado.insignias || []).map(ins => typeof ins === 'string' ? { id: Math.random().toString(), nombre: ins, fecha: new Date().toISOString() } : ins);
+    const nuevas = actuales.filter(i => i.id !== idAEliminar);
     
+    setJugadorSeleccionado({ ...jugadorSeleccionado, insignias: nuevas });
+    setJugadores(jugadores.map(j => j.id === jugadorSeleccionado.id ? { ...j, insignias: nuevas } : j));
     await api.put(`/api/jugadores/${jugadorSeleccionado.id}/datos-rapidos`, { insignias: nuevas });
   };
 
@@ -254,79 +305,126 @@ const Jugadores: React.FC = () => {
     <div className="max-w-7xl mx-auto space-y-6 relative overflow-hidden">
       
       {/* ========================================== */}
-      {/* PLANTILLA PDF */}
+      {/* PLANTILLA PDF (PROPORCIÓN A4 Y COMPLETA) */}
       {/* ========================================== */}
       {jugadorSeleccionado && (
-        <div ref={pdfTemplateRef} className="absolute -left-[10000px] top-0 w-[800px] bg-white text-black p-10 font-sans">
+        <div 
+          ref={pdfTemplateRef} 
+          className="absolute -left-[10000px] top-0 w-[800px] min-h-[1130px] bg-white text-black p-12 font-sans flex flex-col"
+        >
+          {/* ENCABEZADO */}
           <div className="flex justify-between items-center border-b-4 border-green-700 pb-4 mb-6">
-            {user?.logo_url ? <img src={user.logo_url} className="w-20 h-20 object-contain" alt="Logo" /> : <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center text-xs text-gray-500">Logo</div>}
+            {user?.logo_url ? <img src={user.logo_url} className="w-24 h-24 object-contain" alt="Logo" /> : <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-sm text-gray-500 font-bold">LOGO</div>}
             <div className="text-right">
-              <h1 className="text-3xl font-black text-gray-800 tracking-tight">INFORME TÉCNICO DE CAPACIDADES</h1>
-              <h2 className="text-xl text-gray-500 uppercase tracking-widest font-semibold mt-1">ACADEMIA DE FÚTBOL {user?.nombre_academia || 'PRO'}</h2>
+              <h1 className="text-3xl font-black text-gray-900 tracking-tight">INFORME TÉCNICO DE CAPACIDADES</h1>
+              <h2 className="text-xl text-gray-600 uppercase tracking-widest font-semibold mt-1">ACADEMIA DE FÚTBOL {user?.nombre_academia || 'PRO'}</h2>
             </div>
           </div>
 
-          <div className="flex gap-6 mb-8 bg-gray-50 p-6 rounded-xl border border-gray-100 shadow-sm">
-            <img src={jugadorSeleccionado.foto_base64 || 'https://via.placeholder.com/150'} className="w-32 h-32 object-cover rounded-lg border-2 border-gray-300 shadow-md" alt="Foto" />
+          {/* DATOS DEL JUGADOR */}
+          <div className="flex gap-8 mb-8 bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm items-center">
+            <img src={jugadorSeleccionado.foto_base64 || 'https://via.placeholder.com/150'} className="w-32 h-32 object-cover rounded-lg border-2 border-gray-300 shadow-sm" alt="Foto" />
             <div className="flex-1">
-              <h2 className="text-3xl font-black uppercase text-gray-900 mb-2">{jugadorSeleccionado.nombre}</h2>
-              <p className="text-lg text-gray-700 font-medium mb-1">
+              <h2 className="text-3xl font-black uppercase text-gray-900 mb-1">{jugadorSeleccionado.nombre}</h2>
+              <p className="text-lg text-gray-700 font-medium mb-3">
                 {jugadorSeleccionado.categorias.map(c => c.nombre).join(' - ')} | <span className="text-green-700 font-bold">{jugadorSeleccionado.posicion_cancha}</span>
               </p>
-              <p className="text-sm text-gray-500 mb-4">Fecha Emisión: {new Date().toLocaleDateString('es-CL')}</p>
               
-              {evaluaciones.length > 0 && (
-                <div className="grid grid-cols-3 gap-2">
-                  {Object.entries(evaluaciones[0].datos_radar).map(([hab, valor]) => (
-                    <div key={hab} className="bg-white px-3 py-1 rounded border border-gray-200 text-sm shadow-sm">
-                      <span className="text-gray-500 font-semibold">{hab}</span>: <strong className="text-gray-900">{valor}/100</strong>
+              <div className="flex gap-6 text-sm text-gray-600 mb-4 border-t border-gray-200 pt-3">
+                <p><strong>Edad:</strong> {calcularEdad(jugadorSeleccionado.fecha_nacimiento)} años</p>
+                <p><strong>Año Nacimiento:</strong> {obtenerAnio(jugadorSeleccionado.fecha_nacimiento)}</p>
+                <p><strong>Fecha Emisión:</strong> {new Date().toLocaleDateString('es-CL')}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* RENDIMIENTO Y MÉTRICAS (MÁS LLENO) */}
+          <div className="mb-8 grid grid-cols-2 gap-8">
+            <div className="border border-gray-200 rounded-lg bg-white overflow-hidden shadow-sm flex flex-col">
+              <h3 className="text-sm font-bold bg-gray-800 text-white p-3 uppercase tracking-wider text-center">Rendimiento Táctico / Físico</h3>
+              <div className="p-4 flex-1 flex flex-col items-center justify-center">
+                {evaluaciones.length > 0 ? (
+                  <>
+                    <div className="flex gap-4 text-xs mb-4">
+                      <span className="flex items-center gap-1"><div className="w-3 h-3 bg-green-600 rounded-full"></div> Actual</span>
+                      <span className="flex items-center gap-1"><div className="w-3 h-3 bg-orange-400 rounded-full"></div> {modoRadar === 'historial' ? 'Anterior' : 'Prom. Categoría'}</span>
                     </div>
-                  ))}
+                    <RadarChart cx={180} cy={140} outerRadius={100} width={360} height={280} data={generarDatosRadar()}>
+                      <PolarGrid stroke="#e5e7eb" />
+                      <PolarAngleAxis dataKey="habilidad" tick={{ fill: '#374151', fontSize: 11, fontWeight: 'bold' }} />
+                      <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} />
+                      <Radar name="Actual" dataKey="Actual" stroke="#16a34a" fill="#16a34a" fillOpacity={0.4} strokeWidth={3} isAnimationActive={false} />
+                      <Radar name="Comparativa" dataKey="Comparativa" stroke="#fb923c" fill="#fb923c" fillOpacity={0.2} strokeDasharray="5 5" isAnimationActive={false} />
+                    </RadarChart>
+                  </>
+                ) : ( <div className="text-gray-400 text-sm text-center my-auto">Sin métricas registradas.</div> )}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-6">
+              {/* Resumen de habilidades */}
+              <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                <h3 className="text-sm font-bold bg-gray-100 text-gray-800 p-3 uppercase tracking-wider border-b border-gray-200">Puntajes Actuales</h3>
+                <div className="p-4 grid grid-cols-2 gap-3">
+                  {evaluaciones.length > 0 ? Object.entries(evaluaciones[0].datos_radar).map(([hab, valor]) => (
+                    <div key={hab} className="flex justify-between border-b border-dashed border-gray-200 pb-1 text-sm">
+                      <span className="text-gray-600">{hab}</span>
+                      <strong className="text-gray-900">{valor}/100</strong>
+                    </div>
+                  )) : <p className="text-xs text-gray-400 col-span-2">Sin puntajes.</p>}
                 </div>
-              )}
+              </div>
+
+              {/* RECONOCIMIENTOS TIPO LISTA (Como en tu imagen) */}
+              <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm flex-1">
+                <h3 className="text-sm font-bold bg-yellow-50 text-yellow-800 p-3 uppercase tracking-wider border-b border-yellow-200">Reconocimientos Históricos</h3>
+                <div className="p-4">
+                  {(jugadorSeleccionado.insignias && jugadorSeleccionado.insignias.length > 0) ? (
+                    <ul className="space-y-2">
+                      {jugadorSeleccionado.insignias.slice(0, 6).map(ins => {
+                        const insObj = typeof ins === 'string' ? { id: ins, nombre: ins, fecha: new Date().toISOString() } : ins;
+                        return (
+                          <li key={insObj.id} className="text-sm text-gray-800 flex items-start gap-2 leading-tight border-b border-gray-100 pb-2 last:border-0 last:pb-0">
+                            <span className="text-green-600 font-bold">☑</span>
+                            <div>
+                              <span className="font-semibold">{insObj.nombre}</span><br/>
+                              <span className="text-gray-500 text-xs italic">(Obtenida el {new Date(insObj.fecha).toLocaleDateString('es-CL')})</span>
+                            </div>
+                          </li>
+                        );
+                      })}
+                      {jugadorSeleccionado.insignias.length > 6 && <li className="text-xs text-gray-400 italic mt-2">Y {jugadorSeleccionado.insignias.length - 6} reconocimientos más...</li>}
+                    </ul>
+                  ) : (
+                    <p className="text-xs text-gray-500 italic text-center mt-4">Aún no registra reconocimientos.</p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
-          {(jugadorSeleccionado.insignias && jugadorSeleccionado.insignias.length > 0) && (
-            <div className="mb-6 border border-yellow-300 bg-yellow-50 rounded-lg p-4">
-              <h3 className="text-sm font-bold text-yellow-800 uppercase tracking-widest mb-2 flex items-center gap-2">🏅 Reconocimientos Destacados</h3>
-              <div className="flex flex-wrap gap-2">
-                {jugadorSeleccionado.insignias.map(ins => (
-                  <span key={ins} className="bg-white border border-yellow-400 text-yellow-800 text-xs px-3 py-1 rounded-full font-bold shadow-sm">✓ {ins}</span>
-                ))}
+          {/* OBSERVACIONES Y FIRMA */}
+          <div className="flex flex-col flex-grow">
+            {comentariosInforme && (
+              <div className="mb-auto border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                <h3 className="text-sm font-bold bg-gray-800 text-white p-3 uppercase tracking-wider">Observaciones del Cuerpo Técnico</h3>
+                <div className="p-5 bg-white">
+                  <p className="text-gray-800 whitespace-pre-wrap leading-relaxed text-sm">{comentariosInforme}</p>
+                </div>
               </div>
-            </div>
-          )}
-
-          <div className="mb-8">
-            <h3 className="text-lg font-bold bg-gray-800 text-white p-2 px-4 rounded-t-lg uppercase tracking-wide">Gráfico de Rendimiento Táctico / Físico</h3>
-            <div className="border border-gray-200 rounded-b-lg p-4 flex flex-col items-center bg-white">
-              {evaluaciones.length > 0 ? (
-                <>
-                  <div className="flex gap-6 text-sm mb-2">
-                    <span className="flex items-center gap-2"><div className="w-3 h-3 bg-green-600 rounded-full"></div> Actual</span>
-                    <span className="flex items-center gap-2"><div className="w-3 h-3 bg-orange-400 rounded-full"></div> {modoRadar === 'historial' ? 'Anterior' : 'Promedio Categoría'}</span>
-                  </div>
-                  <RadarChart cx={350} cy={180} outerRadius={120} width={700} height={350} data={generarDatosRadar()}>
-                    <PolarGrid stroke="#e5e7eb" />
-                    <PolarAngleAxis dataKey="habilidad" tick={{ fill: '#374151', fontSize: 14, fontWeight: 'bold' }} />
-                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#9ca3af' }} />
-                    <Radar name="Actual" dataKey="Actual" stroke="#16a34a" fill="#16a34a" fillOpacity={0.4} strokeWidth={3} isAnimationActive={false} />
-                    <Radar name="Comparativa" dataKey="Comparativa" stroke="#fb923c" fill="#fb923c" fillOpacity={0.2} strokeDasharray="5 5" isAnimationActive={false} />
-                  </RadarChart>
-                </>
-              ) : ( <div className="h-40 flex items-center justify-center text-gray-500">Sin evaluaciones para graficar.</div> )}
+            )}
+            
+            {/* ESPACIO PARA FIRMA */}
+            <div className="mt-16 flex justify-center pb-8 pt-8">
+              <div className="text-center w-72">
+                <div className="border-b border-gray-800 mb-2"></div>
+                <p className="font-bold text-gray-900 uppercase">{user?.nombre_completo || 'Director de Academia'}</p>
+                <p className="text-sm text-gray-500">Director Deportivo</p>
+                <p className="text-xs text-gray-400">{user?.nombre_academia || 'Academia de Fútbol'}</p>
+              </div>
             </div>
           </div>
 
-          {comentariosInforme && (
-            <div>
-              <h3 className="text-lg font-bold bg-gray-800 text-white p-2 px-4 rounded-t-lg uppercase tracking-wide">Observaciones del Cuerpo Técnico</h3>
-              <div className="border border-gray-200 rounded-b-lg p-6 bg-gray-50">
-                <p className="text-gray-800 whitespace-pre-wrap leading-relaxed text-md">{comentariosInforme}</p>
-              </div>
-            </div>
-          )}
         </div>
       )}
 
@@ -358,7 +456,6 @@ const Jugadores: React.FC = () => {
                 ))}
               </ul>
 
-              {/* RESTAURADO: Formulario de Crear Categoría */}
               <div className="mt-6 border-t border-[#30363d] pt-4">
                 <p className="text-xs text-gray-500 mb-2">Crear nueva categoría</p>
                 <form onSubmit={handleCrearCategoria} className="flex gap-2">
@@ -420,7 +517,6 @@ const Jugadores: React.FC = () => {
                   </div>
                 </div>
                 
-                {/* RESTAURADO: Edad y Año Nacimiento */}
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-1">
                   <p className="text-lg text-[#289E9D] font-semibold">{jugadorSeleccionado.posicion_cancha}</p>
                   <span className="text-gray-400">|</span>
@@ -429,11 +525,10 @@ const Jugadores: React.FC = () => {
                   <p className="text-sm text-gray-300">Año: <strong className="text-white">{obtenerAnio(jugadorSeleccionado.fecha_nacimiento)}</strong></p>
                 </div>
                 
-                {/* RESTAURADO: Asignar Categoría */}
                 <div className="mt-4 flex flex-col gap-2">
                   <div className="flex gap-2 flex-wrap items-center justify-center md:justify-start">
                     {jugadorSeleccionado.categorias.map(c => <span key={c.id} className="text-xs bg-[#21262d] text-gray-300 border border-[#30363d] px-3 py-1 rounded-full">{c.nombre}</span>)}
-                    <button onClick={() => setShowAsignarCat(!showAsignarCat)} className="text-xs bg-[#1f2937] text-white border border-[#30363d] px-3 py-1 rounded-full">+ Asignar</button>
+                    <button onClick={() => setShowAsignarCat(!showAsignarCat)} className="text-xs bg-[#1f2937] text-white border border-[#30363d] px-3 py-1 rounded-full hover:bg-[#30363d]">+ Asignar</button>
                   </div>
                   {showAsignarCat && (
                     <div className="mt-2 flex gap-2 justify-center md:justify-start">
@@ -448,21 +543,60 @@ const Jugadores: React.FC = () => {
               </div>
             </div>
 
+            {/* SECCIÓN INSIGNIAS (AHORA ES UN HISTORIAL CON FECHAS) */}
             <div className="card-uniforme p-4 border-l-4 border-yellow-500 bg-[#161b22]">
-              <h3 className="text-sm font-bold text-yellow-500 mb-3">🏅 Insignias Rápidas (Se imprimen en el PDF)</h3>
-              <div className="flex flex-wrap gap-2">
-                {INSIGNIAS_DISPONIBLES.map(ins => {
-                  const activa = jugadorSeleccionado.insignias?.includes(ins);
-                  return (
-                    <button 
-                      key={ins} onClick={() => toggleInsignia(ins)}
-                      className={`text-xs px-3 py-1.5 rounded-full font-bold transition-all border ${activa ? 'bg-yellow-500 text-black border-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.3)]' : 'bg-transparent text-gray-400 border-[#30363d] hover:border-gray-500'}`}
-                    >
-                      {activa ? '✓ ' : '+ '}{ins}
-                    </button>
-                  );
-                })}
+              <h3 className="text-sm font-bold text-yellow-500 mb-3 flex items-center gap-2">
+                🏅 Asignar Nuevo Reconocimiento
+              </h3>
+              
+              <div className="flex flex-col md:flex-row gap-3 mb-4">
+                <select 
+                  value={insigniaSeleccionada} 
+                  onChange={e => setInsigniaSeleccionada(e.target.value)}
+                  className="bg-[#0d1117] text-sm text-gray-300 border border-[#30363d] rounded p-2 flex-1 focus:border-yellow-500 outline-none"
+                >
+                  <option value="">Seleccionar reconocimiento...</option>
+                  <optgroup label="--- ⚽ ÁMBITO DEPORTIVO ---" className="font-bold text-[#289E9D]">
+                    {INSIGNIAS_DEPORTIVAS.map(ins => <option key={ins} value={ins} className="text-gray-300 font-normal">{ins}</option>)}
+                  </optgroup>
+                  <optgroup label="--- 🤝 ÁMBITO FORMATIVO Y VALORES ---" className="font-bold text-green-500 mt-2">
+                    {INSIGNIAS_FORMATIVAS.map(ins => <option key={ins} value={ins} className="text-gray-300 font-normal">{ins}</option>)}
+                  </optgroup>
+                </select>
+                <button 
+                  onClick={handleAgregarInsignia}
+                  disabled={!insigniaSeleccionada}
+                  className="bg-yellow-600 text-white font-bold px-4 py-2 rounded text-sm disabled:opacity-50 hover:bg-yellow-700 transition-colors"
+                >
+                  Otorgar Reconocimiento
+                </button>
               </div>
+
+              {/* Lista del historial de insignias asignadas */}
+              {jugadorSeleccionado.insignias && jugadorSeleccionado.insignias.length > 0 ? (
+                <div className="mt-4 pt-4 border-t border-[#30363d]">
+                  <h4 className="text-xs text-gray-400 uppercase font-bold tracking-wider mb-2">Historial del Jugador:</h4>
+                  <ul className="space-y-2 max-h-40 overflow-y-auto pr-2">
+                    {jugadorSeleccionado.insignias.map((ins, index) => {
+                      // Adaptación por si hay datos guardados como string de la versión anterior
+                      const insObj = typeof ins === 'string' ? { id: index.toString(), nombre: ins, fecha: new Date().toISOString() } : ins;
+                      return (
+                        <li key={insObj.id} className="text-sm flex justify-between items-center bg-[#0d1117] border border-[#30363d] p-2 rounded">
+                          <div>
+                            <span className="text-white font-semibold mr-2">{insObj.nombre}</span>
+                            <span className="text-xs text-gray-500 italic">({new Date(insObj.fecha).toLocaleDateString('es-CL')})</span>
+                          </div>
+                          <button onClick={() => handleEliminarInsignia(insObj.id)} className="text-red-500 hover:text-red-400 p-1 bg-red-500/10 rounded" title="Eliminar reconocimiento">
+                            ✖
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500 mt-2 italic">Aún no se han otorgado reconocimientos a este jugador.</p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -503,6 +637,7 @@ const Jugadores: React.FC = () => {
         </div>
       )}
 
+      {/* MODALES */}
       {showModalEval && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-[#161b22] border border-[#30363d] rounded-xl w-full max-w-lg p-6 shadow-2xl">
@@ -518,7 +653,7 @@ const Jugadores: React.FC = () => {
             </div>
             <div className="mt-6 flex justify-end gap-3">
               <button onClick={() => setShowModalEval(false)} className="px-4 py-2 text-gray-400 hover:text-white">Cancelar</button>
-              <button onClick={handleGuardarEvaluacion} disabled={guardandoEval} className="bg-[#289E9D] text-white px-6 py-2 rounded-lg font-bold">Guardar</button>
+              <button onClick={handleGuardarEvaluacion} disabled={guardandoEval} className="bg-[#289E9D] text-white px-6 py-2 rounded-lg font-bold hover:bg-[#207f7e]">Guardar</button>
             </div>
           </div>
         </div>
@@ -530,8 +665,8 @@ const Jugadores: React.FC = () => {
             <h2 className="text-2xl font-bold text-white mb-2">📄 Generar Informe</h2>
             <textarea value={comentariosInforme} onChange={e => setComentariosInforme(e.target.value)} placeholder="Comentario final..." className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-white focus:border-orange-500 outline-none h-32 mb-6" />
             <div className="flex justify-end gap-3">
-              <button onClick={() => setShowModalInforme(false)} className="px-4 py-2 text-gray-400">Cancelar</button>
-              <button onClick={handleGenerarPDF} disabled={generandoPDF} className="bg-orange-600 text-white px-6 py-2 rounded-lg font-bold">{generandoPDF ? 'Procesando...' : 'Descargar y Enviar'}</button>
+              <button onClick={() => setShowModalInforme(false)} className="px-4 py-2 text-gray-400 hover:text-white">Cancelar</button>
+              <button onClick={handleGenerarPDF} disabled={generandoPDF} className="bg-orange-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-orange-700">{generandoPDF ? 'Procesando...' : 'Descargar y Enviar'}</button>
             </div>
           </div>
         </div>
