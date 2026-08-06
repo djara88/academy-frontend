@@ -32,17 +32,16 @@ const Jugadores: React.FC = () => {
   const [showAsignarCat, setShowAsignarCat] = useState(false);
   const [catAAsignar, setCatAAsignar] = useState('');
 
-  // Estados Modal Nueva Evaluación
   const [showModalEval, setShowModalEval] = useState(false);
   const [nuevaEvalDatos, setNuevaEvalDatos] = useState<Record<string, number>>({});
   const [comentariosEval, setComentariosEval] = useState('');
   const [guardandoEval, setGuardandoEval] = useState(false);
 
-  // 🔥 Estados y Refs para Generar Informe PDF
   const [showModalInforme, setShowModalInforme] = useState(false);
   const [comentariosInforme, setComentariosInforme] = useState('');
   const [generandoPDF, setGenerandoPDF] = useState(false);
-  const informeRef = useRef<HTMLDivElement>(null);
+  
+  const pdfTemplateRef = useRef<HTMLDivElement>(null);
 
   const cargarDatos = async () => {
     setLoading(true);
@@ -143,25 +142,27 @@ const Jugadores: React.FC = () => {
     }
   };
 
-  // 🔥 LÓGICA DE PDF Y ENVÍO A BREVO
+  // 🔥 NUEVO GENERADOR DE PDF (Optimizado con JPEG y menor tamaño)
   const handleGenerarPDF = async () => {
-    if (!informeRef.current || !jugadorSeleccionado) return;
+    if (!pdfTemplateRef.current || !jugadorSeleccionado) return;
     setGenerandoPDF(true);
     
     try {
-      const canvas = await html2canvas(informeRef.current, {
+      const canvas = await html2canvas(pdfTemplateRef.current, {
         scale: 2,
-        backgroundColor: '#0d1117',
+        backgroundColor: '#ffffff',
         useCORS: true
       });
 
-      const imgData = canvas.toDataURL('image/png');
+      // 🔥 OPTIMIZACIÓN: De PNG a JPEG calidad 80%
+      const imgData = canvas.toDataURL('image/jpeg', 0.8);
       const pdf = new jsPDF('p', 'mm', 'a4');
       
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      // Agregamos como JPEG
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
       
       const pdfBase64 = pdf.output('datauristring');
 
@@ -173,10 +174,10 @@ const Jugadores: React.FC = () => {
         alert('✅ ¡Informe generado, descargado y ENVIADO al apoderado con éxito!');
       } catch (emailError) {
         console.error('Error al enviar correo:', emailError);
-        alert('⚠️ El PDF se descargó, pero hubo un problema al enviarlo al correo del apoderado (asegúrate de que tenga uno registrado).');
+        alert('⚠️ El PDF se descargó, pero hubo un problema al enviarlo al correo del apoderado (revisa que el tutor tenga email válido).');
       }
 
-      pdf.save(`Informe_${jugadorSeleccionado.nombre.replace(/\s+/g, '_')}.pdf`);
+      pdf.save(`Informe_Tecnico_${jugadorSeleccionado.nombre.replace(/\s+/g, '_')}.pdf`);
       setShowModalInforme(false);
     } catch (error) {
       console.error('❌ Error al generar el PDF:', error);
@@ -205,7 +206,94 @@ const Jugadores: React.FC = () => {
   if (loading) return <div className="text-center text-[#289E9D] mt-10">Cargando plantel...</div>;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 relative">
+    <div className="max-w-7xl mx-auto space-y-6 relative overflow-hidden">
+      
+      {/* PLANTILLA OCULTA PARA EL PDF */}
+      {jugadorSeleccionado && (
+        <div 
+          ref={pdfTemplateRef} 
+          className="absolute -left-[10000px] top-0 w-[800px] bg-white text-black p-10 font-sans"
+        >
+          <div className="flex justify-between items-center border-b-4 border-green-700 pb-4 mb-6">
+            {user?.logo_url ? (
+              <img src={user.logo_url} alt="Logo Academia" className="w-20 h-20 object-contain" />
+            ) : (
+              <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center text-xs text-gray-500">Logo</div>
+            )}
+            <div className="text-right">
+              <h1 className="text-3xl font-black text-gray-800 tracking-tight">INFORME TÉCNICO DE CAPACIDADES</h1>
+              <h2 className="text-xl text-gray-500 uppercase tracking-widest font-semibold mt-1">
+                ACADEMIA DE FÚTBOL {user?.nombre_academia || 'PRO'}
+              </h2>
+            </div>
+          </div>
+
+          <div className="flex gap-6 mb-8 bg-gray-50 p-6 rounded-xl border border-gray-100 shadow-sm">
+            <img 
+              src={jugadorSeleccionado.foto_base64 || 'https://via.placeholder.com/150'} 
+              className="w-32 h-32 object-cover rounded-lg border-2 border-gray-300 shadow-md" 
+              alt="Jugador"
+            />
+            <div className="flex-1">
+              <h2 className="text-3xl font-black uppercase text-gray-900 mb-2">{jugadorSeleccionado.nombre}</h2>
+              <p className="text-lg text-gray-700 font-medium mb-1">
+                {jugadorSeleccionado.categorias.map(c => c.nombre).join(' - ') || 'Sin Categoría'} | <span className="text-green-700 font-bold">{jugadorSeleccionado.posicion_cancha}</span>
+              </p>
+              <p className="text-sm text-gray-500 mb-4">
+                Fecha Emisión: {new Date().toLocaleDateString('es-CL')}
+              </p>
+
+              {evaluaciones.length > 0 && (
+                <div className="grid grid-cols-3 gap-2">
+                  {Object.entries(evaluaciones[0].datos_radar).map(([hab, valor]) => (
+                    <div key={hab} className="bg-white px-3 py-1 rounded border border-gray-200 text-sm shadow-sm">
+                      <span className="text-gray-500 font-semibold">{hab}</span>: <strong className="text-gray-900">{valor}/100</strong>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-lg font-bold bg-gray-800 text-white p-2 px-4 rounded-t-lg uppercase tracking-wide">
+              Gráfico de Rendimiento Táctico / Físico
+            </h3>
+            <div className="border border-gray-200 rounded-b-lg p-4 flex flex-col items-center bg-white">
+              {evaluaciones.length > 0 ? (
+                <>
+                  <div className="flex gap-6 text-sm mb-2">
+                    <span className="flex items-center gap-2"><div className="w-3 h-3 bg-green-600 rounded-full"></div> Actual</span>
+                    {evaluaciones.length > 1 && <span className="flex items-center gap-2"><div className="w-3 h-3 bg-orange-400 rounded-full"></div> Anterior</span>}
+                  </div>
+                  <RadarChart cx={350} cy={180} outerRadius={120} width={700} height={350} data={generarDatosRadar()}>
+                    <PolarGrid stroke="#e5e7eb" />
+                    <PolarAngleAxis dataKey="habilidad" tick={{ fill: '#374151', fontSize: 14, fontWeight: 'bold' }} />
+                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#9ca3af' }} />
+                    <Radar name="Actual" dataKey="Actual" stroke="#16a34a" fill="#16a34a" fillOpacity={0.4} strokeWidth={3} isAnimationActive={false} />
+                    {evaluaciones.length > 1 && <Radar name="Anterior" dataKey="Anterior" stroke="#fb923c" fill="#fb923c" fillOpacity={0.2} strokeDasharray="5 5" isAnimationActive={false} />}
+                  </RadarChart>
+                </>
+              ) : (
+                <div className="h-40 flex items-center justify-center text-gray-500">Sin evaluaciones para graficar.</div>
+              )}
+            </div>
+          </div>
+
+          {comentariosInforme && (
+            <div>
+              <h3 className="text-lg font-bold bg-gray-800 text-white p-2 px-4 rounded-t-lg uppercase tracking-wide">
+                Observaciones del Cuerpo Técnico
+              </h3>
+              <div className="border border-gray-200 rounded-b-lg p-6 bg-gray-50">
+                <p className="text-gray-800 whitespace-pre-wrap leading-relaxed text-md">{comentariosInforme}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* VISTA FRONTAL */}
       <div className="flex justify-between items-end">
         <h1 className="text-3xl font-bold text-[#e6edf3]">🏃‍♂️ Gestión de Jugadores</h1>
         {jugadorSeleccionado && (
@@ -299,11 +387,8 @@ const Jugadores: React.FC = () => {
             </button>
           </div>
 
-          <div ref={informeRef} className="space-y-6 bg-[#0d1117] p-4 rounded-xl">
+          <div className="space-y-6 bg-[#0d1117] p-4 rounded-xl">
             <div className="card-uniforme p-6 flex flex-col md:flex-row items-center gap-6 relative">
-              {user?.logo_url && (
-                <img src={user.logo_url} alt="Logo Academia" className="w-16 h-16 absolute top-4 right-6 opacity-30 rounded-full" />
-              )}
               <img src={jugadorSeleccionado.foto_base64 || 'https://via.placeholder.com/150/161b22/8b949e'} className="w-32 h-32 rounded-lg object-cover border-4 border-[#289E9D] shadow-lg z-10" alt=""/>
               <div className="flex-1 text-center md:text-left z-10">
                 <h2 className="text-3xl font-bold text-white uppercase">{jugadorSeleccionado.nombre}</h2>
@@ -317,12 +402,12 @@ const Jugadores: React.FC = () => {
                 
                 <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start items-center">
                   {jugadorSeleccionado.categorias.map(c => <span key={c.id} className="text-xs bg-[#21262d] text-gray-300 border border-[#30363d] px-3 py-1 rounded-full">{c.nombre}</span>)}
-                  <button data-html2canvas-ignore onClick={() => setShowAsignarCat(!showAsignarCat)} className="text-xs bg-[#1f2937] text-white border border-[#30363d] px-3 py-1 rounded-full hover:bg-[#30363d] transition-colors">
+                  <button onClick={() => setShowAsignarCat(!showAsignarCat)} className="text-xs bg-[#1f2937] text-white border border-[#30363d] px-3 py-1 rounded-full hover:bg-[#30363d] transition-colors">
                     + Asignar
                   </button>
                 </div>
                 {showAsignarCat && (
-                  <div data-html2canvas-ignore className="mt-3 flex gap-2">
+                  <div className="mt-3 flex gap-2">
                     <select value={catAAsignar} onChange={e => setCatAAsignar(e.target.value)} className="text-sm py-1 rounded bg-[#0d1117] border-[#30363d] text-white">
                       <option value="">Seleccionar...</option>
                       {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
@@ -369,13 +454,6 @@ const Jugadores: React.FC = () => {
                 </div>
               </div>
             </div>
-
-            {comentariosInforme && (
-              <div className="card-uniforme p-6 border-t-4 border-t-orange-600 mt-6">
-                <h3 className="text-lg font-bold mb-2 text-orange-400">📝 Observaciones del Profesor:</h3>
-                <p className="text-gray-300 whitespace-pre-wrap leading-relaxed">{comentariosInforme}</p>
-              </div>
-            )}
           </div>
         </div>
       )}
