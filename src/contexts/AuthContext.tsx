@@ -29,25 +29,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // 🔥 CAMBIO: Usamos sessionStorage en lugar de localStorage
     const storedToken = sessionStorage.getItem('token');
     const storedUser = sessionStorage.getItem('user');
 
     if (storedUser) setUser(JSON.parse(storedUser));
     if (storedToken) setToken(storedToken);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // 🔥 LA MAGIA CONTRA RECARGAS: Ignorar eventos de refresco de pestaña
+      // Solo consultamos la BD en el login o carga inicial
+      if (event !== 'INITIAL_SESSION' && event !== 'SIGNED_IN' && event !== 'SIGNED_OUT') {
+        if (event === 'TOKEN_REFRESHED' && session) {
+          setToken(session.access_token);
+          sessionStorage.setItem('token', session.access_token);
+        }
+        return; // Salimos de aquí, no volvemos a consultar la base de datos
+      }
+
       if (session?.user) {
-        
         const { data: usuarioBD } = await supabase
           .from('usuarios')
           .select('*, academias(nombre, logo)')
           .eq('id', session.user.id)
           .maybeSingle();
 
-        const currentPath = window.location.pathname;
         const isMasterAdmin = session.user.email?.toLowerCase() === 'd.jarazerene@gmail.com';
-
         let newUser: User;
 
         if (usuarioBD) {
@@ -62,7 +68,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             requiere_cambio_password: usuarioBD.requiere_cambio_password
           };
         } else if (isMasterAdmin) {
-          // 🛡️ PASE VIP
           newUser = {
             id: session.user.id,
             email: session.user.email || '',
@@ -72,39 +77,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             requiere_cambio_password: false
           };
         } else {
-          // 🔥 CORRECCIÓN: Si es nuevo y no está en la BD, SÍ le creamos estado,
-          // pero con academia_id en null para que el App.tsx lo atrape.
           newUser = {
             id: session.user.id,
             email: session.user.email || '',
             nombre_completo: session.user.user_metadata?.full_name || 'Nuevo Usuario',
             rol: 'director',
-            academia_id: null, // Esto disparará el guardián de App.tsx
+            academia_id: null,
             requiere_cambio_password: false
           };
         }
 
         setUser(newUser);
-        // 🔥 CAMBIO: Usamos sessionStorage
+        setToken(session.access_token);
         sessionStorage.setItem('user', JSON.stringify(newUser));
-
-        // REDIRECCIÓN INTELIGENTE BÁSICA
-        if (currentPath === '/' || currentPath === '/login' || currentPath === '/registro') {
-          if (newUser.rol === 'superadmin' || isMasterAdmin) {
-            window.location.href = '/admin'; 
-          } else if (newUser.requiere_cambio_password) {
-            window.location.href = '/cambiar-password';
-          } else if (!newUser.academia_id) {
-            window.location.href = '/completar-perfil'; // Lo mandamos a crear academia
-          } else {
-            window.location.href = '/dashboard';
-          }
-        }
+        sessionStorage.setItem('token', session.access_token);
+        
+        // ❌ ELIMINAMOS los window.location.href. Dejamos que App.tsx haga el ruteo suave.
       } else {
-        // Si no hay sesión, limpiamos
         setUser(null);
         setToken(null);
-        // 🔥 CAMBIO: Usamos sessionStorage
         sessionStorage.removeItem('user');
         sessionStorage.removeItem('token');
       }
@@ -146,7 +137,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           requiere_cambio_password: usuarioBD.requiere_cambio_password
         };
       } else if (isMasterAdmin) {
-        // 🛡️ PASE VIP EN LOGIN MANUAL
         newUser = {
           id: authData.user.id,
           email: authData.user.email || '',
@@ -156,7 +146,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           requiere_cambio_password: false
         };
       } else {
-        // 🔥 CORRECCIÓN: Permitir login de usuarios sin BD para que App.tsx los guíe a /completar-perfil
         newUser = {
           id: authData.user.id,
           email: authData.user.email || '',
@@ -168,10 +157,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       const newToken = authData.session.access_token;
-
       setToken(newToken);
       setUser(newUser);
-      // 🔥 CAMBIO: Usamos sessionStorage
       sessionStorage.setItem('token', newToken);
       sessionStorage.setItem('user', JSON.stringify(newUser));
 
@@ -185,10 +172,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await supabase.auth.signOut();
     setToken(null);
     setUser(null);
-    // 🔥 CAMBIO: Usamos sessionStorage
     sessionStorage.clear();
-    // Redirigir al inicio de forma segura
-    window.location.href = '/login';
+    window.location.href = '/login'; // En logout SÍ es sano limpiar todo de golpe
   };
 
   return (
