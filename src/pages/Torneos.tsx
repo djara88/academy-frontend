@@ -117,7 +117,7 @@ const Torneos: React.FC = () => {
                         onClick={() => gestionarTorneo(torneo.id)}
                         className="bg-[#289E9D] hover:bg-[#207f7e] text-white px-3 py-1.5 rounded text-xs font-bold transition-colors shadow-sm"
                       >
-                        ⚙️ Convocatorias y Bot
+                        ⚙️ Convocatoria
                       </button>
                       <button
                         onClick={() => verPartidos(torneo.id)}
