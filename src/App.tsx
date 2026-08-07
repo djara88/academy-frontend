@@ -13,18 +13,16 @@ import Jugadores from './pages/Jugadores';
 import Matricula from './pages/Matricula';
 import Torneos from './pages/Torneos';
 import NuevoTorneo from './pages/NuevoTorneo';
+import GestionarTorneo from './pages/GestionarTorneo'; // 🔥 NUEVO IMPORT
 import Partidos from './pages/Partidos';
 import SaaSAdmin from './pages/SaaSAdmin';
 import CambiarPassword from './pages/CambiarPassword';
 import Terminos from './pages/Terminos'; 
 import WhatsApp from './pages/WhatsApp';
-import FinanzasConfig from './pages/FinanzasConfig'; // 🔥 NUEVA IMPORTACIÓN
+import FinanzasConfig from './pages/FinanzasConfig';
 
 const queryClient = new QueryClient();
 
-// ====================================================================
-// 🛡️ GUARDIÁN DE RUTAS PRIVADAS (Solo usuarios autenticados)
-// ====================================================================
 const ProtectedRoutes = () => {
   const { user, loading } = useAuth();
 
@@ -43,9 +41,6 @@ const ProtectedRoutes = () => {
   return <Layout />;
 };
 
-// ====================================================================
-// 🚪 GUARDIÁN DE RUTAS PÚBLICAS (Evita que usuarios logueados vean el Home o Login)
-// ====================================================================
 const PublicRoutes = () => {
   const { user, loading } = useAuth();
 
@@ -57,7 +52,6 @@ const PublicRoutes = () => {
     );
   }
 
-  // 🔥 REDIRECCIÓN INTELIGENTE Y FLUIDA
   if (user) {
     if (user.rol === 'superadmin') return <Navigate to="/admin" replace />;
     if (user.requiere_cambio_password) return <Navigate to="/cambiar-password" replace />;
@@ -75,38 +69,31 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             
-            {/* ======================================================= */}
-            {/* 🚪 RUTAS PÚBLICAS (Home, Login, Registro)               */}
-            {/* ======================================================= */}
             <Route element={<PublicRoutes />}>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/registro" element={<Registro />} /> 
             </Route>
             
-            {/* Rutas sueltas de configuración intermedia */}
             <Route path="/completar-perfil" element={<CompletarPerfil />} /> 
             <Route path="/cambiar-password" element={<CambiarPassword />} />
             
-            {/* ======================================================= */}
-            {/* 🛡️ RUTAS PRIVADAS (Dashboard y sistema)                 */}
-            {/* ======================================================= */}
             <Route element={<ProtectedRoutes />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/jugadores" element={<Jugadores />} />
               <Route path="/matricula" element={<Matricula />} />
               <Route path="/terminos" element={<Terminos />} />
               <Route path="/whatsapp" element={<WhatsApp />} />
-              <Route path="/finanzas" element={<FinanzasConfig />} /> {/* 🔥 NUEVA RUTA */}
+              <Route path="/finanzas" element={<FinanzasConfig />} />
               
               <Route path="/torneos" element={<Torneos />} />
               <Route path="/nuevo-torneo" element={<NuevoTorneo />} />
+              <Route path="/torneos/:id" element={<GestionarTorneo />} /> {/* 🔥 RUTA DE GESTIÓN */}
               <Route path="/partidos" element={<Partidos />} />
               
               <Route path="/admin" element={<SaaSAdmin />} />
             </Route>
 
-            {/* Ruta de Rescate (404) */}
             <Route path="*" element={<Navigate to="/" replace />} />
             
           </Routes>
