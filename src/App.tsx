@@ -17,7 +17,8 @@ import Partidos from './pages/Partidos';
 import SaaSAdmin from './pages/SaaSAdmin';
 import CambiarPassword from './pages/CambiarPassword';
 import Terminos from './pages/Terminos'; 
-import WhatsApp from './pages/WhatsApp'; // 🔥 NUEVA IMPORTACIÓN
+import WhatsApp from './pages/WhatsApp';
+import FinanzasConfig from './pages/FinanzasConfig'; // 🔥 NUEVA IMPORTACIÓN
 
 const queryClient = new QueryClient();
 
@@ -95,7 +96,8 @@ const App = () => {
               <Route path="/jugadores" element={<Jugadores />} />
               <Route path="/matricula" element={<Matricula />} />
               <Route path="/terminos" element={<Terminos />} />
-              <Route path="/whatsapp" element={<WhatsApp />} /> {/* 🔥 NUEVA RUTA */}
+              <Route path="/whatsapp" element={<WhatsApp />} />
+              <Route path="/finanzas" element={<FinanzasConfig />} /> {/* 🔥 NUEVA RUTA */}
               
               <Route path="/torneos" element={<Torneos />} />
               <Route path="/nuevo-torneo" element={<NuevoTorneo />} />
