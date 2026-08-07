@@ -15,13 +15,11 @@ const Terminos: React.FC = () => {
 
   const pdfRef = useRef<HTMLDivElement>(null);
 
-  // 1. Cargar los términos actuales de la academia
   useEffect(() => {
     const cargarTerminos = async () => {
       if (!user?.academia_id) return;
       try {
         setLoading(true);
-        // Ajusta esta ruta según cómo obtengas los datos de la academia en tu backend
         const response = await api.get(`/api/academias/${user.academia_id}`);
         const data = response.data.data;
         
@@ -38,16 +36,14 @@ const Terminos: React.FC = () => {
     };
 
     cargarTerminos();
-  }, [user?.academia_id]); // 👈 Dependencia correcta para evitar recargas
+  }, [user?.academia_id]);
 
-  // 2. Guardar los términos en la base de datos
   const handleGuardar = async () => {
     if (!user?.academia_id) return;
     try {
       setSaving(true);
       
-      // Enviamos la actualización a la tabla academias
-      await api.put(`/api/academias/${user.academia_id}`, {
+      await api.put(`/api/academias/${user.academia_id}/terminos`, {
         terminos_condiciones: terminos
       });
       
@@ -61,13 +57,11 @@ const Terminos: React.FC = () => {
     }
   };
 
-  // 3. Exportar a PDF
   const handleGenerarPDF = async () => {
     if (!pdfRef.current) return;
     try {
       setGenerandoPDF(true);
       
-      // Capturamos el div oculto que tiene formato de documento
       const canvas = await html2canvas(pdfRef.current, {
         scale: 2,
         backgroundColor: '#ffffff',
@@ -97,14 +91,9 @@ const Terminos: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto space-y-6 relative overflow-hidden">
       
-      {/* ========================================== */}
-      {/* PLANTILLA OCULTA PARA EL PDF (Hoja A4)     */}
-      {/* ========================================== */}
+      {/* PLANTILLA OCULTA PARA EL PDF */}
       <div className="absolute left-[-10000px] top-0">
-        <div 
-          ref={pdfRef} 
-          className="w-[800px] min-h-[1130px] bg-white text-black p-12 font-sans flex flex-col"
-        >
+        <div ref={pdfRef} className="w-[800px] min-h-[1130px] bg-white text-black p-12 font-sans flex flex-col">
           <div className="flex justify-between items-center border-b-2 border-gray-800 pb-6 mb-8">
             {user?.logo_url ? (
               <img src={user.logo_url} className="w-24 h-24 object-contain" alt="Logo" />
@@ -139,9 +128,7 @@ const Terminos: React.FC = () => {
         </div>
       </div>
 
-      {/* ========================================== */}
-      {/* INTERFAZ DE USUARIO (UI)                   */}
-      {/* ========================================== */}
+      {/* INTERFAZ DE USUARIO */}
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-[#e6edf3]">📄 Términos y Condiciones</h1>
         <div className="flex gap-3">
@@ -185,7 +172,7 @@ const Terminos: React.FC = () => {
         {isEditing ? (
           <div className="space-y-4">
             <p className="text-sm text-gray-400">
-              Modifica los términos, condiciones y reglamento interno de tu academia. Este texto será el que los apoderados acepten al matricularse y aparecerá en los documentos PDF.
+              Modifica los términos, condiciones y reglamento interno de tu academia.
             </p>
             <textarea
               value={terminos}
@@ -196,7 +183,6 @@ const Terminos: React.FC = () => {
           </div>
         ) : (
           <div className="bg-white rounded-lg p-8 h-[60vh] overflow-y-auto">
-            {/* Vista previa simulando papel para que el director vea cómo queda */}
             <div className="max-w-3xl mx-auto text-black">
               <h2 className="font-bold text-xl text-center mb-6 underline">REGLAMENTO Y TÉRMINOS DE MATRÍCULA</h2>
               <div className="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap text-justify">
