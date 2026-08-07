@@ -153,7 +153,6 @@ const Layout = () => {
                   <span className="mr-3">⚖️</span> Términos PDF
                 </Link>
 
-                {/* 🔥 NUEVO BOTÓN DE WHATSAPP */}
                 <Link
                   to="/whatsapp"
                   className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
@@ -163,6 +162,18 @@ const Layout = () => {
                   }`}
                 >
                   <span className="mr-3">📱</span> WhatsApp
+                </Link>
+
+                {/* 🔥 NUEVO BOTÓN DE RECAUDACIÓN/FINANZAS */}
+                <Link
+                  to="/finanzas"
+                  className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                    isActive('/finanzas') 
+                      ? 'bg-[#289E9D] text-white font-semibold' 
+                      : 'text-gray-400 hover:bg-[#131722] hover:text-white'
+                  }`}
+                >
+                  <span className="mr-3">💳</span> Recaudación
                 </Link>
               </>
             )}
@@ -186,7 +197,7 @@ const Layout = () => {
 
       {/* CONTENEDOR PRINCIPAL */}
       <main className="flex-1 overflow-y-auto">
-        <div className="h-full">
+        <div className="h-full p-6">
           <Outlet />
         </div>
       </main>
