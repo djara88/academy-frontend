@@ -39,7 +39,7 @@ const Layout = () => {
       
       {/* BARRA LATERAL */}
       <aside className="w-64 bg-[#1C212D] border-r border-gray-800 flex flex-col justify-between">
-        <div>
+        <div className="flex-1 overflow-y-auto">
           {/* LOGO PLATAFORMA / LOGO DE LA ACADEMIA */}
           <div className="p-6 border-b border-gray-800 text-center flex flex-col items-center justify-center">
             {logoAcademia && !isSuperAdmin ? (
@@ -107,18 +107,6 @@ const Layout = () => {
                   <span className="mr-3">📝</span> Nueva Matrícula
                 </Link>
 
-                {/* 🔥 NUEVO BOTÓN DE TÉRMINOS Y CONDICIONES */}
-                <Link
-                  to="/terminos"
-                  className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
-                    isActive('/terminos') 
-                      ? 'bg-[#289E9D] text-white font-semibold' 
-                      : 'text-gray-400 hover:bg-[#131722] hover:text-white'
-                  }`}
-                >
-                  <span className="mr-3">⚖️</span> Términos PDF
-                </Link>
-
                 <Link
                   to="/jugadores"
                   className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
@@ -151,13 +139,38 @@ const Layout = () => {
                 >
                   <span className="mr-3">⚽</span> Partidos
                 </Link>
+
+                <div className="border-t border-gray-700 my-4"></div>
+
+                <Link
+                  to="/terminos"
+                  className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                    isActive('/terminos') 
+                      ? 'bg-[#289E9D] text-white font-semibold' 
+                      : 'text-gray-400 hover:bg-[#131722] hover:text-white'
+                  }`}
+                >
+                  <span className="mr-3">⚖️</span> Términos PDF
+                </Link>
+
+                {/* 🔥 NUEVO BOTÓN DE WHATSAPP */}
+                <Link
+                  to="/whatsapp"
+                  className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                    isActive('/whatsapp') 
+                      ? 'bg-[#289E9D] text-white font-semibold' 
+                      : 'text-gray-400 hover:bg-[#131722] hover:text-white'
+                  }`}
+                >
+                  <span className="mr-3">📱</span> WhatsApp
+                </Link>
               </>
             )}
           </nav>
         </div>
 
         {/* SECCIÓN INFERIOR */}
-        <div className="p-4 border-t border-gray-800 space-y-2">
+        <div className="p-4 border-t border-gray-800 space-y-2 mt-auto">
           <div className="px-4 py-2 text-xs text-gray-400 border-b border-gray-800 mb-2">
             Usuario: <span className="text-white font-semibold block truncate">{user?.email || 'Sin usuario'}</span>
           </div>
