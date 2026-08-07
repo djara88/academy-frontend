@@ -39,8 +39,11 @@ const Torneos: React.FC = () => {
   };
 
   const irANuevoTorneo = () => {
-    // 🔥 CORREGIDO: Ahora apunta exactamente a '/nuevo-torneo' como está en App.tsx
     navigate('/nuevo-torneo');
+  };
+
+  const gestionarTorneo = (torneoId: string) => {
+    navigate(`/torneos/${torneoId}`);
   };
 
   const verPartidos = (torneoId: string) => {
@@ -111,10 +114,16 @@ const Torneos: React.FC = () => {
                     </td>
                     <td className="p-4 flex justify-center gap-2">
                       <button
+                        onClick={() => gestionarTorneo(torneo.id)}
+                        className="bg-[#289E9D] hover:bg-[#207f7e] text-white px-3 py-1.5 rounded text-xs font-bold transition-colors shadow-sm"
+                      >
+                        ⚙️ Convocatorias y Bot
+                      </button>
+                      <button
                         onClick={() => verPartidos(torneo.id)}
                         className="bg-[#21262d] hover:bg-[#30363d] text-white px-3 py-1.5 rounded text-xs font-semibold border border-[#30363d] transition-colors"
                       >
-                        ⚽ Ver Partidos
+                        ⚽ Partidos
                       </button>
                     </td>
                   </tr>
