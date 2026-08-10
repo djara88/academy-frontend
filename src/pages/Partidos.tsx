@@ -10,6 +10,7 @@ interface Partido {
   ubicacion: string;
   link_maps: string;
   color_uniforme: string;
+  condicion: string;
   es_amistoso: boolean;
   cobra_arbitraje: boolean;
   monto_arbitraje_jugador: number;
@@ -45,6 +46,7 @@ const Partidos: React.FC = () => {
     ubicacion: '',
     link_maps: '',
     color_uniforme: 'Titular',
+    condicion: 'Local',
     cobra_arbitraje: false,
     monto_arbitraje_jugador: 0
   });
@@ -84,6 +86,7 @@ const Partidos: React.FC = () => {
       ubicacion: '',
       link_maps: '',
       color_uniforme: 'Titular',
+      condicion: 'Local',
       cobra_arbitraje: false,
       monto_arbitraje_jugador: 0
     });
@@ -102,6 +105,7 @@ const Partidos: React.FC = () => {
       ubicacion: p.ubicacion || '',
       link_maps: p.link_maps || '',
       color_uniforme: p.color_uniforme || 'Titular',
+      condicion: p.condicion || 'Local',
       cobra_arbitraje: p.cobra_arbitraje || false,
       monto_arbitraje_jugador: p.monto_arbitraje_jugador || 0
     });
@@ -109,7 +113,7 @@ const Partidos: React.FC = () => {
   };
 
   const handleEliminarPartido = async (id: string, rival: string) => {
-    const conf = window.confirm(`¿Estás seguro de eliminar el partido vs "${rival}"? Esta acción no se puede deshacer.`);
+    const conf = window.confirm(`¿Estás seguro de eliminar el partido vs "${rival}"?`);
     if (!conf) return;
 
     try {
@@ -195,17 +199,21 @@ const Partidos: React.FC = () => {
             <div key={p.id} className="bg-[#0d1117] border border-[#30363d] rounded-xl p-5 space-y-4 relative hover:border-[#289E9D] transition-colors flex flex-col justify-between">
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-xs">
-                  {p.es_amistoso ? (
-                    <span className="bg-purple-500/20 text-purple-400 border border-purple-500/30 px-2.5 py-0.5 rounded-full font-bold">🤝 Amistoso</span>
-                  ) : (
-                    <span className="bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2.5 py-0.5 rounded-full font-bold truncate max-w-[150px]">🏆 {p.torneos?.nombre}</span>
-                  )}
+                  <div className="flex items-center gap-1.5">
+                    {p.es_amistoso ? (
+                      <span className="bg-purple-500/20 text-purple-400 border border-purple-500/30 px-2.5 py-0.5 rounded-full font-bold">🤝 Amistoso</span>
+                    ) : (
+                      <span className="bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2.5 py-0.5 rounded-full font-bold truncate max-w-[120px]">🏆 {p.torneos?.nombre}</span>
+                    )}
+                    <span className={`px-2 py-0.5 rounded-full font-bold border ${p.condicion === 'Visita' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' : 'bg-green-500/20 text-green-400 border-green-500/30'}`}>
+                      {p.condicion === 'Visita' ? '✈️ Visita' : '🏠 Local'}
+                    </span>
+                  </div>
                   
                   <div className="flex items-center gap-2">
-                    <span className="bg-gray-800 text-gray-300 border border-gray-700 px-2.5 py-0.5 rounded-full font-bold">🏷️ {p.categorias?.nombre || 'Sin Cat.'}</span>
-                    {/* ACCIONES RÁPIDAS: EDITAR Y ELIMINAR */}
-                    <button onClick={() => abrirModalEditar(p)} className="text-gray-400 hover:text-white p-1" title="Editar Partido">✏️</button>
-                    <button onClick={() => handleEliminarPartido(p.id, p.rival)} className="text-red-400 hover:text-red-300 p-1" title="Eliminar Partido">🗑️</button>
+                    <span className="bg-gray-800 text-gray-300 border border-gray-700 px-2 py-0.5 rounded-full font-bold">🏷️ {p.categorias?.nombre || 'Sin Cat.'}</span>
+                    <button onClick={() => abrirModalEditar(p)} className="text-gray-400 hover:text-white p-1" title="Editar">✏️</button>
+                    <button onClick={() => handleEliminarPartido(p.id, p.rival)} className="text-red-400 hover:text-red-300 p-1" title="Eliminar">🗑️</button>
                   </div>
                 </div>
 
@@ -217,7 +225,8 @@ const Partidos: React.FC = () => {
                 <div className="grid grid-cols-2 gap-2 text-xs bg-[#161b22] p-3 rounded-lg border border-[#30363d]/50 text-gray-300">
                   <div><span className="text-gray-500 block">📅 Fecha:</span> <strong className="text-white">{p.fecha}</strong></div>
                   <div><span className="text-gray-500 block">⏰ Hora:</span> <strong className="text-white">{p.hora} hrs</strong></div>
-                  <div className="col-span-2"><span className="text-gray-500 block">🏟️ Lugar:</span> <strong className="text-white">{p.ubicacion || 'Por confirmar'}</strong></div>
+                  <div><span className="text-gray-500 block">👕 Uniforme:</span> <strong className="text-white">{p.color_uniforme}</strong></div>
+                  <div><span className="text-gray-500 block">🏟️ Lugar:</span> <strong className="text-white truncate block">{p.ubicacion || 'Por confirmar'}</strong></div>
                 </div>
 
                 {p.link_maps && (
@@ -312,6 +321,33 @@ const Partidos: React.FC = () => {
               <div>
                 <label className="block text-gray-400 mb-1 font-semibold">Rival *</label>
                 <input required type="text" placeholder="Ej: Colo Colo Filial Sur" value={form.rival} onChange={e => setForm({ ...form, rival: e.target.value })} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]" />
+              </div>
+
+              {/* SECCIÓN NUEVA: CONDICIÓN Y UNIFORME */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-gray-400 mb-1 font-semibold">Condición de Localía *</label>
+                  <select 
+                    value={form.condicion} 
+                    onChange={e => setForm({ ...form, condicion: e.target.value })}
+                    className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]"
+                  >
+                    <option value="Local">🏠 Local</option>
+                    <option value="Visita">✈️ Visita</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-gray-400 mb-1 font-semibold">Uniforme a llevar *</label>
+                  <select 
+                    value={form.color_uniforme} 
+                    onChange={e => setForm({ ...form, color_uniforme: e.target.value })}
+                    className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]"
+                  >
+                    <option value="Titular">Titular</option>
+                    <option value="Visita">Visita</option>
+                    <option value="Ambas (Llevar ambos)">Ambas (Llevar ambos)</option>
+                  </select>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
