@@ -20,7 +20,9 @@ import CambiarPassword from './pages/CambiarPassword';
 import Terminos from './pages/Terminos'; 
 import WhatsApp from './pages/WhatsApp';
 import FinanzasConfig from './pages/FinanzasConfig';
-import Asistencias from './pages/Asistencias'; // 👈 NUEVA IMPORTACIÓN
+import Asistencias from './pages/Asistencias';
+import Configuracion from './pages/Configuracion'; // 👈 NUEVA IMPORTACIÓN
+import PerfilAcademia from './pages/PerfilAcademia'; // 👈 NUEVA IMPORTACIÓN
 
 const queryClient = new QueryClient();
 
@@ -83,15 +85,19 @@ const App = () => {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/jugadores" element={<Jugadores />} />
               <Route path="/matricula" element={<Matricula />} />
-              <Route path="/terminos" element={<Terminos />} />
-              <Route path="/whatsapp" element={<WhatsApp />} />
-              <Route path="/finanzas" element={<FinanzasConfig />} />
-              <Route path="/asistencias" element={<Asistencias />} /> {/* 👈 NUEVA RUTA */}
+              <Route path="/asistencias" element={<Asistencias />} />
               
               <Route path="/torneos" element={<Torneos />} />
               <Route path="/nuevo-torneo" element={<NuevoTorneo />} />
               <Route path="/torneos/:id" element={<GestionarTorneo />} />
               <Route path="/partidos" element={<Partidos />} />
+              
+              {/* RUTAS DEL MÓDULO DE CONFIGURACIÓN Y SUBMÓDULOS */}
+              <Route path="/configuracion" element={<Configuracion />} /> {/* 👈 MENÚ ANDROID */}
+              <Route path="/configuracion/perfil" element={<PerfilAcademia />} /> {/* 👈 DÍAS Y HORARIOS */}
+              <Route path="/terminos" element={<Terminos />} />
+              <Route path="/whatsapp" element={<WhatsApp />} />
+              <Route path="/finanzas" element={<FinanzasConfig />} />
               
               <Route path="/admin" element={<SaaSAdmin />} />
             </Route>
