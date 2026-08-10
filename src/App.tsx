@@ -13,13 +13,14 @@ import Jugadores from './pages/Jugadores';
 import Matricula from './pages/Matricula';
 import Torneos from './pages/Torneos';
 import NuevoTorneo from './pages/NuevoTorneo';
-import GestionarTorneo from './pages/GestionarTorneo'; // 🔥 NUEVO IMPORT
+import GestionarTorneo from './pages/GestionarTorneo';
 import Partidos from './pages/Partidos';
 import SaaSAdmin from './pages/SaaSAdmin';
 import CambiarPassword from './pages/CambiarPassword';
 import Terminos from './pages/Terminos'; 
 import WhatsApp from './pages/WhatsApp';
 import FinanzasConfig from './pages/FinanzasConfig';
+import Asistencias from './pages/Asistencias'; // 👈 NUEVA IMPORTACIÓN
 
 const queryClient = new QueryClient();
 
@@ -85,10 +86,11 @@ const App = () => {
               <Route path="/terminos" element={<Terminos />} />
               <Route path="/whatsapp" element={<WhatsApp />} />
               <Route path="/finanzas" element={<FinanzasConfig />} />
+              <Route path="/asistencias" element={<Asistencias />} /> {/* 👈 NUEVA RUTA */}
               
               <Route path="/torneos" element={<Torneos />} />
               <Route path="/nuevo-torneo" element={<NuevoTorneo />} />
-              <Route path="/torneos/:id" element={<GestionarTorneo />} /> {/* 🔥 RUTA DE GESTIÓN */}
+              <Route path="/torneos/:id" element={<GestionarTorneo />} />
               <Route path="/partidos" element={<Partidos />} />
               
               <Route path="/admin" element={<SaaSAdmin />} />
