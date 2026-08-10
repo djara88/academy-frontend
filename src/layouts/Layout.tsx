@@ -1,3 +1,4 @@
+// src/layouts/Layout.tsx
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../config/supabase';
@@ -118,6 +119,18 @@ const Layout = () => {
                   <span className="mr-3">🏃‍♂️</span> Jugadores
                 </Link>
 
+                {/* 🔥 NUEVO BOTÓN DE ASISTENCIAS */}
+                <Link
+                  to="/asistencias"
+                  className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                    isActive('/asistencias') 
+                      ? 'bg-[#289E9D] text-white font-semibold' 
+                      : 'text-gray-400 hover:bg-[#131722] hover:text-white'
+                  }`}
+                >
+                  <span className="mr-3">📋</span> Asistencias
+                </Link>
+
                 <Link
                   to="/torneos"
                   className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
@@ -164,7 +177,6 @@ const Layout = () => {
                   <span className="mr-3">📱</span> WhatsApp
                 </Link>
 
-                {/* 🔥 NUEVO BOTÓN DE RECAUDACIÓN/FINANZAS */}
                 <Link
                   to="/finanzas"
                   className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
