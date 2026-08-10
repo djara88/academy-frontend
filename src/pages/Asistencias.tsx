@@ -1,14 +1,16 @@
 // src/pages/Asistencias.tsx
 import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
-import * as XLSX from 'xlsx'; // 👈 IMPORTACIÓN DE LIBRERÍA EXCEL
+import * as XLSX from 'xlsx';
 
 const Asistencias: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'lista' | 'reportes'>('lista');
+  const [activeTab, setActiveTab] = useState<'lista' | 'reportes' | 'reagendar'>('lista');
 
   const [categorias, setCategorias] = useState<any[]>([]);
   const [categoriaSel, setCategoriaSel] = useState('');
   const [fechaSel, setFechaSel] = useState(new Date().toISOString().split('T')[0]);
+  const [horaSel, setHoraSel] = useState('17:00');
+  const [lugarSel, setLugarSel] = useState('');
   
   const [alumnos, setAlumnos] = useState<any[]>([]);
   const [asistencias, setAsistencias] = useState<any>({});
@@ -18,14 +20,27 @@ const Asistencias: React.FC = () => {
   const [motivoCancelacion, setMotivoCancelacion] = useState('');
   const [guardando, setGuardando] = useState(false);
 
+  // Datos de Configuración de la Academia
+  const [configAcademia, setConfigAcademia] = useState<any>(null);
+  const [esDiaConfigurado, setEsDiaConfigurado] = useState(false);
+
   // Estados de Métricas
   const [metricas, setMetricas] = useState<any>(null);
   const [mesMetricas, setMesMetricas] = useState(new Date().toISOString().split('-')[1]);
   const [anioMetricas, setAnioMetricas] = useState(new Date().getFullYear().toString());
   const [enviandoReporte, setEnviandoReporte] = useState(false);
 
+  // Clases Suspendidas para reagendar
+  const [clasesSuspendidas, setClasesSuspendidas] = useState<any[]>([]);
+  const [claseCanceladaSel, setClaseCanceladaSel] = useState<any>(null);
+  const [fechaReagendar, setFechaReagendar] = useState('');
+  const [horaReagendar, setHoraReagendar] = useState('18:00');
+  const [lugarReagendar, setLugarReagendar] = useState('');
+  const [reagendando, setReagendando] = useState(false);
+
   useEffect(() => {
     cargarCategoriasYMetricas();
+    cargarConfiguracionAcademia();
   }, [mesMetricas, anioMetricas]);
 
   useEffect(() => {
@@ -34,13 +49,51 @@ const Asistencias: React.FC = () => {
     }
   }, [categoriaSel, estadoClase]);
 
+  useEffect(() => {
+    if (configAcademia && fechaSel) {
+      verificarSincronizacionHorario(fechaSel, configAcademia);
+    }
+  }, [fechaSel, configAcademia]);
+
+  const cargarConfiguracionAcademia = async () => {
+    try {
+      const res = await api.get('/api/academias/mi-academia');
+      if (res.data.data) {
+        const conf = res.data.data;
+        setConfigAcademia(conf);
+        if (conf.horarios_entrenamiento) setHoraSel(conf.horarios_entrenamiento.split(' ')[0] || '17:00');
+        if (conf.ubicacion_entrenamiento) {
+          setLugarSel(conf.ubicacion_entrenamiento);
+          setLugarReagendar(conf.ubicacion_entrenamiento);
+        }
+        verificarSincronizacionHorario(fechaSel, conf);
+      }
+    } catch (e) {
+      console.error('Error cargando academia:', e);
+    }
+  };
+
+  const verificarSincronizacionHorario = (fechaStr: string, conf: any) => {
+    if (!conf.dias_entrenamiento) return;
+    const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+    const fechaObj = new Date(fechaStr + 'T00:00:00');
+    const nombreDiaHoy = diasSemana[fechaObj.getDay()];
+
+    const diasConfigurados = conf.dias_entrenamiento.toLowerCase();
+    const coincide = diasConfigurados.includes(nombreDiaHoy);
+    setEsDiaConfigurado(coincide);
+  };
+
   const cargarCategoriasYMetricas = async () => {
     try {
-      const resC = await api.get('/api/jugadores/categorias');
+      const [resC, resM, resS] = await Promise.all([
+        api.get('/api/jugadores/categorias'),
+        api.get(`/api/entrenamientos/metricas?mes=${mesMetricas}&anio=${anioMetricas}`),
+        api.get('/api/entrenamientos/suspendidas')
+      ]);
       setCategorias(resC.data.data || []);
-      
-      const resM = await api.get(`/api/entrenamientos/metricas?mes=${mesMetricas}&anio=${anioMetricas}`);
       setMetricas(resM.data.data);
+      setClasesSuspendidas(resS.data.data || []);
     } catch (e) {
       console.error('Error cargando métricas:', e);
     }
@@ -71,7 +124,8 @@ const Asistencias: React.FC = () => {
       await api.post('/api/entrenamientos', {
         categoria_id: categoriaSel,
         fecha: fechaSel,
-        hora: '17:00',
+        hora: horaSel,
+        lugar: lugarSel,
         estado: estadoClase,
         es_recuperacion: esRecuperativa,
         motivo_cancelacion: motivoCancelacion,
@@ -85,6 +139,36 @@ const Asistencias: React.FC = () => {
       alert('Error al guardar. Verifica tu conexión.');
     } finally {
       setGuardando(false);
+    }
+  };
+
+  const handleReagendarYNotificar = async () => {
+    if (!claseCanceladaSel || !fechaReagendar || !horaReagendar) {
+      return alert('Por favor completa todos los campos del reagendamiento.');
+    }
+
+    const conf = window.confirm(`¿Confirmar reagendamiento y ENVIAR WHATSAPP a todos los apoderados de ${claseCanceladaSel.categorias?.nombre}?`);
+    if (!conf) return;
+
+    setReagendando(true);
+    try {
+      const res = await api.post('/api/entrenamientos/reagendar-notificar', {
+        categoria_id: claseCanceladaSel.categoria_id,
+        fecha: fechaReagendar,
+        hora: horaReagendar,
+        lugar: lugarReagendar,
+        clase_cancelada_id: claseCanceladaSel.id,
+        motivo_original: claseCanceladaSel.motivo_cancelacion
+      });
+
+      alert(`✅ ${res.data.message}`);
+      setClaseCanceladaSel(null);
+      setFechaReagendar('');
+      cargarCategoriasYMetricas();
+    } catch (e: any) {
+      alert(e.response?.data?.error || 'Error al reagendar la clase.');
+    } finally {
+      setReagendando(false);
     }
   };
 
@@ -108,7 +192,6 @@ const Asistencias: React.FC = () => {
     }
   };
 
-  // 🔥 NUEVA FUNCIÓN: EXPORTAR A EXCEL
   const exportarAExcel = () => {
     if (!metricas || !metricas.jugadores || metricas.jugadores.length === 0) {
       return alert("No hay datos suficientes para exportar.");
@@ -125,8 +208,6 @@ const Asistencias: React.FC = () => {
     const hoja = XLSX.utils.json_to_sheet(datosExcel);
     const libro = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(libro, hoja, `Asistencias_${mesMetricas}_${anioMetricas}`);
-    
-    // Descarga automática del archivo
     XLSX.writeFile(libro, `Reporte_Asistencias_${mesMetricas}_${anioMetricas}.xlsx`);
   };
 
@@ -135,28 +216,48 @@ const Asistencias: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-[#e6edf3]">📋 Asistencias y Recuperaciones</h1>
-          <p className="text-sm text-gray-400">Pasa la lista en cancha, controla inasistencias y envía reportes individuales.</p>
+          <p className="text-sm text-gray-400">Pasa la lista en cancha, controla inasistencias y reagenda clases suspendidas.</p>
         </div>
         
         <div className="bg-[#0d1117] p-1.5 rounded-lg border border-[#30363d] flex gap-2 w-full md:w-auto">
           <button 
             onClick={() => setActiveTab('lista')} 
-            className={`flex-1 md:flex-none px-5 py-2 rounded-md font-bold text-sm transition-colors ${activeTab === 'lista' ? 'bg-[#289E9D] text-white' : 'text-gray-400 hover:text-white'}`}
+            className={`flex-1 md:flex-none px-4 py-2 rounded-md font-bold text-sm transition-colors ${activeTab === 'lista' ? 'bg-[#289E9D] text-white' : 'text-gray-400 hover:text-white'}`}
           >
             📝 Pasar Lista
           </button>
           <button 
-            onClick={() => setActiveTab('reportes')} 
-            className={`flex-1 md:flex-none px-5 py-2 rounded-md font-bold text-sm transition-colors ${activeTab === 'reportes' ? 'bg-[#289E9D] text-white' : 'text-gray-400 hover:text-white'}`}
+            onClick={() => setActiveTab('reagendar')} 
+            className={`flex-1 md:flex-none px-4 py-2 rounded-md font-bold text-sm transition-colors relative ${activeTab === 'reagendar' ? 'bg-orange-600 text-white' : 'text-orange-400 hover:text-white'}`}
           >
-            📊 Dashboard y Reportes
+            🔄 Reagendar ({clasesSuspendidas.length})
+          </button>
+          <button 
+            onClick={() => setActiveTab('reportes')} 
+            className={`flex-1 md:flex-none px-4 py-2 rounded-md font-bold text-sm transition-colors ${activeTab === 'reportes' ? 'bg-[#289E9D] text-white' : 'text-gray-400 hover:text-white'}`}
+          >
+            📊 Dashboard
           </button>
         </div>
       </div>
 
+      {/* PESTAÑA 1: PASAR LISTA */}
       {activeTab === 'lista' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
           <div className="lg:col-span-1 space-y-4">
+            
+            {/* ALERTA DE SINCRONIZACIÓN DE HORARIO */}
+            {configAcademia && (
+              <div className={`p-4 rounded-xl border text-xs leading-relaxed ${esDiaConfigurado ? 'bg-green-950/30 border-green-500/40 text-green-300' : 'bg-[#161b22] border-[#30363d] text-gray-400'}`}>
+                <span className="font-bold block mb-1 text-sm">
+                  {esDiaConfigurado ? '🗓️ ¡Hoy es día oficial de entrenamiento!' : '🗓️ Horario de la Escuela:'}
+                </span>
+                <p><strong>Días:</strong> {configAcademia.dias_entrenamiento || 'No configurado'}</p>
+                <p><strong>Horarios:</strong> {configAcademia.horarios_entrenamiento || 'No configurado'}</p>
+                <p><strong>Ubicación:</strong> {configAcademia.ubicacion_entrenamiento || 'Cancha Principal'}</p>
+              </div>
+            )}
+
             <div className="bg-[#0d1117] border border-[#30363d] rounded-xl p-5 space-y-4">
               <h3 className="text-lg font-bold text-white">⚙️ Configurar Sesión</h3>
 
@@ -171,6 +272,17 @@ const Asistencias: React.FC = () => {
               <div>
                 <label className="block text-xs font-semibold text-gray-400 mb-1">Fecha de la Clase</label>
                 <input type="date" value={fechaSel} onChange={e => setFechaSel(e.target.value)} className="w-full bg-[#161b22] border border-[#30363d] rounded p-2 text-white outline-none focus:border-[#289E9D]" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 mb-1">Hora</label>
+                  <input type="text" value={horaSel} onChange={e => setHoraSel(e.target.value)} className="w-full bg-[#161b22] border border-[#30363d] rounded p-2 text-white outline-none text-xs" placeholder="Ej: 17:00" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 mb-1">Lugar</label>
+                  <input type="text" value={lugarSel} onChange={e => setLugarSel(e.target.value)} className="w-full bg-[#161b22] border border-[#30363d] rounded p-2 text-white outline-none text-xs" placeholder="Cancha N°2" />
+                </div>
               </div>
 
               <div className="bg-[#161b22] p-3 rounded-lg border border-[#30363d]">
@@ -213,7 +325,7 @@ const Asistencias: React.FC = () => {
                 <div className="text-center text-red-400 py-20 bg-red-900/10 rounded-xl border border-red-500/20">
                   <span className="text-4xl block mb-2">🌧️</span>
                   Clase suspendida. No se pasará lista hoy.<br/>
-                  Haz clic en Guardar para registrar la cancelación.
+                  Haz clic en Guardar para registrar la cancelación y habilitar su reagendamiento.
                 </div>
               ) : !categoriaSel ? (
                 <div className="text-center text-gray-500 mt-20">Selecciona una categoría en el panel izquierdo para cargar a los alumnos.</div>
@@ -242,6 +354,88 @@ const Asistencias: React.FC = () => {
         </div>
       )}
 
+      {/* PESTAÑA 2: REAGENDAR Y RECUPERAR CLASES 🔥 */}
+      {activeTab === 'reagendar' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in">
+          {/* COLUMNA IZQUIERDA: LISTA DE SUSPENDIDAS */}
+          <div className="bg-[#0d1117] border border-[#30363d] rounded-xl p-6 space-y-4">
+            <h3 className="text-xl font-bold text-orange-400 flex items-center gap-2">
+              <span>🌧️</span> Clases Suspendidas Pendientes
+            </h3>
+            <p className="text-xs text-gray-400">Haz clic en una clase suspendida para asignarle una fecha de recuperación y avisar por WhatsApp.</p>
+
+            {clasesSuspendidas.length === 0 ? (
+              <div className="text-center py-16 text-gray-500 bg-[#161b22] rounded-xl border border-[#30363d]">
+                🎉 ¡Excelente! No tienes clases suspendidas pendientes por recuperar.
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                {clasesSuspendidas.map(cs => (
+                  <div 
+                    key={cs.id} 
+                    onClick={() => setClaseCanceladaSel(cs)} 
+                    className={`p-4 rounded-xl border transition-all cursor-pointer ${claseCanceladaSel?.id === cs.id ? 'bg-orange-950/40 border-orange-500 shadow-lg' : 'bg-[#161b22] border-[#30363d] hover:border-gray-500'}`}
+                  >
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="font-bold text-white">{cs.categorias?.nombre}</span>
+                      <span className="text-xs bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full font-bold">Suspendida</span>
+                    </div>
+                    <p className="text-xs text-gray-400">Fecha Canceled: <span className="text-gray-200 font-semibold">{cs.fecha}</span></p>
+                    <p className="text-xs text-orange-300 mt-1">Motivo: <em>"{cs.motivo_cancelacion || 'No especificado'}"</em></p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* COLUMNA DERECHA: FORMULARIO DE REAGENDAMIENTO */}
+          <div className="bg-[#0d1117] border border-[#30363d] rounded-xl p-6 space-y-4">
+            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+              <span>📲</span> Programar Recuperación y Avisar
+            </h3>
+
+            {!claseCanceladaSel ? (
+              <div className="text-center py-20 text-gray-500 bg-[#161b22] rounded-xl border border-[#30363d]">
+                👈 Selecciona una clase suspendida de la lista izquierda para reagendarla.
+              </div>
+            ) : (
+              <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-5 space-y-4">
+                <div className="border-b border-[#30363d] pb-3">
+                  <span className="text-xs text-gray-400 font-semibold uppercase block">Reagendando Clase De:</span>
+                  <span className="text-lg font-bold text-orange-400">{claseCanceladaSel.categorias?.nombre}</span>
+                  <p className="text-xs text-gray-400 mt-1">Suspendida el {claseCanceladaSel.fecha} por "{claseCanceladaSel.motivo_cancelacion}"</p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 mb-1">Nueva Fecha de Recuperación</label>
+                  <input type="date" value={fechaReagendar} onChange={e => setFechaReagendar(e.target.value)} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-orange-500" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 mb-1">Hora</label>
+                    <input type="text" value={horaReagendar} onChange={e => setHoraReagendar(e.target.value)} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none" placeholder="Ej: 18:00" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 mb-1">Lugar</label>
+                    <input type="text" value={lugarReagendar} onChange={e => setLugarReagendar(e.target.value)} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none" placeholder="Cancha Principal" />
+                  </div>
+                </div>
+
+                <button 
+                  onClick={handleReagendarYNotificar}
+                  disabled={reagendando || !fechaReagendar}
+                  className="w-full bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white py-3.5 rounded-lg font-bold shadow-lg transition-colors flex items-center justify-center gap-2 mt-4"
+                >
+                  {reagendando ? 'Procesando y Enviando...' : '📢 Programar y Avisar por WhatsApp'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* PESTAÑA 3: DASHBOARD */}
       {activeTab === 'reportes' && metricas && (
         <div className="space-y-6 animate-fade-in">
           
@@ -334,7 +528,6 @@ const Asistencias: React.FC = () => {
             <div className="bg-[#0d1117] p-6 rounded-xl border border-[#30363d] flex flex-col">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-bold text-white">🏃‍♂️ Ranking Individual</h3>
-                {/* 🔥 BOTÓN EXPORTAR EXCEL */}
                 <button 
                   onClick={exportarAExcel}
                   className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded text-xs font-bold transition-colors"
