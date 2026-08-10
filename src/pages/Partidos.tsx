@@ -15,6 +15,7 @@ interface Partido {
   monto_arbitraje_jugador: number;
   estado: string;
   categoria_id?: string;
+  torneo_id?: string;
   categorias?: { nombre: string };
   torneos?: { nombre: string };
 }
@@ -25,8 +26,9 @@ const Partidos: React.FC = () => {
   const [categorias, setCategorias] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Modales
+  // Modales y Edición
   const [showModalPartido, setShowModalPartido] = useState(false);
+  const [idPartidoEditando, setIdPartidoEditando] = useState<string | null>(null);
   const [showModalCitaciones, setShowModalCitaciones] = useState(false);
   const [partidoSeleccionado, setPartidoSeleccionado] = useState<Partido | null>(null);
   const [citados, setCitados] = useState<any[]>([]);
@@ -70,6 +72,54 @@ const Partidos: React.FC = () => {
     }
   };
 
+  const abrirModalCrear = () => {
+    setIdPartidoEditando(null);
+    setForm({
+      es_amistoso: false,
+      torneo_id: '',
+      categoria_id: '',
+      rival: '',
+      fecha: '',
+      hora: '',
+      ubicacion: '',
+      link_maps: '',
+      color_uniforme: 'Titular',
+      cobra_arbitraje: false,
+      monto_arbitraje_jugador: 0
+    });
+    setShowModalPartido(true);
+  };
+
+  const abrirModalEditar = (p: Partido) => {
+    setIdPartidoEditando(p.id);
+    setForm({
+      es_amistoso: p.es_amistoso || false,
+      torneo_id: p.torneo_id || '',
+      categoria_id: p.categoria_id || '',
+      rival: p.rival || '',
+      fecha: p.fecha || '',
+      hora: p.hora || '',
+      ubicacion: p.ubicacion || '',
+      link_maps: p.link_maps || '',
+      color_uniforme: p.color_uniforme || 'Titular',
+      cobra_arbitraje: p.cobra_arbitraje || false,
+      monto_arbitraje_jugador: p.monto_arbitraje_jugador || 0
+    });
+    setShowModalPartido(true);
+  };
+
+  const handleEliminarPartido = async (id: string, rival: string) => {
+    const conf = window.confirm(`¿Estás seguro de eliminar el partido vs "${rival}"? Esta acción no se puede deshacer.`);
+    if (!conf) return;
+
+    try {
+      await api.delete(`/api/partidos/${id}`);
+      cargarDatos();
+    } catch (error) {
+      alert('Error al eliminar el partido.');
+    }
+  };
+
   const handleEnviarCitacion = async (partido: Partido) => {
     if (!partido.categoria_id) return alert('Este partido no tiene una categoría asignada.');
     
@@ -103,11 +153,15 @@ const Partidos: React.FC = () => {
     e.preventDefault();
     setGuardando(true);
     try {
-      await api.post('/api/partidos', form);
+      if (idPartidoEditando) {
+        await api.put(`/api/partidos/${idPartidoEditando}`, form);
+      } else {
+        await api.post('/api/partidos', form);
+      }
       setShowModalPartido(false);
       cargarDatos();
     } catch (error) {
-      alert('Error al programar el partido.');
+      alert('Error al procesar el partido.');
     } finally {
       setGuardando(false);
     }
@@ -118,10 +172,10 @@ const Partidos: React.FC = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-[#e6edf3]">⚽ Fixture y Citaciones</h1>
-          <p className="text-sm text-gray-400">Programación de partidos y control de asistencia con motivos de inasistencia.</p>
+          <p className="text-sm text-gray-400">Programación de partidos, mapas, citaciones y gestión de inasistencias.</p>
         </div>
         <button 
-          onClick={() => setShowModalPartido(true)}
+          onClick={abrirModalCrear}
           className="bg-[#289E9D] hover:bg-[#207f7e] text-white px-5 py-2.5 rounded-lg font-bold shadow-lg transition-colors cursor-pointer"
         >
           + Programar Partido
@@ -138,35 +192,54 @@ const Partidos: React.FC = () => {
           </div>
         ) : (
           partidos.map(p => (
-            <div key={p.id} className="bg-[#0d1117] border border-[#30363d] rounded-xl p-5 space-y-4 relative hover:border-[#289E9D] transition-colors">
-              <div className="flex justify-between items-center text-xs">
-                {p.es_amistoso ? (
-                  <span className="bg-purple-500/20 text-purple-400 border border-purple-500/30 px-2.5 py-0.5 rounded-full font-bold">🤝 Amistoso</span>
-                ) : (
-                  <span className="bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2.5 py-0.5 rounded-full font-bold truncate max-w-[150px]">🏆 {p.torneos?.nombre}</span>
-                )}
-                <span className="bg-gray-800 text-gray-300 border border-gray-700 px-2.5 py-0.5 rounded-full font-bold">🏷️ {p.categorias?.nombre || 'Sin Cat.'}</span>
-              </div>
-
-              <div>
-                <span className="text-xs text-gray-400 uppercase font-semibold">Rival</span>
-                <h3 className="text-xl font-bold text-white">vs {p.rival}</h3>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 text-xs bg-[#161b22] p-3 rounded-lg border border-[#30363d]/50 text-gray-300">
-                <div><span className="text-gray-500 block">📅 Fecha:</span> <strong className="text-white">{p.fecha}</strong></div>
-                <div><span className="text-gray-500 block">⏰ Hora:</span> <strong className="text-white">{p.hora} hrs</strong></div>
-                <div className="col-span-2"><span className="text-gray-500 block">🏟️ Lugar:</span> <strong className="text-white">{p.ubicacion || 'Por confirmar'}</strong></div>
-              </div>
-
-              {p.cobra_arbitraje && (
-                <div className="bg-amber-900/20 border border-amber-500/30 p-2.5 rounded-lg flex justify-between items-center text-xs text-amber-300">
-                  <span>⚖️ Arbitraje:</span>
-                  <strong className="text-amber-400 text-sm">${Number(p.monto_arbitraje_jugador).toLocaleString('es-CL')} / jug.</strong>
+            <div key={p.id} className="bg-[#0d1117] border border-[#30363d] rounded-xl p-5 space-y-4 relative hover:border-[#289E9D] transition-colors flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center text-xs">
+                  {p.es_amistoso ? (
+                    <span className="bg-purple-500/20 text-purple-400 border border-purple-500/30 px-2.5 py-0.5 rounded-full font-bold">🤝 Amistoso</span>
+                  ) : (
+                    <span className="bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2.5 py-0.5 rounded-full font-bold truncate max-w-[150px]">🏆 {p.torneos?.nombre}</span>
+                  )}
+                  
+                  <div className="flex items-center gap-2">
+                    <span className="bg-gray-800 text-gray-300 border border-gray-700 px-2.5 py-0.5 rounded-full font-bold">🏷️ {p.categorias?.nombre || 'Sin Cat.'}</span>
+                    {/* ACCIONES RÁPIDAS: EDITAR Y ELIMINAR */}
+                    <button onClick={() => abrirModalEditar(p)} className="text-gray-400 hover:text-white p-1" title="Editar Partido">✏️</button>
+                    <button onClick={() => handleEliminarPartido(p.id, p.rival)} className="text-red-400 hover:text-red-300 p-1" title="Eliminar Partido">🗑️</button>
+                  </div>
                 </div>
-              )}
 
-              <div className="pt-2 grid grid-cols-2 gap-2">
+                <div>
+                  <span className="text-xs text-gray-400 uppercase font-semibold">Rival</span>
+                  <h3 className="text-xl font-bold text-white">vs {p.rival}</h3>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs bg-[#161b22] p-3 rounded-lg border border-[#30363d]/50 text-gray-300">
+                  <div><span className="text-gray-500 block">📅 Fecha:</span> <strong className="text-white">{p.fecha}</strong></div>
+                  <div><span className="text-gray-500 block">⏰ Hora:</span> <strong className="text-white">{p.hora} hrs</strong></div>
+                  <div className="col-span-2"><span className="text-gray-500 block">🏟️ Lugar:</span> <strong className="text-white">{p.ubicacion || 'Por confirmar'}</strong></div>
+                </div>
+
+                {p.link_maps && (
+                  <a 
+                    href={p.link_maps} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="block text-center bg-[#161b22] hover:bg-[#21262d] text-[#289E9D] border border-[#289E9D]/30 py-1.5 rounded text-xs font-bold transition-colors"
+                  >
+                    🗺️ Ver Ubicación en Mapas
+                  </a>
+                )}
+
+                {p.cobra_arbitraje && (
+                  <div className="bg-amber-900/20 border border-amber-500/30 p-2.5 rounded-lg flex justify-between items-center text-xs text-amber-300">
+                    <span>⚖️ Arbitraje:</span>
+                    <strong className="text-amber-400 text-sm">${Number(p.monto_arbitraje_jugador).toLocaleString('es-CL')} / jug.</strong>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-3 grid grid-cols-2 gap-2 border-t border-[#30363d]/50">
                 <button 
                   onClick={() => handleEnviarCitacion(p)}
                   disabled={enviandoCitacion}
@@ -186,11 +259,13 @@ const Partidos: React.FC = () => {
         )}
       </div>
 
-      {/* MODAL PROGRAMAR PARTIDO */}
+      {/* MODAL PROGRAMAR O EDITAR PARTIDO */}
       {showModalPartido && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#161b22] border border-[#30363d] rounded-xl w-full max-w-lg p-6 space-y-4">
-            <h2 className="text-2xl font-bold text-white">⚽ Programar Partido</h2>
+          <div className="bg-[#161b22] border border-[#30363d] rounded-xl w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold text-white">
+              {idPartidoEditando ? '✏️ Editar Partido' : '⚽ Programar Partido'}
+            </h2>
             
             <form onSubmit={handleSubmit} className="space-y-4 text-sm">
               <div className="grid grid-cols-2 gap-3">
@@ -200,7 +275,7 @@ const Partidos: React.FC = () => {
                     required 
                     value={form.categoria_id} 
                     onChange={e => setForm({ ...form, categoria_id: e.target.value })}
-                    className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none"
+                    className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]"
                   >
                     <option value="">-- Seleccionar --</option>
                     {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
@@ -211,7 +286,7 @@ const Partidos: React.FC = () => {
                   <select 
                     value={form.es_amistoso ? 'amistoso' : 'torneo'} 
                     onChange={e => setForm({ ...form, es_amistoso: e.target.value === 'amistoso' })}
-                    className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none"
+                    className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]"
                   >
                     <option value="torneo">🏆 Torneo</option>
                     <option value="amistoso">🤝 Amistoso</option>
@@ -226,7 +301,7 @@ const Partidos: React.FC = () => {
                     required={!form.es_amistoso} 
                     value={form.torneo_id} 
                     onChange={e => setForm({ ...form, torneo_id: e.target.value })}
-                    className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none"
+                    className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]"
                   >
                     <option value="">-- Seleccionar Torneo --</option>
                     {torneos.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
@@ -236,23 +311,34 @@ const Partidos: React.FC = () => {
 
               <div>
                 <label className="block text-gray-400 mb-1 font-semibold">Rival *</label>
-                <input required type="text" value={form.rival} onChange={e => setForm({ ...form, rival: e.target.value })} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none" />
+                <input required type="text" placeholder="Ej: Colo Colo Filial Sur" value={form.rival} onChange={e => setForm({ ...form, rival: e.target.value })} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]" />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-gray-400 mb-1 font-semibold">Fecha *</label>
-                  <input required type="date" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none" />
+                  <input required type="date" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]" />
                 </div>
                 <div>
                   <label className="block text-gray-400 mb-1 font-semibold">Hora *</label>
-                  <input required type="time" value={form.hora} onChange={e => setForm({ ...form, hora: e.target.value })} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none" />
+                  <input required type="time" value={form.hora} onChange={e => setForm({ ...form, hora: e.target.value })} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]" />
                 </div>
               </div>
 
               <div>
                 <label className="block text-gray-400 mb-1 font-semibold">Lugar / Cancha</label>
-                <input type="text" value={form.ubicacion} onChange={e => setForm({ ...form, ubicacion: e.target.value })} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none" />
+                <input type="text" placeholder="Ej: Complejo Deportivo Cordillera" value={form.ubicacion} onChange={e => setForm({ ...form, ubicacion: e.target.value })} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]" />
+              </div>
+
+              <div>
+                <label className="block text-gray-400 mb-1 font-semibold">Link de Ubicación (Waze / Google Maps)</label>
+                <input 
+                  type="url" 
+                  placeholder="https://maps.app.goo.gl/..." 
+                  value={form.link_maps} 
+                  onChange={e => setForm({ ...form, link_maps: e.target.value })} 
+                  className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]" 
+                />
               </div>
 
               <div className="p-3 bg-[#0d1117] border border-[#30363d] rounded-lg space-y-2">
@@ -261,13 +347,15 @@ const Partidos: React.FC = () => {
                   <input type="checkbox" checked={form.cobra_arbitraje} onChange={e => setForm({ ...form, cobra_arbitraje: e.target.checked })} className="accent-[#289E9D]" />
                 </label>
                 {form.cobra_arbitraje && (
-                  <input type="number" placeholder="Monto por jugador ($)" value={form.monto_arbitraje_jugador} onChange={e => setForm({ ...form, monto_arbitraje_jugador: Number(e.target.value) })} className="w-full bg-[#161b22] border border-[#30363d] rounded p-2 text-white outline-none" />
+                  <input type="number" placeholder="Monto por jugador ($)" value={form.monto_arbitraje_jugador} onChange={e => setForm({ ...form, monto_arbitraje_jugador: Number(e.target.value) })} className="w-full bg-[#161b22] border border-[#30363d] rounded p-2 text-white outline-none focus:border-[#289E9D]" />
                 )}
               </div>
 
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowModalPartido(false)} className="px-4 py-2 text-gray-400">Cancelar</button>
-                <button type="submit" disabled={guardando} className="bg-[#289E9D] text-white px-6 py-2 rounded-lg font-bold">Guardar</button>
+                <button type="button" onClick={() => setShowModalPartido(false)} className="px-4 py-2 text-gray-400 hover:text-white">Cancelar</button>
+                <button type="submit" disabled={guardando} className="bg-[#289E9D] hover:bg-[#207f7e] text-white px-6 py-2 rounded-lg font-bold">
+                  {idPartidoEditando ? 'Actualizar Partido' : 'Guardar'}
+                </button>
               </div>
             </form>
           </div>
