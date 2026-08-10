@@ -119,7 +119,6 @@ const Layout = () => {
                   <span className="mr-3">🏃‍♂️</span> Jugadores
                 </Link>
 
-                {/* 🔥 NUEVO BOTÓN DE ASISTENCIAS */}
                 <Link
                   to="/asistencias"
                   className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
@@ -155,37 +154,16 @@ const Layout = () => {
 
                 <div className="border-t border-gray-700 my-4"></div>
 
+                {/* 🔥 MENÚ AGRUPADO DE CONFIGURACIÓN (TIPO ANDROID) */}
                 <Link
-                  to="/terminos"
+                  to="/configuracion"
                   className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
-                    isActive('/terminos') 
+                    location.pathname.startsWith('/configuracion') 
                       ? 'bg-[#289E9D] text-white font-semibold' 
                       : 'text-gray-400 hover:bg-[#131722] hover:text-white'
                   }`}
                 >
-                  <span className="mr-3">⚖️</span> Términos PDF
-                </Link>
-
-                <Link
-                  to="/whatsapp"
-                  className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
-                    isActive('/whatsapp') 
-                      ? 'bg-[#289E9D] text-white font-semibold' 
-                      : 'text-gray-400 hover:bg-[#131722] hover:text-white'
-                  }`}
-                >
-                  <span className="mr-3">📱</span> WhatsApp
-                </Link>
-
-                <Link
-                  to="/finanzas"
-                  className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
-                    isActive('/finanzas') 
-                      ? 'bg-[#289E9D] text-white font-semibold' 
-                      : 'text-gray-400 hover:bg-[#131722] hover:text-white'
-                  }`}
-                >
-                  <span className="mr-3">💳</span> Recaudación
+                  <span className="mr-3">⚙️</span> Configuración
                 </Link>
               </>
             )}
