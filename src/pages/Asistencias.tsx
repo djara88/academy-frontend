@@ -1,4 +1,3 @@
-// src/pages/Asistencias.tsx
 import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
 import * as XLSX from 'xlsx';
@@ -44,8 +43,10 @@ const Asistencias: React.FC = () => {
   }, [mesMetricas, anioMetricas]);
 
   useEffect(() => {
-    if (categoriaSel && estadoClase === 'Realizado') {
+    if (categoriaSel && categoriaSel !== 'TODAS' && estadoClase === 'Realizado') {
       cargarAlumnos();
+    } else {
+      setAlumnos([]);
     }
   }, [categoriaSel, estadoClase]);
 
@@ -121,7 +122,7 @@ const Asistencias: React.FC = () => {
         estado: asistencias[a.id]
       }));
 
-      await api.post('/api/entrenamientos', {
+      const res = await api.post('/api/entrenamientos', {
         categoria_id: categoriaSel,
         fecha: fechaSel,
         hora: horaSel,
@@ -132,8 +133,14 @@ const Asistencias: React.FC = () => {
         lista_asistencia: lista
       });
 
-      alert(`✅ Entrenamiento ${estadoClase.toLowerCase()} registrado con éxito.`);
+      if (categoriaSel === 'TODAS') {
+        alert(`✅ ${res.data.message}`);
+      } else {
+        alert(`✅ Entrenamiento ${estadoClase.toLowerCase()} registrado con éxito.`);
+      }
+
       setCategoriaSel('');
+      setMotivoCancelacion('');
       cargarCategoriasYMetricas(); 
     } catch (e) {
       alert('Error al guardar. Verifica tu conexión.');
@@ -173,7 +180,7 @@ const Asistencias: React.FC = () => {
   };
 
   const handleEnviarReporte = async () => {
-    if (!categoriaSel) return alert('Selecciona una categoría primero.');
+    if (!categoriaSel || categoriaSel === 'TODAS') return alert('Selecciona una categoría específica para enviar reportes.');
     const conf = window.confirm('¿Enviar por WhatsApp el reporte INDIVIDUAL del mes a todos los apoderados de esta categoría?');
     if (!conf) return;
 
@@ -241,7 +248,7 @@ const Asistencias: React.FC = () => {
         </div>
       </div>
 
-      {/* PESTAÑA 1: PASAR LISTA */}
+      {/* PESTAÑA 1: PASAR LISTA / SUSPENDER */}
       {activeTab === 'lista' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
           <div className="lg:col-span-1 space-y-4">
@@ -263,8 +270,13 @@ const Asistencias: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-semibold text-gray-400 mb-1">Categoría</label>
-                <select value={categoriaSel} onChange={e => setCategoriaSel(e.target.value)} className="w-full bg-[#161b22] border border-[#30363d] rounded p-2 text-white outline-none focus:border-[#289E9D]">
-                  <option value="">-- Seleccionar --</option>
+                <select 
+                  value={categoriaSel} 
+                  onChange={e => setCategoriaSel(e.target.value)} 
+                  className="w-full bg-[#161b22] border border-[#30363d] rounded p-2 text-white outline-none focus:border-[#289E9D] text-sm"
+                >
+                  <option value="">-- Seleccionar Categoría --</option>
+                  <option value="TODAS" className="bg-[#289E9D] text-white font-bold">🏫 TODAS LAS CATEGORÍAS (Toda la Escuela)</option>
                   {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                 </select>
               </div>
@@ -296,7 +308,7 @@ const Asistencias: React.FC = () => {
               {estadoClase === 'Cancelado' && (
                 <div>
                   <label className="block text-xs font-semibold text-gray-400 mb-1">Motivo de Suspensión (Lluvia, Feriado, etc)</label>
-                  <input type="text" value={motivoCancelacion} onChange={e => setMotivoCancelacion(e.target.value)} className="w-full bg-[#161b22] border border-[#30363d] rounded p-2 text-white outline-none" placeholder="Ej: Lluvia fuerte" />
+                  <input type="text" value={motivoCancelacion} onChange={e => setMotivoCancelacion(e.target.value)} className="w-full bg-[#161b22] border border-[#30363d] rounded p-2 text-white outline-none" placeholder="Ej: Lluvia fuerte o Feriado" />
                 </div>
               )}
 
@@ -310,7 +322,7 @@ const Asistencias: React.FC = () => {
               <button 
                 onClick={handleGuardarClase} 
                 disabled={guardando || !categoriaSel}
-                className="w-full bg-[#289E9D] hover:bg-[#207f7e] text-white py-3 rounded-lg font-bold disabled:opacity-50"
+                className="w-full bg-[#289E9D] hover:bg-[#207f7e] text-white py-3 rounded-lg font-bold disabled:opacity-50 transition-colors"
               >
                 {guardando ? 'Guardando...' : '💾 Guardar Registro de Clase'}
               </button>
@@ -321,7 +333,16 @@ const Asistencias: React.FC = () => {
             <div className="bg-[#0d1117] border border-[#30363d] rounded-xl p-5 min-h-[500px]">
               <h3 className="text-xl font-bold text-white mb-4">📝 Pasar Lista de Alumnos</h3>
               
-              {estadoClase === 'Cancelado' ? (
+              {categoriaSel === 'TODAS' ? (
+                <div className="text-center py-20 bg-blue-950/20 rounded-xl border border-blue-500/30 p-6">
+                  <span className="text-5xl block mb-3">🏫</span>
+                  <h4 className="text-lg font-bold text-white mb-2">Opción Masiva Seleccionada</h4>
+                  <p className="text-sm text-gray-300 leading-relaxed max-w-md mx-auto">
+                    Se registrará el evento (<strong className="text-orange-400">{estadoClase}</strong>) para <strong className="text-white">TODAS las categorías</strong> de la escuela en la fecha <strong className="text-white">{fechaSel}</strong>.
+                  </p>
+                  <p className="text-xs text-gray-400 mt-4">Haz clic en "💾 Guardar Registro de Clase" para aplicar a toda la academia.</p>
+                </div>
+              ) : estadoClase === 'Cancelado' ? (
                 <div className="text-center text-red-400 py-20 bg-red-900/10 rounded-xl border border-red-500/20">
                   <span className="text-4xl block mb-2">🌧️</span>
                   Clase suspendida. No se pasará lista hoy.<br/>
@@ -354,10 +375,9 @@ const Asistencias: React.FC = () => {
         </div>
       )}
 
-      {/* PESTAÑA 2: REAGENDAR Y RECUPERAR CLASES 🔥 */}
+      {/* PESTAÑA 2: REAGENDAR Y RECUPERAR CLASES */}
       {activeTab === 'reagendar' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in">
-          {/* COLUMNA IZQUIERDA: LISTA DE SUSPENDIDAS */}
           <div className="bg-[#0d1117] border border-[#30363d] rounded-xl p-6 space-y-4">
             <h3 className="text-xl font-bold text-orange-400 flex items-center gap-2">
               <span>🌧️</span> Clases Suspendidas Pendientes
@@ -388,10 +408,9 @@ const Asistencias: React.FC = () => {
             )}
           </div>
 
-          {/* COLUMNA DERECHA: FORMULARIO DE REAGENDAMIENTO */}
           <div className="bg-[#0d1117] border border-[#30363d] rounded-xl p-6 space-y-4">
             <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              <span>📲</span> Programar Recuperación y Avisar
+              <span>📢</span> Programar Recuperación y Avisar
             </h3>
 
             {!claseCanceladaSel ? (
@@ -473,7 +492,7 @@ const Asistencias: React.FC = () => {
               </select>
               <button 
                 onClick={handleEnviarReporte}
-                disabled={enviandoReporte || !categoriaSel}
+                disabled={enviandoReporte || !categoriaSel || categoriaSel === 'TODAS'}
                 className="bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white px-4 py-2 rounded font-bold text-sm flex gap-2 items-center shadow-lg transition-colors"
               >
                 {enviandoReporte ? 'Enviando...' : '📲 Enviar Reportes (WhatsApp)'}
