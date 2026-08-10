@@ -1,3 +1,4 @@
+// src/pages/Jugadores.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../api/axiosConfig';
 import { useAuth } from '../contexts/AuthContext';
@@ -16,13 +17,26 @@ interface Insignia {
   fecha: string;
 }
 
+interface EstadisticasAcumuladas {
+  partidos_jugados: number;
+  goles: number;
+  asistencias: number;
+  mvp: number;
+  tarjetas_amarillas: number;
+  tarjetas_rojas: number;
+  clases_ausente: number;
+  clases_presente: number;
+  clases_justificadas: number;
+}
+
 interface Jugador {
   id: string; nombre: string; posicion_cancha: string;
   tipo_alumno: string; foto_base64: string; fecha_nacimiento: string;
   categorias: Categoria[];
   estado_financiero?: string;
   alerta_medica?: string;
-  insignias?: Insignia[]; // Ahora es un historial completo
+  insignias?: Insignia[];
+  estadisticas_acumuladas?: EstadisticasAcumuladas;
 }
 
 interface Evaluacion {
@@ -90,7 +104,7 @@ const Jugadores: React.FC = () => {
       setCategorias(resCategorias.data.data || []);
     } catch (error) {
       console.error('Error cargando datos:', error);
-    } finally {
+    } fontally {
       setLoading(false);
     }
   };
@@ -125,7 +139,6 @@ const Jugadores: React.FC = () => {
       fecha: new Date().toISOString()
     };
     
-    // Normalizamos por si vienen datos viejos (strings) de pruebas anteriores
     const actuales = (jugadorSeleccionado.insignias || []).map(ins => 
       typeof ins === 'string' ? { id: Math.random().toString(), nombre: ins, fecha: new Date().toISOString() } : ins
     );
@@ -338,7 +351,7 @@ const Jugadores: React.FC = () => {
             </div>
           </div>
 
-          {/* RENDIMIENTO Y MÉTRICAS (MÁS LLENO) */}
+          {/* RENDIMIENTO Y MÉTRICAS */}
           <div className="mb-8 grid grid-cols-2 gap-8">
             <div className="border border-gray-200 rounded-lg bg-white overflow-hidden shadow-sm flex flex-col">
               <h3 className="text-sm font-bold bg-gray-800 text-white p-3 uppercase tracking-wider text-center">Rendimiento Táctico / Físico</h3>
@@ -375,7 +388,7 @@ const Jugadores: React.FC = () => {
                 </div>
               </div>
 
-              {/* RECONOCIMIENTOS TIPO LISTA (Como en tu imagen) */}
+              {/* RECONOCIMIENTOS HISTÓRICOS */}
               <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm flex-1">
                 <h3 className="text-sm font-bold bg-yellow-50 text-yellow-800 p-3 uppercase tracking-wider border-b border-yellow-200">Reconocimientos Históricos</h3>
                 <div className="p-4">
@@ -414,7 +427,6 @@ const Jugadores: React.FC = () => {
               </div>
             )}
             
-            {/* ESPACIO PARA FIRMA */}
             <div className="mt-16 flex justify-center pb-8 pt-8">
               <div className="text-center w-72">
                 <div className="border-b border-gray-800 mb-2"></div>
@@ -543,7 +555,7 @@ const Jugadores: React.FC = () => {
               </div>
             </div>
 
-            {/* SECCIÓN INSIGNIAS (AHORA ES UN HISTORIAL CON FECHAS) */}
+            {/* SECCIÓN INSIGNIAS */}
             <div className="card-uniforme p-4 border-l-4 border-yellow-500 bg-[#161b22]">
               <h3 className="text-sm font-bold text-yellow-500 mb-3 flex items-center gap-2">
                 🏅 Asignar Nuevo Reconocimiento
@@ -578,7 +590,6 @@ const Jugadores: React.FC = () => {
                   <h4 className="text-xs text-gray-400 uppercase font-bold tracking-wider mb-2">Historial del Jugador:</h4>
                   <ul className="space-y-2 max-h-40 overflow-y-auto pr-2">
                     {jugadorSeleccionado.insignias.map((ins, index) => {
-                      // Adaptación por si hay datos guardados como string de la versión anterior
                       const insObj = typeof ins === 'string' ? { id: index.toString(), nombre: ins, fecha: new Date().toISOString() } : ins;
                       return (
                         <li key={insObj.id} className="text-sm flex justify-between items-center bg-[#0d1117] border border-[#30363d] p-2 rounded">
@@ -626,12 +637,63 @@ const Jugadores: React.FC = () => {
                 ) : ( <div className="h-80 flex items-center justify-center text-gray-500 w-full text-center">Aún no hay evaluaciones.</div> )}
               </div>
 
-              <div className="card-uniforme p-6">
-                <h3 className="text-xl font-bold mb-4">🏆 Estadísticas y Partidos</h3>
-                <div className="bg-[#0d1117] rounded-lg p-4 border border-[#30363d] h-80 overflow-y-auto">
-                  <p className="text-center text-gray-500 mt-10">Próximamente conexión con Torneos.</p>
+              {/* 🔥 NUEVA SECCIÓN DE ESTADÍSTICAS REALES ACUMULADAS */}
+              <div className="card-uniforme p-6 space-y-4">
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <span>🏆</span> Estadísticas Acumuladas
+                </h3>
+
+                {/* 1. Rendimiento en Partidos */}
+                <div className="bg-[#0d1117] rounded-lg p-4 border border-[#30363d] space-y-2">
+                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Partidos Oficiales y Amistosos</h4>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div className="bg-[#161b22] p-2 rounded border border-[#30363d]">
+                      <span className="text-[10px] text-gray-400 block uppercase font-bold">Jugados</span>
+                      <span className="text-lg font-black text-[#289E9D]">{jugadorSeleccionado.estadisticas_acumuladas?.partidos_jugados || 0}</span>
+                    </div>
+                    <div className="bg-[#161b22] p-2 rounded border border-[#30363d]">
+                      <span className="text-[10px] text-gray-400 block uppercase font-bold">Goles</span>
+                      <span className="text-lg font-black text-green-400">{jugadorSeleccionado.estadisticas_acumuladas?.goles || 0}</span>
+                    </div>
+                    <div className="bg-[#161b22] p-2 rounded border border-[#30363d]">
+                      <span className="text-[10px] text-gray-400 block uppercase font-bold">Asistencias</span>
+                      <span className="text-lg font-black text-blue-400">{jugadorSeleccionado.estadisticas_acumuladas?.asistencias || 0}</span>
+                    </div>
+                    <div className="bg-[#161b22] p-2 rounded border border-[#30363d]">
+                      <span className="text-[10px] text-gray-400 block uppercase font-bold">MVP 🌟</span>
+                      <span className="text-lg font-black text-amber-400">{jugadorSeleccionado.estadisticas_acumuladas?.mvp || 0}</span>
+                    </div>
+                    <div className="bg-[#161b22] p-2 rounded border border-[#30363d]">
+                      <span className="text-[10px] text-gray-400 block uppercase font-bold">🟨 Amarillas</span>
+                      <span className="text-lg font-black text-yellow-400">{jugadorSeleccionado.estadisticas_acumuladas?.tarjetas_amarillas || 0}</span>
+                    </div>
+                    <div className="bg-[#161b22] p-2 rounded border border-[#30363d]">
+                      <span className="text-[10px] text-gray-400 block uppercase font-bold">🟥 Rojas</span>
+                      <span className="text-lg font-black text-red-400">{jugadorSeleccionado.estadisticas_acumuladas?.tarjetas_rojas || 0}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Asistencia a Entrenamientos Semanales */}
+                <div className="bg-[#0d1117] rounded-lg p-4 border border-[#30363d] space-y-2">
+                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Asistencia a Entrenamientos</h4>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div className="bg-green-950/20 p-2 rounded border border-green-500/30">
+                      <span className="text-[10px] text-green-400 block font-bold uppercase">✔️ Presente</span>
+                      <span className="text-lg font-black text-green-400">{jugadorSeleccionado.estadisticas_acumuladas?.clases_presente || 0}</span>
+                    </div>
+                    <div className="bg-red-950/20 p-2 rounded border border-red-500/30">
+                      <span className="text-[10px] text-red-400 block font-bold uppercase">❌ Ausente</span>
+                      <span className="text-lg font-black text-red-400">{jugadorSeleccionado.estadisticas_acumuladas?.clases_ausente || 0}</span>
+                    </div>
+                    <div className="bg-blue-950/20 p-2 rounded border border-blue-500/30">
+                      <span className="text-[10px] text-blue-400 block font-bold uppercase">📝 Justificado</span>
+                      <span className="text-lg font-black text-blue-400">{jugadorSeleccionado.estadisticas_acumuladas?.clases_justificadas || 0}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
