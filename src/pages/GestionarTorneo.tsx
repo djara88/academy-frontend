@@ -16,25 +16,42 @@ const GestionarTorneo: React.FC = () => {
   const [enviando, setEnviando] = useState(false);
 
   useEffect(() => {
-    cargarDatos();
+    cargarDatosGenerales();
   }, [id]);
 
-  const cargarDatos = async () => {
+  // 🔥 Este useEffect escucha los cambios de la categoría para filtrar las respuestas en vivo
+  useEffect(() => {
+    if (id) {
+      cargarRespuestasParticipantes();
+    }
+  }, [id, categoriaSeleccionada]);
+
+  const cargarDatosGenerales = async () => {
     try {
-      // Cargamos Todo en paralelo: El torneo, sus participantes actuales, las categorías y los jugadores
-      const [resTorneo, resPart, resCat, resJug] = await Promise.all([
+      const [resTorneo, resCat, resJug] = await Promise.all([
         api.get(`/api/torneos/${id}`),
-        api.get(`/api/torneos/${id}/participantes`),
         api.get('/api/jugadores/categorias'),
         api.get('/api/jugadores')
       ]);
 
       setTorneo(resTorneo.data.data);
-      setParticipantes(resPart.data.data);
       setCategorias(resCat.data.data);
       setJugadoresTotales(resJug.data.data);
     } catch (error) {
-      console.error("Error cargando datos del torneo", error);
+      console.error("Error cargando datos generales del torneo", error);
+    }
+  };
+
+  const cargarRespuestasParticipantes = async () => {
+    try {
+      let url = `/api/torneos/${id}/participantes`;
+      if (categoriaSeleccionada) {
+        url += `?categoria_id=${categoriaSeleccionada}`;
+      }
+      const res = await api.get(url);
+      setParticipantes(res.data.data || []);
+    } catch (error) {
+      console.error('Error cargando respuestas de los participantes:', error);
     }
   };
 
@@ -55,8 +72,7 @@ const GestionarTorneo: React.FC = () => {
       await api.post(`/api/torneos/${id}/convocar`, { jugadoresIds });
       
       alert('✅ ¡Mensajes de WhatsApp enviados con éxito!');
-      setCategoriaSeleccionada('');
-      cargarDatos(); // Recargamos para verlos en la tabla de abajo
+      cargarRespuestasParticipantes(); // Recargamos para verlos en la tabla de abajo filtrados
     } catch (error) {
       console.error('Error al convocar', error);
       alert('Ocurrió un error al enviar las convocatorias.');
@@ -99,7 +115,7 @@ const GestionarTorneo: React.FC = () => {
                   onChange={(e) => setCategoriaSeleccionada(e.target.value)}
                   className="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-3 text-white focus:border-[#289E9D] outline-none"
                 >
-                  <option value="">-- Elige una categoría --</option>
+                  <option value="">-- Ver Todas las Categorías --</option>
                   {categorias.map(c => (
                     <option key={c.id} value={c.id}>{c.nombre}</option>
                   ))}
@@ -129,11 +145,18 @@ const GestionarTorneo: React.FC = () => {
         {/* PANEL DERECHO: RESPUESTAS EN VIVO */}
         <div className="lg:col-span-2">
           <div className="bg-[#0d1117] border border-[#30363d] rounded-xl p-6 h-full">
-            <h3 className="text-xl font-bold text-white mb-4">✅ Respuestas de Apoderados en Vivo</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold text-white">✅ Respuestas de Apoderados en Vivo</h3>
+              <span className="bg-[#161b22] border border-[#30363d] px-3 py-1 rounded-full text-xs font-bold text-gray-300">
+                Total: {participantes.length}
+              </span>
+            </div>
             
             {participantes.length === 0 ? (
               <div className="text-center text-gray-500 mt-20">
-                Aún no has enviado convocatorias para este torneo.
+                {categoriaSeleccionada 
+                  ? 'No hay convocatorias registradas para esta categoría.' 
+                  : 'Aún no has enviado convocatorias para este torneo.'}
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -141,6 +164,7 @@ const GestionarTorneo: React.FC = () => {
                   <thead className="bg-[#161b22] text-[#8b949e] border-b border-[#30363d]">
                     <tr>
                       <th className="p-3">Jugador</th>
+                      <th className="p-3">Categorías</th>
                       <th className="p-3 text-center">Respuesta Bot</th>
                       <th className="p-3 text-center">Finanzas (Cuotas)</th>
                     </tr>
@@ -151,6 +175,15 @@ const GestionarTorneo: React.FC = () => {
                         <td className="p-3 flex items-center gap-3">
                           <img src={p.jugadores?.foto_base64 || 'https://via.placeholder.com/150'} className="w-8 h-8 rounded-full object-cover" alt="jugador"/>
                           <span className="font-bold text-white">{p.jugadores?.nombre}</span>
+                        </td>
+                        <td className="p-3">
+                          <div className="flex flex-wrap gap-1">
+                            {p.jugadores?.categorias?.map((c: any) => (
+                              <span key={c.id} className="bg-gray-800 text-gray-300 border border-gray-700 px-2 py-0.5 rounded text-xs font-semibold">
+                                {c.nombre}
+                              </span>
+                            )) || '-'}
+                          </div>
                         </td>
                         <td className="p-3 text-center">
                           {p.respuesta_participacion === 'Pendiente' && <span className="bg-yellow-500/20 text-yellow-500 border border-yellow-500/50 px-2 py-1 rounded text-xs font-bold">⏳ Pendiente</span>}
