@@ -104,7 +104,7 @@ const Jugadores: React.FC = () => {
       setCategorias(resCategorias.data.data || []);
     } catch (error) {
       console.error('Error cargando datos:', error);
-    } fontally {
+    } finally { // 👈 Corregido aquí
       setLoading(false);
     }
   };
@@ -637,7 +637,7 @@ const Jugadores: React.FC = () => {
                 ) : ( <div className="h-80 flex items-center justify-center text-gray-500 w-full text-center">Aún no hay evaluaciones.</div> )}
               </div>
 
-              {/* 🔥 NUEVA SECCIÓN DE ESTADÍSTICAS REALES ACUMULADAS */}
+              {/* SECCIÓN DE ESTADÍSTICAS REALES ACUMULADAS */}
               <div className="card-uniforme p-6 space-y-4">
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
                   <span>🏆</span> Estadísticas Acumuladas
