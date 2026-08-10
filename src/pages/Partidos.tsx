@@ -14,11 +14,24 @@ interface Partido {
   es_amistoso: boolean;
   cobra_arbitraje: boolean;
   monto_arbitraje_jugador: number;
+  goles_favor?: number;
+  goles_contra?: number;
   estado: string;
   categoria_id?: string;
   torneo_id?: string;
   categorias?: { nombre: string };
   torneos?: { nombre: string };
+}
+
+interface StatJugador {
+  jugador_id: string;
+  nombre: string;
+  foto_base64?: string;
+  goles: number;
+  asistencias: number;
+  tarjetas_amarillas: number;
+  tarjetas_rojas: number;
+  es_mvp: boolean;
 }
 
 const Partidos: React.FC = () => {
@@ -27,12 +40,21 @@ const Partidos: React.FC = () => {
   const [categorias, setCategorias] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Modales y Edición
+  // Modales
   const [showModalPartido, setShowModalPartido] = useState(false);
   const [idPartidoEditando, setIdPartidoEditando] = useState<string | null>(null);
   const [showModalCitaciones, setShowModalCitaciones] = useState(false);
+  const [showModalResultado, setShowModalResultado] = useState(false);
+  
   const [partidoSeleccionado, setPartidoSeleccionado] = useState<Partido | null>(null);
   const [citados, setCitados] = useState<any[]>([]);
+  const [statsJugadores, setStatsJugadores] = useState<StatJugador[]>([]);
+  
+  // Formulario Resultado
+  const [golesFavor, setGolesFavor] = useState<number>(0);
+  const [golesContra, setGolesContra] = useState<number>(0);
+  const [enviarWhatsappResumen, setEnviarWhatsappResumen] = useState<boolean>(true);
+
   const [enviandoCitacion, setEnviandoCitacion] = useState(false);
   const [guardando, setGuardando] = useState(false);
 
@@ -153,6 +175,55 @@ const Partidos: React.FC = () => {
     }
   };
 
+  const abrirModalResultado = async (partido: Partido) => {
+    setPartidoSeleccionado(partido);
+    setGolesFavor(partido.goles_favor || 0);
+    setGolesContra(partido.goles_contra || 0);
+    setShowModalResultado(true);
+
+    try {
+      const res = await api.get(`/api/partidos/${partido.id}/estadisticas`);
+      setStatsJugadores(res.data.data || []);
+    } catch (error) {
+      console.error('Error al cargar estadísticas del partido:', error);
+    }
+  };
+
+  const handleStatChange = (jugadorId: string, field: keyof StatJugador, value: any) => {
+    setStatsJugadores(prev => prev.map(s => {
+      if (s.jugador_id === jugadorId) {
+        return { ...s, [field]: value };
+      }
+      // Si se marca un MVP, desmarcamos los demás
+      if (field === 'es_mvp' && value === true) {
+        return { ...s, es_mvp: false };
+      }
+      return s;
+    }));
+  };
+
+  const guardarResultadoCompleto = async () => {
+    if (!partidoSeleccionado) return;
+    setGuardando(true);
+
+    try {
+      await api.post(`/api/partidos/${partidoSeleccionado.id}/guardar-resultado`, {
+        goles_favor: golesFavor,
+        goles_contra: golesContra,
+        estadisticas: statsJugadores,
+        enviarWhatsapp: enviarWhatsappResumen
+      });
+
+      alert('✅ ¡Resultado guardado e informe enviado por WhatsApp!');
+      setShowModalResultado(false);
+      cargarDatos();
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Error al guardar el resultado.');
+    } finally {
+      setGuardando(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setGuardando(true);
@@ -175,8 +246,8 @@ const Partidos: React.FC = () => {
     <div className="space-y-6 pb-10">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-[#e6edf3]">⚽ Fixture y Citaciones</h1>
-          <p className="text-sm text-gray-400">Programación de partidos, mapas, citaciones y gestión de inasistencias.</p>
+          <h1 className="text-3xl font-bold text-[#e6edf3]">⚽ Fixture y Resultados</h1>
+          <p className="text-sm text-gray-400">Programación de encuentros, citaciones y registro de estadísticas.</p>
         </div>
         <button 
           onClick={abrirModalCrear}
@@ -222,6 +293,16 @@ const Partidos: React.FC = () => {
                   <h3 className="text-xl font-bold text-white">vs {p.rival}</h3>
                 </div>
 
+                {/* MARCADOR SI EL PARTIDO YA SE JUGÓ */}
+                {p.estado === 'Jugado' && (
+                  <div className="bg-[#161b22] border border-[#289E9D]/40 p-3 rounded-lg text-center">
+                    <span className="text-xs text-gray-400 block mb-1">Resultado Final</span>
+                    <span className="text-2xl font-black text-[#289E9D]">
+                      {p.goles_favor} - {p.goles_contra}
+                    </span>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-2 text-xs bg-[#161b22] p-3 rounded-lg border border-[#30363d]/50 text-gray-300">
                   <div><span className="text-gray-500 block">📅 Fecha:</span> <strong className="text-white">{p.fecha}</strong></div>
                   <div><span className="text-gray-500 block">⏰ Hora:</span> <strong className="text-white">{p.hora} hrs</strong></div>
@@ -239,28 +320,27 @@ const Partidos: React.FC = () => {
                     🗺️ Ver Ubicación en Mapas
                   </a>
                 )}
-
-                {p.cobra_arbitraje && (
-                  <div className="bg-amber-900/20 border border-amber-500/30 p-2.5 rounded-lg flex justify-between items-center text-xs text-amber-300">
-                    <span>⚖️ Arbitraje:</span>
-                    <strong className="text-amber-400 text-sm">${Number(p.monto_arbitraje_jugador).toLocaleString('es-CL')} / jug.</strong>
-                  </div>
-                )}
               </div>
 
-              <div className="pt-3 grid grid-cols-2 gap-2 border-t border-[#30363d]/50">
+              <div className="pt-3 grid grid-cols-3 gap-2 border-t border-[#30363d]/50">
                 <button 
                   onClick={() => handleEnviarCitacion(p)}
                   disabled={enviandoCitacion}
                   className="bg-[#289E9D] hover:bg-[#207f7e] text-white py-2 rounded text-xs font-bold transition-colors shadow flex justify-center items-center gap-1"
                 >
-                  📢 Enviar Citación
+                  📢 Citación
                 </button>
                 <button 
                   onClick={() => abrirCitaciones(p)}
                   className="bg-[#21262d] hover:bg-[#30363d] text-white py-2 rounded text-xs font-bold border border-[#30363d] transition-colors"
                 >
-                  📋 Ver Citados
+                  📋 Citados
+                </button>
+                <button 
+                  onClick={() => abrirModalResultado(p)}
+                  className="bg-amber-600 hover:bg-amber-500 text-white py-2 rounded text-xs font-bold transition-colors shadow"
+                >
+                  🏆 Resultado
                 </button>
               </div>
             </div>
@@ -323,10 +403,9 @@ const Partidos: React.FC = () => {
                 <input required type="text" placeholder="Ej: Colo Colo Filial Sur" value={form.rival} onChange={e => setForm({ ...form, rival: e.target.value })} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]" />
               </div>
 
-              {/* SECCIÓN NUEVA: CONDICIÓN Y UNIFORME */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-gray-400 mb-1 font-semibold">Condición de Localía *</label>
+                  <label className="block text-gray-400 mb-1 font-semibold">Condición *</label>
                   <select 
                     value={form.condicion} 
                     onChange={e => setForm({ ...form, condicion: e.target.value })}
@@ -337,7 +416,7 @@ const Partidos: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-gray-400 mb-1 font-semibold">Uniforme a llevar *</label>
+                  <label className="block text-gray-400 mb-1 font-semibold">Uniforme *</label>
                   <select 
                     value={form.color_uniforme} 
                     onChange={e => setForm({ ...form, color_uniforme: e.target.value })}
@@ -398,7 +477,7 @@ const Partidos: React.FC = () => {
         </div>
       )}
 
-      {/* MODAL VER CITADOS Y MOTIVOS DE INASISTENCIA */}
+      {/* MODAL VER CITADOS */}
       {showModalCitaciones && partidoSeleccionado && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-[#161b22] border border-[#30363d] rounded-xl w-full max-w-2xl p-6 space-y-4 shadow-2xl">
@@ -442,6 +521,121 @@ const Partidos: React.FC = () => {
                   </tbody>
                 </table>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL REGISTRAR RESULTADO Y ESTADÍSTICAS INDIVIDUALES */}
+      {showModalResultado && partidoSeleccionado && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#161b22] border border-[#30363d] rounded-xl w-full max-w-3xl p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-[#30363d] pb-3">
+              <div>
+                <h2 className="text-xl font-bold text-white">🏆 Resultado y Estadísticas</h2>
+                <p className="text-xs text-gray-400">vs {partidoSeleccionado.rival} | {partidoSeleccionado.fecha}</p>
+              </div>
+              <button onClick={() => setShowModalResultado(false)} className="text-gray-400 hover:text-white font-bold">✕</button>
+            </div>
+
+            {/* MARCADOR FINAL */}
+            <div className="bg-[#0d1117] p-4 rounded-xl border border-[#30363d] space-y-2">
+              <h3 className="text-sm font-bold text-gray-300 text-center">Marcador Final del Encuentro</h3>
+              <div className="flex justify-center items-center gap-6">
+                <div className="text-center">
+                  <span className="text-xs text-[#289E9D] font-bold block mb-1">Nuestra Academia</span>
+                  <input 
+                    type="number" 
+                    min="0"
+                    value={golesFavor} 
+                    onChange={e => setGolesFavor(Number(e.target.value))}
+                    className="w-20 bg-[#161b22] border-2 border-[#289E9D] rounded-lg py-2 text-center text-2xl font-black text-white outline-none"
+                  />
+                </div>
+                <span className="text-2xl font-black text-gray-500 mt-5">-</span>
+                <div className="text-center">
+                  <span className="text-xs text-red-400 font-bold block mb-1">vs {partidoSeleccionado.rival}</span>
+                  <input 
+                    type="number" 
+                    min="0"
+                    value={golesContra} 
+                    onChange={e => setGolesContra(Number(e.target.value))}
+                    className="w-20 bg-[#161b22] border-2 border-red-500/50 rounded-lg py-2 text-center text-2xl font-black text-white outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* TABLA DE ESTADÍSTICAS INDIVIDUALES DE JUGADORES CONFIRMADOS */}
+            <div>
+              <h3 className="text-sm font-bold text-white mb-2">Desempeño Individual de Alumnos Confirmados</h3>
+              {statsJugadores.length === 0 ? (
+                <p className="text-center text-gray-500 py-6 text-sm">No hay jugadores confirmados para este partido.</p>
+              ) : (
+                <div className="overflow-x-auto border border-[#30363d] rounded-lg">
+                  <table className="w-full text-xs text-left">
+                    <thead className="bg-[#0d1117] text-gray-400">
+                      <tr>
+                        <th className="p-2.5">Jugador</th>
+                        <th className="p-2.5 text-center">Goles</th>
+                        <th className="p-2.5 text-center">Asist.</th>
+                        <th className="p-2.5 text-center">🟨 Amarillas</th>
+                        <th className="p-2.5 text-center">🟥 Rojas</th>
+                        <th className="p-2.5 text-center">🌟 MVP</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#30363d] bg-[#161b22]">
+                      {statsJugadores.map(s => (
+                        <tr key={s.jugador_id}>
+                          <td className="p-2.5 font-bold text-white flex items-center gap-2">
+                            <img src={s.foto_base64 || 'https://via.placeholder.com/150'} className="w-6 h-6 rounded-full object-cover" alt="img"/>
+                            {s.nombre}
+                          </td>
+                          <td className="p-2.5 text-center">
+                            <input type="number" min="0" value={s.goles} onChange={e => handleStatChange(s.jugador_id, 'goles', Number(e.target.value))} className="w-12 bg-[#0d1117] border border-[#30363d] rounded text-center p-1 text-white" />
+                          </td>
+                          <td className="p-2.5 text-center">
+                            <input type="number" min="0" value={s.asistencias} onChange={e => handleStatChange(s.jugador_id, 'asistencias', Number(e.target.value))} className="w-12 bg-[#0d1117] border border-[#30363d] rounded text-center p-1 text-white" />
+                          </td>
+                          <td className="p-2.5 text-center">
+                            <input type="number" min="0" value={s.tarjetas_amarillas} onChange={e => handleStatChange(s.jugador_id, 'tarjetas_amarillas', Number(e.target.value))} className="w-12 bg-[#0d1117] border border-[#30363d] rounded text-center p-1 text-white" />
+                          </td>
+                          <td className="p-2.5 text-center">
+                            <input type="number" min="0" value={s.tarjetas_rojas} onChange={e => handleStatChange(s.jugador_id, 'tarjetas_rojas', Number(e.target.value))} className="w-12 bg-[#0d1117] border border-[#30363d] rounded text-center p-1 text-white" />
+                          </td>
+                          <td className="p-2.5 text-center">
+                            <input type="checkbox" checked={s.es_mvp} onChange={e => handleStatChange(s.jugador_id, 'es_mvp', e.target.checked)} className="accent-amber-500 w-4 h-4" />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* OPCIÓN WHATSAPP Y ACCIONES */}
+            <div className="pt-2 border-t border-[#30363d] flex flex-col md:flex-row items-center justify-between gap-3">
+              <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-300 font-semibold">
+                <input 
+                  type="checkbox" 
+                  checked={enviarWhatsappResumen} 
+                  onChange={e => setEnviarWhatsappResumen(e.target.checked)}
+                  className="accent-[#289E9D] w-4 h-4" 
+                />
+                📲 Enviar informe detallado por WhatsApp a los apoderados confirmados
+              </label>
+
+              <div className="flex gap-3">
+                <button type="button" onClick={() => setShowModalResultado(false)} className="px-4 py-2 text-xs text-gray-400">Cancelar</button>
+                <button 
+                  onClick={guardarResultadoCompleto} 
+                  disabled={guardando} 
+                  className="bg-[#289E9D] hover:bg-[#207f7e] text-white px-5 py-2 rounded-lg text-xs font-bold"
+                >
+                  {guardando ? 'Guardando...' : '💾 Guardar y Enviar Informe'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
