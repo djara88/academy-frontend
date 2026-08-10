@@ -1,6 +1,7 @@
 // src/pages/Asistencias.tsx
 import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
+import * as XLSX from 'xlsx'; // 👈 IMPORTACIÓN DE LIBRERÍA EXCEL
 
 const Asistencias: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'lista' | 'reportes'>('lista');
@@ -79,7 +80,7 @@ const Asistencias: React.FC = () => {
 
       alert(`✅ Entrenamiento ${estadoClase.toLowerCase()} registrado con éxito.`);
       setCategoriaSel('');
-      cargarCategoriasYMetricas(); // Refrescar métricas
+      cargarCategoriasYMetricas(); 
     } catch (e) {
       alert('Error al guardar. Verifica tu conexión.');
     } finally {
@@ -107,6 +108,28 @@ const Asistencias: React.FC = () => {
     }
   };
 
+  // 🔥 NUEVA FUNCIÓN: EXPORTAR A EXCEL
+  const exportarAExcel = () => {
+    if (!metricas || !metricas.jugadores || metricas.jugadores.length === 0) {
+      return alert("No hay datos suficientes para exportar.");
+    }
+
+    const datosExcel = metricas.jugadores.map((jug: any, index: number) => ({
+      "Ranking": index + 1,
+      "Alumno": jug.nombre,
+      "Porcentaje (%)": `${jug.porcentaje}%`,
+      "Clases Presente": jug.presentes,
+      "Clases Totales del Mes": jug.total
+    }));
+
+    const hoja = XLSX.utils.json_to_sheet(datosExcel);
+    const libro = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(libro, hoja, `Asistencias_${mesMetricas}_${anioMetricas}`);
+    
+    // Descarga automática del archivo
+    XLSX.writeFile(libro, `Reporte_Asistencias_${mesMetricas}_${anioMetricas}.xlsx`);
+  };
+
   return (
     <div className="space-y-6 pb-10 max-w-6xl mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -115,7 +138,6 @@ const Asistencias: React.FC = () => {
           <p className="text-sm text-gray-400">Pasa la lista en cancha, controla inasistencias y envía reportes individuales.</p>
         </div>
         
-        {/* SELECTOR DE PESTAÑAS */}
         <div className="bg-[#0d1117] p-1.5 rounded-lg border border-[#30363d] flex gap-2 w-full md:w-auto">
           <button 
             onClick={() => setActiveTab('lista')} 
@@ -132,12 +154,8 @@ const Asistencias: React.FC = () => {
         </div>
       </div>
 
-      {/* =========================================
-          PESTAÑA 1: PASAR LISTA Y CONFIGURACIÓN
-          ========================================= */}
       {activeTab === 'lista' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
-          {/* PANEL IZQUIERDO: FORMULARIO */}
           <div className="lg:col-span-1 space-y-4">
             <div className="bg-[#0d1117] border border-[#30363d] rounded-xl p-5 space-y-4">
               <h3 className="text-lg font-bold text-white">⚙️ Configurar Sesión</h3>
@@ -187,7 +205,6 @@ const Asistencias: React.FC = () => {
             </div>
           </div>
 
-          {/* PANEL DERECHO: PASAR LA LISTA */}
           <div className="lg:col-span-2">
             <div className="bg-[#0d1117] border border-[#30363d] rounded-xl p-5 min-h-[500px]">
               <h3 className="text-xl font-bold text-white mb-4">📝 Pasar Lista de Alumnos</h3>
@@ -225,13 +242,9 @@ const Asistencias: React.FC = () => {
         </div>
       )}
 
-      {/* =========================================
-          PESTAÑA 2: DASHBOARD Y MÉTRICAS (INDIVIDUAL, CAT Y GLOBAL)
-          ========================================= */}
       {activeTab === 'reportes' && metricas && (
         <div className="space-y-6 animate-fade-in">
           
-          {/* FILTRO DE FECHA PARA EL REPORTE */}
           <div className="bg-[#0d1117] border border-[#30363d] p-4 rounded-xl flex flex-wrap gap-4 items-end">
             <div>
               <label className="block text-xs font-semibold text-gray-400 mb-1">Mes de Análisis</label>
@@ -259,7 +272,6 @@ const Asistencias: React.FC = () => {
               </select>
             </div>
             
-            {/* BOTÓN PARA DISPARAR REPORTES DE WHATSAPP (Requiere categoría para no saturar) */}
             <div className="ml-auto flex items-end gap-2 border-l border-[#30363d] pl-4">
               <select value={categoriaSel} onChange={e => setCategoriaSel(e.target.value)} className="bg-[#161b22] border border-[#30363d] rounded p-2 text-white text-xs outline-none">
                 <option value="">-- Seleccionar Categoría --</option>
@@ -270,20 +282,18 @@ const Asistencias: React.FC = () => {
                 disabled={enviandoReporte || !categoriaSel}
                 className="bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white px-4 py-2 rounded font-bold text-sm flex gap-2 items-center shadow-lg transition-colors"
               >
-                {enviandoReporte ? 'Enviando...' : '📲 Enviar Reportes Individuales (WhatsApp)'}
+                {enviandoReporte ? 'Enviando...' : '📲 Enviar Reportes (WhatsApp)'}
               </button>
             </div>
           </div>
 
-          {/* 1. VISIÓN GLOBAL */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="bg-[#0d1117] p-5 rounded-xl border border-[#30363d] flex flex-col justify-center items-center relative overflow-hidden">
-              <span className="text-gray-400 text-xs uppercase font-bold tracking-wider relative z-10">Asistencia Global de la Academia</span>
+              <span className="text-gray-400 text-xs uppercase font-bold tracking-wider relative z-10">Asistencia Global</span>
               <span className="text-5xl font-black text-[#289E9D] mt-2 relative z-10">{metricas.global.porcentajeGlobal}%</span>
               <div className="w-full bg-[#161b22] rounded-full h-1.5 mt-4 relative z-10">
                 <div className="bg-[#289E9D] h-1.5 rounded-full" style={{ width: `${metricas.global.porcentajeGlobal}%` }}></div>
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-[#289E9D]/10 to-transparent opacity-50"></div>
             </div>
             <div className="bg-[#0d1117] p-5 rounded-xl border border-[#30363d] flex flex-col justify-center items-center">
               <span className="text-gray-400 text-sm font-semibold mb-1">Clases Realizadas</span>
@@ -300,7 +310,6 @@ const Asistencias: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* 2. MÉTRICAS POR CATEGORÍA */}
             <div className="bg-[#0d1117] p-6 rounded-xl border border-[#30363d]">
               <h3 className="text-lg font-bold text-white mb-4">🏷️ Rendimiento por Categorías</h3>
               <div className="space-y-4">
@@ -322,10 +331,19 @@ const Asistencias: React.FC = () => {
               </div>
             </div>
 
-            {/* 3. MÉTRICAS POR JUGADOR (RANKING INDIVIDUAL) */}
-            <div className="bg-[#0d1117] p-6 rounded-xl border border-[#30363d]">
-              <h3 className="text-lg font-bold text-white mb-4">🏃‍♂️ Ranking de Asistencia Individual</h3>
-              <div className="max-h-[300px] overflow-y-auto pr-2 space-y-4">
+            <div className="bg-[#0d1117] p-6 rounded-xl border border-[#30363d] flex flex-col">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold text-white">🏃‍♂️ Ranking Individual</h3>
+                {/* 🔥 BOTÓN EXPORTAR EXCEL */}
+                <button 
+                  onClick={exportarAExcel}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded text-xs font-bold transition-colors"
+                >
+                  📥 Descargar Excel
+                </button>
+              </div>
+
+              <div className="max-h-[300px] overflow-y-auto pr-2 space-y-4 flex-1">
                 {metricas.jugadores.length === 0 ? (
                   <p className="text-gray-500 text-sm text-center py-6">No hay registros de alumnos este mes.</p>
                 ) : (
