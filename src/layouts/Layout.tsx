@@ -164,9 +164,21 @@ const Layout = () => {
                   <span className="mr-3">⚽</span> Partidos
                 </Link>
 
+                {/* 💼 MÓDULO DE FINANZAS Y CONTROL ERP */}
+                <Link
+                  to="/finanzas"
+                  className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                    isActive('/finanzas') 
+                      ? 'bg-[#289E9D] text-white font-semibold' 
+                      : 'text-gray-400 hover:bg-[#131722] hover:text-white'
+                  }`}
+                >
+                  <span className="mr-3">💼</span> Finanzas y ERP
+                </Link>
+
                 <div className="border-t border-gray-700 my-4"></div>
 
-                {/* 🔥 MENÚ AGRUPADO DE CONFIGURACIÓN (TIPO ANDROID) */}
+                {/* 🔥 MENÚ AGRUPADO DE CONFIGURACIÓN */}
                 <Link
                   to="/configuracion"
                   className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
