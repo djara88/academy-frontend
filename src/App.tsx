@@ -25,6 +25,7 @@ import Asistencias from './pages/Asistencias';
 import Configuracion from './pages/Configuracion';
 import PerfilAcademia from './pages/PerfilAcademia';
 import Uniformes from './pages/Uniformes'; // 👈 NUEVA IMPORTACIÓN
+import Finanzas from './pages/Finanzas';
 
 const queryClient = new QueryClient();
 
@@ -94,6 +95,7 @@ const App = () => {
               <Route path="/nuevo-torneo" element={<NuevoTorneo />} />
               <Route path="/torneos/:id" element={<GestionarTorneo />} />
               <Route path="/partidos" element={<Partidos />} />
+              <Route path="/finanzas" element={<Finanzas />} />
               
               {/* RUTAS DEL MÓDULO DE CONFIGURACIÓN Y SUBMÓDULOS */}
               <Route path="/configuracion" element={<Configuracion />} />
