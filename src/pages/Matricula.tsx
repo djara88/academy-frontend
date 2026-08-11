@@ -1,3 +1,4 @@
+// src/pages/Matricula.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
@@ -5,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 const Matricula: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth(); // 🔥 OBTENEMOS AL USUARIO
+  const { user } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,14 +22,15 @@ const Matricula: React.FC = () => {
   // Datos del jugador
   const [jugador, setJugador] = useState({
     nombre: '',
-    rut: '',                   // 🔥 NUEVO
-    tipo_alumno: 'Nuevo',      // 🔥 NUEVO
-    certificado_medico: 'Pendiente', // 🔥 NUEVO
+    rut: '',
+    tipo_alumno: 'Nuevo',
+    certificado_medico: 'Pendiente',
     sexo: 'Masculino',
     fecha_nacimiento: '',
     posicion_cancha: 'Delantero',
     talla_uniforme: 'Talla 8',
     talla_apoderado: 'No desea',
+    monto_camiseta_apoderado: 15000, // 🔥 MONTO DE LA CAMISETA DEL APODERADO
     numero_camiseta: 10,
     nombre_camiseta: ''
   });
@@ -40,7 +42,7 @@ const Matricula: React.FC = () => {
   const [habilidades, setHabilidades] = useState<string[]>([]);
   const [evaluacion, setEvaluacion] = useState<Record<string, number>>({});
 
-  // Ficha médica (Checkbox de 30 días eliminado)
+  // Ficha médica
   const [fichaMedica, setFichaMedica] = useState({
     tipo_sangre: 'No sabe',
     alergias: '',
@@ -71,9 +73,7 @@ const Matricula: React.FC = () => {
     setEvaluacion(nuevaEval);
   }, [jugador.posicion_cancha]);
 
-  // ============================================================
   // VALIDACIÓN Y FORMATEO DE RUT CHILENO
-  // ============================================================
   const formatRut = (value: string) => {
     let clean = value.replace(/\D/g, '');
     if (clean.length === 0) return '';
@@ -153,7 +153,6 @@ const Matricula: React.FC = () => {
     setLoading(true);
     setError('');
 
-    // Validar RUT antes de enviar
     if (!validarRut(tutor.rut)) {
       setError('RUT inválido. Verifica el formato y dígito verificador.');
       setLoading(false);
@@ -161,7 +160,7 @@ const Matricula: React.FC = () => {
     }
 
     try {
-      // 1. Estructurar el payload
+      // 1. Estructurar el payload (incluye monto_camiseta_apoderado implícito en ...jugador)
       const payload = {
         academia_id: user?.academia_id,
         tutor,
@@ -176,13 +175,12 @@ const Matricula: React.FC = () => {
 
       // 2. Guardar en la base de datos
       const response = await api.post('/api/jugadores', payload);
-      console.log('✅ Matrícula exitosa:', response.data);
 
       const jugadorId = response.data?.jugador_id || response.data?.data?.id;
       const tutorId = response.data?.tutor_id;
       let folioGenerado = 'Generado en sistema';
 
-      // 3. Generar PDF, descargar y enviar por correo
+      // 3. Generar PDF
       if (jugadorId && tutorId) {
         try {
           const responseMatricula = await api.post('/api/matriculas/generar-documento', {
@@ -192,19 +190,15 @@ const Matricula: React.FC = () => {
 
           if (responseMatricula.data?.success) {
             folioGenerado = responseMatricula.data.folio;
-            
-            // Abre el PDF automáticamente en una pestaña nueva
             if (responseMatricula.data.url) {
               window.open(responseMatricula.data.url, '_blank'); 
             }
           }
         } catch (pdfError) {
           console.error('❌ Error al generar/enviar PDF:', pdfError);
-          // No bloqueamos al usuario si el PDF falla, ya que la matrícula se guardó.
         }
       }
 
-      // 4. Mensaje de éxito y redirección
       alert(`✅ Alumno matriculado exitosamente.\n\nFolio: ${folioGenerado}\nEl contrato en PDF se abrió en una pestaña nueva y fue enviado al correo del apoderado.`);
       navigate('/dashboard');
 
@@ -277,7 +271,7 @@ const Matricula: React.FC = () => {
           </div>
         </div>
 
-        {/* SECCIÓN: JUGADOR */}
+        {/* SECCIÓN: JUGADORES E INDUMENTARIA */}
         <div className="card-uniforme p-6 mb-6">
           <h2 className="text-xl font-bold text-[#e6edf3] mb-4">⚽ Datos del Jugador</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -304,7 +298,6 @@ const Matricula: React.FC = () => {
               />
             </div>
 
-            {/* Tipo de Alumno */}
             <div>
               <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Tipo de Alumno *</label>
               <select
@@ -318,7 +311,6 @@ const Matricula: React.FC = () => {
               </select>
             </div>
 
-            {/* Certificado Médico */}
             <div>
               <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Certificado Médico *</label>
               <select
@@ -331,6 +323,7 @@ const Matricula: React.FC = () => {
                 <option value="Entregado">Entregado (Al día)</option>
               </select>
             </div>
+
             <div>
               <label className="label">Sexo</label>
               <select
@@ -343,6 +336,7 @@ const Matricula: React.FC = () => {
                 <option value="Femenino">Femenino</option>
               </select>
             </div>
+
             <div>
               <label className="label">Fecha de nacimiento *</label>
               <input
@@ -354,6 +348,7 @@ const Matricula: React.FC = () => {
                 className="w-full"
               />
             </div>
+
             <div>
               <label className="label">Posición en cancha *</label>
               <select
@@ -368,6 +363,7 @@ const Matricula: React.FC = () => {
                 <option value="Delantero">Delantero</option>
               </select>
             </div>
+
             <div>
               <label className="label">Talla uniforme niño</label>
               <select
@@ -387,6 +383,31 @@ const Matricula: React.FC = () => {
                 <option value="M">M</option>
               </select>
             </div>
+
+            <div>
+              <label className="label">N° Camiseta</label>
+              <input
+                name="numero_camiseta"
+                type="number"
+                min="1"
+                max="99"
+                value={jugador.numero_camiseta}
+                onChange={handleJugadorChange}
+                className="w-full"
+              />
+            </div>
+
+            <div>
+              <label className="label">Nombre en camiseta</label>
+              <input
+                name="nombre_camiseta"
+                placeholder="Ej: MATEO"
+                value={jugador.nombre_camiseta}
+                onChange={handleJugadorChange}
+                className="w-full uppercase"
+              />
+            </div>
+
             <div>
               <label className="label">Talla uniforme apoderado</label>
               <select
@@ -403,28 +424,32 @@ const Matricula: React.FC = () => {
                 <option value="XXL">XXL</option>
               </select>
             </div>
-            <div>
-              <label className="label">N° Camiseta</label>
-              <input
-                name="numero_camiseta"
-                type="number"
-                min="1"
-                max="99"
-                value={jugador.numero_camiseta}
-                onChange={handleJugadorChange}
-                className="w-full"
-              />
-            </div>
-            <div>
-              <label className="label">Nombre en camiseta</label>
-              <input
-                name="nombre_camiseta"
-                placeholder="Ej: MATEO"
-                value={jugador.nombre_camiseta}
-                onChange={handleJugadorChange}
-                className="w-full uppercase"
-              />
-            </div>
+
+            {/* 🔥 CAMPO DE MONTO CAMISETA APODERADO (SOLO SI PIDE TALLA) */}
+            {jugador.talla_apoderado !== 'No desea' && (
+              <div>
+                <label className="label">Costo Camiseta Apoderado ($)</label>
+                <input
+                  name="monto_camiseta_apoderado"
+                  type="number"
+                  placeholder="Ej: 15000"
+                  value={jugador.monto_camiseta_apoderado}
+                  onChange={handleJugadorChange}
+                  className="w-full"
+                />
+              </div>
+            )}
+
+            {/* 🔥 LEYENDA INFORMATIVA EXPLICITADA */}
+            {jugador.talla_apoderado !== 'No desea' && (
+              <div className="col-span-1 md:col-span-2 bg-[#161b22] border border-[#289E9D]/40 p-3.5 rounded-lg flex items-start gap-3 mt-1">
+                <span className="text-xl">ℹ️</span>
+                <p className="text-xs text-[#289E9D] font-semibold leading-relaxed">
+                  <strong>Nota de Cobro:</strong> El valor de la camiseta del apoderado (${Number(jugador.monto_camiseta_apoderado || 0).toLocaleString('es-CL')}) se sumará automáticamente al cobro inicial de la <strong>Matrícula</strong> en el módulo de Finanzas.
+                </p>
+              </div>
+            )}
+
           </div>
         </div>
 
