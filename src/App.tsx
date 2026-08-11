@@ -1,3 +1,4 @@
+// src/App.tsx
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -21,8 +22,9 @@ import Terminos from './pages/Terminos';
 import WhatsApp from './pages/WhatsApp';
 import FinanzasConfig from './pages/FinanzasConfig';
 import Asistencias from './pages/Asistencias';
-import Configuracion from './pages/Configuracion'; // 👈 NUEVA IMPORTACIÓN
-import PerfilAcademia from './pages/PerfilAcademia'; // 👈 NUEVA IMPORTACIÓN
+import Configuracion from './pages/Configuracion';
+import PerfilAcademia from './pages/PerfilAcademia';
+import Uniformes from './pages/Uniformes'; // 👈 NUEVA IMPORTACIÓN
 
 const queryClient = new QueryClient();
 
@@ -86,6 +88,7 @@ const App = () => {
               <Route path="/jugadores" element={<Jugadores />} />
               <Route path="/matricula" element={<Matricula />} />
               <Route path="/asistencias" element={<Asistencias />} />
+              <Route path="/uniformes" element={<Uniformes />} /> {/* 👈 NUEVA RUTA UNIFORMES */}
               
               <Route path="/torneos" element={<Torneos />} />
               <Route path="/nuevo-torneo" element={<NuevoTorneo />} />
@@ -93,8 +96,8 @@ const App = () => {
               <Route path="/partidos" element={<Partidos />} />
               
               {/* RUTAS DEL MÓDULO DE CONFIGURACIÓN Y SUBMÓDULOS */}
-              <Route path="/configuracion" element={<Configuracion />} /> {/* 👈 MENÚ ANDROID */}
-              <Route path="/configuracion/perfil" element={<PerfilAcademia />} /> {/* 👈 DÍAS Y HORARIOS */}
+              <Route path="/configuracion" element={<Configuracion />} />
+              <Route path="/configuracion/perfil" element={<PerfilAcademia />} />
               <Route path="/terminos" element={<Terminos />} />
               <Route path="/whatsapp" element={<WhatsApp />} />
               <Route path="/finanzas" element={<FinanzasConfig />} />
