@@ -1,6 +1,7 @@
 // src/pages/Uniformes.tsx
 import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
+import * as XLSX from 'xlsx';
 
 const Uniformes: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'alumnos' | 'catalogo' | 'taller'>('alumnos');
@@ -90,6 +91,23 @@ const Uniformes: React.FC = () => {
     }
   };
 
+  // 🔥 DESCARGAR EXCEL PARA EL TALLER 🔥
+  const exportarTallerExcel = () => {
+    if (!data?.resumenTaller || Object.keys(data.resumenTaller).length === 0) {
+      return alert("No hay pedidos pendientes para exportar.");
+    }
+    
+    const datosExcel = Object.entries(data.resumenTaller).map(([prenda, cantidad]) => ({
+      "Prenda y Talla": prenda,
+      "Cantidad a Fabricar": cantidad
+    }));
+
+    const hoja = XLSX.utils.json_to_sheet(datosExcel);
+    const libro = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(libro, hoja, "Pedido_Taller");
+    XLSX.writeFile(libro, `Pedido_Indumentaria_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   if (loading) return <div className="text-center text-[#289E9D] mt-10 font-bold">Cargando inventario...</div>;
 
   const pedidosFiltrados = (data?.pedidos || []).filter((p: any) => 
@@ -142,7 +160,7 @@ const Uniformes: React.FC = () => {
             />
             <button 
               onClick={() => setShowModalPedido(true)}
-              className="bg-[#289E9D] text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow flex items-center gap-2"
+              className="bg-[#289E9D] text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow flex items-center gap-2 hover:bg-[#207f7e] transition-colors"
             >
               <span>+</span> Asignar Prenda a Alumno
             </button>
@@ -164,6 +182,7 @@ const Uniformes: React.FC = () => {
                       <div className="flex gap-2 text-[11px] text-gray-400 mt-1">
                         <span className="bg-[#161b22] px-2 py-0.5 rounded border border-[#30363d]">Talla: <strong className="text-white">{p.talla}</strong></span>
                         {p.numero_estampado && <span className="bg-[#161b22] px-2 py-0.5 rounded border border-[#30363d]">N°: <strong className="text-white">{p.numero_estampado}</strong></span>}
+                        {p.nombre_estampado && <span className="bg-[#161b22] px-2 py-0.5 rounded border border-[#30363d]">Espalda: <strong className="text-white">{p.nombre_estampado}</strong></span>}
                       </div>
                     </div>
                   </div>
@@ -220,7 +239,7 @@ const Uniformes: React.FC = () => {
             <p className="text-sm text-gray-400">Define las prendas de tu academia. Decide si se mandan a hacer a pedido o si tienes stock guardado.</p>
             <button 
               onClick={() => setShowModalCatalogo(true)}
-              className="bg-[#289E9D] text-white px-4 py-2 rounded-lg font-bold text-sm shadow"
+              className="bg-[#289E9D] text-white px-4 py-2 rounded-lg font-bold text-sm shadow hover:bg-[#207f7e] transition-colors"
             >
               + Agregar Prenda
             </button>
@@ -261,11 +280,20 @@ const Uniformes: React.FC = () => {
 
       {/* TAB 3: REPORTE TALLER */}
       {activeTab === 'taller' && (
-        <div className="bg-[#0d1117] border border-[#30363d] rounded-xl p-6 animate-fade-in max-w-2xl mx-auto">
+        <div className="bg-[#0d1117] border border-[#30363d] rounded-xl p-6 animate-fade-in max-w-3xl mx-auto">
           <div className="text-center mb-6">
             <span className="text-5xl block mb-2">🧵</span>
             <h2 className="text-2xl font-bold text-white">Reporte para Fabricante</h2>
-            <p className="text-sm text-gray-400 mt-1">Suma automática de prendas "A pedido" que están pendientes de fabricación.</p>
+            <p className="text-sm text-gray-400 mt-1 mb-6">Suma automática de prendas "A pedido" que están pendientes de fabricación.</p>
+            
+            <div className="flex justify-center gap-4">
+              <button 
+                onClick={exportarTallerExcel}
+                className="bg-[#289E9D] hover:bg-[#207f7e] text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-colors shadow-lg flex items-center gap-2"
+              >
+                📥 Descargar Excel
+              </button>
+            </div>
           </div>
 
           {Object.keys(data?.resumenTaller || {}).length === 0 ? (
@@ -275,7 +303,7 @@ const Uniformes: React.FC = () => {
           ) : (
             <div className="bg-[#161b22] border border-[#30363d] rounded-xl overflow-hidden">
               <table className="w-full text-left text-sm text-gray-300">
-                <thead className="bg-[#1C212D] text-xs uppercase font-bold text-gray-400">
+                <thead className="bg-[#1C212D] text-xs uppercase font-bold text-gray-400 border-b border-[#30363d]">
                   <tr>
                     <th className="px-6 py-4">Prenda y Talla</th>
                     <th className="px-6 py-4 text-center">Cantidad a Fabricar</th>
