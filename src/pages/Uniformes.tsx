@@ -3,36 +3,28 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
 
 const Uniformes: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'alumnos' | 'catalogo' | 'taller'>('alumnos');
+  
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [procesando, setProcesando] = useState(false);
+  const [busqueda, setBusqueda] = useState('');
 
   // Modales
   const [showModalCatalogo, setShowModalCatalogo] = useState(false);
   const [showModalPedido, setShowModalPedido] = useState(false);
 
-  // Form Catalogo
+  // Formularios
   const [formCat, setFormCatalogo] = useState({
-    nombre: '',
-    precio: 0,
-    aplica_numero: true,
-    aplica_nombre_estampado: false
+    nombre: '', precio: 0, aplica_numero: true, aplica_nombre_estampado: false,
+    tipo_operacion: 'Taller', stock_disponible: 0
   });
 
-  // Form Pedido
   const [formPed, setFormPedido] = useState({
-    jugador_id: '',
-    prenda_id: '',
-    prenda_nombre: '',
-    talla: '8',
-    numero_estampado: '',
-    nombre_estampado: '',
-    monto: 0,
-    generar_cobro: true
+    jugador_id: '', prenda_id: '', prenda_nombre: '', talla: '8',
+    numero_estampado: '', nombre_estampado: '', monto: 0,
+    generar_cobro: false, estado_pago: 'Pendiente de Pago'
   });
-
-  const [filtroEstado, setFiltroEstado] = useState('Todos');
-  const [busqueda, setBusqueda] = useState('');
 
   useEffect(() => {
     cargarDatos();
@@ -55,343 +47,388 @@ const Uniformes: React.FC = () => {
     setProcesando(true);
     try {
       await api.post('/api/uniformes/catalogo', formCat);
-      alert('✅ Prenda agregada al catálogo.');
+      alert('✅ Prenda añadida al catálogo.');
       setShowModalCatalogo(false);
-      setFormCatalogo({ nombre: '', precio: 0, aplica_numero: true, aplica_nombre_estampado: false });
+      setFormCatalogo({ nombre: '', precio: 0, aplica_numero: true, aplica_nombre_estampado: false, tipo_operacion: 'Taller', stock_disponible: 0 });
       cargarDatos();
     } catch (e) {
-      alert('Error creando prenda en el catálogo.');
+      alert('Error creando prenda.');
     } finally {
       setProcesando(false);
     }
   };
 
-  const handleSeleccionarPrendaEnPedido = (prendaId: string) => {
-    const prenda = data.catalogo.find((p: any) => p.id === prendaId);
+  const handleSeleccionarPrenda = (id: string) => {
+    const prenda = data.catalogo.find((p: any) => p.id === id);
     if (prenda) {
-      setFormPedido({
-        ...formPed,
-        prenda_id: prenda.id,
-        prenda_nombre: prenda.nombre,
-        monto: prenda.precio
-      });
+      setFormPedido({ ...formPed, prenda_id: prenda.id, prenda_nombre: prenda.nombre, monto: prenda.precio });
     }
   };
 
   const handleCrearPedido = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formPed.jugador_id || !formPed.prenda_nombre) {
-      return alert('Selecciona el alumno y la prenda.');
-    }
-
     setProcesando(true);
     try {
       const res = await api.post('/api/uniformes/pedidos', formPed);
       alert(`✅ ${res.data.message}`);
       setShowModalPedido(false);
-      setFormPedido({
-        jugador_id: '',
-        prenda_id: '',
-        prenda_nombre: '',
-        talla: '8',
-        numero_estampado: '',
-        nombre_estampado: '',
-        monto: 0,
-        generar_cobro: true
-      });
+      setFormPedido({ jugador_id: '', prenda_id: '', prenda_nombre: '', talla: '8', numero_estampado: '', nombre_estampado: '', monto: 0, generar_cobro: false, estado_pago: 'Pendiente de Pago' });
       cargarDatos();
     } catch (e) {
-      alert('Error al registrar pedido.');
+      alert('Error asignando la prenda.');
     } finally {
       setProcesando(false);
     }
   };
 
-  const handleCambiarEstado = async (pedidoId: string, nuevoEstado: string) => {
+  const actualizarPedido = async (id: string, campo: string, valor: string) => {
     try {
-      await api.put(`/api/uniformes/pedidos/${pedidoId}/estado`, { estado_entrega: nuevoEstado });
+      await api.put(`/api/uniformes/pedidos/${id}/actualizar`, { [campo]: valor });
       cargarDatos();
     } catch (e) {
-      alert('Error actualizando estado.');
+      alert('Error actualizando el estado.');
     }
   };
 
-  if (loading) return <div className="text-center text-[#289E9D] mt-10 font-bold">Cargando gestión de indumentaria...</div>;
+  if (loading) return <div className="text-center text-[#289E9D] mt-10 font-bold">Cargando inventario...</div>;
 
-  const pedidosFiltrados = (data?.pedidos || []).filter((p: any) => {
-    const coincideEstado = filtroEstado === 'Todos' || p.estado_entrega === filtroEstado;
-    const coincideNombre = p.jugadores?.nombre?.toLowerCase().includes(busqueda.toLowerCase()) || p.prenda_nombre?.toLowerCase().includes(busqueda.toLowerCase());
-    return coincideEstado && coincideNombre;
-  });
+  const pedidosFiltrados = (data?.pedidos || []).filter((p: any) => 
+    p.jugadores?.nombre?.toLowerCase().includes(busqueda.toLowerCase()) || p.prenda_nombre?.toLowerCase().includes(busqueda.toLowerCase())
+  );
 
   return (
     <div className="space-y-6 pb-10 max-w-6xl mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#e6edf3]">👕 Uniformes e Indumentaria</h1>
-          <p className="text-sm text-gray-400">Administra solicitudes, confección en taller y cargos independientes en cuenta corriente.</p>
-        </div>
-
-        <div className="flex gap-2">
-          <button 
-            onClick={() => setShowModalCatalogo(true)}
-            className="bg-[#161b22] hover:bg-[#21262d] text-gray-200 border border-[#30363d] px-4 py-2 rounded-lg font-bold text-xs transition-colors"
-          >
-            ⚙️ Configurar Catálogo
-          </button>
-          <button 
-            onClick={() => setShowModalPedido(true)}
-            className="bg-[#289E9D] hover:bg-[#207f7e] text-white px-4 py-2 rounded-lg font-bold text-xs shadow-lg transition-colors flex items-center gap-1.5"
-          >
-            <span>➕</span> Solicitar Indumentaria
-          </button>
+          <h1 className="text-3xl font-bold text-[#e6edf3]">👕 Uniformes e Inventario</h1>
+          <p className="text-sm text-gray-400">Gestiona stock físico, pedidos al taller y entregas a los alumnos.</p>
         </div>
       </div>
 
-      {/* KPIS Y METRICAS */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-[#0d1117] p-4 rounded-xl border border-[#30363d] text-center">
-          <span className="text-red-400 text-xs font-bold uppercase block mb-1">Sin Pedir al Taller</span>
-          <span className="text-3xl font-black text-red-400">{data?.kpis.pendientes}</span>
-        </div>
-        <div className="bg-[#0d1117] p-4 rounded-xl border border-[#30363d] text-center">
-          <span className="text-orange-400 text-xs font-bold uppercase block mb-1">En Confección</span>
-          <span className="text-3xl font-black text-orange-400">{data?.kpis.enTaller}</span>
-        </div>
-        <div className="bg-[#0d1117] p-4 rounded-xl border border-[#30363d] text-center">
-          <span className="text-blue-400 text-xs font-bold uppercase block mb-1">En Cancha (Avisados)</span>
-          <span className="text-3xl font-black text-blue-400">{data?.kpis.listos}</span>
-        </div>
-        <div className="bg-[#0d1117] p-4 rounded-xl border border-[#30363d] text-center">
-          <span className="text-green-400 text-xs font-bold uppercase block mb-1">Entregados</span>
-          <span className="text-3xl font-black text-green-400">{data?.kpis.entregados}</span>
-        </div>
+      {/* PESTAÑAS PRINCIPALES */}
+      <div className="flex bg-[#0d1117] border border-[#30363d] rounded-xl overflow-hidden shadow-sm">
+        <button 
+          onClick={() => setActiveTab('alumnos')} 
+          className={`flex-1 py-3 font-bold text-sm transition-colors ${activeTab === 'alumnos' ? 'bg-[#289E9D] text-white' : 'text-gray-400 hover:bg-[#161b22]'}`}
+        >
+          🏃‍♂️ Gestión de Alumnos
+        </button>
+        <button 
+          onClick={() => setActiveTab('catalogo')} 
+          className={`flex-1 py-3 font-bold text-sm border-l border-r border-[#30363d] transition-colors ${activeTab === 'catalogo' ? 'bg-[#289E9D] text-white' : 'text-gray-400 hover:bg-[#161b22]'}`}
+        >
+          🛍️ Catálogo y Stock Físico
+        </button>
+        <button 
+          onClick={() => setActiveTab('taller')} 
+          className={`flex-1 py-3 font-bold text-sm transition-colors ${activeTab === 'taller' ? 'bg-[#289E9D] text-white' : 'text-gray-400 hover:bg-[#161b22]'}`}
+        >
+          📦 Reporte Taller (Bajo Demanda)
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* RESUMEN PARA ENVIAR AL TALLER (TOTALES POR TALLA) */}
-        <div className="lg:col-span-1 bg-[#0d1117] border border-[#30363d] rounded-xl p-5 space-y-4 h-fit">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <span>📦</span> Consolidado para Proveedor / Taller
-          </h3>
-          <p className="text-xs text-gray-400">Total de prendas activas agrupadas por talla para enviar a confeccionar:</p>
+      {/* TABS CONTENT */}
 
-          <div className="space-y-2">
-            {Object.keys(data?.resumenTallas || {}).length === 0 ? (
-              <p className="text-gray-500 text-xs text-center py-6">No hay prendas pendientes por mandar a taller.</p>
-            ) : (
-              Object.entries(data?.resumenTallas || {}).map(([talla, cantidad]: any) => (
-                <div key={talla} className="flex justify-between items-center bg-[#161b22] p-3 rounded-lg border border-[#30363d]">
-                  <span className="text-sm font-bold text-gray-200">Talla {talla}</span>
-                  <span className="bg-[#289E9D] text-white font-black text-xs px-3 py-1 rounded-full">
-                    {cantidad} {cantidad === 1 ? 'unidad' : 'unidades'}
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* LISTADO Y SEGUIMIENTO DE ENTREGAS */}
-        <div className="lg:col-span-2 bg-[#0d1117] border border-[#30363d] rounded-xl p-5 space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <h3 className="text-lg font-bold text-white">🏃 Seguimiento de Pedidos</h3>
-            
-            <div className="flex gap-2 w-full sm:w-auto">
-              <input 
-                type="text" 
-                placeholder="Buscar por alumno o prenda..." 
-                value={busqueda} 
-                onChange={e => setBusqueda(e.target.value)}
-                className="bg-[#161b22] border border-[#30363d] text-white text-xs rounded p-2 outline-none w-full sm:w-48"
-              />
-              <select 
-                value={filtroEstado} 
-                onChange={e => setFiltroEstado(e.target.value)}
-                className="bg-[#161b22] border border-[#30363d] text-white text-xs rounded p-2 outline-none"
-              >
-                <option value="Todos">Todos</option>
-                <option value="Pendiente">Pendiente</option>
-                <option value="En Taller">En Taller</option>
-                <option value="Listo para Entrega">Listo en Cancha</option>
-                <option value="Entregado">Entregado</option>
-              </select>
-            </div>
+      {/* TAB 1: GESTIÓN DE ALUMNOS */}
+      {activeTab === 'alumnos' && (
+        <div className="space-y-4 animate-fade-in">
+          <div className="flex justify-between items-center bg-[#0d1117] border border-[#30363d] p-4 rounded-xl">
+            <input 
+              type="text" 
+              placeholder="Buscar alumno o prenda..." 
+              value={busqueda} 
+              onChange={e => setBusqueda(e.target.value)}
+              className="bg-[#161b22] border border-[#30363d] text-white text-sm rounded-lg p-2.5 outline-none w-72 focus:border-[#289E9D]"
+            />
+            <button 
+              onClick={() => setShowModalPedido(true)}
+              className="bg-[#289E9D] text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow flex items-center gap-2"
+            >
+              <span>+</span> Asignar Prenda a Alumno
+            </button>
           </div>
 
-          <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+          <div className="grid grid-cols-1 gap-3">
             {pedidosFiltrados.length === 0 ? (
-              <p className="text-center text-gray-500 py-12 text-xs">No hay registros de indumentaria creados.</p>
+              <div className="text-center py-12 text-gray-500 bg-[#0d1117] rounded-xl border border-[#30363d]">Aún no hay prendas asignadas a los alumnos.</div>
             ) : (
               pedidosFiltrados.map((p: any) => (
-                <div key={p.id} className="bg-[#161b22] p-4 rounded-xl border border-[#30363d] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div className="flex items-center gap-3">
-                    <img src={p.jugadores?.foto_base64 || 'https://via.placeholder.com/150'} alt="img" className="w-10 h-10 rounded-full object-cover border border-[#30363d]" />
+                <div key={p.id} className="bg-[#0d1117] p-4 rounded-xl border border-[#30363d] flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 hover:border-gray-600 transition-colors">
+                  
+                  {/* Datos del Alumno y Prenda */}
+                  <div className="flex items-center gap-4 w-full lg:w-1/3">
+                    <img src={p.jugadores?.foto_base64 || 'https://via.placeholder.com/150'} alt="img" className="w-12 h-12 rounded-full object-cover border border-[#30363d]" />
                     <div>
-                      <span className="font-bold text-white text-sm block">{p.jugadores?.nombre || 'Alumno'}</span>
+                      <span className="font-bold text-white text-sm block">{p.jugadores?.nombre}</span>
                       <p className="text-xs text-[#289E9D] font-semibold">{p.prenda_nombre}</p>
-                      <div className="flex gap-2 text-[11px] text-gray-400 mt-0.5">
-                        <span>Talla: <strong className="text-white">{p.talla}</strong></span>
-                        {p.numero_estampado && <span>| N°: <strong className="text-white">#{p.numero_estampado}</strong></span>}
-                        {p.nombre_estampado && <span>| Nombre: <strong className="text-white">"{p.nombre_estampado}"</strong></span>}
+                      <div className="flex gap-2 text-[11px] text-gray-400 mt-1">
+                        <span className="bg-[#161b22] px-2 py-0.5 rounded border border-[#30363d]">Talla: <strong className="text-white">{p.talla}</strong></span>
+                        {p.numero_estampado && <span className="bg-[#161b22] px-2 py-0.5 rounded border border-[#30363d]">N°: <strong className="text-white">{p.numero_estampado}</strong></span>}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-col sm:items-end gap-1.5 w-full sm:w-auto">
-                    <span className="text-xs text-gray-300 font-bold">${Number(p.monto).toLocaleString('es-CL')}</span>
-                    
+                  {/* Estado Financiero */}
+                  <div className="w-full lg:w-1/4">
+                    <span className="text-[10px] text-gray-500 font-bold uppercase block mb-1">Finanzas / Pago</span>
                     <select 
-                      value={p.estado_entrega} 
-                      onChange={e => handleCambiarEstado(p.id, e.target.value)}
-                      className={`text-xs font-bold rounded px-2.5 py-1.5 outline-none border ${
-                        p.estado_entrega === 'Entregado' ? 'bg-green-950/40 border-green-500/50 text-green-400' :
-                        p.estado_entrega === 'Listo para Entrega' ? 'bg-blue-950/40 border-blue-500/50 text-blue-400' :
-                        p.estado_entrega === 'En Taller' ? 'bg-orange-950/40 border-orange-500/50 text-orange-400' :
-                        'bg-red-950/40 border-red-500/50 text-red-400'
+                      value={p.estado_pago || 'Pendiente de Pago'}
+                      onChange={e => actualizarPedido(p.id, 'estado_pago', e.target.value)}
+                      className={`text-xs font-bold rounded-lg px-3 py-1.5 w-full outline-none border transition-colors ${
+                        p.estado_pago === 'Incluido en Matrícula' ? 'bg-purple-900/20 text-purple-400 border-purple-500/30' :
+                        p.estado_pago === 'Pagado' ? 'bg-green-900/20 text-green-400 border-green-500/30' :
+                        'bg-red-900/20 text-red-400 border-red-500/30'
                       }`}
                     >
-                      <option value="Pendiente">🔴 Pendiente</option>
-                      <option value="En Taller">🟡 En Confección / Taller</option>
-                      <option value="Listo para Entrega">📲 Listo en Cancha (Avisar)</option>
-                      <option value="Entregado">🟢 Entregado al Apoderado</option>
+                      <option value="Pendiente de Pago">⏳ Pendiente de Pago</option>
+                      <option value="Pagado">💳 Pagado</option>
+                      <option value="Incluido en Matrícula">🎁 Incluido en Matrícula</option>
                     </select>
                   </div>
+
+                  {/* Estado Logístico (Entrega) */}
+                  <div className="w-full lg:w-1/3">
+                    <span className="text-[10px] text-gray-500 font-bold uppercase block mb-1">Logística / Entrega</span>
+                    <select 
+                      value={p.estado_entrega} 
+                      onChange={e => actualizarPedido(p.id, 'estado_entrega', e.target.value)}
+                      className={`text-xs font-bold rounded-lg px-3 py-1.5 w-full outline-none border transition-colors ${
+                        p.estado_entrega === 'Entregado' ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-400' :
+                        p.estado_entrega === 'Listo para Entrega' ? 'bg-blue-950/40 border-blue-500/50 text-blue-400' :
+                        p.estado_entrega === 'En Taller' ? 'bg-orange-950/40 border-orange-500/50 text-orange-400' :
+                        'bg-[#161b22] border-gray-600 text-gray-300'
+                      }`}
+                    >
+                      <option value="Pendiente">🔴 Pendiente / Sin pedir</option>
+                      <option value="En Taller">🟡 En Taller / Importación</option>
+                      <option value="Listo para Entrega">🟢 Listo en Cancha (Avisar Whatsapp)</option>
+                      <option value="Entregado">⚪ Entregado al Apoderado</option>
+                    </select>
+                  </div>
+
                 </div>
               ))
             )}
           </div>
         </div>
+      )}
 
-      </div>
+      {/* TAB 2: CATÁLOGO Y STOCK */}
+      {activeTab === 'catalogo' && (
+        <div className="space-y-4 animate-fade-in">
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-gray-400">Define las prendas de tu academia. Decide si se mandan a hacer a pedido o si tienes stock guardado.</p>
+            <button 
+              onClick={() => setShowModalCatalogo(true)}
+              className="bg-[#289E9D] text-white px-4 py-2 rounded-lg font-bold text-sm shadow"
+            >
+              + Agregar Prenda
+            </button>
+          </div>
 
-      {/* MODAL 1: CONFIGURAR CATÁLOGO DE PRENDAS */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {data?.catalogo.map((cat: any) => (
+              <div key={cat.id} className="bg-[#0d1117] border border-[#30363d] rounded-xl p-5 flex flex-col justify-between relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-2">
+                  <span className={`text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider ${cat.tipo_operacion === 'Stock' ? 'bg-purple-900/30 text-purple-400' : 'bg-orange-900/30 text-orange-400'}`}>
+                    {cat.tipo_operacion === 'Stock' ? '📦 En Bodega' : '🧵 A Pedido'}
+                  </span>
+                </div>
+
+                <div className="mt-2">
+                  <h3 className="text-lg font-bold text-white mb-1">{cat.nombre}</h3>
+                  <span className="text-xl font-black text-[#289E9D] block mb-3">${Number(cat.precio).toLocaleString('es-CL')}</span>
+                  
+                  <div className="space-y-1.5">
+                    <p className="text-xs text-gray-400">🔢 Número: <strong className="text-gray-200">{cat.aplica_numero ? 'Sí' : 'No'}</strong></p>
+                    <p className="text-xs text-gray-400">✍️ Nombre: <strong className="text-gray-200">{cat.aplica_nombre_estampado ? 'Sí' : 'No'}</strong></p>
+                  </div>
+                </div>
+
+                {cat.tipo_operacion === 'Stock' && (
+                  <div className="mt-4 pt-3 border-t border-[#30363d] flex justify-between items-center">
+                    <span className="text-xs font-bold text-gray-400">Stock Actual:</span>
+                    <span className={`text-lg font-black ${cat.stock_disponible > 5 ? 'text-green-400' : cat.stock_disponible > 0 ? 'text-yellow-400' : 'text-red-500'}`}>
+                      {cat.stock_disponible} unid.
+                    </span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: REPORTE TALLER */}
+      {activeTab === 'taller' && (
+        <div className="bg-[#0d1117] border border-[#30363d] rounded-xl p-6 animate-fade-in max-w-2xl mx-auto">
+          <div className="text-center mb-6">
+            <span className="text-5xl block mb-2">🧵</span>
+            <h2 className="text-2xl font-bold text-white">Reporte para Fabricante</h2>
+            <p className="text-sm text-gray-400 mt-1">Suma automática de prendas "A pedido" que están pendientes de fabricación.</p>
+          </div>
+
+          {Object.keys(data?.resumenTaller || {}).length === 0 ? (
+            <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-8 text-center text-gray-500">
+              No hay pedidos pendientes para mandar al taller en este momento.
+            </div>
+          ) : (
+            <div className="bg-[#161b22] border border-[#30363d] rounded-xl overflow-hidden">
+              <table className="w-full text-left text-sm text-gray-300">
+                <thead className="bg-[#1C212D] text-xs uppercase font-bold text-gray-400">
+                  <tr>
+                    <th className="px-6 py-4">Prenda y Talla</th>
+                    <th className="px-6 py-4 text-center">Cantidad a Fabricar</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#30363d]">
+                  {Object.entries(data?.resumenTaller || {}).map(([key, cant]: any) => (
+                    <tr key={key} className="hover:bg-[#1C212D]/50">
+                      <td className="px-6 py-4 font-semibold text-white">{key}</td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="bg-[#289E9D] text-white px-4 py-1.5 rounded-full font-black shadow">{cant}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+
+      {/* MODAL 1: CREAR CATÁLOGO */}
       {showModalCatalogo && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#161b22] border border-[#30363d] rounded-xl w-full max-w-md p-6 space-y-4">
-            <h2 className="text-xl font-bold text-white">⚙️ Agregar Prenda al Catálogo</h2>
+          <div className="bg-[#161b22] border border-[#30363d] rounded-xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <h2 className="text-xl font-bold text-white border-b border-[#30363d] pb-2">⚙️ Nueva Prenda en Catálogo</h2>
             
-            <form onSubmit={handleCrearCatalogo} className="space-y-3 text-xs">
+            <form onSubmit={handleCrearCatalogo} className="space-y-4 text-sm">
               <div>
-                <label className="block text-gray-400 mb-1 font-semibold">Nombre de la Prenda / Pack</label>
-                <input type="text" placeholder="Ej: Kit Oficial Titular 2026" value={formCat.nombre} onChange={e => setFormCatalogo({...formCat, nombre: e.target.value})} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2 text-white outline-none" required />
+                <label className="block text-gray-400 mb-1 font-semibold">Nombre de la Prenda o Pack</label>
+                <input type="text" placeholder="Ej: Kit Oficial 2026" value={formCat.nombre} onChange={e => setFormCatalogo({...formCat, nombre: e.target.value})} className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2.5 text-white outline-none focus:border-[#289E9D]" required />
               </div>
 
               <div>
                 <label className="block text-gray-400 mb-1 font-semibold">Precio de Venta ($)</label>
-                <input type="number" placeholder="25000" value={formCat.precio} onChange={e => setFormCatalogo({...formCat, precio: Number(e.target.value)})} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2 text-white outline-none" required />
+                <input type="number" placeholder="Ej: 25000" value={formCat.precio} onChange={e => setFormCatalogo({...formCat, precio: Number(e.target.value)})} className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2.5 text-white outline-none focus:border-[#289E9D]" required />
               </div>
 
-              <div className="space-y-2 pt-2 border-t border-[#30363d]">
-                <label className="flex items-center justify-between text-gray-300 font-semibold cursor-pointer">
-                  <span>¿Requiere número estampado?</span>
-                  <input type="checkbox" checked={formCat.aplica_numero} onChange={e => setFormCatalogo({...formCat, aplica_numero: e.target.checked})} className="accent-[#289E9D]" />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-[#0d1117] p-3 rounded-lg border border-[#30363d]">
+                  <span className="block text-xs text-gray-400 mb-2 font-bold uppercase">Operación</span>
+                  <select value={formCat.tipo_operacion} onChange={e => setFormCatalogo({...formCat, tipo_operacion: e.target.value})} className="w-full bg-transparent text-white font-semibold outline-none text-sm cursor-pointer">
+                    <option value="Taller">🧵 A Pedido (Taller)</option>
+                    <option value="Stock">📦 Stock Físico</option>
+                  </select>
+                </div>
+                {formCat.tipo_operacion === 'Stock' && (
+                  <div className="bg-[#0d1117] p-3 rounded-lg border border-[#30363d]">
+                    <span className="block text-xs text-gray-400 mb-2 font-bold uppercase">Unidades Bodega</span>
+                    <input type="number" min="0" value={formCat.stock_disponible} onChange={e => setFormCatalogo({...formCat, stock_disponible: Number(e.target.value)})} className="w-full bg-transparent text-white font-semibold outline-none text-sm" required />
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-[#0d1117] p-3 rounded-lg border border-[#30363d] space-y-2">
+                <label className="flex items-center justify-between text-gray-300 font-semibold cursor-pointer text-xs">
+                  <span>¿Permite elegir número?</span>
+                  <input type="checkbox" checked={formCat.aplica_numero} onChange={e => setFormCatalogo({...formCat, aplica_numero: e.target.checked})} className="accent-[#289E9D] w-4 h-4" />
                 </label>
-                <label className="flex items-center justify-between text-gray-300 font-semibold cursor-pointer">
-                  <span>¿Requiere nombre de jugador estampado?</span>
-                  <input type="checkbox" checked={formCat.aplica_nombre_estampado} onChange={e => setFormCatalogo({...formCat, aplica_nombre_estampado: e.target.checked})} className="accent-[#289E9D]" />
+                <label className="flex items-center justify-between text-gray-300 font-semibold cursor-pointer text-xs">
+                  <span>¿Permite nombre en espalda?</span>
+                  <input type="checkbox" checked={formCat.aplica_nombre_estampado} onChange={e => setFormCatalogo({...formCat, aplica_nombre_estampado: e.target.checked})} className="accent-[#289E9D] w-4 h-4" />
                 </label>
               </div>
 
-              <div className="flex justify-end gap-2 pt-4">
-                <button type="button" onClick={() => setShowModalCatalogo(false)} className="px-4 py-2 text-gray-400">Cancelar</button>
-                <button type="submit" disabled={procesando} className="bg-[#289E9D] text-white px-5 py-2 rounded font-bold">Guardar</button>
+              <div className="flex justify-end gap-3 pt-3">
+                <button type="button" onClick={() => setShowModalCatalogo(false)} className="px-4 py-2 text-gray-400 hover:text-white">Cancelar</button>
+                <button type="submit" disabled={procesando} className="bg-[#289E9D] text-white px-5 py-2 rounded-lg font-bold">Crear Prenda</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* MODAL 2: SOLICITAR INDUMENTARIA Y REGISTRAR CARGO EN CUENTA CORRIENTE */}
+      {/* MODAL 2: ASIGNAR PRENDA A ALUMNO */}
       {showModalPedido && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#161b22] border border-[#30363d] rounded-xl w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold text-white">👕 Solicitar Indumentaria para Alumno</h2>
+          <div className="bg-[#161b22] border border-[#30363d] rounded-xl w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+            <h2 className="text-xl font-bold text-white border-b border-[#30363d] pb-2">➕ Asignar Prenda a Alumno</h2>
             
-            <form onSubmit={handleCrearPedido} className="space-y-3 text-xs">
+            <form onSubmit={handleCrearPedido} className="space-y-4 text-sm">
               <div>
                 <label className="block text-gray-400 mb-1 font-semibold">Seleccionar Alumno *</label>
                 <select 
                   value={formPed.jugador_id} 
                   onChange={e => setFormPedido({...formPed, jugador_id: e.target.value})}
-                  className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2 text-white outline-none"
+                  className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2.5 text-white outline-none focus:border-[#289E9D]"
                   required
                 >
-                  <option value="">-- Seleccionar Alumno --</option>
+                  <option value="">-- Buscar Alumno --</option>
                   {data?.jugadores?.map((j: any) => <option key={j.id} value={j.id}>{j.nombre}</option>)}
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-gray-400 mb-1 font-semibold">Prenda del Catálogo</label>
-                  <select 
-                    onChange={e => handleSeleccionarPrendaEnPedido(e.target.value)}
-                    className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2 text-white outline-none"
-                  >
-                    <option value="">-- Opciones --</option>
-                    {data?.catalogo?.map((p: any) => <option key={p.id} value={p.id}>{p.nombre} (${p.precio})</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-gray-400 mb-1 font-semibold">Nombre Personalizado de la Prenda</label>
-                  <input type="text" value={formPed.prenda_nombre} onChange={e => setFormPedido({...formPed, prenda_nombre: e.target.value})} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2 text-white outline-none" placeholder="Ej: Camiseta Oficial" required />
-                </div>
+              <div>
+                <label className="block text-gray-400 mb-1 font-semibold">Prenda del Catálogo *</label>
+                <select 
+                  required
+                  onChange={e => handleSeleccionarPrenda(e.target.value)}
+                  className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2.5 text-white outline-none focus:border-[#289E9D]"
+                >
+                  <option value="">-- Elegir Prenda --</option>
+                  {data?.catalogo?.map((p: any) => <option key={p.id} value={p.id}>{p.nombre} (${p.precio}) - {p.tipo_operacion}</option>)}
+                </select>
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-gray-400 mb-1 font-semibold">Talla *</label>
-                  <select value={formPed.talla} onChange={e => setFormPedido({...formPed, talla: e.target.value})} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2 text-white outline-none">
-                    <option value="4">4</option>
-                    <option value="6">6</option>
-                    <option value="8">8</option>
-                    <option value="10">10</option>
-                    <option value="12">12</option>
-                    <option value="14">14</option>
-                    <option value="16">16</option>
-                    <option value="S">S</option>
-                    <option value="M">M</option>
-                    <option value="L">L</option>
-                    <option value="XL">XL</option>
+                  <select value={formPed.talla} onChange={e => setFormPedido({...formPed, talla: e.target.value})} className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2.5 text-white outline-none">
+                    {['4','6','8','10','12','14','16','S','M','L','XL'].map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-gray-400 mb-1 font-semibold">Número Estampado</label>
-                  <input type="number" placeholder="Ej: 10" value={formPed.numero_estampado} onChange={e => setFormPedido({...formPed, numero_estampado: e.target.value})} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2 text-white outline-none" />
+                  <label className="block text-gray-400 mb-1 font-semibold">N° Espalda</label>
+                  <input type="number" placeholder="Ej: 10" value={formPed.numero_estampado} onChange={e => setFormPedido({...formPed, numero_estampado: e.target.value})} className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2.5 text-white outline-none" />
                 </div>
                 <div>
-                  <label className="block text-gray-400 mb-1 font-semibold">Nombre Estampado</label>
-                  <input type="text" placeholder="Ej: GONZALEZ" value={formPed.nombre_estampado} onChange={e => setFormPedido({...formPed, nombre_estampado: e.target.value})} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2 text-white outline-none" />
+                  <label className="block text-gray-400 mb-1 font-semibold">Nombre</label>
+                  <input type="text" placeholder="Ej: ALEXIS" value={formPed.nombre_estampado} onChange={e => setFormPedido({...formPed, nombre_estampado: e.target.value})} className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2.5 text-white outline-none uppercase" />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-gray-400 mb-1 font-semibold">Monto ($)</label>
-                <input type="number" value={formPed.monto} onChange={e => setFormPedido({...formPed, monto: Number(e.target.value)})} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2 text-white outline-none" />
+              <div className="bg-[#0d1117] border border-[#30363d] p-4 rounded-lg space-y-3">
+                <span className="block text-xs text-gray-400 font-bold uppercase tracking-wider border-b border-[#30363d] pb-2">Estado Financiero</span>
+                
+                <select 
+                  value={formPed.estado_pago} 
+                  onChange={e => setFormPedido({...formPed, estado_pago: e.target.value})}
+                  className="w-full bg-[#161b22] border border-[#30363d] rounded-lg p-2.5 text-white font-semibold outline-none focus:border-[#289E9D]"
+                >
+                  <option value="Incluido en Matrícula">🎁 Ya incluido en la Matrícula</option>
+                  <option value="Pagado">💳 Pagado en Efectivo / Transferencia Directa</option>
+                  <option value="Pendiente de Pago">⏳ Pendiente de Pago (Cobrar aparte)</option>
+                </select>
+
+                {formPed.estado_pago === 'Pendiente de Pago' && (
+                  <label className="flex items-center gap-3 text-orange-400 font-bold text-xs bg-orange-950/20 p-3 rounded-lg border border-orange-500/20 cursor-pointer mt-2">
+                    <input type="checkbox" checked={formPed.generar_cobro} onChange={e => setFormPedido({...formPed, generar_cobro: e.target.checked})} className="accent-orange-500 w-4 h-4" />
+                    Generar cupón de cobro en cuenta corriente por ${Number(formPed.monto).toLocaleString('es-CL')}
+                  </label>
+                )}
               </div>
 
-              {/* OPCCIÓN DE REGISTRO EN CUENTA CORRIENTE */}
-              <div className="p-3 bg-[#0d1117] border border-[#289E9D]/40 rounded-lg space-y-1">
-                <label className="flex items-center justify-between text-white font-bold cursor-pointer">
-                  <span>💳 Generar cobro separado en Cuenta Corriente</span>
-                  <input type="checkbox" checked={formPed.generar_cobro} onChange={e => setFormPedido({...formPed, generar_cobro: e.target.checked})} className="accent-[#289E9D] w-4 h-4" />
-                </label>
-                <p className="text-[11px] text-gray-400">
-                  Se creará un cobro independiente con el concepto "Indumentaria", separado de las mensualidades.
-                </p>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3">
-                <button type="button" onClick={() => setShowModalPedido(false)} className="px-4 py-2 text-gray-400">Cancelar</button>
-                <button type="submit" disabled={procesando} className="bg-[#289E9D] text-white px-5 py-2 rounded font-bold">Solicitar y Guardar</button>
+              <div className="flex justify-end gap-3 pt-3">
+                <button type="button" onClick={() => setShowModalPedido(false)} className="px-4 py-2 text-gray-400 hover:text-white">Cancelar</button>
+                <button type="submit" disabled={procesando} className="bg-[#289E9D] text-white px-6 py-2 rounded-lg font-bold">Confirmar Asignación</button>
               </div>
             </form>
           </div>
         </div>
       )}
-
     </div>
   );
 };
