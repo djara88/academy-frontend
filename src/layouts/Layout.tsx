@@ -130,6 +130,18 @@ const Layout = () => {
                   <span className="mr-3">📋</span> Asistencias
                 </Link>
 
+                {/* 👕 MÓDULO DE UNIFORMES E INVENTARIO */}
+                <Link
+                  to="/uniformes"
+                  className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                    isActive('/uniformes') 
+                      ? 'bg-[#289E9D] text-white font-semibold' 
+                      : 'text-gray-400 hover:bg-[#131722] hover:text-white'
+                  }`}
+                >
+                  <span className="mr-3">👕</span> Uniformes
+                </Link>
+
                 <Link
                   to="/torneos"
                   className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
