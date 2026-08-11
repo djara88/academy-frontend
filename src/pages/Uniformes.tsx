@@ -13,6 +13,7 @@ const Uniformes: React.FC = () => {
 
   // Modales
   const [showModalCatalogo, setShowModalCatalogo] = useState(false);
+  const [idCatEditando, setIdCatEditando] = useState<string | null>(null);
   const [showModalPedido, setShowModalPedido] = useState(false);
 
   // Formularios
@@ -43,19 +44,54 @@ const Uniformes: React.FC = () => {
     }
   };
 
-  const handleCrearCatalogo = async (e: React.FormEvent) => {
+  const abrirModalCrearCatalogo = () => {
+    setIdCatEditando(null);
+    setFormCatalogo({ nombre: '', precio: 0, aplica_numero: true, aplica_nombre_estampado: false, tipo_operacion: 'Taller', stock_disponible: 0 });
+    setShowModalCatalogo(true);
+  };
+
+  const abrirModalEditarCatalogo = (cat: any) => {
+    setIdCatEditando(cat.id);
+    setFormCatalogo({
+      nombre: cat.nombre || '',
+      precio: cat.precio || 0,
+      aplica_numero: cat.aplica_numero ?? true,
+      aplica_nombre_estampado: cat.aplica_nombre_estampado ?? false,
+      tipo_operacion: cat.tipo_operacion || 'Taller',
+      stock_disponible: cat.stock_disponible || 0
+    });
+    setShowModalCatalogo(true);
+  };
+
+  const handleGuardarCatalogo = async (e: React.FormEvent) => {
     e.preventDefault();
     setProcesando(true);
     try {
-      await api.post('/api/uniformes/catalogo', formCat);
-      alert('✅ Prenda añadida al catálogo.');
+      if (idCatEditando) {
+        await api.put(`/api/uniformes/catalogo/${idCatEditando}`, formCat);
+        alert('✅ Prenda del catálogo actualizada.');
+      } else {
+        await api.post('/api/uniformes/catalogo', formCat);
+        alert('✅ Prenda añadida al catálogo.');
+      }
       setShowModalCatalogo(false);
-      setFormCatalogo({ nombre: '', precio: 0, aplica_numero: true, aplica_nombre_estampado: false, tipo_operacion: 'Taller', stock_disponible: 0 });
       cargarDatos();
     } catch (e) {
-      alert('Error creando prenda.');
+      alert('Error guardando la prenda.');
     } finally {
       setProcesando(false);
+    }
+  };
+
+  const handleEliminarCatalogo = async (id: string, nombre: string) => {
+    const conf = window.confirm(`¿Estás seguro de eliminar "${nombre}" del catálogo?`);
+    if (!conf) return;
+
+    try {
+      await api.delete(`/api/uniformes/catalogo/${id}`);
+      cargarDatos();
+    } catch (e) {
+      alert('Error al eliminar la prenda.');
     }
   };
 
@@ -91,7 +127,6 @@ const Uniformes: React.FC = () => {
     }
   };
 
-  // 🔥 DESCARGAR EXCEL PARA EL TALLER 🔥
   const exportarTallerExcel = () => {
     if (!data?.resumenTaller || Object.keys(data.resumenTaller).length === 0) {
       return alert("No hay pedidos pendientes para exportar.");
@@ -145,8 +180,6 @@ const Uniformes: React.FC = () => {
         </button>
       </div>
 
-      {/* TABS CONTENT */}
-
       {/* TAB 1: GESTIÓN DE ALUMNOS */}
       {activeTab === 'alumnos' && (
         <div className="space-y-4 animate-fade-in">
@@ -173,7 +206,6 @@ const Uniformes: React.FC = () => {
               pedidosFiltrados.map((p: any) => (
                 <div key={p.id} className="bg-[#0d1117] p-4 rounded-xl border border-[#30363d] flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 hover:border-gray-600 transition-colors">
                   
-                  {/* Datos del Alumno y Prenda */}
                   <div className="flex items-center gap-4 w-full lg:w-1/3">
                     <img src={p.jugadores?.foto_base64 || 'https://via.placeholder.com/150'} alt="img" className="w-12 h-12 rounded-full object-cover border border-[#30363d]" />
                     <div>
@@ -187,7 +219,6 @@ const Uniformes: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Estado Financiero */}
                   <div className="w-full lg:w-1/4">
                     <span className="text-[10px] text-gray-500 font-bold uppercase block mb-1">Finanzas / Pago</span>
                     <select 
@@ -205,7 +236,6 @@ const Uniformes: React.FC = () => {
                     </select>
                   </div>
 
-                  {/* Estado Logístico (Entrega) */}
                   <div className="w-full lg:w-1/3">
                     <span className="text-[10px] text-gray-500 font-bold uppercase block mb-1">Logística / Entrega</span>
                     <select 
@@ -232,13 +262,13 @@ const Uniformes: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 2: CATÁLOGO Y STOCK */}
+      {/* TAB 2: CATÁLOGO Y STOCK (CON EDITAR Y ELIMINAR) 🔥 */}
       {activeTab === 'catalogo' && (
         <div className="space-y-4 animate-fade-in">
           <div className="flex justify-between items-center">
             <p className="text-sm text-gray-400">Define las prendas de tu academia. Decide si se mandan a hacer a pedido o si tienes stock guardado.</p>
             <button 
-              onClick={() => setShowModalCatalogo(true)}
+              onClick={abrirModalCrearCatalogo}
               className="bg-[#289E9D] text-white px-4 py-2 rounded-lg font-bold text-sm shadow hover:bg-[#207f7e] transition-colors"
             >
               + Agregar Prenda
@@ -247,7 +277,7 @@ const Uniformes: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {data?.catalogo.map((cat: any) => (
-              <div key={cat.id} className="bg-[#0d1117] border border-[#30363d] rounded-xl p-5 flex flex-col justify-between relative overflow-hidden group">
+              <div key={cat.id} className="bg-[#0d1117] border border-[#30363d] rounded-xl p-5 flex flex-col justify-between relative overflow-hidden group hover:border-[#289E9D] transition-colors">
                 <div className="absolute top-0 right-0 p-2">
                   <span className={`text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider ${cat.tipo_operacion === 'Stock' ? 'bg-purple-900/30 text-purple-400' : 'bg-orange-900/30 text-orange-400'}`}>
                     {cat.tipo_operacion === 'Stock' ? '📦 En Bodega' : '🧵 A Pedido'}
@@ -272,6 +302,16 @@ const Uniformes: React.FC = () => {
                     </span>
                   </div>
                 )}
+
+                {/* BOTONES ACCIONES CATÁLOGO */}
+                <div className="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-[#30363d]">
+                  <button onClick={() => abrirModalEditarCatalogo(cat)} className="text-gray-400 hover:text-white text-xs font-bold px-2 py-1 bg-[#161b22] border border-[#30363d] rounded transition-colors" title="Editar Prenda">
+                    ✏️ Editar
+                  </button>
+                  <button onClick={() => handleEliminarCatalogo(cat.id, cat.nombre)} className="text-red-400 hover:text-red-300 text-xs font-bold px-2 py-1 bg-[#161b22] border border-red-500/30 rounded transition-colors" title="Eliminar Prenda">
+                    🗑️ Eliminar
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -325,14 +365,15 @@ const Uniformes: React.FC = () => {
         </div>
       )}
 
-
-      {/* MODAL 1: CREAR CATÁLOGO */}
+      {/* MODAL 1: CREAR O EDITAR CATÁLOGO */}
       {showModalCatalogo && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-[#161b22] border border-[#30363d] rounded-xl w-full max-w-md p-6 space-y-4 shadow-2xl">
-            <h2 className="text-xl font-bold text-white border-b border-[#30363d] pb-2">⚙️ Nueva Prenda en Catálogo</h2>
+            <h2 className="text-xl font-bold text-white border-b border-[#30363d] pb-2">
+              {idCatEditando ? '✏️ Editar Prenda del Catálogo' : '⚙️ Nueva Prenda en Catálogo'}
+            </h2>
             
-            <form onSubmit={handleCrearCatalogo} className="space-y-4 text-sm">
+            <form onSubmit={handleGuardarCatalogo} className="space-y-4 text-sm">
               <div>
                 <label className="block text-gray-400 mb-1 font-semibold">Nombre de la Prenda o Pack</label>
                 <input type="text" placeholder="Ej: Kit Oficial 2026" value={formCat.nombre} onChange={e => setFormCatalogo({...formCat, nombre: e.target.value})} className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2.5 text-white outline-none focus:border-[#289E9D]" required />
@@ -372,7 +413,9 @@ const Uniformes: React.FC = () => {
 
               <div className="flex justify-end gap-3 pt-3">
                 <button type="button" onClick={() => setShowModalCatalogo(false)} className="px-4 py-2 text-gray-400 hover:text-white">Cancelar</button>
-                <button type="submit" disabled={procesando} className="bg-[#289E9D] text-white px-5 py-2 rounded-lg font-bold">Crear Prenda</button>
+                <button type="submit" disabled={procesando} className="bg-[#289E9D] text-white px-5 py-2 rounded-lg font-bold">
+                  {idCatEditando ? 'Actualizar Prenda' : 'Crear Prenda'}
+                </button>
               </div>
             </form>
           </div>
