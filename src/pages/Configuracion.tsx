@@ -15,6 +15,14 @@ const Configuracion: React.FC = () => {
       border: 'border-blue-500/30' 
     },
     { 
+      titulo: 'Uniformes e Inventario', 
+      desc: 'Catálogo de prendas, tallas y entregas', 
+      icono: '👕', 
+      ruta: '/uniformes', 
+      bg: 'bg-purple-900/20', 
+      border: 'border-purple-500/30' 
+    },
+    { 
       titulo: 'Finanzas y Recaudación', 
       desc: 'Control de pagos e ingresos', 
       icono: '💳', 
@@ -44,10 +52,10 @@ const Configuracion: React.FC = () => {
     <div className="max-w-5xl mx-auto space-y-6 pb-10">
       <div>
         <h1 className="text-3xl font-bold text-[#e6edf3]">⚙️ Configuración de Academia</h1>
-        <p className="text-sm text-gray-400">Administra todos los parámetros y conexiones de tu escuela.</p>
+        <p className="text-sm text-gray-400">Administra todos los parámetros y herramientas de tu escuela.</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
         {modulos.map((m, i) => (
           <div 
             key={i} 
