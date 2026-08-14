@@ -77,7 +77,7 @@ const FinanzasConfig: React.FC = () => {
         <div>
           <h3 className="text-blue-400 font-bold">Máxima Seguridad de Datos (Ley 19.628)</h3>
           <p className="text-gray-300 text-sm mt-1">
-            Estos datos tienen acceso restringido a tu academia. AcademiaPro no mueve tus fondos ni cobra comisiones; se usan para indicar a los apoderados cómo pagar.
+            Estos datos tienen acceso restringido a tu academia. Syncademia no mueve tus fondos ni cobra comisiones; se usan para indicar a los apoderados cómo pagar.
           </p>
         </div>
       </div>

@@ -71,7 +71,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           newUser = {
             id: session.user.id,
             email: session.user.email || '',
-            nombre_completo: 'Control Maestro SaaS',
+            nombre_completo: 'Administración Syncademia',
             rol: 'superadmin',
             academia_id: null,
             requiere_cambio_password: false
@@ -140,7 +140,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         newUser = {
           id: authData.user.id,
           email: authData.user.email || '',
-          nombre_completo: 'Control Maestro SaaS',
+          nombre_completo: 'Administración Syncademia',
           rol: 'superadmin',
           academia_id: null,
           requiere_cambio_password: false

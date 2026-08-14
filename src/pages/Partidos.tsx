@@ -1,6 +1,8 @@
 // src/pages/Partidos.tsx
 import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
+import { useAuth } from '../contexts/AuthContext';
+import { useAcademyMessages } from '../hooks/useAcademyMessages';
 
 interface Partido {
   id: string;
@@ -35,6 +37,8 @@ interface StatJugador {
 }
 
 const Partidos: React.FC = () => {
+  const { user } = useAuth();
+  const { confirmAction, notify } = useAcademyMessages();
   const [partidos, setPartidos] = useState<Partido[]>([]);
   const [torneos, setTorneos] = useState<any[]>([]);
   const [categorias, setCategorias] = useState<any[]>([]);
@@ -135,30 +139,30 @@ const Partidos: React.FC = () => {
   };
 
   const handleEliminarPartido = async (id: string, rival: string) => {
-    const conf = window.confirm(`¿Estás seguro de eliminar el partido vs "${rival}"?`);
+    const conf = confirmAction(`¿Estás seguro de eliminar el partido vs "${rival}"?`);
     if (!conf) return;
 
     try {
       await api.delete(`/api/partidos/${id}`);
       cargarDatos();
     } catch (error) {
-      alert('Error al eliminar el partido.');
+      notify('Error al eliminar el partido.');
     }
   };
 
   const handleEnviarCitacion = async (partido: Partido) => {
-    if (!partido.categoria_id) return alert('Este partido no tiene una categoría asignada.');
+    if (!partido.categoria_id) return notify('Este partido no tiene una categoría asignada.');
     
-    const conf = window.confirm(`¿Deseas enviar la citación de WhatsApp a todos los jugadores de la categoría ${partido.categorias?.nombre || ''}?`);
+    const conf = confirmAction(`¿Deseas enviar la citación de WhatsApp a todos los jugadores de la categoría ${partido.categorias?.nombre || ''}?`);
     if (!conf) return;
 
     setEnviandoCitacion(true);
     try {
       await api.post(`/api/partidos/${partido.id}/citacion`);
-      alert('✅ ¡Citaciones de WhatsApp enviadas con éxito!');
+      notify('✅ ¡Citaciones de WhatsApp enviadas con éxito!');
       abrirCitaciones(partido);
     } catch (error: any) {
-      alert(error.response?.data?.error || 'Error enviando citaciones.');
+      notify(error.response?.data?.error || 'Error enviando citaciones.');
     } finally {
       setEnviandoCitacion(false);
     }
@@ -214,11 +218,11 @@ const Partidos: React.FC = () => {
         enviarWhatsapp: enviarWhatsappResumen
       });
 
-      alert('✅ ¡Resultado guardado e informe enviado por WhatsApp!');
+      notify('✅ ¡Resultado guardado e informe enviado por WhatsApp!');
       setShowModalResultado(false);
       cargarDatos();
     } catch (error: any) {
-      alert(error.response?.data?.error || 'Error al guardar el resultado.');
+      notify(error.response?.data?.error || 'Error al guardar el resultado.');
     } finally {
       setGuardando(false);
     }
@@ -236,7 +240,7 @@ const Partidos: React.FC = () => {
       setShowModalPartido(false);
       cargarDatos();
     } catch (error) {
-      alert('Error al procesar el partido.');
+      notify('Error al procesar el partido.');
     } finally {
       setGuardando(false);
     }
@@ -543,7 +547,7 @@ const Partidos: React.FC = () => {
               <h3 className="text-sm font-bold text-gray-300 text-center">Marcador Final del Encuentro</h3>
               <div className="flex justify-center items-center gap-6">
                 <div className="text-center">
-                  <span className="text-xs text-[#289E9D] font-bold block mb-1">Nuestra Academia</span>
+                  <span className="text-xs text-[#289E9D] font-bold block mb-1">{user?.nombre_academia || 'Tu academia'}</span>
                   <input 
                     type="number" 
                     min="0"

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Logo } from '../components/Logo'; // <-- Importamos tu nuevo logo
+import { BRAND } from '../config/brand';
 
 const Home = () => {
   return (
@@ -11,7 +12,7 @@ const Home = () => {
         {/* LOGO EN TAMAÑO GIGANTE */}
         <div className="flex items-center -ml-4"> 
           {/* Usamos h-32 (aprox 128px) o h-[120px] */}
-          <Logo className="h-32 md:h-40 w-auto object-cover hover:scale-105 transition-transform duration-300" />
+          <Logo className="h-20 md:h-24 w-auto hover:scale-105 transition-transform duration-300" />
         </div>
 
         {/* BOTONES DE ACCESO Y REGISTRO */}
@@ -33,6 +34,9 @@ const Home = () => {
 
       {/* SECCIÓN HERO (PRINCIPAL) */}
       <header className="px-8 py-20 text-center max-w-4xl mx-auto">
+        <p className="text-[#289E9D] uppercase tracking-[0.24em] text-sm font-bold mb-5">
+          {BRAND.name} · {BRAND.tagline}
+        </p>
         <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
           La gestión de tu academia deportiva, <span className="text-[#289E9D]">llevada al siguiente nivel.</span>
         </h1>
@@ -132,7 +136,7 @@ const Home = () => {
 
       {/* FOOTER ACTUALIZADO */}
       <footer className="bg-black py-8 text-center text-gray-600 border-t border-gray-900">
-        <p>© 2026 Syncademia SaaS. Todos los derechos reservados.</p>
+        <p>© 2026 {BRAND.name}. {BRAND.tagline}.</p>
       </footer>
 
     </div>

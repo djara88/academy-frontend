@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
 import * as XLSX from 'xlsx';
+import { useAcademyMessages } from '../hooks/useAcademyMessages';
 
 const Asistencias: React.FC = () => {
+  const { confirmAction, notify } = useAcademyMessages();
   const [activeTab, setActiveTab] = useState<'lista' | 'reportes' | 'reagendar'>('lista');
 
   const [categorias, setCategorias] = useState<any[]>([]);
@@ -134,16 +136,16 @@ const Asistencias: React.FC = () => {
       });
 
       if (categoriaSel === 'TODAS') {
-        alert(`✅ ${res.data.message}`);
+        notify(`✅ ${res.data.message}`);
       } else {
-        alert(`✅ Entrenamiento ${estadoClase.toLowerCase()} registrado con éxito.`);
+        notify(`✅ Entrenamiento ${estadoClase.toLowerCase()} registrado con éxito.`);
       }
 
       setCategoriaSel('');
       setMotivoCancelacion('');
       cargarCategoriasYMetricas(); 
     } catch (e) {
-      alert('Error al guardar. Verifica tu conexión.');
+      notify('Error al guardar. Verifica tu conexión.');
     } finally {
       setGuardando(false);
     }
@@ -151,10 +153,10 @@ const Asistencias: React.FC = () => {
 
   const handleReagendarYNotificar = async () => {
     if (!claseCanceladaSel || !fechaReagendar || !horaReagendar) {
-      return alert('Por favor completa todos los campos del reagendamiento.');
+      return notify('Por favor completa todos los campos del reagendamiento.');
     }
 
-    const conf = window.confirm(`¿Confirmar reagendamiento y ENVIAR WHATSAPP a todos los apoderados de ${claseCanceladaSel.categorias?.nombre}?`);
+    const conf = confirmAction(`¿Confirmar reagendamiento y ENVIAR WHATSAPP a todos los apoderados de ${claseCanceladaSel.categorias?.nombre}?`);
     if (!conf) return;
 
     setReagendando(true);
@@ -168,20 +170,20 @@ const Asistencias: React.FC = () => {
         motivo_original: claseCanceladaSel.motivo_cancelacion
       });
 
-      alert(`✅ ${res.data.message}`);
+      notify(`✅ ${res.data.message}`);
       setClaseCanceladaSel(null);
       setFechaReagendar('');
       cargarCategoriasYMetricas();
     } catch (e: any) {
-      alert(e.response?.data?.error || 'Error al reagendar la clase.');
+      notify(e.response?.data?.error || 'Error al reagendar la clase.');
     } finally {
       setReagendando(false);
     }
   };
 
   const handleEnviarReporte = async () => {
-    if (!categoriaSel || categoriaSel === 'TODAS') return alert('Selecciona una categoría específica para enviar reportes.');
-    const conf = window.confirm('¿Enviar por WhatsApp el reporte INDIVIDUAL del mes a todos los apoderados de esta categoría?');
+    if (!categoriaSel || categoriaSel === 'TODAS') return notify('Selecciona una categoría específica para enviar reportes.');
+    const conf = confirmAction('¿Enviar por WhatsApp el reporte INDIVIDUAL del mes a todos los apoderados de esta categoría?');
     if (!conf) return;
 
     setEnviandoReporte(true);
@@ -191,9 +193,9 @@ const Asistencias: React.FC = () => {
         mes: mesMetricas, 
         anio: anioMetricas 
       });
-      alert(`✅ ${res.data.message}`);
+      notify(`✅ ${res.data.message}`);
     } catch (e: any) {
-      alert(e.response?.data?.error || 'Error enviando reportes.');
+      notify(e.response?.data?.error || 'Error enviando reportes.');
     } finally {
       setEnviandoReporte(false);
     }
@@ -201,7 +203,7 @@ const Asistencias: React.FC = () => {
 
   const exportarAExcel = () => {
     if (!metricas || !metricas.jugadores || metricas.jugadores.length === 0) {
-      return alert("No hay datos suficientes para exportar.");
+      return notify("No hay datos suficientes para exportar.");
     }
 
     const datosExcel = metricas.jugadores.map((jug: any, index: number) => ({
@@ -257,7 +259,7 @@ const Asistencias: React.FC = () => {
             {configAcademia && (
               <div className={`p-4 rounded-xl border text-xs leading-relaxed ${esDiaConfigurado ? 'bg-green-950/30 border-green-500/40 text-green-300' : 'bg-[#161b22] border-[#30363d] text-gray-400'}`}>
                 <span className="font-bold block mb-1 text-sm">
-                  {esDiaConfigurado ? '🗓️ ¡Hoy es día oficial de entrenamiento!' : '🗓️ Horario de la Escuela:'}
+                  {esDiaConfigurado ? `🗓️ ¡Hoy es día oficial de entrenamiento en ${configAcademia?.nombre || 'tu academia'}!` : `🗓️ Horario de ${configAcademia?.nombre || 'tu academia'}:`}
                 </span>
                 <p><strong>Días:</strong> {configAcademia.dias_entrenamiento || 'No configurado'}</p>
                 <p><strong>Horarios:</strong> {configAcademia.horarios_entrenamiento || 'No configurado'}</p>
@@ -276,7 +278,7 @@ const Asistencias: React.FC = () => {
                   className="w-full bg-[#161b22] border border-[#30363d] rounded p-2 text-white outline-none focus:border-[#289E9D] text-sm"
                 >
                   <option value="">-- Seleccionar Categoría --</option>
-                  <option value="TODAS" className="bg-[#289E9D] text-white font-bold">🏫 TODAS LAS CATEGORÍAS (Toda la Escuela)</option>
+                  <option value="TODAS" className="bg-[#289E9D] text-white font-bold">🏫 TODAS LAS CATEGORÍAS ({configAcademia?.nombre || 'Toda la academia'})</option>
                   {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                 </select>
               </div>

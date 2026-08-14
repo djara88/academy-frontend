@@ -1,14 +1,18 @@
 // src/pages/Configuracion.tsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { getAcademyName } from '../config/brand';
 
 const Configuracion: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const academyName = getAcademyName(user?.nombre_academia);
 
   const modulos = [
     { 
       titulo: 'Perfil y Horarios', 
-      desc: 'Días, horas y lugar de la escuela', 
+      desc: `Días, horas y sede de ${academyName}`,
       icono: '🏟️', 
       ruta: '/configuracion/perfil', 
       bg: 'bg-blue-900/20', 
@@ -51,8 +55,8 @@ const Configuracion: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-10">
       <div>
-        <h1 className="text-3xl font-bold text-[#e6edf3]">⚙️ Configuración de Academia</h1>
-        <p className="text-sm text-gray-400">Administra todos los parámetros y herramientas de tu escuela.</p>
+        <h1 className="text-3xl font-bold text-[#e6edf3]">⚙️ Configuración de {academyName}</h1>
+        <p className="text-sm text-gray-400">Administra todos los parámetros y herramientas de {academyName}.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">

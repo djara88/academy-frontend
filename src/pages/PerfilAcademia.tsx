@@ -2,9 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
+import { useAuth } from '../contexts/AuthContext';
+import { academyMessage, getAcademyName } from '../config/brand';
 
 const PerfilAcademia: React.FC = () => {
   const navigate = useNavigate();
+  const { user, setUser } = useAuth();
   const [form, setForm] = useState({ 
     nombre: '', 
     dias_entrenamiento: '', 
@@ -30,11 +33,20 @@ const PerfilAcademia: React.FC = () => {
     e.preventDefault();
     setGuardando(true);
     try {
-      await api.put('/api/academias/mi-academia', form);
-      alert('✅ Datos actualizados correctamente.');
+      const response = await api.put('/api/academias/mi-academia', form);
+      const updatedAcademy = response.data?.data;
+      if (updatedAcademy?.nombre) {
+        setUser(current => {
+          if (!current) return current;
+          const updatedUser = { ...current, nombre_academia: updatedAcademy.nombre };
+          sessionStorage.setItem('user', JSON.stringify(updatedUser));
+          return updatedUser;
+        });
+      }
+      alert(academyMessage(updatedAcademy?.nombre || form.nombre, '✅ Perfil actualizado correctamente.'));
       navigate('/configuracion');
     } catch (error) {
-      alert('Error al guardar datos.');
+      alert(academyMessage(user?.nombre_academia, 'Error al guardar los datos del perfil.'));
     } finally {
       setGuardando(false);
     }
@@ -48,7 +60,7 @@ const PerfilAcademia: React.FC = () => {
         <button onClick={() => navigate('/configuracion')} className="text-gray-400 hover:text-white transition-colors">
           ← Volver
         </button>
-        <h1 className="text-3xl font-bold text-[#e6edf3]">🏟️ Perfil y Horarios</h1>
+        <h1 className="text-3xl font-bold text-[#e6edf3]">🏟️ Perfil de {getAcademyName(form.nombre || user?.nombre_academia)}</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-[#0d1117] border border-[#30363d] rounded-xl p-8 space-y-6 shadow-xl">

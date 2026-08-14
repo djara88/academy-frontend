@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../api/axiosConfig';
 import { useAuth } from '../contexts/AuthContext';
+import { useAcademyMessages } from '../hooks/useAcademyMessages';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
 const Terminos: React.FC = () => {
+  const { notify } = useAcademyMessages();
   const { user } = useAuth();
   
   const [terminos, setTerminos] = useState<string>('');
@@ -48,10 +50,10 @@ const Terminos: React.FC = () => {
       });
       
       setIsEditing(false);
-      alert('✅ Términos y condiciones guardados con éxito.');
+      notify('✅ Términos y condiciones guardados con éxito.');
     } catch (error: any) {
       console.error('Error al guardar términos:', error);
-      alert(`❌ Error al guardar: ${error.response?.data?.message || 'Error de conexión'}`);
+      notify(`❌ Error al guardar: ${error.response?.data?.message || 'Error de conexión'}`);
     } finally {
       setSaving(false);
     }
@@ -78,7 +80,7 @@ const Terminos: React.FC = () => {
       
     } catch (error) {
       console.error('Error generando PDF:', error);
-      alert('Hubo un problema al generar el documento PDF.');
+      notify('Hubo un problema al generar el documento PDF.');
     } finally {
       setGenerandoPDF(false);
     }

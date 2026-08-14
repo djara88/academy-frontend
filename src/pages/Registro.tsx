@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../config/supabase';
 import api from '../api/axiosConfig';
+import { Logo } from '../components/Logo';
+import { BRAND, platformMessage } from '../config/brand';
 
 const Registro: React.FC = () => {
   const navigate = useNavigate();
@@ -32,7 +34,7 @@ const Registro: React.FC = () => {
       const response = await api.post('/api/academias/registro-publico', formData);
       
       if (response.data?.success) {
-        alert('¡Academia creada con éxito! Inicia sesión con tus credenciales.');
+        alert(platformMessage(`¡${formData.nombre_academia} fue creada con éxito! Inicia sesión con tus credenciales.`));
         navigate('/login');
       }
     } catch (err: any) {
@@ -70,11 +72,10 @@ const Registro: React.FC = () => {
       <div className="bg-[#161b22] p-8 rounded-xl border border-[#30363d] shadow-2xl w-full max-w-md">
         
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-[#58a6ff] rounded-full flex items-center justify-center text-3xl font-bold text-[#0d1117] mx-auto mb-3">
-            🚀
-          </div>
+          <Logo variant="mark" className="w-20 h-20 rounded-2xl object-cover mx-auto mb-4 border border-[#289E9D]/60 shadow-[0_0_20px_rgba(40,158,157,0.25)]" />
           <h1 className="text-2xl font-extrabold text-[#e6edf3]">Crea tu Academia</h1>
-          <p className="text-sm text-[#8b949e] mt-1">Únete a AcademiaPro en segundos</p>
+          <p className="text-sm text-[#8b949e] mt-1">Únete a {BRAND.name} en segundos</p>
+          <p className="text-xs text-[#289E9D] mt-1">{BRAND.tagline}</p>
         </div>
 
         {/* BOTÓN DE GOOGLE */}

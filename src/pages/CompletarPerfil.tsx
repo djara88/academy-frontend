@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
 import { supabase } from '../config/supabase'; // Asegúrate de que esta ruta sea correcta
+import { Logo } from '../components/Logo';
+import { BRAND, platformMessage } from '../config/brand';
 
 const CrearAcademia: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -64,7 +66,7 @@ const CrearAcademia: React.FC = () => {
       });
       
       console.log('✅ Perfil y Academia completados:', response.data);
-      alert('¡Academia configurada con éxito! Revisa tu correo electrónico.');
+      alert(platformMessage(`¡${nombreAcademia} quedó configurada con éxito!`));
       
       // Forzamos la recarga para que el sistema detecte que ya tiene academia
       window.location.href = '/dashboard';
@@ -82,8 +84,9 @@ const CrearAcademia: React.FC = () => {
       <div className="bg-[#161b22] border border-[#30363d] p-8 rounded-2xl shadow-2xl max-w-md w-full">
         
         <div className="text-center mb-8">
+          <Logo variant="mark" className="w-20 h-20 rounded-2xl object-cover mx-auto mb-4 border border-[#289E9D]/60 shadow-[0_0_20px_rgba(40,158,157,0.25)]" />
           <h1 className="text-3xl font-extrabold text-[#e6edf3] mb-2">Paso Final 🏁</h1>
-          <p className="text-[#8b949e]">Completa los datos de tu academia para activar tus 15 días de prueba.</p>
+          <p className="text-[#8b949e]">Completa los datos de tu academia para activar tus 15 días de prueba en {BRAND.name}.</p>
         </div>
 
         {error && (
@@ -113,7 +116,7 @@ const CrearAcademia: React.FC = () => {
             <input
               type="text"
               required
-              placeholder="Ej: Escuela de Fútbol FC"
+              placeholder="Ej: Academia Deportiva Los Leones"
               value={nombreAcademia}
               onChange={(e) => setNombreAcademia(e.target.value)}
               className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-white focus:border-[#289E9D] focus:outline-none"
