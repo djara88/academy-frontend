@@ -4,11 +4,12 @@ import { useAuth } from '../contexts/AuthContext';
 import { useAppDialog } from '../contexts/DialogContext';
 
 type Category = { id: string; nombre: string; descripcion?: string | null };
-type Player = { id: string; nombre: string; posicion_cancha?: string | null; posicion_principal?: string | null; foto_url?: string | null; avatar_url?: string | null; estado_asistencia?: AttendanceState | null };
+type Player = { id: string; nombre: string; posicion_cancha?: string | null; posicion_principal?: string | null; foto_url?: string | null; avatar_url?: string | null; alerta_medica?: string | null; telefono_emergencia?: string | null; estado_asistencia?: AttendanceState | null };
 type AttendanceState = 'Presente' | 'Ausente' | 'Justificado';
 type Profile = { profesor: { id: string; nombre: string }; academia: { id: string; nombre: string }; categorias: Category[] };
 
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santiago', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+const phoneHref = (phone: string) => phone.replace(/[^\d+]/g, '');
 
 const ProfesorPortal = () => {
   const { user } = useAuth();
@@ -21,6 +22,7 @@ const ProfesorPortal = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [online, setOnline] = useState(navigator.onLine);
+  const [emergencyPlayerId, setEmergencyPlayerId] = useState<string | null>(null);
 
   useEffect(() => {
     const goOnline = () => setOnline(true);
@@ -43,6 +45,7 @@ const ProfesorPortal = () => {
   const loadAttendance = useCallback(async () => {
     if (!categoryId) return;
     setLoading(true);
+    setEmergencyPlayerId(null);
     try {
       const response = await api.get(`/api/profesores/me/categorias/${categoryId}/asistencia`, { params: { fecha: date } });
       const loadedPlayers = response.data.data.jugadores as Player[];
@@ -132,7 +135,10 @@ const ProfesorPortal = () => {
             {players.map((player) => {
               const status = attendance[player.id];
               const photo = player.foto_url || player.avatar_url;
-              return <article key={player.id} className="card p-4"><div className="mb-4 flex items-center gap-3">{photo ? <img src={photo} alt="" className="h-11 w-11 rounded-full object-cover" /> : <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#289E9D]/15 font-black text-[#48d8d0]">{player.nombre.slice(0, 1)}</div>}<div className="min-w-0"><h3 className="truncate font-black">{player.nombre}</h3><p className="text-xs text-[#8b949e]">{player.posicion_principal || player.posicion_cancha || 'Jugador'}</p></div></div><div className="grid grid-cols-3 gap-2">{(['Presente', 'Ausente', 'Justificado'] as AttendanceState[]).map((option) => <button key={option} type="button" onClick={() => setStatus(player.id, option)} className={`min-h-11 rounded-xl border px-2 py-2 text-xs font-bold sm:text-sm ${status === option ? option === 'Presente' ? 'border-emerald-400 bg-emerald-500/20 text-emerald-200' : option === 'Ausente' ? 'border-red-400 bg-red-500/20 text-red-200' : 'border-orange-400 bg-orange-500/20 text-orange-200' : 'border-[#30363d] bg-[#0d1117] text-[#8b949e]'}`}>{option}</button>)}</div></article>;
+              const hasEmergencyInfo = Boolean(player.alerta_medica || player.telefono_emergencia);
+              const emergencyOpen = emergencyPlayerId === player.id;
+              const emergencyId = `emergencia-${player.id}`;
+              return <article key={player.id} className="card p-4"><div className="mb-4 flex items-center gap-3">{photo ? <img src={photo} alt="" className="h-11 w-11 rounded-full object-cover" /> : <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#289E9D]/15 font-black text-[#48d8d0]">{player.nombre.slice(0, 1)}</div>}<div className="min-w-0"><h3 className="truncate font-black">{player.nombre}</h3><p className="text-xs text-[#8b949e]">{player.posicion_principal || player.posicion_cancha || 'Jugador'}</p></div></div><div className="grid grid-cols-3 gap-2">{(['Presente', 'Ausente', 'Justificado'] as AttendanceState[]).map((option) => <button key={option} type="button" onClick={() => setStatus(player.id, option)} className={`min-h-11 rounded-xl border px-2 py-2 text-xs font-bold sm:text-sm ${status === option ? option === 'Presente' ? 'border-emerald-400 bg-emerald-500/20 text-emerald-200' : option === 'Ausente' ? 'border-red-400 bg-red-500/20 text-red-200' : 'border-orange-400 bg-orange-500/20 text-orange-200' : 'border-[#30363d] bg-[#0d1117] text-[#8b949e]'}`}>{option}</button>)}</div>{hasEmergencyInfo ? <div className="mt-3 border-t border-[#30363d] pt-3"><button type="button" aria-expanded={emergencyOpen} aria-controls={emergencyId} onClick={() => setEmergencyPlayerId(emergencyOpen ? null : player.id)} className={`flex min-h-11 w-full items-center justify-between rounded-xl border px-3 py-2 text-left text-sm font-black transition-colors ${player.alerta_medica ? 'border-red-500/40 bg-red-500/10 text-red-200 hover:bg-red-500/15' : 'border-[#289E9D]/40 bg-[#289E9D]/10 text-[#70e4df] hover:bg-[#289E9D]/15'}`}><span>{player.alerta_medica ? '⚕ Alerta médica' : '☎ Contacto de emergencia'}</span><span className="text-xs font-bold opacity-80">{emergencyOpen ? 'Ocultar' : 'Ver'}</span></button>{emergencyOpen ? <div id={emergencyId} role="region" aria-label={`Información de emergencia de ${player.nombre}`} className="mt-2 rounded-xl border border-[#30363d] bg-[#0d1117] p-3">{player.alerta_medica ? <div><p className="text-xs font-black uppercase tracking-wide text-red-300">Alerta médica</p><p className="mt-1 text-sm text-[#f0f6fc]">{player.alerta_medica}</p></div> : null}{player.telefono_emergencia ? <a href={`tel:${phoneHref(player.telefono_emergencia)}`} className={`flex min-h-11 items-center justify-center rounded-lg border border-[#289E9D]/40 bg-[#289E9D]/10 px-3 py-2 text-sm font-black text-[#70e4df] hover:bg-[#289E9D]/20 ${player.alerta_medica ? 'mt-3' : ''}`}>☎ Llamar al {player.telefono_emergencia}</a> : <p className="mt-3 text-xs text-[#8b949e]">No hay un teléfono de emergencia registrado.</p>}</div> : null}</div> : null}</article>;
             })}
           </section>
 
