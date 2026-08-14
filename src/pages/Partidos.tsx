@@ -139,7 +139,7 @@ const Partidos: React.FC = () => {
   };
 
   const handleEliminarPartido = async (id: string, rival: string) => {
-    const conf = confirmAction(`¿Estás seguro de eliminar el partido vs "${rival}"?`);
+    const conf = await confirmAction(`¿Estás seguro de eliminar el partido vs "${rival}"?`, 'danger');
     if (!conf) return;
 
     try {
@@ -153,7 +153,7 @@ const Partidos: React.FC = () => {
   const handleEnviarCitacion = async (partido: Partido) => {
     if (!partido.categoria_id) return notify('Este partido no tiene una categoría asignada.');
     
-    const conf = confirmAction(`¿Deseas enviar la citación de WhatsApp a todos los jugadores de la categoría ${partido.categorias?.nombre || ''}?`);
+    const conf = await confirmAction(`¿Deseas enviar la citación de WhatsApp a todos los jugadores de la categoría ${partido.categorias?.nombre || ''}?`);
     if (!conf) return;
 
     setEnviandoCitacion(true);

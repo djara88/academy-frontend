@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { DialogProvider } from './contexts/DialogContext';
 
 const Layout = lazy(() => import('./layouts/Layout'));
 const Home = lazy(() => import('./pages/Home'));
@@ -72,9 +73,10 @@ const PublicRoutes = () => {
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <BrowserRouter>
-          <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">Cargando Syncademia...</div>}>
+      <DialogProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">Cargando Syncademia...</div>}>
             <Routes>
             
             <Route element={<PublicRoutes />}>
@@ -112,9 +114,10 @@ const App = () => {
             <Route path="*" element={<Navigate to="/" replace />} />
             
             </Routes>
-          </Suspense>
-        </BrowserRouter>
-      </AuthProvider>
+            </Suspense>
+          </BrowserRouter>
+        </AuthProvider>
+      </DialogProvider>
     </QueryClientProvider>
   );
 };

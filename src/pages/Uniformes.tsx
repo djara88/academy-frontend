@@ -86,7 +86,7 @@ const Uniformes: React.FC = () => {
   };
 
   const handleEliminarCatalogo = async (id: string, nombre: string) => {
-    const conf = confirmAction(`¿Estás seguro de eliminar "${nombre}" del catálogo?`);
+    const conf = await confirmAction(`¿Estás seguro de eliminar "${nombre}" del catálogo?`, 'danger');
     if (!conf) return;
 
     try {

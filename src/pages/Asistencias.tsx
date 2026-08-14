@@ -156,7 +156,7 @@ const Asistencias: React.FC = () => {
       return notify('Por favor completa todos los campos del reagendamiento.');
     }
 
-    const conf = confirmAction(`¿Confirmar reagendamiento y ENVIAR WHATSAPP a todos los apoderados de ${claseCanceladaSel.categorias?.nombre}?`);
+    const conf = await confirmAction(`¿Confirmar reagendamiento y ENVIAR WHATSAPP a todos los apoderados de ${claseCanceladaSel.categorias?.nombre}?`);
     if (!conf) return;
 
     setReagendando(true);
@@ -183,7 +183,7 @@ const Asistencias: React.FC = () => {
 
   const handleEnviarReporte = async () => {
     if (!categoriaSel || categoriaSel === 'TODAS') return notify('Selecciona una categoría específica para enviar reportes.');
-    const conf = confirmAction('¿Enviar por WhatsApp el reporte INDIVIDUAL del mes a todos los apoderados de esta categoría?');
+    const conf = await confirmAction('¿Enviar por WhatsApp el reporte INDIVIDUAL del mes a todos los apoderados de esta categoría?');
     if (!conf) return;
 
     setEnviandoReporte(true);

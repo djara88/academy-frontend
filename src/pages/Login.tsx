@@ -73,7 +73,9 @@ const Login: React.FC = () => {
         
         {/* CABECERA Y LOGO */}
         <div className="text-center mb-8">
-          <Logo variant="mark" className="w-20 h-20 rounded-2xl object-cover mx-auto mb-4 border border-[#289E9D]/60 shadow-[0_0_20px_rgba(40,158,157,0.25)]" />
+          <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-2xl border border-[#289E9D]/60 bg-[#0d1117] p-3 shadow-[0_0_20px_rgba(40,158,157,0.25)]">
+            <Logo variant="mark" className="h-full w-full" />
+          </div>
           <h1 className="text-2xl font-extrabold text-[#e6edf3] tracking-wide">{BRAND.name}</h1>
           <p className="text-xs text-[#289E9D] mt-1">{BRAND.tagline}</p>
           <p className="text-sm text-[#8b949e] mt-2">Inicia sesión en tu cuenta</p>
