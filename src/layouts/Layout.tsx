@@ -24,6 +24,7 @@ const Layout = () => {
   const logoAcademia = user?.logo_url;
   const nombreAcademia = getAcademyName(user?.nombre_academia);
   const isProfessor = String(user?.rol || '').toLowerCase() === 'profesor';
+  const isGuardian = ['apoderado', 'tutor'].includes(String(user?.rol || '').toLowerCase());
 
   useEffect(() => {
     document.title = isSuperAdmin
@@ -68,6 +69,22 @@ const Layout = () => {
     );
   }
 
+  if (isGuardian) {
+    return (
+      <div className="min-h-screen bg-[#0d1117] text-white">
+        <header className="sticky top-0 z-40 border-b border-violet-400/20 bg-[#151b25]/95 px-4 py-3 backdrop-blur">
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
+            <Link to="/apoderado" className="flex min-w-0 items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#289E9D]/50 bg-[#0d1117] p-1.5"><Logo variant="mark" className="h-full w-full" /></div>
+              <div className="min-w-0"><p className="truncate font-black text-[#48d8d0]">{nombreAcademia}</p><p className="text-xs text-[#8b949e]">Portal de apoderado · {BRAND.name}</p></div>
+            </Link>
+            <button type="button" onClick={handleLogout} className="rounded-lg border border-[#30363d] px-3 py-2 text-sm text-[#b1bac4] hover:border-red-500 hover:text-red-300">Salir</button>
+          </div>
+        </header>
+        <main className="mx-auto max-w-6xl p-4 sm:p-6"><Outlet /></main>
+      </div>
+    );
+  }
   return (
     <div className="flex h-screen bg-[#131722] text-white font-sans overflow-hidden">
       
@@ -174,6 +191,16 @@ const Layout = () => {
                   <span className="mr-3">🧑‍🏫</span> Profesores
                 </Link>
 
+                <Link
+                  to="/apoderados"
+                  className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                    isActive('/apoderados')
+                      ? 'bg-[#289E9D] text-white font-semibold'
+                      : 'text-gray-400 hover:bg-[#131722] hover:text-white'
+                  }`}
+                >
+                  <span className="mr-3">👨‍👩‍👧‍👦</span> Apoderados <span className="ml-auto rounded bg-violet-500/15 px-1.5 py-0.5 text-[9px] font-black text-violet-300">ADD-ON</span>
+                </Link>
                 {/* 👕 MÓDULO DE UNIFORMES E INVENTARIO */}
                 <Link
                   to="/uniformes"

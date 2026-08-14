@@ -9,6 +9,7 @@ interface Partido {
   rival: string;
   fecha: string;
   hora: string;
+  hora_citacion?: string | null;
   ubicacion: string;
   link_maps: string;
   color_uniforme: string;
@@ -24,6 +25,32 @@ interface Partido {
   categorias?: { nombre: string };
   torneos?: { nombre: string };
 }
+
+const toMinutes = (value: string) => {
+  const [hours, minutes] = value.slice(0, 5).split(':').map(Number);
+  return Number.isFinite(hours) && Number.isFinite(minutes) ? hours * 60 + minutes : 0;
+};
+
+const fromMinutes = (value: number) => {
+  const normalized = (value + 1440) % 1440;
+  return `${String(Math.floor(normalized / 60)).padStart(2, '0')}:${String(normalized % 60).padStart(2, '0')}`;
+};
+
+const shiftTime = (value: string, minutes: number) => fromMinutes(toMinutes(value) + minutes);
+
+const TimeSelector = ({ label, value, onChange, quickTimes, help }: { label: string; value: string; onChange: (value: string) => void; quickTimes: string[]; help?: string }) => (
+  <div className="rounded-2xl border border-[#30363d] bg-[#0d1117] p-4">
+    <div className="mb-3 flex items-start justify-between gap-3">
+      <div><label className="block font-black text-white">{label}</label>{help ? <p className="mt-1 text-xs text-gray-500">{help}</p> : null}</div>
+      <input required type="time" step="300" value={value} onChange={(event) => onChange(event.target.value)} className="w-32 rounded-xl border border-[#289E9D]/60 bg-[#161b22] px-3 py-2 text-center text-lg font-black text-white outline-none focus:border-[#48d8d0]" />
+    </div>
+    <div className="flex flex-wrap gap-2">
+      {quickTimes.map((time) => <button key={time} type="button" onClick={() => onChange(time)} className={`min-h-10 rounded-lg border px-3 py-2 text-xs font-black transition ${value.slice(0, 5) === time ? 'border-[#48d8d0] bg-[#289E9D]/25 text-[#70e4df]' : 'border-[#30363d] bg-[#161b22] text-gray-300 hover:border-[#289E9D]'}`}>{time}</button>)}
+      <button type="button" onClick={() => value && onChange(shiftTime(value, -15))} className="min-h-10 rounded-lg border border-[#30363d] px-3 text-xs font-bold text-gray-400">−15 min</button>
+      <button type="button" onClick={() => value && onChange(shiftTime(value, 15))} className="min-h-10 rounded-lg border border-[#30363d] px-3 text-xs font-bold text-gray-400">+15 min</button>
+    </div>
+  </div>
+);
 
 interface StatJugador {
   jugador_id: string;
@@ -68,7 +95,8 @@ const Partidos: React.FC = () => {
     categoria_id: '',
     rival: '',
     fecha: '',
-    hora: '',
+    hora: '18:00',
+    hora_citacion: '17:00',
     ubicacion: '',
     link_maps: '',
     color_uniforme: 'Titular',
@@ -108,7 +136,8 @@ const Partidos: React.FC = () => {
       categoria_id: '',
       rival: '',
       fecha: '',
-      hora: '',
+      hora: '18:00',
+      hora_citacion: '17:00',
       ubicacion: '',
       link_maps: '',
       color_uniforme: 'Titular',
@@ -128,6 +157,7 @@ const Partidos: React.FC = () => {
       rival: p.rival || '',
       fecha: p.fecha || '',
       hora: p.hora || '',
+      hora_citacion: p.hora_citacion?.slice(0, 5) || (p.hora ? shiftTime(p.hora, -60) : '17:00'),
       ubicacion: p.ubicacion || '',
       link_maps: p.link_maps || '',
       color_uniforme: p.color_uniforme || 'Titular',
@@ -239,8 +269,8 @@ const Partidos: React.FC = () => {
       }
       setShowModalPartido(false);
       cargarDatos();
-    } catch (error) {
-      notify('Error al procesar el partido.');
+    } catch (error: any) {
+      notify(error.response?.data?.error || 'Error al procesar el partido.');
     } finally {
       setGuardando(false);
     }
@@ -309,7 +339,8 @@ const Partidos: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-2 text-xs bg-[#161b22] p-3 rounded-lg border border-[#30363d]/50 text-gray-300">
                   <div><span className="text-gray-500 block">📅 Fecha:</span> <strong className="text-white">{p.fecha}</strong></div>
-                  <div><span className="text-gray-500 block">⏰ Hora:</span> <strong className="text-white">{p.hora} hrs</strong></div>
+                  <div><span className="text-gray-500 block">📣 Citación:</span> <strong className="text-[#70e4df]">{p.hora_citacion?.slice(0, 5) || 'Por definir'}</strong></div>
+                  <div><span className="text-gray-500 block">⏰ Partido:</span> <strong className="text-white">{p.hora?.slice(0, 5)} hrs</strong></div>
                   <div><span className="text-gray-500 block">👕 Uniforme:</span> <strong className="text-white">{p.color_uniforme}</strong></div>
                   <div><span className="text-gray-500 block">🏟️ Lugar:</span> <strong className="text-white truncate block">{p.ubicacion || 'Por confirmar'}</strong></div>
                 </div>
@@ -433,16 +464,26 @@ const Partidos: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-gray-400 mb-1 font-semibold">Fecha *</label>
-                  <input required type="date" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]" />
-                </div>
-                <div>
-                  <label className="block text-gray-400 mb-1 font-semibold">Hora *</label>
-                  <input required type="time" value={form.hora} onChange={e => setForm({ ...form, hora: e.target.value })} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]" />
-                </div>
+              <div>
+                <label className="block text-gray-400 mb-1 font-semibold">Fecha *</label>
+                <input required type="date" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]" />
               </div>
+
+              <TimeSelector
+                label="Hora de inicio del partido"
+                value={form.hora}
+                onChange={(hora) => setForm((current) => ({ ...current, hora, hora_citacion: shiftTime(hora, -60) }))}
+                quickTimes={['09:00', '10:00', '11:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00']}
+                help="Selecciona una hora común o ajústala de 15 en 15 minutos."
+              />
+
+              <TimeSelector
+                label="Hora de citación"
+                value={form.hora_citacion}
+                onChange={(hora_citacion) => setForm((current) => ({ ...current, hora_citacion }))}
+                quickTimes={[shiftTime(form.hora, -120), shiftTime(form.hora, -90), shiftTime(form.hora, -60), shiftTime(form.hora, -45)]}
+                help="Solo la dirección puede modificarla. Se propone 60 minutos antes."
+              />
 
               <div>
                 <label className="block text-gray-400 mb-1 font-semibold">Lugar / Cancha</label>

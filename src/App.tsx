@@ -30,6 +30,8 @@ const Uniformes = lazy(() => import('./pages/Uniformes'));
 const Finanzas = lazy(() => import('./pages/Finanzas'));
 const Profesores = lazy(() => import('./pages/Profesores'));
 const ProfesorPortal = lazy(() => import('./pages/ProfesorPortal'));
+const Apoderados = lazy(() => import('./pages/Apoderados'));
+const ApoderadoPortal = lazy(() => import('./pages/ApoderadoPortal'));
 
 const queryClient = new QueryClient();
 
@@ -66,7 +68,8 @@ const PublicRoutes = () => {
     if (user.rol === 'superadmin') return <Navigate to="/admin" replace />;
     if (user.requiere_cambio_password) return <Navigate to="/cambiar-password" replace />;
     if (!user.academia_id) return <Navigate to="/completar-perfil" replace />;
-    return <Navigate to={String(user.rol).toLowerCase() === 'profesor' ? '/profesor' : '/dashboard'} replace />;
+    const role = String(user.rol).toLowerCase();
+    return <Navigate to={role === 'profesor' ? '/profesor' : ['apoderado', 'tutor'].includes(role) ? '/apoderado' : '/dashboard'} replace />;
   }
 
   return <Outlet />;
@@ -75,7 +78,9 @@ const PublicRoutes = () => {
 const DirectorRoutes = () => {
   const { user } = useAuth();
   const role = String(user?.rol || '').toLowerCase().replace(/[_-]/g, '');
+  if (role === 'superadmin') return <Navigate to="/admin" replace />;
   if (role === 'profesor') return <Navigate to="/profesor" replace />;
+  if (['apoderado', 'tutor'].includes(role)) return <Navigate to="/apoderado" replace />;
   return <Outlet />;
 };
 
@@ -83,6 +88,12 @@ const ProfessorRoute = () => {
   const { user } = useAuth();
   return String(user?.rol || '').toLowerCase() === 'profesor'
     ? <ProfesorPortal />
+    : <Navigate to="/dashboard" replace />;
+};
+const GuardianRoute = () => {
+  const { user } = useAuth();
+  return ['apoderado', 'tutor'].includes(String(user?.rol || '').toLowerCase())
+    ? <ApoderadoPortal />
     : <Navigate to="/dashboard" replace />;
 };
 
@@ -106,9 +117,11 @@ const App = () => {
             
             <Route element={<ProtectedRoutes />}>
               <Route path="/profesor" element={<ProfessorRoute />} />
+              <Route path="/apoderado" element={<GuardianRoute />} />
               <Route element={<DirectorRoutes />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/profesores" element={<Profesores />} />
+              <Route path="/apoderados" element={<Apoderados />} />
               <Route path="/jugadores" element={<Jugadores />} />
               <Route path="/matricula" element={<Matricula />} />
               <Route path="/asistencias" element={<Asistencias />} />

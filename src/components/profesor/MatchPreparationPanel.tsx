@@ -3,10 +3,10 @@ import api from '../../api/axiosConfig';
 import { useAppDialog } from '../../contexts/DialogContext';
 import type { MatchPlanPlayer, MatchPlanRole } from './types';
 
-type Match = { id: string; rival: string; fecha: string; hora: string; ubicacion?: string | null; condicion?: string | null; categorias?: { nombre: string } | null };
-type Form = { sistema_juego: string; objetivo: string; indicaciones: string; hora_citacion: string; estado: 'Borrador' | 'Lista' };
+type Match = { id: string; rival: string; fecha: string; hora: string; hora_citacion?: string | null; ubicacion?: string | null; condicion?: string | null; categorias?: { nombre: string } | null };
+type Form = { sistema_juego: string; objetivo: string; indicaciones: string; estado: 'Borrador' | 'Lista' };
 
-const EMPTY_FORM: Form = { sistema_juego: '', objetivo: '', indicaciones: '', hora_citacion: '', estado: 'Borrador' };
+const EMPTY_FORM: Form = { sistema_juego: '', objetivo: '', indicaciones: '', estado: 'Borrador' };
 
 const MatchPreparationPanel = ({ matchId, academyName, onBack, onSaved }: { matchId: string; academyName?: string; onBack: () => void; onSaved: () => void }) => {
   const { notify } = useAppDialog();
@@ -22,7 +22,7 @@ const MatchPreparationPanel = ({ matchId, academyName, onBack, onSaved }: { matc
       const payload = response.data.data;
       setMatch(payload.partido);
       setPlayers(payload.jugadores || []);
-      setForm(payload.preparacion ? { ...EMPTY_FORM, ...payload.preparacion, hora_citacion: payload.preparacion.hora_citacion?.slice(0, 5) || '' } : EMPTY_FORM);
+      setForm(payload.preparacion ? { ...EMPTY_FORM, ...payload.preparacion } : EMPTY_FORM);
     }).catch((error) => notify(error.response?.data?.error || 'No fue posible cargar el partido.', { title: academyName })).finally(() => setLoading(false));
   }, [academyName, matchId, notify]);
 
@@ -64,10 +64,14 @@ const MatchPreparationPanel = ({ matchId, academyName, onBack, onSaved }: { matc
         <button type="button" onClick={onBack} className="mb-4 min-h-11 rounded-lg border border-[#30363d] px-3 py-2 text-sm font-bold text-[#b1bac4] hover:bg-[#21262d]">← Volver</button>
         <p className="text-xs font-black uppercase tracking-[0.18em] text-[#48d8d0]">Preparación de partido</p>
         <h2 className="mt-2 text-2xl font-black">vs. {match?.rival}</h2>
-        <p className="mt-1 text-sm text-[#8b949e]">{match?.fecha} · {match?.hora?.slice(0, 5)} · {match?.condicion || 'Partido'} · {match?.ubicacion || 'Lugar por confirmar'}</p>
+        <p className="mt-1 text-sm text-[#8b949e]">{match?.fecha} · {match?.condicion || 'Partido'} · {match?.ubicacion || 'Lugar por confirmar'}</p>
+        <div className="mt-4 grid grid-cols-2 gap-3 rounded-2xl border border-[#30363d] bg-[#0d1117] p-4">
+          <div><p className="text-xs font-bold uppercase tracking-wider text-[#8b949e]">Citación</p><p className="mt-1 text-xl font-black text-[#70e4df]">{match?.hora_citacion?.slice(0, 5) || 'Por definir'}</p></div>
+          <div><p className="text-xs font-bold uppercase tracking-wider text-[#8b949e]">Inicio</p><p className="mt-1 text-xl font-black text-white">{match?.hora?.slice(0, 5)}</p></div>
+          <p className="col-span-2 text-xs text-[#8b949e]">Horario definido por la dirección. Tu preparación aquí es exclusivamente técnica.</p>
+        </div>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <label><span className="label">Sistema de juego</span><input maxLength={80} value={form.sistema_juego} onChange={(event) => setForm((current) => ({ ...current, sistema_juego: event.target.value }))} placeholder="Ej.: 1-4-3-3" className="w-full" /></label>
-          <label><span className="label">Hora de citación</span><input type="time" value={form.hora_citacion} onChange={(event) => setForm((current) => ({ ...current, hora_citacion: event.target.value }))} className="w-full" /></label>
           <label><span className="label">Objetivo del partido</span><textarea rows={3} maxLength={700} value={form.objetivo} onChange={(event) => setForm((current) => ({ ...current, objetivo: event.target.value }))} placeholder="Objetivo técnico y competitivo" className="w-full" /></label>
           <label><span className="label">Indicaciones tácticas</span><textarea rows={3} maxLength={2500} value={form.indicaciones} onChange={(event) => setForm((current) => ({ ...current, indicaciones: event.target.value }))} placeholder="Presión, salida, transiciones y balón detenido" className="w-full" /></label>
         </div>

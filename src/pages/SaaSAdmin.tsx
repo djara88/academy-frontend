@@ -13,10 +13,15 @@ interface Academia {
   nombre_director?: string;
   director_email: string;
   plan: 'Formación' | 'Competencia' | 'Alto Rendimiento';
+  plan_codigo?: 'formacion' | 'competencia' | 'alto_rendimiento';
+  licencia_apoderados?: boolean;
   estado: 'Activa' | 'Inactiva';
   jugadores_count: number;
   created_at: string;
 }
+
+type PlanCode = 'formacion' | 'competencia' | 'alto_rendimiento';
+const PLAN_LABELS: Record<PlanCode, Academia['plan']> = { formacion: 'Formación', competencia: 'Competencia', alto_rendimiento: 'Alto Rendimiento' };
 
 const SaaSAdmin = () => {
   const dialog = useAppDialog();
@@ -38,7 +43,8 @@ const SaaSAdmin = () => {
   const [correoAcademia, setCorreoAcademia] = useState('');
   const [nombreDirector, setNombreDirector] = useState('');
   const [directorEmail, setDirectorEmail] = useState('');
-  const [plan, setPlan] = useState<'Formación' | 'Competencia' | 'Alto Rendimiento'>('Competencia');
+  const [plan, setPlan] = useState<PlanCode>('competencia');
+  const [guardianLicense, setGuardianLicense] = useState(false);
   const [estado, setEstado] = useState<'Activa' | 'Inactiva'>('Activa');
 
   useEffect(() => {
@@ -61,7 +67,7 @@ const SaaSAdmin = () => {
     setEditingId(null);
     setNombre(''); setLogoFile(null); setDireccion(''); setTelefono('');
     setCorreoAcademia(''); setNombreDirector(''); setDirectorEmail('');
-    setPlan('Competencia'); setEstado('Activa');
+    setPlan('competencia'); setGuardianLicense(false); setEstado('Activa');
     setShowModal(true);
   };
 
@@ -74,7 +80,8 @@ const SaaSAdmin = () => {
     setCorreoAcademia(a.correo_academia || ''); 
     setNombreDirector(a.nombre_director || ''); 
     setDirectorEmail(a.director_email);
-    setPlan(a.plan); 
+    setPlan(a.plan_codigo || (a.plan === 'Alto Rendimiento' ? 'alto_rendimiento' : a.plan === 'Competencia' ? 'competencia' : 'formacion'));
+    setGuardianLicense(a.licencia_apoderados === true);
     setEstado(a.estado);
     setShowModal(true);
   };
@@ -97,7 +104,9 @@ const SaaSAdmin = () => {
       formData.append('correo_academia', correoAcademia);
       formData.append('nombre_director', nombreDirector);
       formData.append('director_email', directorEmail);
-      formData.append('plan', plan);
+      formData.append('plan_codigo', plan);
+      formData.append('plan', PLAN_LABELS[plan]);
+      formData.append('licencia_apoderados', String(guardianLicense));
       formData.append('estado', estado);
 
       if (editingId) {
@@ -224,6 +233,7 @@ const SaaSAdmin = () => {
                     <td className="p-4">
                       {/* Ahora esto es solo texto visual, no un <select> */}
                       <div className="font-semibold text-white">{a.plan}</div>
+                      <div className={`mt-1 inline-block rounded-full border px-2 py-0.5 text-[10px] font-bold ${a.licencia_apoderados ? 'border-cyan-700 bg-cyan-900/40 text-cyan-200' : 'border-gray-700 text-gray-500'}`}>Apoderados: {a.licencia_apoderados ? 'Licencia activa' : 'Sin licencia'}</div>
                       <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${a.estado === 'Activa' ? 'bg-green-900/60 text-green-300 border border-green-700' : 'bg-red-900/60 text-red-300 border border-red-700'}`}>
                         {a.estado}
                       </span>
@@ -290,12 +300,16 @@ const SaaSAdmin = () => {
                   </div>
                   <div>
                     <label className="block text-xs text-gray-400 mb-1">Plan SaaS *</label>
-                    <select value={plan} onChange={(e) => setPlan(e.target.value as any)} className="w-full bg-[#131722] border border-gray-700 rounded p-2 text-white text-sm focus:outline-none">
-                      <option value="Formación">Formación</option>
-                      <option value="Competencia">Competencia</option>
-                      <option value="Alto Rendimiento">Alto Rendimiento</option>
+                    <select value={plan} onChange={(e) => setPlan(e.target.value as PlanCode)} className="w-full bg-[#131722] border border-gray-700 rounded p-2 text-white text-sm focus:outline-none">
+                      <option value="formacion">Formación · 2 profesores</option>
+                      <option value="competencia">Competencia · 6 profesores</option>
+                      <option value="alto_rendimiento">Alto Rendimiento · 15 profesores</option>
                     </select>
                   </div>
+                  <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-cyan-900/60 bg-cyan-950/25 p-3">
+                    <div><span className="block text-sm font-black text-cyan-100">Licencia Apoderados</span><span className="mt-1 block text-xs text-cyan-300/70">Complemento con cobro separado; no pertenece a ningún plan base.</span></div>
+                    <input type="checkbox" checked={guardianLicense} onChange={(event) => setGuardianLicense(event.target.checked)} className="mt-1 h-5 w-5 accent-[#289E9D]" />
+                  </label>
                   {editingId && (
                     <div>
                       <label className="block text-xs text-gray-400 mb-1">Estado del Cliente *</label>

@@ -6,6 +6,7 @@ export type ProfessorAgendaEvent = {
   categoria_id: string;
   fecha: string;
   hora?: string | null;
+  hora_citacion?: string | null;
   estado?: string | null;
   categorias?: ProfessorEventCategory | null;
   lugar?: string | null;
