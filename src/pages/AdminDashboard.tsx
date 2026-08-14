@@ -6,7 +6,7 @@ import { useAdminTheme } from '../contexts/AdminThemeContext';
 import { useAppDialog } from '../contexts/DialogContext';
 
 type Academy = { id: string; nombre: string; plan: string; estado: string; subscription_status: string; jugadores_count?: number; subscription: { blocked: boolean; trial: boolean; remainingDays?: number | null; urgency?: string | null; reason?: string | null } };
-type Summary = { kpis: { academies: number; active: number; trials: number; blocked: number; mrrUf: number; mrrClpGross: number; income: number; expenses: number; net: number; receivable: number; conversionRate: number }; academies: Academy[]; alerts: { type: string; severity: string; academyId: string; academyName: string; message: string }[]; uf: { value: number; source: string }; gateway: { provider: string; configured: boolean } };
+type Summary = { kpis: { academies: number; active: number; trials: number; blocked: number; mrrClpNet: number; mrrClpGross: number; income: number; expenses: number; net: number; receivable: number; conversionRate: number }; academies: Academy[]; alerts: { type: string; severity: string; academyId: string; academyName: string; message: string }[]; gateway: { provider: string; configured: boolean } };
 const money = (value: number) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(value || 0);
 
 const AdminDashboard = () => {
@@ -25,14 +25,14 @@ const AdminDashboard = () => {
   if (isLoading) return <div className={`p-10 text-center ${muted}`}>Preparando visión ejecutiva...</div>;
   if (error || !data) return <div className="rounded-2xl border border-red-400/30 bg-red-500/10 p-6 text-red-300">No fue posible cargar el panel maestro.</div>;
   const cards = [
-    ['MRR estimado', money(data.kpis.mrrClpGross), `${data.kpis.mrrUf.toFixed(2)} UF`, BanknotesIcon, 'text-emerald-500'],
+    ['MRR estimado', money(data.kpis.mrrClpGross), `${money(data.kpis.mrrClpNet)} neto`, BanknotesIcon, 'text-emerald-500'],
     ['Academias activas', String(data.kpis.active), `${data.kpis.academies} registradas`, BuildingOffice2Icon, 'text-[#289E9D]'],
     ['Conversión', `${data.kpis.conversionRate}%`, `${data.kpis.trials} en prueba`, ChartBarIcon, 'text-violet-500'],
     ['Por cobrar', money(data.kpis.receivable), `${data.kpis.blocked} bloqueadas`, ClockIcon, 'text-amber-500'],
   ] as const;
   return <div className="space-y-6 pb-12">
     <section className={`relative overflow-hidden rounded-[30px] border p-7 sm:p-9 ${light ? 'border-cyan-200 bg-[radial-gradient(circle_at_top_right,rgba(40,158,157,0.18),transparent_38%),white]' : 'border-[#289E9D]/25 bg-[radial-gradient(circle_at_top_right,rgba(40,158,157,0.2),transparent_38%),#17202b]'}`}>
-      <div className="relative flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between"><div><p className="text-xs font-black uppercase tracking-[0.22em] text-[#289E9D]">Control central · Syncademia</p><h1 className={`mt-3 max-w-3xl text-4xl font-black leading-tight sm:text-5xl ${text}`}>Tu negocio completo, visible en una sola mirada.</h1><p className={`mt-4 max-w-2xl leading-7 ${muted}`}>Suscripciones, conversión, caja, pruebas y riesgos comerciales actualizados en tiempo real.</p></div><div className={`rounded-2xl border p-5 ${panel}`}><p className={`text-xs font-bold uppercase ${muted}`}>Estado comercial</p><div className="mt-2 flex items-center gap-2"><CheckCircleIcon className="h-7 w-7 text-emerald-500" /><span className={`text-xl font-black ${text}`}>{data.gateway.configured ? 'Operación conectada' : 'Flow pendiente de credenciales'}</span></div><p className={`mt-2 text-sm ${muted}`}>UF referencial: {money(data.uf.value)}</p></div></div>
+      <div className="relative flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between"><div><p className="text-xs font-black uppercase tracking-[0.22em] text-[#289E9D]">Control central · Syncademia</p><h1 className={`mt-3 max-w-3xl text-4xl font-black leading-tight sm:text-5xl ${text}`}>Tu negocio completo, visible en una sola mirada.</h1><p className={`mt-4 max-w-2xl leading-7 ${muted}`}>Suscripciones, conversión, caja, pruebas y riesgos comerciales actualizados en tiempo real.</p></div><div className={`rounded-2xl border p-5 ${panel}`}><p className={`text-xs font-bold uppercase ${muted}`}>Estado comercial</p><div className="mt-2 flex items-center gap-2"><CheckCircleIcon className="h-7 w-7 text-emerald-500" /><span className={`text-xl font-black ${text}`}>{data.gateway.configured ? 'Operación conectada' : 'Flow pendiente de credenciales'}</span></div><p className={`mt-2 text-sm ${muted}`}>Cobros mensuales en pesos chilenos</p></div></div>
     </section>
     <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{cards.map(([label, value, detail, Icon, color]) => <article key={label} className={`rounded-2xl border p-5 ${panel}`}><div className="flex items-start justify-between"><div><p className={`text-xs font-black uppercase tracking-wider ${muted}`}>{label}</p><p className={`mt-3 text-3xl font-black ${text}`}>{value}</p><p className={`mt-2 text-sm ${muted}`}>{detail}</p></div><Icon className={`h-8 w-8 ${color}`} /></div></article>)}</section>
     <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
@@ -43,4 +43,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-

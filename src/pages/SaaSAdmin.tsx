@@ -21,8 +21,8 @@ interface Academia {
   created_at: string;
   subscription_status?: 'trialing' | 'active' | 'past_due' | 'suspended' | 'cancelled';
   trial_ends_at?: string | null;
-  plan_price_uf?: number;
-  guardian_price_uf?: number;
+  plan_price_clp?: number;
+  guardian_price_clp?: number;
 }
 
 type PlanCode = 'formacion' | 'competencia' | 'alto_rendimiento';
@@ -165,7 +165,7 @@ const SaaSAdmin = () => {
   const activas = academias.filter(a => a.estado === 'Activa').length;
   const totalJugadores = academias.reduce((acc, curr) => acc + (curr.jugadores_count || 0), 0);
   
-  const mrrUf = academias.filter((a) => a.subscription_status === 'active' && a.estado === 'Activa').reduce((sum, academy) => sum + Number(academy.plan_price_uf || 0) + Number(academy.guardian_price_uf || 0), 0);
+  const mrrClp = academias.filter((a) => a.subscription_status === 'active' && a.estado === 'Activa').reduce((sum, academy) => sum + Number(academy.plan_price_clp || 0) + Number(academy.guardian_price_clp || 0), 0);
   const panel = light ? 'border-slate-200 bg-white shadow-sm' : 'border-gray-800 bg-[#1C212D]';
   const text = light ? 'text-slate-950' : 'text-white';
   const muted = light ? 'text-slate-500' : 'text-gray-400';
@@ -200,7 +200,7 @@ const SaaSAdmin = () => {
         </div>
         <div className={`rounded-xl border p-6 ${panel}`}>
           <p className={`text-xs font-bold uppercase ${muted}`}>Licencias activas (MRR)</p>
-          <p className="text-3xl font-extrabold text-green-400 mt-2">{mrrUf.toLocaleString('es-CL')} UF</p>
+          <p className="text-3xl font-extrabold text-green-400 mt-2">${mrrClp.toLocaleString('es-CL')}</p>
         </div>
         <div className={`rounded-xl border p-6 ${panel}`}>
           <p className={`text-xs font-bold uppercase ${muted}`}>Estado Sistema</p>
