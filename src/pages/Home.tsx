@@ -1,146 +1,37 @@
 import { Link } from 'react-router-dom';
-import { Logo } from '../components/Logo'; // <-- Importamos tu nuevo logo
+import { ArrowRightIcon, CheckCircleIcon, ShieldCheckIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { Logo } from '../components/Logo';
 import { BRAND } from '../config/brand';
 
-const Home = () => {
-  return (
-    <div className="min-h-screen bg-[#131722] text-white font-sans selection:bg-[#289E9D] selection:text-white">
-      
-      {/* NAVEGACIÓN SUPERIOR */}
-      <nav className="flex items-center justify-between gap-3 border-b border-gray-800 bg-[#1C212D] px-4 py-4 sm:px-8 sm:py-6">
-        
-        {/* LOGO EN TAMAÑO GIGANTE */}
-        <div className="flex min-w-0 items-center">
-          <Logo className="h-12 max-w-[190px] text-lg transition-transform duration-300 hover:scale-[1.02] sm:h-14 sm:max-w-[280px] sm:text-xl md:h-16 md:max-w-[430px] md:text-2xl" />
-        </div>
+const plans = [
+  { name: 'Formación', price: '0,75 UF', detail: '100 jugadores · 3 profesores', accent: 'border-white/10', features: ['Operación y matrículas', 'Asistencia y partidos', 'Finanzas y uniformes'] },
+  { name: 'Competencia', price: '1,5 UF', detail: '300 jugadores · 10 profesores', accent: 'border-[#48d8d0] shadow-[0_24px_80px_rgba(40,158,157,0.18)]', features: ['Todo Formación', 'Torneos y evaluaciones', 'Alertas y exportaciones'], popular: true },
+  { name: 'Alto Rendimiento', price: '2,5 UF', detail: 'Jugadores sin límite · 30 profesores', accent: 'border-orange-400/35', features: ['Todo Competencia', 'Ficha médica y analítica', 'Marca personalizada'] },
+];
 
-        {/* BOTONES DE ACCESO Y REGISTRO */}
-        <div className="flex items-center gap-4">
-          <Link 
-            to="/login" 
-            className="text-gray-300 hover:text-white font-semibold transition-colors hidden sm:block"
-          >
-            Iniciar Sesión
-          </Link>
-          <Link 
-            to="/registro" 
-            className="whitespace-nowrap rounded-lg bg-[#289E9D] px-4 py-2 text-sm font-semibold text-white shadow-[0_0_15px_rgba(40,158,157,0.4)] transition-all duration-300 hover:bg-[#1f7a79] sm:px-6 sm:text-base"
-          >
-            Crear Academia
-          </Link>
-        </div>
-      </nav>
+const Home = () => (
+  <div className="min-h-screen overflow-hidden bg-[#0b1018] text-white selection:bg-[#289E9D]">
+    <nav className="sticky top-0 z-50 border-b border-white/8 bg-[#0b1018]/85 px-4 py-3 backdrop-blur-xl sm:px-8"><div className="mx-auto flex max-w-7xl items-center justify-between gap-4"><Logo className="h-11 max-w-[190px] sm:h-14 sm:max-w-[300px]" /><div className="flex items-center gap-3"><Link to="/login" className="hidden px-3 py-2 text-sm font-bold text-[#a9b4c2] hover:text-white sm:block">Iniciar sesión</Link><Link to="/registro" className="rounded-xl bg-[#289E9D] px-4 py-2.5 text-sm font-black text-white shadow-[0_0_24px_rgba(40,158,157,0.3)] hover:bg-[#36b8b5]">Probar Full 15 días</Link></div></div></nav>
 
-      {/* SECCIÓN HERO (PRINCIPAL) */}
-      <header className="px-8 py-20 text-center max-w-4xl mx-auto">
-        <p className="text-[#289E9D] uppercase tracking-[0.24em] text-sm font-bold mb-5">
-          {BRAND.name} · {BRAND.tagline}
-        </p>
-        <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
-          La gestión de tu academia deportiva, <span className="text-[#289E9D]">llevada al siguiente nivel.</span>
-        </h1>
-        <p className="text-gray-400 text-lg mb-10 max-w-2xl mx-auto">
-          Centraliza jugadores, torneos, finanzas y comunicación en un solo lugar. Diseñado para directores, entrenadores y apoderados.
-        </p>
-        <Link 
-          to="/registro" 
-          className="inline-block border-2 border-[#289E9D] text-[#289E9D] hover:bg-[#289E9D] hover:text-white px-8 py-3 rounded-lg font-bold text-lg transition-colors"
-        >
-          Comenzar ahora gratis
-        </Link>
-      </header>
+    <header className="relative px-5 pb-24 pt-16 sm:pt-24"><div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(40,158,157,0.18),transparent_27%),radial-gradient(circle_at_82%_25%,rgba(249,115,22,0.10),transparent_24%)]" /><div className="relative mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-[1.08fr_0.92fr]">
+      <div><div className="inline-flex items-center gap-2 rounded-full border border-[#48d8d0]/25 bg-[#289E9D]/10 px-4 py-2 text-xs font-black uppercase tracking-[0.15em] text-[#70e4df]"><SparklesIcon className="h-4 w-4" />Prueba Full · sin módulos bloqueados</div><h1 className="mt-7 max-w-4xl text-5xl font-black leading-[0.98] sm:text-6xl xl:text-7xl">Tu academia se mueve.<br /><span className="bg-gradient-to-r from-[#70e4df] via-[#289E9D] to-[#f59e5b] bg-clip-text text-transparent">Todo queda sincronizado.</span></h1><p className="mt-7 max-w-2xl text-lg leading-8 text-[#a9b4c2]">Convierte la operación diaria en decisiones claras: jugadores, profesores, partidos, asistencia, cobros y comunicación trabajando en un mismo ecosistema.</p><div className="mt-9 flex flex-col gap-3 sm:flex-row"><Link to="/registro" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-xl bg-[#289E9D] px-7 py-3 font-black text-white hover:bg-[#36b8b5]">Crear mi academia <ArrowRightIcon className="h-5 w-5" /></Link><a href="#planes" className="inline-flex min-h-14 items-center justify-center rounded-xl border border-white/15 px-7 py-3 font-black text-white hover:border-[#48d8d0]/50 hover:bg-white/5">Explorar planes</a></div><p className="mt-4 text-sm text-[#738094]">15 días Full para descubrir el valor real antes de elegir tu plan.</p></div>
+      <div className="relative"><div className="absolute -inset-5 rounded-[40px] bg-gradient-to-br from-[#289E9D]/20 to-orange-500/5 blur-2xl" /><div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[#141b26] p-5 shadow-2xl"><div className="flex items-center justify-between border-b border-white/8 pb-4"><div><p className="text-xs font-black uppercase tracking-[0.16em] text-[#70e4df]">Pulso de la academia</p><p className="mt-1 text-xl font-black">Hoy, sin perder el control</p></div><div className="h-3 w-3 rounded-full bg-emerald-400 shadow-[0_0_18px_#34d399]" /></div><div className="mt-5 grid grid-cols-2 gap-3"><div className="rounded-2xl border border-white/8 bg-[#0d131d] p-4"><p className="text-xs text-[#7f8c9d]">Asistencia semanal</p><p className="mt-2 text-3xl font-black text-[#70e4df]">91%</p><div className="mt-3 h-1.5 rounded-full bg-white/10"><div className="h-full w-[91%] rounded-full bg-[#289E9D]" /></div></div><div className="rounded-2xl border border-white/8 bg-[#0d131d] p-4"><p className="text-xs text-[#7f8c9d]">Próximo partido</p><p className="mt-2 text-xl font-black">Sábado · 11:30</p><p className="mt-3 text-xs text-orange-300">Plantel en preparación</p></div><div className="col-span-2 rounded-2xl border border-white/8 bg-[#0d131d] p-4"><div className="flex items-center justify-between"><div><p className="text-xs text-[#7f8c9d]">Gestión financiera</p><p className="mt-1 font-black">Cobros conciliados y pendientes</p></div><span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-black text-emerald-300">Actualizado</span></div><div className="mt-4 grid grid-cols-3 gap-2 text-center"><div className="rounded-xl bg-white/5 p-3"><p className="text-lg font-black">124</p><p className="text-[10px] text-[#7f8c9d]">Jugadores</p></div><div className="rounded-xl bg-white/5 p-3"><p className="text-lg font-black">8</p><p className="text-[10px] text-[#7f8c9d]">Profesores</p></div><div className="rounded-xl bg-white/5 p-3"><p className="text-lg font-black">6</p><p className="text-[10px] text-[#7f8c9d]">Categorías</p></div></div></div></div></div></div>
+    </div></header>
 
-      {/* SECCIÓN ALCANCES / CARACTERÍSTICAS */}
-      <section className="px-8 py-16 bg-[#1C212D]">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Todo lo que necesitas para triunfar</h2>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-[#131722] p-8 rounded-xl border border-gray-800 hover:border-[#289E9D] transition-colors">
-              <div className="text-4xl mb-4">👥</div>
-              <h3 className="text-xl font-bold mb-3">Gestión de Roles</h3>
-              <p className="text-gray-400">Accesos personalizados para Directores, Profesores y Apoderados. Cada quien ve exactamente lo que necesita.</p>
-            </div>
-            
-            <div className="bg-[#131722] p-8 rounded-xl border border-gray-800 hover:border-[#289E9D] transition-colors">
-              <div className="text-4xl mb-4">🏆</div>
-              <h3 className="text-xl font-bold mb-3">Control de Torneos</h3>
-              <p className="text-gray-400">Organiza partidos, lleva el rendimiento de los jugadores y automatiza las tablas de posiciones sin usar Excel.</p>
-            </div>
-            
-            <div className="bg-[#131722] p-8 rounded-xl border border-gray-800 hover:border-[#289E9D] transition-colors">
-              <div className="text-4xl mb-4">📈</div>
-              <h3 className="text-xl font-bold mb-3">Administración Total</h3>
-              <p className="text-gray-400">Matrículas, pagos y reportes financieros al instante para mantener la salud económica de la academia.</p>
-            </div>
-          </div>
-        </div>
-      </section>
+    <section className="border-y border-white/8 bg-[#101722] px-5 py-20"><div className="mx-auto max-w-7xl"><p className="text-center text-xs font-black uppercase tracking-[0.2em] text-[#289E9D]">Una plataforma, distintas responsabilidades</p><h2 className="mx-auto mt-3 max-w-3xl text-center text-3xl font-black sm:text-4xl">Cada perfil ve lo que necesita. Nada más.</h2><div className="mt-12 grid gap-5 md:grid-cols-3">{[
+      ['Dirección', 'Visión ejecutiva, finanzas, categorías, profesores, planes y control total de la academia.', '01'],
+      ['Profesor', 'Sus categorías, lista en terreno y preparación deportiva de cada partido asignado.', '02'],
+      ['Apoderado', 'Sus jugadores, citaciones, asistencias, estado de cuenta y medios de pago habilitados.', '03'],
+    ].map(([title, copy, number]) => <article key={title} className="group rounded-[26px] border border-white/8 bg-[#151d29] p-7 transition hover:-translate-y-1 hover:border-[#289E9D]/50"><p className="text-4xl font-black text-white/8 group-hover:text-[#289E9D]/20">{number}</p><h3 className="mt-6 text-2xl font-black">{title}</h3><p className="mt-3 leading-7 text-[#93a0b1]">{copy}</p></article>)}</div></div></section>
 
-      {/* SECCIÓN LICENCIAS */}
-      <section className="px-8 py-20 max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-12">Licencias adaptadas a tu crecimiento</h2>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          
-          {/* Plan Básico */}
-          <div className="bg-[#1C212D] p-8 rounded-xl border border-gray-800 flex flex-col">
-            <h3 className="text-2xl font-bold text-gray-300">Formación</h3>
-            <p className="text-gray-500 mt-2 border-b border-gray-700 pb-4 mb-4">Para academias pequeñas que recién inician.</p>
-            <ul className="space-y-3 mb-8 text-gray-400 flex-1">
-              <li>✔️ Hasta 50 jugadores</li>
-              <li>✔️ 2 perfiles de Profesor</li>
-              <li>✔️ Acceso para apoderados</li>
-            </ul>
-            <Link to="/registro" className="w-full block text-center bg-gray-800 hover:bg-gray-700 text-white py-2 rounded font-bold transition-colors">
-              Iniciar Gratis
-            </Link>
-          </div>
+    <section className="px-5 py-24"><div className="mx-auto max-w-7xl"><div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-orange-300">Tu forma de trabajar, elevada</p><h2 className="mt-3 text-4xl font-black leading-tight">Menos persecución de datos. Más dirección deportiva.</h2><p className="mt-5 leading-7 text-[#93a0b1]">Syncademia une las tareas que normalmente viven en planillas, chats y cuadernos, sin quitarle identidad a cada academia.</p></div><div className="grid gap-4 sm:grid-cols-2">{['Matrículas y fichas centralizadas', 'Lista móvil en terreno', 'Preparación de partidos por categoría', 'Ingresos y egresos de la academia', 'Portal familiar opcional', 'Roles y permisos protegidos'].map((feature) => <div key={feature} className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.025] p-4"><CheckCircleIcon className="h-6 w-6 shrink-0 text-[#48d8d0]" /><span className="font-bold text-[#dce4ec]">{feature}</span></div>)}</div></div></div></section>
 
-          {/* Plan Pro (Destacado) */}
-          <div className="bg-[#1C212D] p-8 rounded-xl border-2 border-[#289E9D] relative flex flex-col transform scale-105 shadow-2xl">
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#289E9D] text-white px-4 py-1 rounded-full text-sm font-bold">
-              Más Popular
-            </div>
-            <h3 className="text-2xl font-bold text-[#289E9D]">Competencia</h3>
-            <p className="text-gray-500 mt-2 border-b border-gray-700 pb-4 mb-4">El equilibrio perfecto para escuelas en desarrollo.</p>
-            <ul className="space-y-3 mb-8 text-gray-300 flex-1">
-              <li>✔️ Hasta 200 jugadores</li>
-              <li>✔️ Hasta 6 perfiles de Profesor</li>
-              <li>✔️ Módulo de Torneos y Finanzas</li>
-              <li>✔️ Soporte prioritario</li>
-            </ul>
-            <Link to="/registro" className="w-full block text-center bg-[#289E9D] hover:bg-[#1f7a79] text-white py-2 rounded font-bold transition-colors">
-              Elegir Plan
-            </Link>
-          </div>
+    <section id="planes" className="border-y border-white/8 bg-[#101722] px-5 py-24"><div className="mx-auto max-w-7xl"><div className="text-center"><p className="text-xs font-black uppercase tracking-[0.2em] text-[#289E9D]">Planes transparentes</p><h2 className="mt-3 text-4xl font-black">Crece sin pagar por humo</h2><p className="mx-auto mt-4 max-w-2xl text-[#93a0b1]">Precios mensuales en UF + IVA. Apoderados PRO se contrata aparte por 0,35 UF + IVA.</p></div><div className="mt-12 grid gap-5 lg:grid-cols-3">{plans.map((plan) => <article key={plan.name} className={`relative flex flex-col rounded-[28px] border bg-[#151d29] p-7 ${plan.accent}`}>{plan.popular ? <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#289E9D] px-4 py-1 text-xs font-black">MÁS EQUILIBRADO</span> : null}<h3 className="text-2xl font-black">{plan.name}</h3><p className="mt-5"><span className="text-4xl font-black text-[#70e4df]">{plan.price}</span><span className="text-sm text-[#8190a3]"> + IVA / mes</span></p><p className="mt-2 text-sm font-bold text-[#9ca8b7]">{plan.detail}</p><ul className="mt-7 flex-1 space-y-3">{plan.features.map((feature) => <li key={feature} className="flex gap-2 text-sm text-[#d5dde6]"><CheckCircleIcon className="h-5 w-5 shrink-0 text-[#48d8d0]" />{feature}</li>)}</ul><Link to="/registro" className={`mt-8 rounded-xl px-5 py-3 text-center font-black ${plan.popular ? 'bg-[#289E9D] text-white' : 'border border-white/15 text-white hover:border-[#289E9D]'}`}>Probar Full primero</Link></article>)}</div></div></section>
 
-          {/* Plan Élite */}
-          <div className="bg-[#1C212D] p-8 rounded-xl border border-gray-800 flex flex-col">
-            <h3 className="text-2xl font-bold text-orange-400">Alto Rendimiento</h3>
-            <p className="text-gray-500 mt-2 border-b border-gray-700 pb-4 mb-4">Para franquicias y clubes consolidados.</p>
-            <ul className="space-y-3 mb-8 text-gray-400 flex-1">
-              <li>✔️ Jugadores Ilimitados</li>
-              <li>✔️ Hasta 15 perfiles de Profesor</li>
-              <li>✔️ Múltiples sedes/sucursales</li>
-              <li>✔️ Reportes avanzados exportables</li>
-              <li>✔️ Capacitación presencial</li>
-            </ul>
-            <Link to="/registro" className="w-full block text-center bg-gray-800 hover:bg-gray-700 text-white py-2 rounded font-bold transition-colors">
-              Elegir Plan
-            </Link>
-          </div>
+    <section className="px-5 py-24"><div className="mx-auto flex max-w-5xl flex-col items-center rounded-[34px] border border-[#289E9D]/25 bg-[radial-gradient(circle_at_top,rgba(40,158,157,0.2),transparent_48%),#151d29] px-6 py-14 text-center sm:px-12"><ShieldCheckIcon className="h-12 w-12 text-[#70e4df]" /><p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-[#70e4df]">15 días · experiencia completa</p><h2 className="mt-3 text-4xl font-black">Primero vive Syncademia Full.<br />Después decide.</h2><p className="mt-5 max-w-2xl leading-7 text-[#a5b0be]">Activa todos los módulos desde el primer día y comprueba cómo cambia la gestión real de tu academia.</p><Link to="/registro" className="mt-8 inline-flex min-h-14 items-center gap-2 rounded-xl bg-white px-7 py-3 font-black text-[#111823]">Comenzar prueba Full <ArrowRightIcon className="h-5 w-5" /></Link></div></section>
 
-        </div>
-      </section>
-
-      {/* FOOTER ACTUALIZADO */}
-      <footer className="bg-black py-8 text-center text-gray-600 border-t border-gray-900">
-        <p>© 2026 {BRAND.name}. {BRAND.tagline}.</p>
-      </footer>
-
-    </div>
-  );
-};
+    <footer className="border-t border-white/8 px-5 py-9"><div className="mx-auto flex max-w-7xl flex-col gap-4 text-sm text-[#6f7c8d] sm:flex-row sm:items-center sm:justify-between"><p>© 2026 {BRAND.name}. {BRAND.tagline}.</p><div className="flex gap-5"><Link to="/login" className="hover:text-white">Acceso</Link><Link to="/registro" className="hover:text-white">Crear academia</Link></div></div></footer>
+  </div>
+);
 
 export default Home;

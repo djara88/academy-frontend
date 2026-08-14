@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DialogProvider } from './contexts/DialogContext';
+import { AdminThemeProvider } from './contexts/AdminThemeContext';
 import { isGuardianRole, isProfessorRole, isSuperAdminRole } from './utils/roles';
 
 const Layout = lazy(() => import('./layouts/Layout'));
@@ -20,7 +21,10 @@ const NuevoTorneo = lazy(() => import('./pages/NuevoTorneo'));
 const GestionarTorneo = lazy(() => import('./pages/GestionarTorneo'));
 const Partidos = lazy(() => import('./pages/Partidos'));
 const SaaSAdmin = lazy(() => import('./pages/SaaSAdmin'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const AdminFinance = lazy(() => import('./pages/AdminFinance'));
 const AdminProfile = lazy(() => import('./pages/AdminProfile'));
+const Subscription = lazy(() => import('./pages/Subscription'));
 const CambiarPassword = lazy(() => import('./pages/CambiarPassword'));
 const Terminos = lazy(() => import('./pages/Terminos'));
 const WhatsApp = lazy(() => import('./pages/WhatsApp'));
@@ -106,6 +110,7 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <DialogProvider>
+        <AdminThemeProvider>
         <AuthProvider>
           <BrowserRouter>
             <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">Cargando Syncademia...</div>}>
@@ -124,7 +129,9 @@ const App = () => {
               <Route path="/profesor" element={<ProfessorRoute />} />
               <Route path="/apoderado" element={<GuardianRoute />} />
               <Route element={<SuperAdminRoutes />}>
-                <Route path="/admin" element={<SaaSAdmin />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/academias" element={<SaaSAdmin />} />
+                <Route path="/admin/finanzas" element={<AdminFinance />} />
                 <Route path="/admin/perfil" element={<AdminProfile />} />
               </Route>
               <Route element={<DirectorRoutes />}>
@@ -141,6 +148,7 @@ const App = () => {
               <Route path="/torneos/:id" element={<GestionarTorneo />} />
               <Route path="/partidos" element={<Partidos />} />
               <Route path="/finanzas" element={<Finanzas />} />
+              <Route path="/suscripcion" element={<Subscription />} />
               
               {/* RUTAS DEL MÓDULO DE CONFIGURACIÓN Y SUBMÓDULOS */}
               <Route path="/configuracion" element={<Configuracion />} />
@@ -158,6 +166,7 @@ const App = () => {
             </Suspense>
           </BrowserRouter>
         </AuthProvider>
+        </AdminThemeProvider>
       </DialogProvider>
     </QueryClientProvider>
   );
