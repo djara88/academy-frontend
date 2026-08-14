@@ -102,7 +102,7 @@ const App = () => {
               <Route path="/configuracion/perfil" element={<PerfilAcademia />} />
               <Route path="/terminos" element={<Terminos />} />
               <Route path="/whatsapp" element={<WhatsApp />} />
-              <Route path="/finanzas" element={<FinanzasConfig />} />
+              <Route path="/configuracion/finanzas" element={<FinanzasConfig />} />
               
               <Route path="/admin" element={<SaaSAdmin />} />
             </Route>

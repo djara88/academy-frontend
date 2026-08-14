@@ -43,7 +43,7 @@ const FinanzasConfig: React.FC = () => {
     setMensaje(null);
     try {
       await api.put('/api/finanzas/configuracion', config);
-      setMensaje({ texto: '¡Configuración guardada y encriptada con éxito!', tipo: 'exito' });
+      setMensaje({ texto: 'Configuración guardada con acceso protegido.', tipo: 'exito' });
     } catch (error) {
       setMensaje({ texto: 'Hubo un error al guardar los datos.', tipo: 'error' });
     } finally {
@@ -77,7 +77,7 @@ const FinanzasConfig: React.FC = () => {
         <div>
           <h3 className="text-blue-400 font-bold">Máxima Seguridad de Datos (Ley 19.628)</h3>
           <p className="text-gray-300 text-sm mt-1">
-            Los datos ingresados aquí están <strong>encriptados y protegidos</strong>. AcademiaPro nunca tendrá acceso a tus fondos, no cobramos comisiones y no compartiremos tu información financiera con terceros. Solo se usarán de forma automatizada por el Bot de WhatsApp para indicar a los apoderados cómo pagar.
+            Estos datos tienen acceso restringido a tu academia. AcademiaPro no mueve tus fondos ni cobra comisiones; se usan para indicar a los apoderados cómo pagar.
           </p>
         </div>
       </div>
