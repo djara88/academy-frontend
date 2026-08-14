@@ -1,16 +1,26 @@
 // src/pages/Finanzas.tsx
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import api from '../api/axiosConfig';
 
+type FinanceTab = 'cuentas' | 'pagos' | 'egresos' | 'flujo' | 'kpis';
+
+const mensajeError = (error: unknown, fallback: string) => {
+  if (axios.isAxiosError(error)) return error.response?.data?.error || fallback;
+  return fallback;
+};
+
 const Finanzas: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'cuentas' | 'egresos' | 'flujo' | 'kpis'>('cuentas');
+  const [activeTab, setActiveTab] = useState<FinanceTab>('cuentas');
   const [loading, setLoading] = useState(true);
   const [procesando, setProcesando] = useState(false);
   const [busqueda, setBusqueda] = useState('');
+  const [erroresCarga, setErroresCarga] = useState<string[]>([]);
 
   // Datos del backend
   const [resumen, setResumen] = useState<any>(null);
   const [cuentas, setCuentas] = useState<any[]>([]);
+  const [pagos, setPagos] = useState<any[]>([]);
   const [egresos, setEgresos] = useState<any[]>([]);
   const [flujoCaja, setFlujoCaja] = useState<any[]>([]);
 
@@ -20,7 +30,7 @@ const Finanzas: React.FC = () => {
   const [modalNuevoEgreso, setModalNuevoEgreso] = useState(false);
 
   // Formularios
-  const [formAbono, setFormAbono] = useState({ monto_abono: 0, metodo_pago: 'Transferencia', observaciones: '' });
+  const [formAbono, setFormAbono] = useState({ monto_abono: 0, metodo_pago: 'Transferencia', observaciones: '', idempotency_key: '' });
   const [formCobro, setFormCobro] = useState({ jugador_id: '', concepto: '', tipo_concepto: 'Mensualidad', monto: 0, fecha_vencimiento: '' });
   const [formEgreso, setFormEgreso] = useState({ concepto: '', categoria_gasto: 'Arriendo Canchas', centro_costo: 'Fútbol', monto: 0, metodo_pago: 'Transferencia', fecha_gasto: new Date().toISOString().split('T')[0], observaciones: '' });
 
@@ -30,23 +40,29 @@ const Finanzas: React.FC = () => {
 
   const cargarTodo = async () => {
     setLoading(true);
-    try {
-      const [rRes, rCuentas, rEgresos, rFlujo] = await Promise.all([
+    const nombres = ['resumen', 'cuentas corrientes', 'egresos', 'flujo de caja', 'historial de pagos'];
+    const resultados = await Promise.allSettled([
         api.get('/api/finanzas/resumen'),
         api.get('/api/finanzas/cuentas-corrientes'),
         api.get('/api/finanzas/egresos'),
-        api.get('/api/finanzas/flujo-caja')
-      ]);
+        api.get('/api/finanzas/flujo-caja'),
+        api.get('/api/finanzas/pagos')
+    ]);
 
-      setResumen(rRes.data.data);
-      setCuentas(rCuentas.data.data || []);
-      setEgresos(rEgresos.data.data || []);
-      setFlujoCaja(rFlujo.data.data || []);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
+    const valor = (indice: number) => {
+      const resultado = resultados[indice];
+      return resultado.status === 'fulfilled' ? resultado.value.data.data : undefined;
+    };
+    if (valor(0) !== undefined) setResumen(valor(0));
+    if (valor(1) !== undefined) setCuentas(valor(1) || []);
+    if (valor(2) !== undefined) setEgresos(valor(2) || []);
+    if (valor(3) !== undefined) setFlujoCaja(valor(3) || []);
+    if (valor(4) !== undefined) setPagos(valor(4) || []);
+
+    setErroresCarga(resultados.flatMap((resultado, indice) =>
+      resultado.status === 'rejected' ? [`No se pudo cargar ${nombres[indice]}.`] : []
+    ));
+    setLoading(false);
   };
 
   const handleAbonarPago = async (e: React.FormEvent) => {
@@ -59,7 +75,7 @@ const Finanzas: React.FC = () => {
       setModalAbono(null);
       cargarTodo();
     } catch (e) {
-      alert('Error al registrar el pago.');
+      alert(mensajeError(e, 'Error al registrar el pago.'));
     } finally {
       setProcesando(false);
     }
@@ -75,7 +91,7 @@ const Finanzas: React.FC = () => {
       setFormCobro({ jugador_id: '', concepto: '', tipo_concepto: 'Mensualidad', monto: 0, fecha_vencimiento: '' });
       cargarTodo();
     } catch (e) {
-      alert('Error al asignar el cobro.');
+      alert(mensajeError(e, 'Error al asignar el cobro.'));
     } finally {
       setProcesando(false);
     }
@@ -91,19 +107,19 @@ const Finanzas: React.FC = () => {
       setFormEgreso({ concepto: '', categoria_gasto: 'Arriendo Canchas', centro_costo: 'Fútbol', monto: 0, metodo_pago: 'Transferencia', fecha_gasto: new Date().toISOString().split('T')[0], observaciones: '' });
       cargarTodo();
     } catch (e) {
-      alert('Error al registrar el egreso.');
+      alert(mensajeError(e, 'Error al registrar el egreso.'));
     } finally {
       setProcesando(false);
     }
   };
 
   const handleEliminarEgreso = async (id: string) => {
-    if (!window.confirm('¿Deseas eliminar este registro de egreso?')) return;
+    if (!window.confirm('¿Deseas anular este egreso? Se conservará en el historial de auditoría.')) return;
     try {
       await api.delete(`/api/finanzas/egresos/${id}`);
       cargarTodo();
     } catch (e) {
-      alert('Error al eliminar el egreso.');
+      alert(mensajeError(e, 'Error al anular el egreso.'));
     }
   };
 
@@ -116,6 +132,12 @@ const Finanzas: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-12 max-w-7xl mx-auto">
+      {erroresCarga.length > 0 && (
+        <div className="flex flex-col gap-2 rounded-xl border border-orange-500/40 bg-orange-950/30 p-4 text-sm text-orange-200 md:flex-row md:items-center md:justify-between">
+          <span>{erroresCarga.join(' ')}</span>
+          <button type="button" onClick={cargarTodo} className="font-bold text-orange-300 hover:text-white">Reintentar</button>
+        </div>
+      )}
       {/* HEADER PRINCIPAL */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -158,6 +180,9 @@ const Finanzas: React.FC = () => {
       <div className="flex bg-[#0d1117] border border-[#30363d] rounded-xl overflow-hidden">
         <button onClick={() => setActiveTab('cuentas')} className={`flex-1 py-3 font-bold text-sm transition-colors ${activeTab === 'cuentas' ? 'bg-[#289E9D] text-white' : 'text-gray-400 hover:bg-[#161b22]'}`}>
           💳 Cuentas Corrientes Alumnos
+        </button>
+        <button onClick={() => setActiveTab('pagos')} className={`flex-1 py-3 font-bold text-sm border-l border-[#30363d] transition-colors ${activeTab === 'pagos' ? 'bg-[#289E9D] text-white' : 'text-gray-400 hover:bg-[#161b22]'}`}>
+          🧾 Pagos
         </button>
         <button onClick={() => setActiveTab('egresos')} className={`flex-1 py-3 font-bold text-sm border-l border-r border-[#30363d] transition-colors ${activeTab === 'egresos' ? 'bg-[#289E9D] text-white' : 'text-gray-400 hover:bg-[#161b22]'}`}>
           💸 Egresos y Centros de Costo
@@ -237,7 +262,7 @@ const Finanzas: React.FC = () => {
                             </td>
                             <td className="p-3 text-right">
                               {cob.estado !== 'Pagado' && (
-                                <button onClick={() => { setModalAbono(cob); setFormAbono({ ...formAbono, monto_abono: Number(cob.monto) - Number(cob.monto_pagado) }); }} className="bg-[#289E9D] hover:bg-[#207f7e] text-white px-3 py-1 rounded font-bold transition-colors">
+                                <button onClick={() => { setModalAbono(cob); setFormAbono({ monto_abono: Number(cob.monto) - Number(cob.monto_pagado), metodo_pago: 'Transferencia', observaciones: '', idempotency_key: crypto.randomUUID() }); }} className="bg-[#289E9D] hover:bg-[#207f7e] text-white px-3 py-1 rounded font-bold transition-colors">
                                   💳 Registrar Pago
                                 </button>
                               )}
@@ -250,6 +275,44 @@ const Finanzas: React.FC = () => {
                 )}
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'pagos' && (
+        <div className="bg-[#0d1117] border border-[#30363d] rounded-xl overflow-hidden">
+          <div className="p-4 border-b border-[#30363d]">
+            <h3 className="text-lg font-bold text-white">Historial de pagos registrados</h3>
+            <p className="text-xs text-gray-400">Cada abono aparece como un movimiento independiente y auditable.</p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-gray-300">
+              <thead className="bg-[#161b22] text-xs uppercase font-bold text-gray-400 border-b border-[#30363d]">
+                <tr>
+                  <th className="p-4">Fecha</th>
+                  <th className="p-4">Alumno</th>
+                  <th className="p-4">Concepto</th>
+                  <th className="p-4">Método</th>
+                  <th className="p-4">Observación</th>
+                  <th className="p-4 text-right">Monto</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#30363d]">
+                {pagos.map(pago => (
+                  <tr key={pago.id} className="hover:bg-[#161b22]/50">
+                    <td className="p-4 text-gray-400 text-xs">{new Date(pago.fecha_pago).toLocaleString('es-CL')}</td>
+                    <td className="p-4 font-bold text-white">{pago.jugador?.nombre || 'Sin alumno'}</td>
+                    <td className="p-4">{pago.cobro?.concepto || 'Pago'}</td>
+                    <td className="p-4 text-gray-400">{pago.metodo_pago}</td>
+                    <td className="p-4 text-gray-400">{pago.observaciones || '—'}</td>
+                    <td className="p-4 text-right font-black text-green-400">+${Number(pago.monto).toLocaleString('es-CL')}</td>
+                  </tr>
+                ))}
+                {pagos.length === 0 && (
+                  <tr><td colSpan={6} className="p-8 text-center text-gray-500">Aún no hay pagos registrados.</td></tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
@@ -286,7 +349,7 @@ const Finanzas: React.FC = () => {
                     <td className="p-4 font-black text-red-400">${Number(e.monto).toLocaleString('es-CL')}</td>
                     <td className="p-4 text-right">
                       <button onClick={() => handleEliminarEgreso(e.id)} className="text-red-400 hover:text-red-300 font-bold text-xs bg-red-950/40 p-1.5 rounded border border-red-500/30">
-                        🗑️ Eliminar
+                        Anular
                       </button>
                     </td>
                   </tr>
@@ -374,7 +437,7 @@ const Finanzas: React.FC = () => {
             <form onSubmit={handleAbonarPago} className="space-y-4 text-sm">
               <div>
                 <label className="block text-gray-400 mb-1 font-semibold">Monto a Abonar ($)</label>
-                <input type="number" value={formAbono.monto_abono} onChange={e => setFormAbono({ ...formAbono, monto_abono: Number(e.target.value) })} className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2.5 text-white font-bold outline-none focus:border-[#289E9D]" required />
+                <input type="number" min="1" max={Math.max(Number(modalAbono.monto) - Number(modalAbono.monto_pagado), 0)} value={formAbono.monto_abono} onChange={e => setFormAbono({ ...formAbono, monto_abono: Number(e.target.value) })} className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2.5 text-white font-bold outline-none focus:border-[#289E9D]" required />
               </div>
 
               <div>
@@ -423,7 +486,7 @@ const Finanzas: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-gray-400 mb-1 font-semibold">Monto ($) *</label>
-                  <input type="number" placeholder="Ej: 30000" value={formCobro.monto} onChange={e => setFormCobro({ ...formCobro, monto: Number(e.target.value) })} className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2.5 text-white outline-none focus:border-[#289E9D]" required />
+                  <input type="number" min="1" placeholder="Ej: 30000" value={formCobro.monto} onChange={e => setFormCobro({ ...formCobro, monto: Number(e.target.value) })} className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2.5 text-white outline-none focus:border-[#289E9D]" required />
                 </div>
                 <div>
                   <label className="block text-gray-400 mb-1 font-semibold">Vencimiento *</label>
@@ -478,7 +541,7 @@ const Finanzas: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-gray-400 mb-1 font-semibold">Monto Gasto ($) *</label>
-                  <input type="number" placeholder="Ej: 50000" value={formEgreso.monto} onChange={e => setFormEgreso({ ...formEgreso, monto: Number(e.target.value) })} className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2.5 text-white outline-none" required />
+                  <input type="number" min="1" placeholder="Ej: 50000" value={formEgreso.monto} onChange={e => setFormEgreso({ ...formEgreso, monto: Number(e.target.value) })} className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2.5 text-white outline-none" required />
                 </div>
                 <div>
                   <label className="block text-gray-400 mb-1 font-semibold">Fecha Gasto</label>

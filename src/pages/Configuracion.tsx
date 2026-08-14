@@ -24,9 +24,9 @@ const Configuracion: React.FC = () => {
     },
     { 
       titulo: 'Finanzas y Recaudación', 
-      desc: 'Control de pagos e ingresos', 
+      desc: 'Métodos y datos para recibir pagos',
       icono: '💳', 
-      ruta: '/finanzas', 
+      ruta: '/configuracion/finanzas',
       bg: 'bg-green-900/20', 
       border: 'border-green-500/30' 
     },
