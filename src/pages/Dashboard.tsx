@@ -5,6 +5,7 @@ import api from '../api/axiosConfig';
 import { UserIcon, CheckCircleIcon, CalendarIcon, StarIcon } from '@heroicons/react/24/outline';
 import { getAcademyName } from '../config/brand';
 import { Link } from 'react-router-dom';
+import { useAppDialog } from '../contexts/DialogContext';
 
 interface Jugador {
   id: string;
@@ -15,8 +16,19 @@ interface Jugador {
   estado_uniforme: string;
 }
 
+interface AttendanceAlert {
+  id: string;
+  racha: number;
+  ultima_ausencia: string;
+  jugadores?: { id: string; nombre: string } | null;
+  categorias?: { id: string; nombre: string } | null;
+}
+
+interface Partido { id: string; fecha: string; estado?: string | null; }
+
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const { notify } = useAppDialog();
 
   const { data: jugadores, isLoading, error } = useQuery({
     queryKey: ['jugadores'],
@@ -25,6 +37,33 @@ const Dashboard: React.FC = () => {
       return response.data.data as Jugador[];
     },
   });
+
+  const { data: attendanceAlerts, refetch: refetchAlerts } = useQuery({
+    queryKey: ['alertas-asistencia'],
+    queryFn: async () => {
+      const response = await api.get('/api/profesores/alertas/asistencia');
+      return response.data.data as AttendanceAlert[];
+    },
+  });
+
+  const { data: partidos } = useQuery({
+    queryKey: ['partidos-dashboard'],
+    queryFn: async () => {
+      const response = await api.get('/api/partidos');
+      return response.data.data as Partido[];
+    },
+  });
+
+  const upcomingMatches = partidos?.filter((partido) => partido.fecha >= new Date().toISOString().slice(0, 10) && partido.estado !== 'Jugado').length || 0;
+
+  const reviewAlert = async (alertId: string) => {
+    try {
+      await api.patch(`/api/profesores/alertas/asistencia/${alertId}/revisada`);
+      await refetchAlerts();
+    } catch (reviewError: any) {
+      await notify(reviewError.response?.data?.error || 'No fue posible revisar la alerta.', { title: getAcademyName(user?.nombre_academia) });
+    }
+  };
 
   return (
     <div>
@@ -47,6 +86,13 @@ const Dashboard: React.FC = () => {
         </div>
         <span className="hidden font-bold text-[#48d8d0] sm:block">Administrar →</span>
       </Link>
+
+      {attendanceAlerts?.length ? (
+        <section className="mb-8 rounded-2xl border border-red-500/35 bg-red-500/10 p-5">
+          <div className="mb-4 flex items-center justify-between gap-3"><div><p className="text-xs font-black uppercase tracking-[0.18em] text-red-300">Seguimiento requerido</p><h2 className="mt-1 text-xl font-black text-white">Alertas de asistencia</h2></div><span className="rounded-full bg-red-500 px-3 py-1 text-sm font-black text-white">{attendanceAlerts.length}</span></div>
+          <div className="space-y-3">{attendanceAlerts.slice(0, 5).map((alert) => <article key={alert.id} className="flex flex-col gap-3 rounded-xl border border-red-500/25 bg-[#161b22] p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-black text-white">{alert.jugadores?.nombre || 'Jugador'}</p><p className="mt-1 text-sm text-[#b1bac4]">{alert.racha} ausencias consecutivas · {alert.categorias?.nombre || 'Categoría'}</p></div><button type="button" onClick={() => void reviewAlert(alert.id)} className="min-h-11 rounded-lg border border-red-400/50 px-4 py-2 text-sm font-black text-red-200 hover:bg-red-500/10">Marcar revisada</button></article>)}</div>
+        </section>
+      ) : null}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div className="card p-6">
@@ -73,7 +119,7 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-[#8b949e]">Próximos Partidos</p>
-              <p className="text-2xl font-bold">0</p>
+              <p className="text-2xl font-bold">{upcomingMatches}</p>
             </div>
             <CalendarIcon className="w-8 h-8 text-[#00b0ff]" />
           </div>

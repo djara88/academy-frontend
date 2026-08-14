@@ -21,6 +21,20 @@ type Payload = {
   plan?: string;
 };
 type FormState = { nombre_completo: string; email: string; telefono: string; categoria_ids: string[] };
+type ProfessorActivity = {
+  id: string;
+  tipo: 'Bitácora' | 'Preparación';
+  updated_at: string;
+  objetivo?: string;
+  incidencias?: string;
+  intensidad?: string;
+  sistema_juego?: string;
+  estado?: string;
+  categorias?: { nombre: string } | null;
+  usuarios?: { nombre_completo: string } | null;
+  entrenamientos?: { fecha: string; hora?: string | null } | null;
+  partidos?: { rival: string; fecha: string; hora?: string | null } | null;
+};
 
 const emptyForm: FormState = { nombre_completo: '', email: '', telefono: '', categoria_ids: [] };
 
@@ -34,13 +48,18 @@ const Profesores = () => {
   const [editing, setEditing] = useState<Professor | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [credential, setCredential] = useState<{ email: string; password: string; sent: boolean } | null>(null);
+  const [activity, setActivity] = useState<ProfessorActivity[]>([]);
   const academyName = getAcademyName(user?.nombre_academia);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await api.get('/api/profesores');
-      setPayload(response.data);
+      const [professorsResponse, activityResponse] = await Promise.all([
+        api.get('/api/profesores'),
+        api.get('/api/profesores/actividad'),
+      ]);
+      setPayload(professorsResponse.data);
+      setActivity(activityResponse.data.data || []);
     } catch (error: any) {
       await notify(error.response?.data?.error || 'No fue posible cargar el equipo de profesores.', { title: academyName });
     } finally {
@@ -170,6 +189,15 @@ const Profesores = () => {
             </div>
           </article>
         ))}
+      </section>
+
+      <section className="card p-5 sm:p-6">
+        <div><p className="text-xs font-black uppercase tracking-[0.18em] text-[#48d8d0]">Seguimiento técnico</p><h2 className="mt-1 text-xl font-black">Actividad reciente de profesores</h2></div>
+        {!activity.length ? <p className="mt-4 text-sm text-[#8b949e]">Las bitácoras y preparaciones aparecerán aquí cuando los profesores comiencen a trabajar.</p> : <div className="mt-4 divide-y divide-[#30363d]">{activity.map((item) => {
+          const isLog = item.tipo === 'Bitácora';
+          const activityDate = isLog ? item.entrenamientos?.fecha : item.partidos?.fecha;
+          return <article key={`${item.tipo}-${item.id}`} className="py-4 first:pt-0 last:pb-0"><div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><div className="flex flex-wrap items-center gap-2"><span className={`rounded-full px-2.5 py-1 text-xs font-black ${isLog ? 'bg-[#289E9D]/15 text-[#70e4df]' : 'bg-orange-500/15 text-orange-300'}`}>{item.tipo}</span>{!isLog && item.estado ? <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-bold text-emerald-300">{item.estado}</span> : null}</div><p className="mt-2 font-black text-white">{item.categorias?.nombre || 'Categoría'}{isLog ? '' : ` vs. ${item.partidos?.rival || 'rival'}`}</p><p className="mt-1 text-sm text-[#8b949e]">{item.usuarios?.nombre_completo || 'Profesor'} · {activityDate || 'Sin fecha'}{isLog && item.intensidad ? ` · Intensidad ${item.intensidad}` : item.sistema_juego ? ` · ${item.sistema_juego}` : ''}</p>{item.objetivo ? <p className="mt-2 line-clamp-2 text-sm text-[#b1bac4]">{item.objetivo}</p> : null}{isLog && item.incidencias ? <p className="mt-2 rounded-lg border border-red-500/25 bg-red-500/10 px-3 py-2 text-sm text-red-200">Incidencia: {item.incidencias}</p> : null}</div><time className="shrink-0 text-xs text-[#6e7681]">{new Date(item.updated_at).toLocaleString('es-CL')}</time></div></article>;
+        })}</div>}
       </section>
 
       {modalOpen ? (

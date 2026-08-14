@@ -2,11 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '../api/axiosConfig';
 import { useAuth } from '../contexts/AuthContext';
 import { useAppDialog } from '../contexts/DialogContext';
+import ProfessorAgendaPanel from '../components/profesor/ProfessorAgendaPanel';
 
 type Category = { id: string; nombre: string; descripcion?: string | null };
 type Player = { id: string; nombre: string; posicion_cancha?: string | null; posicion_principal?: string | null; foto_url?: string | null; avatar_url?: string | null; alerta_medica?: string | null; telefono_emergencia?: string | null; estado_asistencia?: AttendanceState | null };
 type AttendanceState = 'Presente' | 'Ausente' | 'Justificado';
 type Profile = { profesor: { id: string; nombre: string }; academia: { id: string; nombre: string }; categorias: Category[] };
+type PortalTab = 'asistencia' | 'agenda' | 'bitacoras' | 'partidos';
 
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santiago', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const phoneHref = (phone: string) => phone.replace(/[^\d+]/g, '');
@@ -23,6 +25,7 @@ const ProfesorPortal = () => {
   const [saving, setSaving] = useState(false);
   const [online, setOnline] = useState(navigator.onLine);
   const [emergencyPlayerId, setEmergencyPlayerId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<PortalTab>('asistencia');
 
   useEffect(() => {
     const goOnline = () => setOnline(true);
@@ -112,7 +115,16 @@ const ProfesorPortal = () => {
         </div>
       </section>
 
-      {!profile?.categorias.length ? <section className="card border-dashed p-8 text-center"><div className="text-5xl">📋</div><h2 className="mt-4 text-xl font-black">Sin categorías asignadas</h2><p className="mt-2 text-sm text-[#8b949e]">La dirección debe asignarte una categoría antes de comenzar.</p></section> : (
+      <nav aria-label="Funciones del profesor" className="grid grid-cols-2 gap-2 rounded-2xl border border-[#30363d] bg-[#161b22] p-2 sm:grid-cols-4">
+        {([
+          ['asistencia', '✓ Asistencia'],
+          ['agenda', '▣ Agenda'],
+          ['bitacoras', '✎ Bitácoras'],
+          ['partidos', '⚽ Partidos'],
+        ] as [PortalTab, string][]).map(([tab, label]) => <button key={tab} type="button" aria-current={activeTab === tab ? 'page' : undefined} onClick={() => setActiveTab(tab)} className={`min-h-11 rounded-xl px-3 py-2 text-sm font-black transition-colors ${activeTab === tab ? 'bg-[#289E9D] text-white shadow-lg' : 'text-[#8b949e] hover:bg-[#21262d] hover:text-white'}`}>{label}</button>)}
+      </nav>
+
+      {activeTab !== 'asistencia' ? <ProfessorAgendaPanel mode={activeTab} academyName={profile?.academia.nombre} /> : !profile?.categorias.length ? <section className="card border-dashed p-8 text-center"><div className="text-5xl">📋</div><h2 className="mt-4 text-xl font-black">Sin categorías asignadas</h2><p className="mt-2 text-sm text-[#8b949e]">La dirección debe asignarte una categoría antes de comenzar.</p></section> : (
         <>
           <section className="card p-4 sm:p-5">
             <div className="grid gap-4 sm:grid-cols-2">
