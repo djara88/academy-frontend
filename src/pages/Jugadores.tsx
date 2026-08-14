@@ -36,6 +36,7 @@ interface Jugador {
   categorias: Categoria[];
   estado_financiero?: string;
   alerta_medica?: string;
+  telefono_emergencia?: string;
   insignias?: Insignia[];
   estadisticas_acumuladas?: EstadisticasAcumuladas;
 }
@@ -88,6 +89,7 @@ const Jugadores: React.FC = () => {
   const [showModalInforme, setShowModalInforme] = useState(false);
   const [comentariosInforme, setComentariosInforme] = useState('');
   const [generandoPDF, setGenerandoPDF] = useState(false);
+  const [guardandoEmergencia, setGuardandoEmergencia] = useState(false);
   const pdfTemplateRef = useRef<HTMLDivElement>(null);
 
   const [modoRadar, setModoRadar] = useState<'historial' | 'categoria'>('historial');
@@ -171,14 +173,24 @@ const Jugadores: React.FC = () => {
     await api.put(`/api/jugadores/${jugadorSeleccionado.id}/datos-rapidos`, { estado_financiero: nuevo });
   };
 
-  const cambiarAlertaMedica = async () => {
+  const guardarDatosEmergencia = async () => {
     if (!jugadorSeleccionado) return;
-    const actual = jugadorSeleccionado.alerta_medica || '';
-    const nueva = window.prompt("Ingrese condición médica (Ej: Asma). Déjelo vacío para indicar que está sano:", actual);
-    if (nueva !== null) {
-      setJugadorSeleccionado({ ...jugadorSeleccionado, alerta_medica: nueva });
-      setJugadores(jugadores.map(j => j.id === jugadorSeleccionado.id ? { ...j, alerta_medica: nueva } : j));
-      await api.put(`/api/jugadores/${jugadorSeleccionado.id}/datos-rapidos`, { alerta_medica: nueva });
+    const alertaMedica = (jugadorSeleccionado.alerta_medica || '').trim();
+    const telefonoEmergencia = (jugadorSeleccionado.telefono_emergencia || '').trim();
+    setGuardandoEmergencia(true);
+    try {
+      await api.put(`/api/jugadores/${jugadorSeleccionado.id}/datos-rapidos`, {
+        alerta_medica: alertaMedica,
+        telefono_emergencia: telefonoEmergencia,
+      });
+      const actualizado = { ...jugadorSeleccionado, alerta_medica: alertaMedica, telefono_emergencia: telefonoEmergencia };
+      setJugadorSeleccionado(actualizado);
+      setJugadores(jugadores.map(j => j.id === actualizado.id ? actualizado : j));
+      await notify('Datos de emergencia actualizados. El profesor asignado podrá ver únicamente esta información.');
+    } catch (error: any) {
+      await notify(error.response?.data?.error || 'No fue posible guardar los datos de emergencia.');
+    } finally {
+      setGuardandoEmergencia(false);
     }
   };
 
@@ -527,7 +539,7 @@ const Jugadores: React.FC = () => {
                   <h2 className="text-3xl font-bold text-white uppercase">{jugadorSeleccionado.nombre}</h2>
                   <div className="flex gap-2">
                     <button onClick={cambiarEstadoFinanciero} title="Clic para cambiar Pago" className={`text-xs px-2 py-1 rounded-full font-bold border ${jugadorSeleccionado.estado_financiero === 'Al Día' ? 'bg-green-500/20 text-green-400 border-green-500/50' : 'bg-red-500/20 text-red-400 border-red-500/50'}`}>💰 {jugadorSeleccionado.estado_financiero}</button>
-                    <button onClick={cambiarAlertaMedica} title="Clic para cambiar Alerta" className={`text-xs px-2 py-1 rounded-full font-bold border ${jugadorSeleccionado.alerta_medica ? 'bg-red-500/20 text-red-400 border-red-500/50' : 'bg-green-500/20 text-green-400 border-green-500/50'}`}>🏥 {jugadorSeleccionado.alerta_medica || 'Sano'}</button>
+                    <span title="Alerta médica" className={`text-xs px-2 py-1 rounded-full font-bold border ${jugadorSeleccionado.alerta_medica ? 'bg-red-500/20 text-red-400 border-red-500/50' : 'bg-green-500/20 text-green-400 border-green-500/50'}`}>🏥 {jugadorSeleccionado.alerta_medica || 'Sin alerta registrada'}</span>
                   </div>
                 </div>
                 
@@ -537,6 +549,16 @@ const Jugadores: React.FC = () => {
                   <p className="text-sm text-gray-300">Edad: <strong className="text-white">{calcularEdad(jugadorSeleccionado.fecha_nacimiento)} años</strong></p>
                   <span className="text-gray-400">|</span>
                   <p className="text-sm text-gray-300">Año: <strong className="text-white">{obtenerAnio(jugadorSeleccionado.fecha_nacimiento)}</strong></p>
+                </div>
+
+                <div className="mt-4 rounded-xl border border-[#30363d] bg-[#10151d] p-4 text-left">
+                  <p className="text-xs font-black uppercase tracking-[0.15em] text-[#48d8d0]">Información mínima de emergencia</p>
+                  <p className="mt-1 text-xs text-[#8b949e]">Solo la alerta y el teléfono serán visibles para el profesor de su categoría.</p>
+                  <div className="mt-3 grid gap-3 md:grid-cols-2">
+                    <label><span className="mb-1 block text-xs font-bold text-[#b1bac4]">Alerta médica</span><input type="text" maxLength={300} value={jugadorSeleccionado.alerta_medica || ''} onChange={(event) => setJugadorSeleccionado({ ...jugadorSeleccionado, alerta_medica: event.target.value })} placeholder="Ej.: Asma, alergia severa" className="w-full" /></label>
+                    <label><span className="mb-1 block text-xs font-bold text-[#b1bac4]">Teléfono de emergencia</span><input type="tel" maxLength={40} value={jugadorSeleccionado.telefono_emergencia || ''} onChange={(event) => setJugadorSeleccionado({ ...jugadorSeleccionado, telefono_emergencia: event.target.value })} placeholder="Ej.: +56 9 1234 5678" className="w-full" /></label>
+                  </div>
+                  <button type="button" onClick={() => void guardarDatosEmergencia()} disabled={guardandoEmergencia} className="btn-primary mt-3 min-h-11 w-full px-4 py-2 text-sm disabled:opacity-50 md:w-auto">{guardandoEmergencia ? 'Guardando...' : 'Guardar datos de emergencia'}</button>
                 </div>
                 
                 <div className="mt-4 flex flex-col gap-2">
