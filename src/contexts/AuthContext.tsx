@@ -57,7 +57,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const isMasterAdmin = session.user.email?.toLowerCase() === 'd.jarazerene@gmail.com';
         let newUser: User;
 
-        if (usuarioBD) {
+        if (isMasterAdmin) {
+          newUser = {
+            id: session.user.id,
+            email: session.user.email || '',
+            nombre_completo: session.user.user_metadata?.full_name || 'Administración Syncademia',
+            rol: 'superadmin',
+            academia_id: null,
+            requiere_cambio_password: false
+          };
+        } else if (usuarioBD) {
           if (usuarioBD.activo === false) {
             await supabase.auth.signOut();
             setUser(null);
@@ -76,15 +85,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             logo_url: usuarioBD.academias?.logo,
             requiere_cambio_password: usuarioBD.requiere_cambio_password
             ,activo: usuarioBD.activo !== false
-          };
-        } else if (isMasterAdmin) {
-          newUser = {
-            id: session.user.id,
-            email: session.user.email || '',
-            nombre_completo: 'Administración Syncademia',
-            rol: 'superadmin',
-            academia_id: null,
-            requiere_cambio_password: false
           };
         } else {
           newUser = {
@@ -135,7 +135,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const isMasterAdmin = authData.user.email?.toLowerCase() === 'd.jarazerene@gmail.com';
       let newUser: User;
 
-      if (usuarioBD) {
+      if (isMasterAdmin) {
+        newUser = {
+          id: authData.user.id,
+          email: authData.user.email || '',
+          nombre_completo: authData.user.user_metadata?.full_name || 'Administración Syncademia',
+          rol: 'superadmin',
+          academia_id: null,
+          requiere_cambio_password: false
+        };
+      } else if (usuarioBD) {
         if (usuarioBD.activo === false) {
           await supabase.auth.signOut();
           throw new Error('ACCOUNT_DISABLED');
@@ -150,15 +159,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           logo_url: usuarioBD.academias?.logo,
           requiere_cambio_password: usuarioBD.requiere_cambio_password,
           activo: usuarioBD.activo !== false
-        };
-      } else if (isMasterAdmin) {
-        newUser = {
-          id: authData.user.id,
-          email: authData.user.email || '',
-          nombre_completo: 'Administración Syncademia',
-          rol: 'superadmin',
-          academia_id: null,
-          requiere_cambio_password: false
         };
       } else {
         newUser = {

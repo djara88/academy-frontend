@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../config/supabase';
 import { Logo } from '../components/Logo';
 import { BRAND, getAcademyName } from '../config/brand';
+import { isGuardianRole, isProfessorRole, isSuperAdminRole } from '../utils/roles';
 
 const Layout = () => {
   const location = useLocation();
@@ -16,15 +17,14 @@ const Layout = () => {
   // Verificamos si es el SuperAdmin general
   const isSuperAdmin =
     user?.email === 'd.jarazerene@gmail.com' ||
-    user?.rol === 'SUPER_ADMIN' ||
-    user?.rol === 'superadmin' ||
+    isSuperAdminRole(user?.rol) ||
     location.pathname === '/admin';
 
   // Datos dinámicos de la academia cargada
   const logoAcademia = user?.logo_url;
   const nombreAcademia = getAcademyName(user?.nombre_academia);
-  const isProfessor = String(user?.rol || '').toLowerCase() === 'profesor';
-  const isGuardian = ['apoderado', 'tutor'].includes(String(user?.rol || '').toLowerCase());
+  const isProfessor = isProfessorRole(user?.rol);
+  const isGuardian = isGuardianRole(user?.rol);
 
   useEffect(() => {
     document.title = isSuperAdmin
@@ -129,6 +129,16 @@ const Layout = () => {
                   }`}
                 >
                   <span className="mr-3">⚙️</span> Panel de Academias
+                </Link>
+                <Link
+                  to="/admin/perfil"
+                  className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                    isActive('/admin/perfil')
+                      ? 'bg-orange-600 text-white font-bold'
+                      : 'text-orange-400 hover:bg-[#131722] hover:text-orange-300 font-semibold'
+                  }`}
+                >
+                  <span className="mr-3">👤</span> Mi perfil
                 </Link>
               </>
             ) : (

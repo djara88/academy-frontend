@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DialogProvider } from './contexts/DialogContext';
+import { isGuardianRole, isProfessorRole, isSuperAdminRole } from './utils/roles';
 
 const Layout = lazy(() => import('./layouts/Layout'));
 const Home = lazy(() => import('./pages/Home'));
@@ -19,6 +20,7 @@ const NuevoTorneo = lazy(() => import('./pages/NuevoTorneo'));
 const GestionarTorneo = lazy(() => import('./pages/GestionarTorneo'));
 const Partidos = lazy(() => import('./pages/Partidos'));
 const SaaSAdmin = lazy(() => import('./pages/SaaSAdmin'));
+const AdminProfile = lazy(() => import('./pages/AdminProfile'));
 const CambiarPassword = lazy(() => import('./pages/CambiarPassword'));
 const Terminos = lazy(() => import('./pages/Terminos'));
 const WhatsApp = lazy(() => import('./pages/WhatsApp'));
@@ -48,7 +50,7 @@ const ProtectedRoutes = () => {
 
   if (!user) return <Navigate to="/login" replace />;
   if (user.requiere_cambio_password) return <Navigate to="/cambiar-password" replace />;
-  if (!user.academia_id && user.rol !== 'superadmin') return <Navigate to="/completar-perfil" replace />;
+  if (!user.academia_id && !isSuperAdminRole(user.rol)) return <Navigate to="/completar-perfil" replace />;
 
   return <Layout />;
 };
@@ -65,11 +67,10 @@ const PublicRoutes = () => {
   }
 
   if (user) {
-    if (user.rol === 'superadmin') return <Navigate to="/admin" replace />;
+    if (isSuperAdminRole(user.rol)) return <Navigate to="/admin" replace />;
     if (user.requiere_cambio_password) return <Navigate to="/cambiar-password" replace />;
     if (!user.academia_id) return <Navigate to="/completar-perfil" replace />;
-    const role = String(user.rol).toLowerCase();
-    return <Navigate to={role === 'profesor' ? '/profesor' : ['apoderado', 'tutor'].includes(role) ? '/apoderado' : '/dashboard'} replace />;
+    return <Navigate to={isProfessorRole(user.rol) ? '/profesor' : isGuardianRole(user.rol) ? '/apoderado' : '/dashboard'} replace />;
   }
 
   return <Outlet />;
@@ -77,22 +78,26 @@ const PublicRoutes = () => {
 
 const DirectorRoutes = () => {
   const { user } = useAuth();
-  const role = String(user?.rol || '').toLowerCase().replace(/[_-]/g, '');
-  if (role === 'superadmin') return <Navigate to="/admin" replace />;
-  if (role === 'profesor') return <Navigate to="/profesor" replace />;
-  if (['apoderado', 'tutor'].includes(role)) return <Navigate to="/apoderado" replace />;
+  if (isSuperAdminRole(user?.rol)) return <Navigate to="/admin" replace />;
+  if (isProfessorRole(user?.rol)) return <Navigate to="/profesor" replace />;
+  if (isGuardianRole(user?.rol)) return <Navigate to="/apoderado" replace />;
   return <Outlet />;
+};
+
+const SuperAdminRoutes = () => {
+  const { user } = useAuth();
+  return isSuperAdminRole(user?.rol) ? <Outlet /> : <Navigate to="/dashboard" replace />;
 };
 
 const ProfessorRoute = () => {
   const { user } = useAuth();
-  return String(user?.rol || '').toLowerCase() === 'profesor'
+  return isProfessorRole(user?.rol)
     ? <ProfesorPortal />
     : <Navigate to="/dashboard" replace />;
 };
 const GuardianRoute = () => {
   const { user } = useAuth();
-  return ['apoderado', 'tutor'].includes(String(user?.rol || '').toLowerCase())
+  return isGuardianRole(user?.rol)
     ? <ApoderadoPortal />
     : <Navigate to="/dashboard" replace />;
 };
@@ -118,6 +123,10 @@ const App = () => {
             <Route element={<ProtectedRoutes />}>
               <Route path="/profesor" element={<ProfessorRoute />} />
               <Route path="/apoderado" element={<GuardianRoute />} />
+              <Route element={<SuperAdminRoutes />}>
+                <Route path="/admin" element={<SaaSAdmin />} />
+                <Route path="/admin/perfil" element={<AdminProfile />} />
+              </Route>
               <Route element={<DirectorRoutes />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/profesores" element={<Profesores />} />
@@ -140,7 +149,6 @@ const App = () => {
               <Route path="/whatsapp" element={<WhatsApp />} />
               <Route path="/configuracion/finanzas" element={<FinanzasConfig />} />
               
-              <Route path="/admin" element={<SaaSAdmin />} />
               </Route>
             </Route>
 
