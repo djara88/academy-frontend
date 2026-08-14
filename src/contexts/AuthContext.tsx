@@ -179,6 +179,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     } catch (error) {
       console.error('Login error:', error);
+      if (error instanceof Error && error.message === 'ACCOUNT_DISABLED') throw error;
       throw new Error('Credenciales inválidas');
     }
   };
