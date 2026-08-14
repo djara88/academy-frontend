@@ -51,7 +51,7 @@ const Profesores = () => {
   useEffect(() => { void load(); }, [load]);
 
   const occupiedByOthers = useMemo(() => new Set(
-    (payload?.data || []).filter((professor) => professor.id !== editing?.id && professor.activo)
+    (payload?.data || []).filter((professor) => professor.id !== editing?.id)
       .flatMap((professor) => professor.categorias.map((category) => category.id)),
   ), [editing?.id, payload?.data]);
 
@@ -142,7 +142,7 @@ const Profesores = () => {
       <section className="grid gap-4 md:grid-cols-3">
         <div className="card p-5"><p className="text-sm text-[#8b949e]">Plan actual</p><p className="mt-1 text-xl font-black text-white">{payload?.plan || '—'}</p></div>
         <div className="card p-5"><p className="text-sm text-[#8b949e]">Cupos utilizados</p><p className="mt-1 text-2xl font-black text-[#48d8d0]">{payload?.cupos.used || 0} / {payload?.cupos.max || 0}</p></div>
-        <div className="card p-5"><p className="text-sm text-[#8b949e]">Categorías sin profesor</p><p className="mt-1 text-2xl font-black text-orange-300">{(payload?.categorias || []).filter((category) => !(payload?.data || []).some((professor) => professor.activo && professor.categorias.some((item) => item.id === category.id))).length}</p></div>
+        <div className="card p-5"><p className="text-sm text-[#8b949e]">Categorías sin profesor</p><p className="mt-1 text-2xl font-black text-orange-300">{(payload?.categorias || []).filter((category) => !(payload?.data || []).some((professor) => professor.categorias.some((item) => item.id === category.id))).length}</p></div>
       </section>
 
       {loading ? <div className="card p-10 text-center text-[#8b949e]">Cargando equipo técnico...</div> : null}

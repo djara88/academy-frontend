@@ -40,7 +40,6 @@ const Layout = () => {
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     } finally {
-      localStorage.clear();
       navigate('/login');
     }
   };
