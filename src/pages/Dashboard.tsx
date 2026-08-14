@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import api from '../api/axiosConfig';
 import { UserIcon, CheckCircleIcon, CalendarIcon, StarIcon } from '@heroicons/react/24/outline';
 import { getAcademyName } from '../config/brand';
+import { Link } from 'react-router-dom';
 
 interface Jugador {
   id: string;
@@ -35,6 +36,17 @@ const Dashboard: React.FC = () => {
           Panel de gestión{user ? ` · ${user.nombre_completo}` : ''}
         </p>
       </div>
+
+      <Link to="/profesores" className="mb-8 flex items-center justify-between gap-4 rounded-2xl border border-[#289E9D]/40 bg-gradient-to-r from-[#163334] to-[#161b22] p-5 transition hover:border-[#48d8d0] hover:shadow-[0_0_28px_rgba(40,158,157,0.16)]">
+        <div className="flex items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#289E9D]/15 text-3xl">🧑‍🏫</div>
+          <div>
+            <h2 className="text-lg font-black text-white">Equipo de profesores</h2>
+            <p className="text-sm text-[#9da7b3]">Crea accesos y asigna un profesor titular a cada categoría.</p>
+          </div>
+        </div>
+        <span className="hidden font-bold text-[#48d8d0] sm:block">Administrar →</span>
+      </Link>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div className="card p-6">

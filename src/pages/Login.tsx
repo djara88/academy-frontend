@@ -26,19 +26,23 @@ const Login: React.FC = () => {
       await login(email, password);
       
       // Leemos el usuario guardado tras el login exitoso
-      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+      const storedUser = JSON.parse(sessionStorage.getItem('user') || '{}');
       
       // Lógica de Redirección Inteligente
       if (storedUser.email === 'd.jarazerene@gmail.com' || storedUser.rol === 'superadmin' || storedUser.rol === 'SUPER_ADMIN') {
         navigate('/admin'); // El dueño va a su panel maestro
       } else if (storedUser.requiere_cambio_password) {
         navigate('/cambiar-password'); // Si el admin le creó la cuenta manual, debe cambiar clave
+      } else if (String(storedUser.rol).toLowerCase() === 'profesor') {
+        navigate('/profesor');
       } else {
         navigate('/dashboard'); // Los directores normales van a su academia
       }
 
     } catch (err: any) {
-      setError('Correo o contraseña incorrectos. Intenta nuevamente.');
+      setError(err?.message === 'ACCOUNT_DISABLED'
+        ? 'Tu acceso está desactivado. Contacta a la dirección de tu academia.'
+        : 'Correo o contraseña incorrectos. Intenta nuevamente.');
     } finally {
       setLoading(false);
     }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import { BRAND } from '../config/brand';
 import { useAppDialog } from '../contexts/DialogContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const CambiarPassword = () => {
   const [newPassword, setNewPassword] = useState('');
@@ -11,6 +12,7 @@ const CambiarPassword = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { notify } = useAppDialog();
+  const { user, setUser } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,13 +29,13 @@ const CambiarPassword = () => {
     try {
       await api.post('/api/cambiar-password', { newPassword });
       
-      // Actualizamos el localStorage para quitar la marca localmente
-      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+      const storedUser = JSON.parse(sessionStorage.getItem('user') || '{}');
       storedUser.requiere_cambio_password = false;
-      localStorage.setItem('user', JSON.stringify(storedUser));
+      sessionStorage.setItem('user', JSON.stringify(storedUser));
+      setUser((current) => current ? { ...current, requiere_cambio_password: false } : current);
 
       await notify('✅ Contraseña actualizada con éxito. ¡Bienvenido!', { title: BRAND.name });
-      navigate('/dashboard');
+      navigate(String(user?.rol).toLowerCase() === 'profesor' ? '/profesor' : '/dashboard');
 
     } catch (err: any) {
       console.error(err);

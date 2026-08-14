@@ -10,6 +10,14 @@ const Configuracion: React.FC = () => {
   const academyName = getAcademyName(user?.nombre_academia);
 
   const modulos = [
+    {
+      titulo: 'Profesores y Accesos',
+      desc: 'Cupos, credenciales y categorías asignadas',
+      icono: '🧑‍🏫',
+      ruta: '/profesores',
+      bg: 'bg-cyan-900/20',
+      border: 'border-cyan-500/30'
+    },
     { 
       titulo: 'Perfil y Horarios', 
       desc: `Días, horas y sede de ${academyName}`,

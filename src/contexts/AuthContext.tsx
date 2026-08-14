@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { supabase } from '../config/supabase';
 
-interface User {
+export interface User {
   id: string;
   email: string;
   nombre_completo: string;
@@ -10,6 +10,7 @@ interface User {
   nombre_academia?: string;
   logo_url?: string;
   requiere_cambio_password?: boolean;
+  activo?: boolean;
 }
 
 interface AuthContextType {
@@ -57,6 +58,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         let newUser: User;
 
         if (usuarioBD) {
+          if (usuarioBD.activo === false) {
+            await supabase.auth.signOut();
+            setUser(null);
+            setToken(null);
+            sessionStorage.clear();
+            setLoading(false);
+            return;
+          }
           newUser = {
             id: usuarioBD.id,
             email: session.user.email || '',
@@ -66,6 +75,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             nombre_academia: usuarioBD.academias?.nombre,
             logo_url: usuarioBD.academias?.logo,
             requiere_cambio_password: usuarioBD.requiere_cambio_password
+            ,activo: usuarioBD.activo !== false
           };
         } else if (isMasterAdmin) {
           newUser = {
@@ -126,6 +136,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       let newUser: User;
 
       if (usuarioBD) {
+        if (usuarioBD.activo === false) {
+          await supabase.auth.signOut();
+          throw new Error('ACCOUNT_DISABLED');
+        }
         newUser = {
           id: usuarioBD.id,
           email: authData.user.email || '',
@@ -134,7 +148,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           academia_id: usuarioBD.academia_id,
           nombre_academia: usuarioBD.academias?.nombre,
           logo_url: usuarioBD.academias?.logo,
-          requiere_cambio_password: usuarioBD.requiere_cambio_password
+          requiere_cambio_password: usuarioBD.requiere_cambio_password,
+          activo: usuarioBD.activo !== false
         };
       } else if (isMasterAdmin) {
         newUser = {

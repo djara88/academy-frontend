@@ -28,6 +28,8 @@ const Configuracion = lazy(() => import('./pages/Configuracion'));
 const PerfilAcademia = lazy(() => import('./pages/PerfilAcademia'));
 const Uniformes = lazy(() => import('./pages/Uniformes'));
 const Finanzas = lazy(() => import('./pages/Finanzas'));
+const Profesores = lazy(() => import('./pages/Profesores'));
+const ProfesorPortal = lazy(() => import('./pages/ProfesorPortal'));
 
 const queryClient = new QueryClient();
 
@@ -64,10 +66,24 @@ const PublicRoutes = () => {
     if (user.rol === 'superadmin') return <Navigate to="/admin" replace />;
     if (user.requiere_cambio_password) return <Navigate to="/cambiar-password" replace />;
     if (!user.academia_id) return <Navigate to="/completar-perfil" replace />;
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={String(user.rol).toLowerCase() === 'profesor' ? '/profesor' : '/dashboard'} replace />;
   }
 
   return <Outlet />;
+};
+
+const DirectorRoutes = () => {
+  const { user } = useAuth();
+  const role = String(user?.rol || '').toLowerCase().replace(/[_-]/g, '');
+  if (role === 'profesor') return <Navigate to="/profesor" replace />;
+  return <Outlet />;
+};
+
+const ProfessorRoute = () => {
+  const { user } = useAuth();
+  return String(user?.rol || '').toLowerCase() === 'profesor'
+    ? <ProfesorPortal />
+    : <Navigate to="/dashboard" replace />;
 };
 
 const App = () => {
@@ -89,7 +105,10 @@ const App = () => {
             <Route path="/cambiar-password" element={<CambiarPassword />} />
             
             <Route element={<ProtectedRoutes />}>
+              <Route path="/profesor" element={<ProfessorRoute />} />
+              <Route element={<DirectorRoutes />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/profesores" element={<Profesores />} />
               <Route path="/jugadores" element={<Jugadores />} />
               <Route path="/matricula" element={<Matricula />} />
               <Route path="/asistencias" element={<Asistencias />} />
@@ -109,6 +128,7 @@ const App = () => {
               <Route path="/configuracion/finanzas" element={<FinanzasConfig />} />
               
               <Route path="/admin" element={<SaaSAdmin />} />
+              </Route>
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

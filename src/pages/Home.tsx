@@ -106,7 +106,7 @@ const Home = () => {
             <p className="text-gray-500 mt-2 border-b border-gray-700 pb-4 mb-4">El equilibrio perfecto para escuelas en desarrollo.</p>
             <ul className="space-y-3 mb-8 text-gray-300 flex-1">
               <li>✔️ Hasta 200 jugadores</li>
-              <li>✔️ Perfiles de Profesor ilimitados</li>
+              <li>✔️ Hasta 6 perfiles de Profesor</li>
               <li>✔️ Módulo de Torneos y Finanzas</li>
               <li>✔️ Soporte prioritario</li>
             </ul>
@@ -121,6 +121,7 @@ const Home = () => {
             <p className="text-gray-500 mt-2 border-b border-gray-700 pb-4 mb-4">Para franquicias y clubes consolidados.</p>
             <ul className="space-y-3 mb-8 text-gray-400 flex-1">
               <li>✔️ Jugadores Ilimitados</li>
+              <li>✔️ Hasta 15 perfiles de Profesor</li>
               <li>✔️ Múltiples sedes/sucursales</li>
               <li>✔️ Reportes avanzados exportables</li>
               <li>✔️ Capacitación presencial</li>
