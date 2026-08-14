@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
+import { platformMessage } from '../config/brand';
 
 const CambiarPassword = () => {
   const [newPassword, setNewPassword] = useState('');
@@ -29,7 +30,7 @@ const CambiarPassword = () => {
       storedUser.requiere_cambio_password = false;
       localStorage.setItem('user', JSON.stringify(storedUser));
 
-      alert('✅ Contraseña actualizada con éxito. ¡Bienvenido!');
+      alert(platformMessage('✅ Contraseña actualizada con éxito. ¡Bienvenido!'));
       navigate('/dashboard');
 
     } catch (err: any) {

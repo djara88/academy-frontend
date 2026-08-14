@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import api from '../api/axiosConfig';
+import { useAcademyMessages } from '../hooks/useAcademyMessages';
 
 type FinanceTab = 'cuentas' | 'pagos' | 'egresos' | 'flujo' | 'kpis';
 
@@ -11,6 +12,7 @@ const mensajeError = (error: unknown, fallback: string) => {
 };
 
 const Finanzas: React.FC = () => {
+  const { confirmAction, notify } = useAcademyMessages();
   const [activeTab, setActiveTab] = useState<FinanceTab>('cuentas');
   const [loading, setLoading] = useState(true);
   const [procesando, setProcesando] = useState(false);
@@ -71,11 +73,11 @@ const Finanzas: React.FC = () => {
     setProcesando(true);
     try {
       await api.put(`/api/finanzas/cobros/${modalAbono.id}/pagar`, formAbono);
-      alert('✅ Pago registrado con éxito.');
+      notify('✅ Pago registrado con éxito.');
       setModalAbono(null);
       cargarTodo();
     } catch (e) {
-      alert(mensajeError(e, 'Error al registrar el pago.'));
+      notify(mensajeError(e, 'Error al registrar el pago.'));
     } finally {
       setProcesando(false);
     }
@@ -86,12 +88,12 @@ const Finanzas: React.FC = () => {
     setProcesando(true);
     try {
       await api.post('/api/finanzas/cobros', formCobro);
-      alert('✅ Cargo asignado correctamente al alumno.');
+      notify('✅ Cargo asignado correctamente al alumno.');
       setModalNuevoCobro(false);
       setFormCobro({ jugador_id: '', concepto: '', tipo_concepto: 'Mensualidad', monto: 0, fecha_vencimiento: '' });
       cargarTodo();
     } catch (e) {
-      alert(mensajeError(e, 'Error al asignar el cobro.'));
+      notify(mensajeError(e, 'Error al asignar el cobro.'));
     } finally {
       setProcesando(false);
     }
@@ -102,24 +104,24 @@ const Finanzas: React.FC = () => {
     setProcesando(true);
     try {
       await api.post('/api/finanzas/egresos', formEgreso);
-      alert('✅ Egreso registrado correctamente.');
+      notify('✅ Egreso registrado correctamente.');
       setModalNuevoEgreso(false);
       setFormEgreso({ concepto: '', categoria_gasto: 'Arriendo Canchas', centro_costo: 'Fútbol', monto: 0, metodo_pago: 'Transferencia', fecha_gasto: new Date().toISOString().split('T')[0], observaciones: '' });
       cargarTodo();
     } catch (e) {
-      alert(mensajeError(e, 'Error al registrar el egreso.'));
+      notify(mensajeError(e, 'Error al registrar el egreso.'));
     } finally {
       setProcesando(false);
     }
   };
 
   const handleEliminarEgreso = async (id: string) => {
-    if (!window.confirm('¿Deseas anular este egreso? Se conservará en el historial de auditoría.')) return;
+    if (!confirmAction('¿Deseas anular este egreso? Se conservará en el historial de auditoría.')) return;
     try {
       await api.delete(`/api/finanzas/egresos/${id}`);
       cargarTodo();
     } catch (e) {
-      alert(mensajeError(e, 'Error al anular el egreso.'));
+      notify(mensajeError(e, 'Error al anular el egreso.'));
     }
   };
 

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../config/supabase';
+import { Logo } from '../components/Logo';
+import { BRAND } from '../config/brand';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -71,12 +73,9 @@ const Login: React.FC = () => {
         
         {/* CABECERA Y LOGO */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-[#289E9D] bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4 border border-[#289E9D]">
-            <span className="text-3xl">⚽</span>
-          </div>
-          <h1 className="text-2xl font-extrabold text-[#e6edf3] tracking-wide">
-            ACADEMIA<span className="text-[#289E9D]">PRO</span>
-          </h1>
+          <Logo variant="mark" className="w-20 h-20 rounded-2xl object-cover mx-auto mb-4 border border-[#289E9D]/60 shadow-[0_0_20px_rgba(40,158,157,0.25)]" />
+          <h1 className="text-2xl font-extrabold text-[#e6edf3] tracking-wide">{BRAND.name}</h1>
+          <p className="text-xs text-[#289E9D] mt-1">{BRAND.tagline}</p>
           <p className="text-sm text-[#8b949e] mt-2">Inicia sesión en tu cuenta</p>
         </div>
 

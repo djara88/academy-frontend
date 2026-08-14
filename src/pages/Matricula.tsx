@@ -2,9 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
-import { useAuth } from '../contexts/AuthContext'; 
+import { useAuth } from '../contexts/AuthContext';
+import { useAcademyMessages } from '../hooks/useAcademyMessages';
 
 const Matricula: React.FC = () => {
+  const { notify } = useAcademyMessages();
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -199,7 +201,7 @@ const Matricula: React.FC = () => {
         }
       }
 
-      alert(`✅ Alumno matriculado exitosamente.\n\nFolio: ${folioGenerado}\nEl contrato en PDF se abrió en una pestaña nueva y fue enviado al correo del apoderado.`);
+      notify(`✅ Alumno matriculado exitosamente.\n\nFolio: ${folioGenerado}\nEl contrato en PDF se abrió en una pestaña nueva y fue enviado al correo del apoderado.`);
       navigate('/dashboard');
 
     } catch (err: any) {

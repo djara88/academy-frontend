@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../api/axiosConfig';
 import { useAuth } from '../contexts/AuthContext';
+import { useAcademyMessages } from '../hooks/useAcademyMessages';
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, 
   ResponsiveContainer, Tooltip, Legend
@@ -65,6 +66,7 @@ const INSIGNIAS_FORMATIVAS = [
 ];
 
 const Jugadores: React.FC = () => {
+  const { notify } = useAcademyMessages();
   const { user } = useAuth();
   const [jugadores, setJugadores] = useState<Jugador[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -270,17 +272,17 @@ const Jugadores: React.FC = () => {
           pdf_base64: pdfBase64,
           comentarios: comentariosInforme
         });
-        alert('✅ ¡Informe generado y ENVIADO al apoderado con éxito!');
+        notify('✅ ¡Informe generado y ENVIADO al apoderado con éxito!');
       } catch (emailError) {
         console.error('Error al enviar correo:', emailError);
-        alert('⚠️ El PDF se descargó, pero hubo un problema al enviarlo al correo del apoderado.');
+        notify('⚠️ El PDF se descargó, pero hubo un problema al enviarlo al correo del apoderado.');
       }
 
       pdf.save(`Informe_Tecnico_${jugadorSeleccionado.nombre.replace(/\s+/g, '_')}.pdf`);
       setShowModalInforme(false);
     } catch (error) {
       console.error('❌ Error al generar el PDF:', error);
-      alert('Hubo un error al procesar el informe.');
+      notify('Hubo un error al procesar el informe.');
     } finally {
       setGenerandoPDF(false);
     }
@@ -330,7 +332,7 @@ const Jugadores: React.FC = () => {
             {user?.logo_url ? <img src={user.logo_url} className="w-24 h-24 object-contain" alt="Logo" /> : <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-sm text-gray-500 font-bold">LOGO</div>}
             <div className="text-right">
               <h1 className="text-3xl font-black text-gray-900 tracking-tight">INFORME TÉCNICO DE CAPACIDADES</h1>
-              <h2 className="text-xl text-gray-600 uppercase tracking-widest font-semibold mt-1">ACADEMIA DE FÚTBOL {user?.nombre_academia || 'PRO'}</h2>
+              <h2 className="text-xl text-gray-600 uppercase tracking-widest font-semibold mt-1">{user?.nombre_academia || 'ACADEMIA DEPORTIVA'}</h2>
             </div>
           </div>
 
@@ -432,7 +434,7 @@ const Jugadores: React.FC = () => {
                 <div className="border-b border-gray-800 mb-2"></div>
                 <p className="font-bold text-gray-900 uppercase">{user?.nombre_completo || 'Director de Academia'}</p>
                 <p className="text-sm text-gray-500">Director Deportivo</p>
-                <p className="text-xs text-gray-400">{user?.nombre_academia || 'Academia de Fútbol'}</p>
+                <p className="text-xs text-gray-400">{user?.nombre_academia || 'Academia Deportiva'}</p>
               </div>
             </div>
           </div>

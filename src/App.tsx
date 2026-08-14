@@ -1,31 +1,32 @@
 // src/App.tsx
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import Layout from './layouts/Layout';
 
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Registro from './pages/Registro'; 
-import CompletarPerfil from './pages/CompletarPerfil'; 
-import Dashboard from './pages/Dashboard';
-import Jugadores from './pages/Jugadores';
-import Matricula from './pages/Matricula';
-import Torneos from './pages/Torneos';
-import NuevoTorneo from './pages/NuevoTorneo';
-import GestionarTorneo from './pages/GestionarTorneo';
-import Partidos from './pages/Partidos';
-import SaaSAdmin from './pages/SaaSAdmin';
-import CambiarPassword from './pages/CambiarPassword';
-import Terminos from './pages/Terminos'; 
-import WhatsApp from './pages/WhatsApp';
-import FinanzasConfig from './pages/FinanzasConfig';
-import Asistencias from './pages/Asistencias';
-import Configuracion from './pages/Configuracion';
-import PerfilAcademia from './pages/PerfilAcademia';
-import Uniformes from './pages/Uniformes'; // 👈 NUEVA IMPORTACIÓN
-import Finanzas from './pages/Finanzas';
+const Layout = lazy(() => import('./layouts/Layout'));
+const Home = lazy(() => import('./pages/Home'));
+const Login = lazy(() => import('./pages/Login'));
+const Registro = lazy(() => import('./pages/Registro'));
+const CompletarPerfil = lazy(() => import('./pages/CompletarPerfil'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Jugadores = lazy(() => import('./pages/Jugadores'));
+const Matricula = lazy(() => import('./pages/Matricula'));
+const Torneos = lazy(() => import('./pages/Torneos'));
+const NuevoTorneo = lazy(() => import('./pages/NuevoTorneo'));
+const GestionarTorneo = lazy(() => import('./pages/GestionarTorneo'));
+const Partidos = lazy(() => import('./pages/Partidos'));
+const SaaSAdmin = lazy(() => import('./pages/SaaSAdmin'));
+const CambiarPassword = lazy(() => import('./pages/CambiarPassword'));
+const Terminos = lazy(() => import('./pages/Terminos'));
+const WhatsApp = lazy(() => import('./pages/WhatsApp'));
+const FinanzasConfig = lazy(() => import('./pages/FinanzasConfig'));
+const Asistencias = lazy(() => import('./pages/Asistencias'));
+const Configuracion = lazy(() => import('./pages/Configuracion'));
+const PerfilAcademia = lazy(() => import('./pages/PerfilAcademia'));
+const Uniformes = lazy(() => import('./pages/Uniformes'));
+const Finanzas = lazy(() => import('./pages/Finanzas'));
 
 const queryClient = new QueryClient();
 
@@ -73,7 +74,8 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BrowserRouter>
-          <Routes>
+          <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">Cargando Syncademia...</div>}>
+            <Routes>
             
             <Route element={<PublicRoutes />}>
               <Route path="/" element={<Home />} />
@@ -109,7 +111,8 @@ const App = () => {
 
             <Route path="*" element={<Navigate to="/" replace />} />
             
-          </Routes>
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>

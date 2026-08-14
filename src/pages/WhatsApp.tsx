@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
 import { useAuth } from '../contexts/AuthContext';
+import { getAcademyName } from '../config/brand';
 
 const WhatsApp: React.FC = () => {
   const { user } = useAuth();
+  const academyName = getAcademyName(user?.nombre_academia);
   
   const [estado, setEstado] = useState<'loading' | 'qr' | 'connected' | 'error'>('loading');
   const [qrCode, setQrCode] = useState<string>('');
@@ -51,7 +53,7 @@ const WhatsApp: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-[#e6edf3]">📱 Conexión a WhatsApp</h1>
+        <h1 className="text-3xl font-bold text-[#e6edf3]">📱 WhatsApp de {academyName}</h1>
         <button 
           onClick={checkWhatsAppStatus}
           className="bg-[#21262d] text-white px-4 py-2 rounded-lg font-bold hover:bg-[#30363d] border border-[#30363d] flex items-center gap-2"
@@ -85,7 +87,7 @@ const WhatsApp: React.FC = () => {
 
         {estado === 'qr' && (
           <div className="space-y-6 flex flex-col items-center">
-            <h2 className="text-xl font-bold text-white">Escanea para conectar tu Academia</h2>
+            <h2 className="text-xl font-bold text-white">Escanea para conectar {academyName}</h2>
             <p className="text-gray-400 text-sm max-w-md">
               Abre WhatsApp en tu celular, ve a <strong>Dispositivos Vinculados</strong> y escanea este código.
             </p>
@@ -107,7 +109,7 @@ const WhatsApp: React.FC = () => {
             </div>
             <h2 className="text-2xl font-bold text-green-400">¡WhatsApp Conectado!</h2>
             <p className="text-gray-300">
-              Tu academia está lista para enviar notificaciones automáticas a los apoderados y jugadores.
+              {academyName} está lista para enviar notificaciones automáticas a los apoderados y jugadores con su propia identidad.
             </p>
           </div>
         )}

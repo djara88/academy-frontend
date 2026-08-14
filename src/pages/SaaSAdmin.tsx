@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
+import { platformMessage } from '../config/brand';
 
 interface Academia {
   id: string;
@@ -17,6 +18,8 @@ interface Academia {
 }
 
 const SaaSAdmin = () => {
+  const notify = (message: string) => window.alert(platformMessage(message));
+  const confirmAction = (message: string): boolean => window.confirm(platformMessage(message));
   const [academias, setAcademias] = useState<Academia[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -95,40 +98,40 @@ const SaaSAdmin = () => {
 
       if (editingId) {
         await api.put(`/api/academias/${editingId}`, formData);
-        alert('Academia actualizada exitosamente.');
+        notify('Academia actualizada exitosamente.');
       } else {
         await api.post('/api/academias', formData);
-        alert('Academia creada exitosamente.');
+        notify('Academia creada exitosamente.');
       }
       
       setShowModal(false);
       fetchAcademias();
     } catch (err: any) {
-      alert(`Error al procesar: ${err.response?.data?.error || err.message}`);
+      notify(`Error al procesar: ${err.response?.data?.error || err.message}`);
     } finally {
       setUploading(false);
     }
   };
 
   const handleDelete = async (id: string, nombre: string) => {
-    if (window.confirm(`⚠️ ¿Estás COMPLETAMENTE SEGURO de que deseas eliminar la academia "${nombre}"? Esta acción borrará todos sus datos y no se puede deshacer.`)) {
+    if (confirmAction(`⚠️ ¿Estás COMPLETAMENTE SEGURO de que deseas eliminar la academia "${nombre}"? Esta acción borrará todos sus datos y no se puede deshacer.`)) {
       try {
         await api.delete(`/api/academias/${id}`);
-        alert('Academia eliminada.');
+        notify('Academia eliminada.');
         fetchAcademias();
       } catch (err: any) {
-        alert(`Error al eliminar: ${err.response?.data?.error || err.message}`);
+        notify(`Error al eliminar: ${err.response?.data?.error || err.message}`);
       }
     }
   };
 
   const handleResetPassword = async (id: string, nombre: string) => {
-    if (window.confirm(`🔑 ¿Deseas generar y enviar una nueva contraseña temporal al director de "${nombre}"?`)) {
+    if (confirmAction(`🔑 ¿Deseas generar y enviar una nueva contraseña temporal al director de "${nombre}"?`)) {
       try {
         await api.post(`/api/academias/${id}/reset-password`);
-        alert('Nueva contraseña generada y enviada por correo exitosamente.');
+        notify('Nueva contraseña generada y enviada por correo exitosamente.');
       } catch (err: any) {
-        alert(`Error al restablecer contraseña: ${err.response?.data?.error || err.message}`);
+        notify(`Error al restablecer contraseña: ${err.response?.data?.error || err.message}`);
       }
     }
   };

@@ -1,9 +1,11 @@
 // src/pages/Uniformes.tsx
 import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
+import { useAcademyMessages } from '../hooks/useAcademyMessages';
 import * as XLSX from 'xlsx';
 
 const Uniformes: React.FC = () => {
+  const { confirmAction, notify } = useAcademyMessages();
   const [activeTab, setActiveTab] = useState<'alumnos' | 'catalogo' | 'taller'>('alumnos');
   
   const [data, setData] = useState<any>(null);
@@ -69,29 +71,29 @@ const Uniformes: React.FC = () => {
     try {
       if (idCatEditando) {
         await api.put(`/api/uniformes/catalogo/${idCatEditando}`, formCat);
-        alert('✅ Prenda del catálogo actualizada.');
+        notify('✅ Prenda del catálogo actualizada.');
       } else {
         await api.post('/api/uniformes/catalogo', formCat);
-        alert('✅ Prenda añadida al catálogo.');
+        notify('✅ Prenda añadida al catálogo.');
       }
       setShowModalCatalogo(false);
       cargarDatos();
     } catch (e) {
-      alert('Error guardando la prenda.');
+      notify('Error guardando la prenda.');
     } finally {
       setProcesando(false);
     }
   };
 
   const handleEliminarCatalogo = async (id: string, nombre: string) => {
-    const conf = window.confirm(`¿Estás seguro de eliminar "${nombre}" del catálogo?`);
+    const conf = confirmAction(`¿Estás seguro de eliminar "${nombre}" del catálogo?`);
     if (!conf) return;
 
     try {
       await api.delete(`/api/uniformes/catalogo/${id}`);
       cargarDatos();
     } catch (e) {
-      alert('Error al eliminar la prenda.');
+      notify('Error al eliminar la prenda.');
     }
   };
 
@@ -107,12 +109,12 @@ const Uniformes: React.FC = () => {
     setProcesando(true);
     try {
       const res = await api.post('/api/uniformes/pedidos', formPed);
-      alert(`✅ ${res.data.message}`);
+      notify(`✅ ${res.data.message}`);
       setShowModalPedido(false);
       setFormPedido({ jugador_id: '', prenda_id: '', prenda_nombre: '', talla: '8', numero_estampado: '', nombre_estampado: '', monto: 0, generar_cobro: false, estado_pago: 'Pendiente de Pago' });
       cargarDatos();
     } catch (e) {
-      alert('Error asignando la prenda.');
+      notify('Error asignando la prenda.');
     } finally {
       setProcesando(false);
     }
@@ -123,13 +125,13 @@ const Uniformes: React.FC = () => {
       await api.put(`/api/uniformes/pedidos/${id}/actualizar`, { [campo]: valor });
       cargarDatos();
     } catch (e) {
-      alert('Error actualizando el estado.');
+      notify('Error actualizando el estado.');
     }
   };
 
   const exportarTallerExcel = () => {
     if (!data?.resumenTaller || Object.keys(data.resumenTaller).length === 0) {
-      return alert("No hay pedidos pendientes para exportar.");
+      return notify("No hay pedidos pendientes para exportar.");
     }
     
     const datosExcel = Object.entries(data.resumenTaller).map(([prenda, cantidad]) => ({

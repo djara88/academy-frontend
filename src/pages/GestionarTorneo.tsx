@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
+import { useAcademyMessages } from '../hooks/useAcademyMessages';
 
 const GestionarTorneo: React.FC = () => {
+  const { confirmAction, notify } = useAcademyMessages();
   const { id } = useParams();
   const navigate = useNavigate();
   
@@ -61,9 +63,9 @@ const GestionarTorneo: React.FC = () => {
     : [];
 
   const handleConvocar = async () => {
-    if (jugadoresDeLaCategoria.length === 0) return alert('No hay jugadores en esta categoría.');
+    if (jugadoresDeLaCategoria.length === 0) return notify('No hay jugadores en esta categoría.');
     
-    const confirmar = window.confirm(`¿Estás seguro de enviar un mensaje de WhatsApp a los ${jugadoresDeLaCategoria.length} jugadores de esta categoría?`);
+    const confirmar = confirmAction(`¿Estás seguro de enviar un mensaje de WhatsApp a los ${jugadoresDeLaCategoria.length} jugadores de esta categoría?`);
     if (!confirmar) return;
 
     setEnviando(true);
@@ -71,11 +73,11 @@ const GestionarTorneo: React.FC = () => {
       const jugadoresIds = jugadoresDeLaCategoria.map(j => j.id);
       await api.post(`/api/torneos/${id}/convocar`, { jugadoresIds });
       
-      alert('✅ ¡Mensajes de WhatsApp enviados con éxito!');
+      notify('✅ ¡Mensajes de WhatsApp enviados con éxito!');
       cargarRespuestasParticipantes(); // Recargamos para verlos en la tabla de abajo filtrados
     } catch (error) {
       console.error('Error al convocar', error);
-      alert('Ocurrió un error al enviar las convocatorias.');
+      notify('Ocurrió un error al enviar las convocatorias.');
     } finally {
       setEnviando(false);
     }

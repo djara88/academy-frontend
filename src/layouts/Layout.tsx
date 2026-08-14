@@ -1,7 +1,10 @@
 // src/layouts/Layout.tsx
+import { useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../config/supabase';
+import { Logo } from '../components/Logo';
+import { BRAND, getAcademyName } from '../config/brand';
 
 const Layout = () => {
   const location = useLocation();
@@ -19,7 +22,13 @@ const Layout = () => {
 
   // Datos dinámicos de la academia cargada
   const logoAcademia = user?.logo_url;
-  const nombreAcademia = user?.nombre_academia;
+  const nombreAcademia = getAcademyName(user?.nombre_academia);
+
+  useEffect(() => {
+    document.title = isSuperAdmin
+      ? `${BRAND.name} | Administración`
+      : `${nombreAcademia} | ${BRAND.name}`;
+  }, [isSuperAdmin, nombreAcademia]);
 
   const handleLogout = async () => {
     try {
@@ -46,20 +55,18 @@ const Layout = () => {
             {logoAcademia && !isSuperAdmin ? (
               <img 
                 src={logoAcademia} 
-                alt="Logo Academia" 
+                alt={`Logo de ${nombreAcademia}`}
                 className="w-14 h-14 rounded-full object-cover border-2 border-[#289E9D] mb-2 shadow-md"
               />
-            ) : null}
+            ) : (
+              <Logo variant="mark" className="w-14 h-14 rounded-xl object-cover border border-[#289E9D]/60 mb-2 shadow-md" />
+            )}
 
             <h1 className="text-2xl font-bold text-[#289E9D] tracking-wider truncate max-w-[200px]">
-              {nombreAcademia && !isSuperAdmin ? (
-                nombreAcademia
-              ) : (
-                <>ACADEMIA<span className="text-white">PRO</span></>
-              )}
+              {!isSuperAdmin ? nombreAcademia : BRAND.name}
             </h1>
             <p className="text-xs text-orange-400 mt-1 font-semibold">
-              {isSuperAdmin ? '👑 Control Maestro SaaS' : 'SaaS Management'}
+              {isSuperAdmin ? '👑 Administración global' : `Gestionada con ${BRAND.name}`}
             </p>
           </div>
 
