@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
 import { supabase } from '../config/supabase'; // Asegúrate de que esta ruta sea correcta
 import { Logo } from '../components/Logo';
-import { BRAND, platformMessage } from '../config/brand';
+import { BRAND } from '../config/brand';
+import { useAppDialog } from '../contexts/DialogContext';
 
 const CrearAcademia: React.FC = () => {
+  const { notify } = useAppDialog();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
@@ -66,7 +68,7 @@ const CrearAcademia: React.FC = () => {
       });
       
       console.log('✅ Perfil y Academia completados:', response.data);
-      alert(platformMessage(`¡${nombreAcademia} quedó configurada con éxito!`));
+      await notify(`¡${nombreAcademia} quedó configurada con éxito!`, { title: nombreAcademia || BRAND.name });
       
       // Forzamos la recarga para que el sistema detecte que ya tiene academia
       window.location.href = '/dashboard';
@@ -84,7 +86,9 @@ const CrearAcademia: React.FC = () => {
       <div className="bg-[#161b22] border border-[#30363d] p-8 rounded-2xl shadow-2xl max-w-md w-full">
         
         <div className="text-center mb-8">
-          <Logo variant="mark" className="w-20 h-20 rounded-2xl object-cover mx-auto mb-4 border border-[#289E9D]/60 shadow-[0_0_20px_rgba(40,158,157,0.25)]" />
+          <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-2xl border border-[#289E9D]/60 bg-[#0d1117] p-3 shadow-[0_0_20px_rgba(40,158,157,0.25)]">
+            <Logo variant="mark" className="h-full w-full" />
+          </div>
           <h1 className="text-3xl font-extrabold text-[#e6edf3] mb-2">Paso Final 🏁</h1>
           <p className="text-[#8b949e]">Completa los datos de tu academia para activar tus 15 días de prueba en {BRAND.name}.</p>
         </div>

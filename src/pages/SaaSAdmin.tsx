@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
-import { platformMessage } from '../config/brand';
+import { BRAND } from '../config/brand';
+import { useAppDialog } from '../contexts/DialogContext';
 
 interface Academia {
   id: string;
@@ -18,8 +19,11 @@ interface Academia {
 }
 
 const SaaSAdmin = () => {
-  const notify = (message: string) => window.alert(platformMessage(message));
-  const confirmAction = (message: string): boolean => window.confirm(platformMessage(message));
+  const dialog = useAppDialog();
+  const notify = (message: string) => dialog.notify(message, { title: BRAND.name });
+  const confirmAction = (message: string, tone: 'default' | 'danger' = 'default') => (
+    dialog.confirmAction(message, { title: BRAND.name, tone })
+  );
   const [academias, setAcademias] = useState<Academia[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -114,7 +118,7 @@ const SaaSAdmin = () => {
   };
 
   const handleDelete = async (id: string, nombre: string) => {
-    if (confirmAction(`⚠️ ¿Estás COMPLETAMENTE SEGURO de que deseas eliminar la academia "${nombre}"? Esta acción borrará todos sus datos y no se puede deshacer.`)) {
+    if (await confirmAction(`⚠️ ¿Estás COMPLETAMENTE SEGURO de que deseas eliminar la academia "${nombre}"? Esta acción borrará todos sus datos y no se puede deshacer.`, 'danger')) {
       try {
         await api.delete(`/api/academias/${id}`);
         notify('Academia eliminada.');
@@ -126,7 +130,7 @@ const SaaSAdmin = () => {
   };
 
   const handleResetPassword = async (id: string, nombre: string) => {
-    if (confirmAction(`🔑 ¿Deseas generar y enviar una nueva contraseña temporal al director de "${nombre}"?`)) {
+    if (await confirmAction(`🔑 ¿Deseas generar y enviar una nueva contraseña temporal al director de "${nombre}"?`)) {
       try {
         await api.post(`/api/academias/${id}/reset-password`);
         notify('Nueva contraseña generada y enviada por correo exitosamente.');

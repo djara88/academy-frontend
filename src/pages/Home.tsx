@@ -7,12 +7,11 @@ const Home = () => {
     <div className="min-h-screen bg-[#131722] text-white font-sans selection:bg-[#289E9D] selection:text-white">
       
       {/* NAVEGACIÓN SUPERIOR */}
-      <nav className="flex justify-between items-center px-8 py-6 bg-[#1C212D] border-b border-gray-800">
+      <nav className="flex items-center justify-between gap-3 border-b border-gray-800 bg-[#1C212D] px-4 py-4 sm:px-8 sm:py-6">
         
         {/* LOGO EN TAMAÑO GIGANTE */}
-        <div className="flex items-center -ml-4"> 
-          {/* Usamos h-32 (aprox 128px) o h-[120px] */}
-          <Logo className="h-20 md:h-24 w-auto hover:scale-105 transition-transform duration-300" />
+        <div className="flex min-w-0 items-center">
+          <Logo className="h-12 max-w-[190px] text-lg transition-transform duration-300 hover:scale-[1.02] sm:h-14 sm:max-w-[280px] sm:text-xl md:h-16 md:max-w-[430px] md:text-2xl" />
         </div>
 
         {/* BOTONES DE ACCESO Y REGISTRO */}
@@ -25,7 +24,7 @@ const Home = () => {
           </Link>
           <Link 
             to="/registro" 
-            className="bg-[#289E9D] hover:bg-[#1f7a79] text-white px-6 py-2 rounded-lg font-semibold transition-all duration-300 shadow-[0_0_15px_rgba(40,158,157,0.4)]"
+            className="whitespace-nowrap rounded-lg bg-[#289E9D] px-4 py-2 text-sm font-semibold text-white shadow-[0_0_15px_rgba(40,158,157,0.4)] transition-all duration-300 hover:bg-[#1f7a79] sm:px-6 sm:text-base"
           >
             Crear Academia
           </Link>

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
-import { platformMessage } from '../config/brand';
+import { BRAND } from '../config/brand';
+import { useAppDialog } from '../contexts/DialogContext';
 
 const CambiarPassword = () => {
   const [newPassword, setNewPassword] = useState('');
@@ -9,6 +10,7 @@ const CambiarPassword = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { notify } = useAppDialog();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +32,7 @@ const CambiarPassword = () => {
       storedUser.requiere_cambio_password = false;
       localStorage.setItem('user', JSON.stringify(storedUser));
 
-      alert(platformMessage('✅ Contraseña actualizada con éxito. ¡Bienvenido!'));
+      await notify('✅ Contraseña actualizada con éxito. ¡Bienvenido!', { title: BRAND.name });
       navigate('/dashboard');
 
     } catch (err: any) {

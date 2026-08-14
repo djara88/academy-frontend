@@ -59,7 +59,9 @@ const Layout = () => {
                 className="w-14 h-14 rounded-full object-cover border-2 border-[#289E9D] mb-2 shadow-md"
               />
             ) : (
-              <Logo variant="mark" className="w-14 h-14 rounded-xl object-cover border border-[#289E9D]/60 mb-2 shadow-md" />
+              <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-xl border border-[#289E9D]/60 bg-[#131722] p-2 shadow-md">
+                <Logo variant="mark" className="h-full w-full" />
+              </div>
             )}
 
             <h1 className="text-2xl font-bold text-[#289E9D] tracking-wider truncate max-w-[200px]">

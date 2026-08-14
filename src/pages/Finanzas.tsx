@@ -116,7 +116,7 @@ const Finanzas: React.FC = () => {
   };
 
   const handleEliminarEgreso = async (id: string) => {
-    if (!confirmAction('¿Deseas anular este egreso? Se conservará en el historial de auditoría.')) return;
+    if (!await confirmAction('¿Deseas anular este egreso? Se conservará en el historial de auditoría.', 'danger')) return;
     try {
       await api.delete(`/api/finanzas/egresos/${id}`);
       cargarTodo();

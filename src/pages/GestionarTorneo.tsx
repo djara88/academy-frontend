@@ -65,7 +65,7 @@ const GestionarTorneo: React.FC = () => {
   const handleConvocar = async () => {
     if (jugadoresDeLaCategoria.length === 0) return notify('No hay jugadores en esta categoría.');
     
-    const confirmar = confirmAction(`¿Estás seguro de enviar un mensaje de WhatsApp a los ${jugadoresDeLaCategoria.length} jugadores de esta categoría?`);
+    const confirmar = await confirmAction(`¿Estás seguro de enviar un mensaje de WhatsApp a los ${jugadoresDeLaCategoria.length} jugadores de esta categoría?`);
     if (!confirmar) return;
 
     setEnviando(true);

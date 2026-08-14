@@ -3,11 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import { useAuth } from '../contexts/AuthContext';
-import { academyMessage, getAcademyName } from '../config/brand';
+import { getAcademyName } from '../config/brand';
+import { useAppDialog } from '../contexts/DialogContext';
 
 const PerfilAcademia: React.FC = () => {
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
+  const { notify } = useAppDialog();
   const [form, setForm] = useState({ 
     nombre: '', 
     dias_entrenamiento: '', 
@@ -43,10 +45,10 @@ const PerfilAcademia: React.FC = () => {
           return updatedUser;
         });
       }
-      alert(academyMessage(updatedAcademy?.nombre || form.nombre, '✅ Perfil actualizado correctamente.'));
+      await notify('✅ Perfil actualizado correctamente.', { title: getAcademyName(updatedAcademy?.nombre || form.nombre) });
       navigate('/configuracion');
     } catch (error) {
-      alert(academyMessage(user?.nombre_academia, 'Error al guardar los datos del perfil.'));
+      await notify('Error al guardar los datos del perfil.', { title: getAcademyName(user?.nombre_academia) });
     } finally {
       setGuardando(false);
     }
