@@ -17,19 +17,13 @@ jobs:
           ref: agent/premium-report-download
       - name: Aplicar parche
         run: python scripts/patch_premium_report.py
-      - name: Instalar dependencias
-        run: npm ci
-      - name: Compilar y capturar diagnóstico
-        run: |
-          set +e
-          npm run build > build-output.txt 2>&1
-          echo $? > build-status.txt
-          exit 0
-      - name: Guardar parche y diagnóstico
+      - name: Guardar parche aislado
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/pages/Jugadores.tsx build-output.txt build-status.txt
+          git add src/pages/Jugadores.tsx
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m "Diagnosticar descarga premium del informe"
+          git commit -m "Usar informe premium nativo en descarga local"
           git push origin HEAD:agent/premium-report-download
+      - name: Validar compilación
+        run: npm ci && npm run build
