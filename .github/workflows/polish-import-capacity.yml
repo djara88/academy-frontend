@@ -1,0 +1,34 @@
+name: Polish import capacity
+on:
+  push:
+    branches: [agent/prematricula-import-report-v2]
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/prematricula-import-report-v2
+      - name: Mostrar capacidad del plan
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('src/pages/Importacion.tsx')
+          s=p.read_text()
+          old="""{summary&&<section className=\"space-y-4\"><div className=\"grid gap-3 sm:grid-cols-4\">"""
+          new="""{summary&&<section className=\"space-y-4\">{summary.capacity_exceeded&&<div className=\"rounded-2xl border border-amber-600/40 bg-amber-950/25 p-4 text-sm text-amber-100\"><b>El archivo supera el cupo disponible del plan.</b> Puedes incorporar {summary.available_slots ?? 0} jugador(es) más de los {summary.valid} registros válidos detectados. Reduce el archivo o actualiza el plan antes de confirmar.</div>}<div className=\"grid gap-3 sm:grid-cols-4\">"""
+          if old not in s: raise SystemExit('No se encontró bloque summary')
+          s=s.replace(old,new,1)
+          s=s.replace("disabled={loading||!summary.valid} onClick={commit}", "disabled={loading||!summary.valid||summary.capacity_exceeded} onClick={commit}",1)
+          p.write_text(s)
+          PY
+      - name: Guardar cambio
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/pages/Importacion.tsx
+          git commit -m "Mostrar cupo del plan antes de importar"
+          git push origin HEAD:agent/prematricula-import-report-v2
