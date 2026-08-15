@@ -7,8 +7,6 @@ import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, 
   ResponsiveContainer, Tooltip, Legend
 } from 'recharts';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 
 interface Categoria { id: string; nombre: string; }
 
@@ -266,34 +264,37 @@ const Jugadores: React.FC = () => {
   };
 
   const handleGenerarPDF = async () => {
-    if (!pdfTemplateRef.current || !jugadorSeleccionado) return;
+    if (!jugadorSeleccionado) return;
     setGenerandoPDF(true);
-    
+
     try {
-      const canvas = await html2canvas(pdfTemplateRef.current, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
-      const imgData = canvas.toDataURL('image/jpeg', 0.8);
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-      const pdfBase64 = pdf.output('datauristring');
+      const response = await api.post(`/api/jugadores/${jugadorSeleccionado.id}/enviar-informe`, {
+        comentarios: comentariosInforme
+      });
 
-      try {
-        await api.post(`/api/jugadores/${jugadorSeleccionado.id}/enviar-informe`, {
-          pdf_base64: pdfBase64,
-          comentarios: comentariosInforme
-        });
-        notify('✅ ¡Informe generado y ENVIADO al apoderado con éxito!');
-      } catch (emailError) {
-        console.error('Error al enviar correo:', emailError);
-        notify('⚠️ El PDF se descargó, pero hubo un problema al enviarlo al correo del apoderado.');
+      const signedUrl = response.data?.url;
+      if (!signedUrl) throw new Error('El servidor no devolvió el informe generado.');
+
+      const pdfResponse = await fetch(signedUrl);
+      if (!pdfResponse.ok) throw new Error('No fue posible descargar el informe generado.');
+      const blob = await pdfResponse.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = objectUrl;
+      link.download = `Informe_Evolucion_${jugadorSeleccionado.nombre.replace(/\s+/g, '_')}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+
+      if (response.data?.email_sent) {
+        notify('✅ Informe premium generado, descargado y enviado al apoderado.');
+      } else {
+        notify('✅ Informe premium generado y descargado. No fue posible confirmar el envío por correo.');
       }
-
-      pdf.save(`Informe_Tecnico_${jugadorSeleccionado.nombre.replace(/\s+/g, '_')}.pdf`);
       setShowModalInforme(false);
     } catch (error) {
-      console.error('❌ Error al generar el PDF:', error);
+      console.error('❌ Error al generar el informe premium:', error);
       notify('Hubo un error al procesar el informe.');
     } finally {
       setGenerandoPDF(false);
