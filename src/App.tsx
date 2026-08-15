@@ -15,7 +15,7 @@ const Registro = lazy(() => import('./pages/Registro'));
 const CompletarPerfil = lazy(() => import('./pages/CompletarPerfil'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Jugadores = lazy(() => import('./pages/Jugadores'));
-const Matricula = lazy(() => import('./pages/Matricula'));
+const Matricula = lazy(() => import('./pages/MatriculaPremium'));
 const Torneos = lazy(() => import('./pages/Torneos'));
 const NuevoTorneo = lazy(() => import('./pages/NuevoTorneo'));
 const GestionarTorneo = lazy(() => import('./pages/GestionarTorneo'));
@@ -43,40 +43,22 @@ const queryClient = new QueryClient();
 
 const ProtectedRoutes = () => {
   const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">
-        Cargando sistema...
-      </div>
-    );
-  }
-
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">Cargando sistema...</div>;
   if (!user) return <Navigate to="/login" replace />;
   if (user.requiere_cambio_password) return <Navigate to="/cambiar-password" replace />;
   if (!user.academia_id && !isSuperAdminRole(user.rol)) return <Navigate to="/completar-perfil" replace />;
-
   return <Layout />;
 };
 
 const PublicRoutes = () => {
   const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">
-        Comprobando sesión...
-      </div>
-    );
-  }
-
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">Comprobando sesión...</div>;
   if (user) {
     if (isSuperAdminRole(user.rol)) return <Navigate to="/admin" replace />;
     if (user.requiere_cambio_password) return <Navigate to="/cambiar-password" replace />;
     if (!user.academia_id) return <Navigate to="/completar-perfil" replace />;
     return <Navigate to={isProfessorRole(user.rol) ? '/profesor' : isGuardianRole(user.rol) ? '/apoderado' : '/dashboard'} replace />;
   }
-
   return <Outlet />;
 };
 
@@ -95,81 +77,67 @@ const SuperAdminRoutes = () => {
 
 const ProfessorRoute = () => {
   const { user } = useAuth();
-  return isProfessorRole(user?.rol)
-    ? <ProfesorPortal />
-    : <Navigate to="/dashboard" replace />;
-};
-const GuardianRoute = () => {
-  const { user } = useAuth();
-  return isGuardianRole(user?.rol)
-    ? <ApoderadoPortal />
-    : <Navigate to="/dashboard" replace />;
+  return isProfessorRole(user?.rol) ? <ProfesorPortal /> : <Navigate to="/dashboard" replace />;
 };
 
-const App = () => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <DialogProvider>
-        <AdminThemeProvider>
+const GuardianRoute = () => {
+  const { user } = useAuth();
+  return isGuardianRole(user?.rol) ? <ApoderadoPortal /> : <Navigate to="/dashboard" replace />;
+};
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <DialogProvider>
+      <AdminThemeProvider>
         <AuthProvider>
           <BrowserRouter>
             <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">Cargando Syncademia...</div>}>
-            <Routes>
-            
-            <Route element={<PublicRoutes />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/registro" element={<Registro />} /> 
-            </Route>
-            
-            <Route path="/completar-perfil" element={<CompletarPerfil />} /> 
-            <Route path="/cambiar-password" element={<CambiarPassword />} />
-            
-            <Route element={<ProtectedRoutes />}>
-              <Route path="/profesor" element={<ProfessorRoute />} />
-              <Route path="/apoderado" element={<GuardianRoute />} />
-              <Route element={<SuperAdminRoutes />}>
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/admin/academias" element={<SaaSAdmin />} />
-                <Route path="/admin/finanzas" element={<AdminFinance />} />
-                <Route path="/admin/perfil" element={<AdminProfile />} />
-              </Route>
-              <Route element={<DirectorRoutes />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profesores" element={<Profesores />} />
-              <Route path="/apoderados" element={<Apoderados />} />
-              <Route path="/jugadores" element={<Jugadores />} />
-              <Route path="/matricula" element={<Matricula />} />
-              <Route path="/asistencias" element={<Asistencias />} />
-              <Route path="/uniformes" element={<Uniformes />} /> {/* 👈 NUEVA RUTA UNIFORMES */}
-              
-              <Route path="/torneos" element={<Torneos />} />
-              <Route path="/nuevo-torneo" element={<NuevoTorneo />} />
-              <Route path="/torneos/:id" element={<GestionarTorneo />} />
-              <Route path="/partidos" element={<Partidos />} />
-              <Route path="/finanzas" element={<Finanzas />} />
-              <Route path="/suscripcion" element={<Subscription />} />
-              
-              {/* RUTAS DEL MÓDULO DE CONFIGURACIÓN Y SUBMÓDULOS */}
-              <Route path="/configuracion" element={<Configuracion />} />
-              <Route path="/configuracion/perfil" element={<PerfilAcademia />} />
-              <Route path="/terminos" element={<Terminos />} />
-              <Route path="/whatsapp" element={<WhatsApp />} />
-              <Route path="/configuracion/finanzas" element={<FinanzasConfig />} />
-              
-              </Route>
-            </Route>
-
-            <Route path="*" element={<Navigate to="/" replace />} />
-            
-            </Routes>
+              <Routes>
+                <Route element={<PublicRoutes />}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/registro" element={<Registro />} />
+                </Route>
+                <Route path="/completar-perfil" element={<CompletarPerfil />} />
+                <Route path="/cambiar-password" element={<CambiarPassword />} />
+                <Route element={<ProtectedRoutes />}>
+                  <Route path="/profesor" element={<ProfessorRoute />} />
+                  <Route path="/apoderado" element={<GuardianRoute />} />
+                  <Route element={<SuperAdminRoutes />}>
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/admin/academias" element={<SaaSAdmin />} />
+                    <Route path="/admin/finanzas" element={<AdminFinance />} />
+                    <Route path="/admin/perfil" element={<AdminProfile />} />
+                  </Route>
+                  <Route element={<DirectorRoutes />}>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/profesores" element={<Profesores />} />
+                    <Route path="/apoderados" element={<Apoderados />} />
+                    <Route path="/jugadores" element={<Jugadores />} />
+                    <Route path="/matricula" element={<Matricula />} />
+                    <Route path="/asistencias" element={<Asistencias />} />
+                    <Route path="/uniformes" element={<Uniformes />} />
+                    <Route path="/torneos" element={<Torneos />} />
+                    <Route path="/nuevo-torneo" element={<NuevoTorneo />} />
+                    <Route path="/torneos/:id" element={<GestionarTorneo />} />
+                    <Route path="/partidos" element={<Partidos />} />
+                    <Route path="/finanzas" element={<Finanzas />} />
+                    <Route path="/suscripcion" element={<Subscription />} />
+                    <Route path="/configuracion" element={<Configuracion />} />
+                    <Route path="/configuracion/perfil" element={<PerfilAcademia />} />
+                    <Route path="/terminos" element={<Terminos />} />
+                    <Route path="/whatsapp" element={<WhatsApp />} />
+                    <Route path="/configuracion/finanzas" element={<FinanzasConfig />} />
+                  </Route>
+                </Route>
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
             </Suspense>
           </BrowserRouter>
         </AuthProvider>
-        </AdminThemeProvider>
-      </DialogProvider>
-    </QueryClientProvider>
-  );
-};
+      </AdminThemeProvider>
+    </DialogProvider>
+  </QueryClientProvider>
+);
 
 export default App;
