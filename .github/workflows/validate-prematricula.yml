@@ -10,7 +10,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - run: npm install
+          cache: npm
+      - run: npm ci
       - run: npm run build
-      - name: Auditar dependencias de producción
-        run: npm audit --omit=dev --audit-level=high || true
+      - run: npm audit --omit=dev --audit-level=high
