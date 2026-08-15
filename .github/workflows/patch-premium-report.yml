@@ -1,0 +1,85 @@
+name: Patch premium report download
+
+on:
+  push:
+    branches:
+      - agent/premium-report-download
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/premium-report-download
+      - name: Reemplazar exportador local por PDF nativo del backend
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('src/pages/Jugadores.tsx')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace("import html2canvas from 'html2canvas';\n", '')
+          text = text.replace("import jsPDF from 'jspdf';\n", '')
+
+          pattern = re.compile(r"  const handleGenerarPDF = async \(\) => \{.*?\n  \};\n\n  const jugadoresFiltrados", re.S)
+          replacement = r'''  const handleGenerarPDF = async () => {
+    if (!jugadorSeleccionado) return;
+    setGenerandoPDF(true);
+
+    try {
+      const response = await api.post(`/api/jugadores/${jugadorSeleccionado.id}/enviar-informe`, {
+        comentarios: comentariosInforme
+      });
+
+      const signedUrl = response.data?.url;
+      if (!signedUrl) throw new Error('El servidor no devolvió el informe generado.');
+
+      const pdfResponse = await fetch(signedUrl);
+      if (!pdfResponse.ok) throw new Error('No fue posible descargar el informe generado.');
+      const blob = await pdfResponse.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = objectUrl;
+      link.download = `Informe_Evolucion_${jugadorSeleccionado.nombre.replace(/\s+/g, '_')}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+
+      if (response.data?.email_sent) {
+        notify('✅ Informe premium generado, descargado y enviado al apoderado.');
+      } else {
+        notify('✅ Informe premium generado y descargado. No fue posible confirmar el envío por correo.');
+      }
+      setShowModalInforme(false);
+    } catch (error) {
+      console.error('❌ Error al generar el informe premium:', error);
+      notify('Hubo un error al procesar el informe.');
+    } finally {
+      setGenerandoPDF(false);
+    }
+  };
+
+  const jugadoresFiltrados'''
+          new_text, count = pattern.subn(replacement, text, count=1)
+          if count != 1:
+              raise SystemExit(f'No se encontró exactamente un bloque handleGenerarPDF: {count}')
+          path.write_text(new_text, encoding='utf-8')
+          PY
+      - name: Validar compilación
+        run: |
+          npm ci
+          npm run build
+      - name: Guardar parche
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/pages/Jugadores.tsx
+          git commit -m "Usar informe premium nativo en descarga local"
+          git push origin HEAD:agent/premium-report-download
