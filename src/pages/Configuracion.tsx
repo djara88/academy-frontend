@@ -57,6 +57,14 @@ const Configuracion: React.FC = () => {
       ruta: '/whatsapp', 
       bg: 'bg-emerald-900/20', 
       border: 'border-emerald-500/30' 
+    },
+    {
+      titulo: 'Importar base existente',
+      desc: 'Carga Excel o CSV, mapea columnas, valida duplicados y migra alumnos sin reingresarlos uno a uno',
+      icono: '📥',
+      ruta: '/importacion',
+      bg: 'bg-sky-900/20',
+      border: 'border-sky-500/30'
     }
   ];
 
