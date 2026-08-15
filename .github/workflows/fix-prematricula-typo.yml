@@ -12,8 +12,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: agent/prematricula-import-report-v2
-      - run: sed -i 's/^        decisiones,$/        decisiones: decisions,/' src/pages/PreMatriculaPublica.tsx
-      - run: |
+      - name: Corregir payload
+        run: |
+          sed -i 's/^        decisiones,$/        decisiones: decisions,/' src/pages/PreMatriculaPublica.tsx
+      - name: Guardar cambio
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/pages/PreMatriculaPublica.tsx
