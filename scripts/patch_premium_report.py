@@ -47,7 +47,7 @@ replacement = r'''  const handleGenerarPDF = async () => {
 
   const jugadoresFiltrados'''
 
-new_text, count = pattern.subn(replacement, text, count=1)
+new_text, count = pattern.subn(lambda _: replacement, text, count=1)
 if count != 1:
     raise SystemExit(f'No se encontró exactamente un bloque handleGenerarPDF: {count}')
 path.write_text(new_text, encoding='utf-8')
