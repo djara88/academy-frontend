@@ -9,6 +9,7 @@ import { AdminThemeProvider } from './contexts/AdminThemeContext';
 import { isGuardianRole, isProfessorRole, isSuperAdminRole } from './utils/roles';
 
 const Layout = lazy(() => import('./layouts/Layout'));
+const SuperadminMfaGate = lazy(() => import('./components/SuperadminMfaGate'));
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
 const Registro = lazy(() => import('./pages/Registro'));
@@ -74,7 +75,12 @@ const DirectorRoutes = () => {
 
 const SuperAdminRoutes = () => {
   const { user } = useAuth();
-  return isSuperAdminRole(user?.rol) ? <Outlet /> : <Navigate to="/dashboard" replace />;
+  if (!isSuperAdminRole(user?.rol)) return <Navigate to="/dashboard" replace />;
+  return (
+    <SuperadminMfaGate>
+      <Outlet />
+    </SuperadminMfaGate>
+  );
 };
 
 const ProfessorRoute = () => {
