@@ -4,6 +4,7 @@ import api from '../api/axiosConfig';
 import { BRAND } from '../config/brand';
 import { useAppDialog } from '../contexts/DialogContext';
 import { useAuth } from '../contexts/AuthContext';
+import { PASSWORD_REQUIREMENTS, validateStrongPassword } from '../utils/passwordPolicy';
 
 const CambiarPassword = () => {
   const [newPassword, setNewPassword] = useState('');
@@ -16,19 +17,21 @@ const CambiarPassword = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword.length < 6) {
-      return setError('La contraseña debe tener al menos 6 caracteres.');
+    setError('');
+
+    if (!validateStrongPassword(newPassword)) {
+      setError(PASSWORD_REQUIREMENTS);
+      return;
     }
     if (newPassword !== confirmPassword) {
-      return setError('Las contraseñas no coinciden.');
+      setError('Las contraseñas no coinciden.');
+      return;
     }
 
     setLoading(true);
-    setError('');
-
     try {
       await api.post('/api/cambiar-password', { newPassword });
-      
+
       const storedUser = JSON.parse(sessionStorage.getItem('user') || '{}');
       storedUser.requiere_cambio_password = false;
       sessionStorage.setItem('user', JSON.stringify(storedUser));
@@ -36,10 +39,9 @@ const CambiarPassword = () => {
 
       await notify('✅ Contraseña actualizada con éxito. ¡Bienvenido!', { title: BRAND.name });
       navigate(String(user?.rol).toLowerCase() === 'profesor' ? '/profesor' : '/dashboard');
-
     } catch (err: any) {
       console.error(err);
-      setError('Hubo un error al actualizar la contraseña.');
+      setError(err.response?.data?.error || 'Hubo un error al actualizar la contraseña.');
     } finally {
       setLoading(false);
     }
@@ -59,17 +61,22 @@ const CambiarPassword = () => {
             <input
               type="password"
               required
+              minLength={10}
+              maxLength={128}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2 focus:border-[#00e676] focus:outline-none"
-              placeholder="Mínimo 6 caracteres"
+              placeholder="Ej. Academia9!"
             />
+            <p className="mt-1.5 text-xs text-gray-400">{PASSWORD_REQUIREMENTS}</p>
           </div>
           <div>
             <label className="block text-sm mb-1 font-semibold">Confirmar Contraseña</label>
             <input
               type="password"
               required
+              minLength={10}
+              maxLength={128}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2 focus:border-[#00e676] focus:outline-none"
