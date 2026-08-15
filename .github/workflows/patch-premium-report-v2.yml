@@ -1,0 +1,29 @@
+name: Patch premium report v2
+
+on:
+  push:
+    branches:
+      - agent/premium-report-download
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/premium-report-download
+      - name: Aplicar parche
+        run: python scripts/patch_premium_report.py
+      - name: Validar compilación
+        run: npm ci && npm run build
+      - name: Guardar cambio
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/pages/Jugadores.tsx
+          git commit -m "Usar informe premium nativo en descarga local"
+          git push origin HEAD:agent/premium-report-download
