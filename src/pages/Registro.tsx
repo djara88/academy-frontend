@@ -5,14 +5,13 @@ import api from '../api/axiosConfig';
 import { Logo } from '../components/Logo';
 import { BRAND } from '../config/brand';
 import { useAppDialog } from '../contexts/DialogContext';
+import { PASSWORD_REQUIREMENTS, validateStrongPassword } from '../utils/passwordPolicy';
 
 const Registro: React.FC = () => {
   const navigate = useNavigate();
   const { notify } = useAppDialog();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  
-  // Datos del formulario manual
   const [formData, setFormData] = useState({
     nombre_academia: '',
     nombre_director: '',
@@ -24,17 +23,18 @@ const Registro: React.FC = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ==========================================
-  // REGISTRO CON CORREO Y CONTRASEÑA
-  // ==========================================
   const handleRegistroManual = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
 
+    if (!validateStrongPassword(formData.password)) {
+      setError(PASSWORD_REQUIREMENTS);
+      return;
+    }
+
+    setLoading(true);
     try {
       const response = await api.post('/api/academias/registro-publico', formData);
-      
       if (response.data?.success) {
         await notify(`¡${formData.nombre_academia} fue creada con éxito! Inicia sesión con tus credenciales.`, { title: BRAND.name });
         navigate('/login');
@@ -47,19 +47,13 @@ const Registro: React.FC = () => {
     }
   };
 
-  // ==========================================
-  // INICIO DE SESIÓN / REGISTRO CON GOOGLE
-  // ==========================================
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError('');
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: {
-          // 🔥 REDIRIGE A COMPLETAR PERFIL
-          redirectTo: `${window.location.origin}/completar-perfil`
-        }
+        options: { redirectTo: `${window.location.origin}/completar-perfil` }
       });
       if (error) throw error;
     } catch (err: any) {
@@ -72,7 +66,6 @@ const Registro: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0d1117] p-4 font-sans">
       <div className="bg-[#161b22] p-8 rounded-xl border border-[#30363d] shadow-2xl w-full max-w-md">
-        
         <div className="text-center mb-8">
           <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-2xl border border-[#289E9D]/60 bg-[#0d1117] p-3 shadow-[0_0_20px_rgba(40,158,157,0.25)]">
             <Logo variant="mark" className="h-full w-full" />
@@ -82,13 +75,8 @@ const Registro: React.FC = () => {
           <p className="text-xs text-[#289E9D] mt-1">{BRAND.tagline}</p>
         </div>
 
-        {/* BOTÓN DE GOOGLE */}
-        <button
-          type="button"
-          onClick={handleGoogleLogin}
-          disabled={loading}
-          className="w-full bg-white hover:bg-gray-100 text-gray-900 font-bold py-2.5 px-4 rounded-md transition-colors flex items-center justify-center gap-3 mb-6 cursor-pointer"
-        >
+        <button type="button" onClick={handleGoogleLogin} disabled={loading}
+          className="w-full bg-white hover:bg-gray-100 text-gray-900 font-bold py-2.5 px-4 rounded-md transition-colors flex items-center justify-center gap-3 mb-6 cursor-pointer">
           <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5" />
           <span>Continuar con Google</span>
         </button>
@@ -99,38 +87,30 @@ const Registro: React.FC = () => {
           <div className="flex-grow border-t border-[#30363d]"></div>
         </div>
 
-        {/* FORMULARIO MANUAL */}
         <form onSubmit={handleRegistroManual} className="space-y-4">
           <div>
             <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Nombre de la Academia *</label>
             <input type="text" name="nombre_academia" value={formData.nombre_academia} onChange={handleChange} required disabled={loading}
-              className="w-full bg-[#0d1117] border border-[#30363d] rounded-md p-2.5 text-[#e6edf3] focus:border-[#58a6ff] focus:outline-none" 
-              placeholder="Ej. Escuela Los Leones" />
+              className="w-full bg-[#0d1117] border border-[#30363d] rounded-md p-2.5 text-[#e6edf3] focus:border-[#58a6ff] focus:outline-none" placeholder="Ej. Escuela Los Leones" />
           </div>
           <div>
             <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Tu Nombre Completo *</label>
             <input type="text" name="nombre_director" value={formData.nombre_director} onChange={handleChange} required disabled={loading}
-              className="w-full bg-[#0d1117] border border-[#30363d] rounded-md p-2.5 text-[#e6edf3] focus:border-[#58a6ff] focus:outline-none" 
-              placeholder="Ej. Juan Pérez" />
+              className="w-full bg-[#0d1117] border border-[#30363d] rounded-md p-2.5 text-[#e6edf3] focus:border-[#58a6ff] focus:outline-none" placeholder="Ej. Juan Pérez" />
           </div>
           <div>
             <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Correo Electrónico *</label>
             <input type="email" name="email" value={formData.email} onChange={handleChange} required disabled={loading}
-              className="w-full bg-[#0d1117] border border-[#30363d] rounded-md p-2.5 text-[#e6edf3] focus:border-[#58a6ff] focus:outline-none" 
-              placeholder="tu@correo.com" />
+              className="w-full bg-[#0d1117] border border-[#30363d] rounded-md p-2.5 text-[#e6edf3] focus:border-[#58a6ff] focus:outline-none" placeholder="tu@correo.com" />
           </div>
           <div>
             <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Contraseña Segura *</label>
-            <input type="password" name="password" value={formData.password} onChange={handleChange} required disabled={loading} minLength={6}
-              className="w-full bg-[#0d1117] border border-[#30363d] rounded-md p-2.5 text-[#e6edf3] focus:border-[#58a6ff] focus:outline-none" 
-              placeholder="Mínimo 6 caracteres" />
+            <input type="password" name="password" value={formData.password} onChange={handleChange} required disabled={loading} minLength={10} maxLength={128}
+              className="w-full bg-[#0d1117] border border-[#30363d] rounded-md p-2.5 text-[#e6edf3] focus:border-[#58a6ff] focus:outline-none" placeholder="Ej. Academia9!" />
+            <p className="mt-1.5 text-xs text-[#8b949e]">{PASSWORD_REQUIREMENTS}</p>
           </div>
 
-          {error && (
-            <div className="text-[#e74c3c] text-sm bg-[#2c1a1a] border border-[#e74c3c] p-3 rounded-lg">
-              {error}
-            </div>
-          )}
+          {error && <div className="text-[#e74c3c] text-sm bg-[#2c1a1a] border border-[#e74c3c] p-3 rounded-lg">{error}</div>}
 
           <button type="submit" disabled={loading}
             className="w-full bg-[#238636] hover:bg-[#2ea043] text-white font-bold py-3 px-4 rounded-md transition-colors mt-2 cursor-pointer">
