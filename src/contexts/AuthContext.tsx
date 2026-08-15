@@ -23,116 +23,135 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const MASTER_ADMIN_EMAIL = 'd.jarazerene@gmail.com';
+
+const isGoogleSession = (authUser: any) => {
+  const provider = String(authUser?.app_metadata?.provider || '').toLowerCase();
+  const providers = Array.isArray(authUser?.app_metadata?.providers)
+    ? authUser.app_metadata.providers.map((item: unknown) => String(item).toLowerCase())
+    : [];
+  return provider === 'google' || providers.includes('google');
+};
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const clearLocalSession = () => {
+    setUser(null);
+    setToken(null);
+    sessionStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+  };
+
   useEffect(() => {
     const storedToken = sessionStorage.getItem('token');
     const storedUser = sessionStorage.getItem('user');
-
     if (storedUser) setUser(JSON.parse(storedUser));
     if (storedToken) setToken(storedToken);
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      // 🔥 LA MAGIA CONTRA RECARGAS: Ignorar eventos de refresco de pestaña
-      // Solo consultamos la BD en el login o carga inicial
       if (event !== 'INITIAL_SESSION' && event !== 'SIGNED_IN' && event !== 'SIGNED_OUT') {
         if (event === 'TOKEN_REFRESHED' && session) {
           setToken(session.access_token);
           sessionStorage.setItem('token', session.access_token);
         }
-        return; // Salimos de aquí, no volvemos a consultar la base de datos
+        return;
       }
 
-      if (session?.user) {
-        const { data: usuarioBD } = await supabase
-          .from('usuarios')
-          .select('*, academias(nombre, logo)')
-          .eq('id', session.user.id)
-          .maybeSingle();
+      if (!session?.user) {
+        clearLocalSession();
+        setLoading(false);
+        return;
+      }
 
-        const isMasterAdmin = session.user.email?.toLowerCase() === 'd.jarazerene@gmail.com';
-        let newUser: User;
+      const { data: usuarioBD, error: profileError } = await supabase
+        .from('usuarios')
+        .select('*, academias(nombre, logo)')
+        .eq('id', session.user.id)
+        .maybeSingle();
 
-        if (isMasterAdmin) {
-          newUser = {
-            id: session.user.id,
-            email: session.user.email || '',
-            nombre_completo: session.user.user_metadata?.full_name || 'Administración Syncademia',
-            rol: 'superadmin',
-            academia_id: null,
-            requiere_cambio_password: false
-          };
-        } else if (usuarioBD) {
-          if (usuarioBD.activo === false) {
-            await supabase.auth.signOut();
-            setUser(null);
-            setToken(null);
-            sessionStorage.clear();
-            setLoading(false);
-            return;
-          }
-          newUser = {
-            id: usuarioBD.id,
-            email: session.user.email || '',
-            nombre_completo: usuarioBD.nombre_completo || 'Usuario',
-            rol: usuarioBD.rol || 'director',
-            academia_id: usuarioBD.academia_id,
-            nombre_academia: usuarioBD.academias?.nombre,
-            logo_url: usuarioBD.academias?.logo,
-            requiere_cambio_password: usuarioBD.requiere_cambio_password
-            ,activo: usuarioBD.activo !== false
-          };
-        } else {
-          newUser = {
-            id: session.user.id,
-            email: session.user.email || '',
-            nombre_completo: session.user.user_metadata?.full_name || 'Nuevo Usuario',
-            rol: 'director',
-            academia_id: null,
-            requiere_cambio_password: false
-          };
+      if (profileError) {
+        clearLocalSession();
+        setLoading(false);
+        return;
+      }
+
+      const isMasterAdmin = session.user.email?.toLowerCase() === MASTER_ADMIN_EMAIL;
+      let newUser: User;
+
+      if (isMasterAdmin) {
+        newUser = {
+          id: session.user.id,
+          email: session.user.email || '',
+          nombre_completo: session.user.user_metadata?.full_name || 'Administración Syncademia',
+          rol: 'superadmin',
+          academia_id: null,
+          requiere_cambio_password: false,
+        };
+      } else if (usuarioBD) {
+        if (usuarioBD.activo === false) {
+          await supabase.auth.signOut();
+          clearLocalSession();
+          setLoading(false);
+          return;
         }
-
-        setUser(newUser);
-        setToken(session.access_token);
-        sessionStorage.setItem('user', JSON.stringify(newUser));
-        sessionStorage.setItem('token', session.access_token);
-        
-        // ❌ ELIMINAMOS los window.location.href. Dejamos que App.tsx haga el ruteo suave.
+        newUser = {
+          id: usuarioBD.id,
+          email: session.user.email || '',
+          nombre_completo: usuarioBD.nombre_completo || 'Usuario',
+          rol: usuarioBD.rol || 'director',
+          academia_id: usuarioBD.academia_id,
+          nombre_academia: usuarioBD.academias?.nombre,
+          logo_url: usuarioBD.academias?.logo,
+          requiere_cambio_password: usuarioBD.requiere_cambio_password,
+          activo: usuarioBD.activo !== false,
+        };
+      } else if (isGoogleSession(session.user)) {
+        // Única excepción: una primera sesión Google necesita llegar a
+        // /completar-perfil para crear su academia y su fila en `usuarios`.
+        newUser = {
+          id: session.user.id,
+          email: session.user.email || '',
+          nombre_completo: session.user.user_metadata?.full_name || session.user.user_metadata?.name || 'Director',
+          rol: 'director',
+          academia_id: null,
+          requiere_cambio_password: false,
+        };
       } else {
-        setUser(null);
-        setToken(null);
-        sessionStorage.removeItem('user');
-        sessionStorage.removeItem('token');
+        // Una cuenta Auth huérfana por correo/contraseña nunca recibe un rol
+        // provisional. El backend aplica la misma regla con HTTP 403.
+        await supabase.auth.signOut();
+        clearLocalSession();
+        setLoading(false);
+        return;
       }
+
+      setUser(newUser);
+      setToken(session.access_token);
+      sessionStorage.setItem('user', JSON.stringify(newUser));
+      sessionStorage.setItem('token', session.access_token);
       setLoading(false);
     });
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (email: string, password: string) => {
     try {
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
-      });
-
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
       if (authError) throw authError;
 
-      const { data: usuarioBD } = await supabase
+      const { data: usuarioBD, error: profileError } = await supabase
         .from('usuarios')
         .select('*, academias(nombre, logo)')
         .eq('id', authData.user.id)
         .maybeSingle();
 
-      const isMasterAdmin = authData.user.email?.toLowerCase() === 'd.jarazerene@gmail.com';
+      if (profileError) throw profileError;
+
+      const isMasterAdmin = authData.user.email?.toLowerCase() === MASTER_ADMIN_EMAIL;
       let newUser: User;
 
       if (isMasterAdmin) {
@@ -142,7 +161,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           nombre_completo: authData.user.user_metadata?.full_name || 'Administración Syncademia',
           rol: 'superadmin',
           academia_id: null,
-          requiere_cambio_password: false
+          requiere_cambio_password: false,
         };
       } else if (usuarioBD) {
         if (usuarioBD.activo === false) {
@@ -158,17 +177,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           nombre_academia: usuarioBD.academias?.nombre,
           logo_url: usuarioBD.academias?.logo,
           requiere_cambio_password: usuarioBD.requiere_cambio_password,
-          activo: usuarioBD.activo !== false
+          activo: usuarioBD.activo !== false,
         };
       } else {
-        newUser = {
-          id: authData.user.id,
-          email: authData.user.email || '',
-          nombre_completo: authData.user.user_metadata?.full_name || 'Nuevo Usuario',
-          rol: 'director',
-          academia_id: null,
-          requiere_cambio_password: false
-        };
+        await supabase.auth.signOut();
+        clearLocalSession();
+        throw new Error('ACCOUNT_NOT_REGISTERED');
       }
 
       const newToken = authData.session.access_token;
@@ -176,10 +190,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUser(newUser);
       sessionStorage.setItem('token', newToken);
       sessionStorage.setItem('user', JSON.stringify(newUser));
-
     } catch (error) {
       console.error('Login error:', error);
-      if (error instanceof Error && error.message === 'ACCOUNT_DISABLED') throw error;
+      if (error instanceof Error && ['ACCOUNT_DISABLED', 'ACCOUNT_NOT_REGISTERED'].includes(error.message)) {
+        throw error;
+      }
       throw new Error('Credenciales inválidas');
     }
   };
@@ -189,7 +204,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setToken(null);
     setUser(null);
     sessionStorage.clear();
-    window.location.href = '/login'; // En logout SÍ es sano limpiar todo de golpe
+    window.location.href = '/login';
   };
 
   return (
@@ -201,8 +216,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };
