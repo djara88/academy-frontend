@@ -15,7 +15,9 @@ const Registro = lazy(() => import('./pages/Registro'));
 const CompletarPerfil = lazy(() => import('./pages/CompletarPerfil'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Jugadores = lazy(() => import('./pages/Jugadores'));
-const Matricula = lazy(() => import('./pages/MatriculaPremium'));
+const Matricula = lazy(() => import('./pages/MatriculaPreparacion'));
+const PreMatriculaPublica = lazy(() => import('./pages/PreMatriculaPublica'));
+const Importacion = lazy(() => import('./pages/Importacion'));
 const Torneos = lazy(() => import('./pages/Torneos'));
 const NuevoTorneo = lazy(() => import('./pages/NuevoTorneo'));
 const GestionarTorneo = lazy(() => import('./pages/GestionarTorneo'));
@@ -93,6 +95,7 @@ const App = () => (
           <BrowserRouter>
             <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">Cargando Syncademia...</div>}>
               <Routes>
+                <Route path="/prematricula/:token" element={<PreMatriculaPublica />} />
                 <Route element={<PublicRoutes />}>
                   <Route path="/" element={<Home />} />
                   <Route path="/login" element={<Login />} />
@@ -115,6 +118,7 @@ const App = () => (
                     <Route path="/apoderados" element={<Apoderados />} />
                     <Route path="/jugadores" element={<Jugadores />} />
                     <Route path="/matricula" element={<Matricula />} />
+                    <Route path="/importacion" element={<Importacion />} />
                     <Route path="/asistencias" element={<Asistencias />} />
                     <Route path="/uniformes" element={<Uniformes />} />
                     <Route path="/torneos" element={<Torneos />} />
