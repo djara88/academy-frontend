@@ -115,7 +115,7 @@ const PreMatriculaPublica: React.FC = () => {
       const firma = canvasRef.current.toDataURL('image/png');
       const response = await api.post(`/api/prematriculas/public/${token}/firmar`, {
         acepta_terminos: true,
-        decisiones,
+        decisiones: decisions,
         firmante_nombre: name.trim(),
         firmante_documento: document.trim(),
         firma_data_url: firma,
