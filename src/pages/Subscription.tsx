@@ -23,7 +23,6 @@ type Plan = {
 
 type Payload = {
   plans: Plan[];
-  guardianAddon: { priceClp: number; grossClp: number };
   gateway: { provider: string; configured: boolean; manualVerification?: boolean };
   currentSubscription?: { trial?: boolean; remainingDays?: number };
 };
@@ -33,7 +32,6 @@ type CheckoutOrder = {
   checkoutUrl: string;
   amountClp: number;
   planName: string;
-  guardianLicense: boolean;
   manualVerification: boolean;
   expiresAt: string;
 };
@@ -43,15 +41,29 @@ const money = (value: number) => new Intl.NumberFormat('es-CL', {
 }).format(value || 0);
 
 const featureMap: Record<string, string[]> = {
-  formacion: ['Operación diaria completa', 'Finanzas, uniformes y partidos', 'Hasta 100 jugadores', 'Hasta 3 profesores'],
-  competencia: ['Todo Formación', 'Torneos y preparación de partidos', 'Evaluaciones, alertas y exportaciones', '300 jugadores · 10 profesores'],
-  alto_rendimiento: ['Todo Competencia', 'Ficha médica y analítica avanzada', 'Marca personalizada', 'Jugadores sin límite · 30 profesores'],
+  formacion: [
+    'Gestión completa, finanzas, partidos y torneos',
+    'Portal del apoderado + WhatsApp individual',
+    '100 alumnos · 3 profesores',
+    '1 sede · 1 disciplina',
+  ],
+  competencia: [
+    'Todo Formación',
+    'Evaluaciones, radar y preparación de partidos',
+    'Grupos WhatsApp, alertas y exportaciones',
+    '300 alumnos · 10 profesores · hasta 2 sedes/ramas',
+  ],
+  alto_rendimiento: [
+    'Todo Competencia',
+    'Ficha médica, analítica avanzada y branding',
+    'Comunicaciones y automatizaciones avanzadas',
+    'Alumnos ilimitados · 30 profesores · multi-sede avanzada',
+  ],
 };
 
 const Subscription = () => {
   const { notify } = useAppDialog();
   const queryClient = useQueryClient();
-  const [guardians, setGuardians] = useState(false);
   const [paying, setPaying] = useState<string | null>(null);
   const [order, setOrder] = useState<CheckoutOrder | null>(null);
   const [payerName, setPayerName] = useState('');
@@ -70,7 +82,6 @@ const Subscription = () => {
     try {
       const response = await api.post('/api/subscriptions/checkout', {
         plan_code: plan.code,
-        guardian_license: guardians,
       });
       setOrder(response.data.data as CheckoutOrder);
       setOrderState('ready');
@@ -142,23 +153,20 @@ const Subscription = () => {
           <SparklesIcon className="h-6 w-6" />
         </div>
         <p className="mt-5 text-xs font-black uppercase tracking-[0.24em] text-[#48d8d0]">Tu siguiente etapa</p>
-        <h1 className="mt-3 text-4xl font-black text-white sm:text-5xl">Elige el nivel de gestión ideal</h1>
+        <h1 className="mt-3 text-4xl font-black text-white sm:text-5xl">Elige el nivel de operación ideal</h1>
         <p className="mx-auto mt-4 max-w-2xl text-[#9aa6b5]">
-          Precios mensuales en pesos chilenos + IVA. El pago corresponde únicamente a la licencia de Syncademia; nunca procesamos el dinero de tus apoderados.
+          Precios mensuales en pesos chilenos + IVA. Todos los planes incluyen la operación esencial completa de Syncademia.
         </p>
       </header>
 
-      <label className="mx-auto flex max-w-xl cursor-pointer items-center justify-between gap-4 rounded-2xl border border-violet-400/25 bg-violet-500/10 p-5 transition hover:border-violet-300/40">
-        <div>
-          <p className="font-black text-violet-200">Añadir Apoderados PRO</p>
-          <p className="mt-1 text-sm text-violet-200/70">{money(data.guardianAddon.priceClp)} + IVA · {money(data.guardianAddon.grossClp)} total</p>
-        </div>
-        <input type="checkbox" checked={guardians} onChange={(e) => setGuardians(e.target.checked)} className="h-6 w-6 accent-violet-500" />
-      </label>
+      <div className="mx-auto max-w-3xl rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-5 text-center">
+        <p className="font-black text-emerald-200">Sin plan recortado</p>
+        <p className="mt-1 text-sm leading-6 text-emerald-100/75">Matrícula, finanzas, torneos, portal del apoderado y WhatsApp individual están incluidos desde Formación. Pagas más por capacidad, automatización y operación avanzada.</p>
+      </div>
 
       <section className="grid gap-5 lg:grid-cols-3">
         {data.plans.map((plan) => {
-          const total = plan.grossClp + (guardians ? data.guardianAddon.grossClp : 0);
+          const total = plan.grossClp;
           const featured = plan.code === 'competencia';
           return (
             <article key={plan.code} className={`group relative flex flex-col overflow-hidden rounded-[28px] border p-6 transition duration-300 hover:-translate-y-1 ${featured ? 'border-[#48d8d0]/80 bg-[linear-gradient(180deg,#192932,#151d25)] shadow-[0_24px_70px_rgba(40,158,157,0.20)]' : 'border-white/10 bg-[#151b25] hover:border-white/20'}`}>
@@ -203,7 +211,7 @@ const Subscription = () => {
                 </div>
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.2em] text-[#52c7ff]">Checkout Mercado Pago</p>
-                  <h2 className="text-2xl font-black text-white">{order.planName}{order.guardianLicense ? ' + Apoderados PRO' : ''}</h2>
+                  <h2 className="text-2xl font-black text-white">{order.planName}</h2>
                 </div>
               </div>
 
