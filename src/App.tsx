@@ -43,6 +43,7 @@ const Apoderados = lazy(() => import('./pages/Apoderados'));
 const ApoderadoPortal = lazy(() => import('./pages/ApoderadoPortal'));
 const PrivacyRequests = lazy(() => import('./pages/PrivacyRequests'));
 const AdminMonitor = lazy(() => import('./pages/AdminMonitor'));
+const ChatCenter = lazy(() => import('./pages/ChatCenter'));
 
 const queryClient = new QueryClient();
 
@@ -95,6 +96,11 @@ const GuardianRoute = () => {
   return isGuardianRole(user?.rol) ? <ApoderadoPortal /> : <Navigate to="/dashboard" replace />;
 };
 
+const GuardianChatRoute = () => {
+  const { user } = useAuth();
+  return isGuardianRole(user?.rol) ? <ChatCenter /> : <Navigate to="/dashboard" replace />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <DialogProvider>
@@ -114,6 +120,7 @@ const App = () => (
                 <Route element={<ProtectedRoutes />}>
                   <Route path="/profesor" element={<ProfessorRoute />} />
                   <Route path="/apoderado" element={<GuardianRoute />} />
+                  <Route path="/apoderado/mensajes" element={<GuardianChatRoute />} />
                   <Route element={<SuperAdminRoutes />}>
                     <Route path="/admin" element={<AdminDashboard />} />
                     <Route path="/admin/academias" element={<SaaSAdmin />} />
@@ -125,6 +132,7 @@ const App = () => (
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/profesores" element={<Profesores />} />
                     <Route path="/apoderados" element={<Apoderados />} />
+                    <Route path="/comunicaciones" element={<ChatCenter />} />
                     <Route path="/jugadores" element={<Jugadores />} />
                     <Route path="/matricula" element={<Matricula />} />
                     <Route path="/importacion" element={<Importacion />} />
