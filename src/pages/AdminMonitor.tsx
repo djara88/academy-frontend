@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowPathIcon, CheckCircleIcon, CircleStackIcon, CloudIcon, CpuChipIcon, EnvelopeIcon, ExclamationTriangleIcon, ServerStackIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 import api from '../api/axiosConfig';
 import { useAdminTheme } from '../contexts/AdminThemeContext';
+import MemoryHistoryPanel from '../components/MemoryHistoryPanel';
 
 type ComponentState = { key: string; label: string; status: 'ok'|'warning'|'critical'; detail: string; metrics?: any };
 type Monitor = {
@@ -47,6 +48,8 @@ const AdminMonitor = () => {
     {data.alerts.length ? <section className={`rounded-2xl border p-5 ${panel}`}><div className="flex items-center gap-3"><ExclamationTriangleIcon className="h-7 w-7 text-amber-500" /><div><p className={`font-black ${text}`}>Requiere atención</p><p className={`text-sm ${muted}`}>Estas alertas no siempre significan caída, pero sí ameritan revisión.</p></div></div><div className="mt-4 grid gap-3 lg:grid-cols-2">{data.alerts.map((alert, index) => <div key={`${alert.type}-${index}`} className={`rounded-xl border p-4 ${tone(alert.severity)}`}><p className="text-sm font-bold">{alert.message}</p></div>)}</div></section> : <section className={`rounded-2xl border p-5 ${panel}`}><div className="flex items-center gap-3 text-emerald-500"><CheckCircleIcon className="h-8 w-8" /><div><p className="font-black">Sin alertas operativas</p><p className={`text-sm ${muted}`}>Todos los chequeos actuales están dentro de parámetros normales.</p></div></div></section>}
 
     <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{summaryCards.map(([label, value, color]) => <article key={label} className={`rounded-2xl border p-5 ${panel}`}><p className={`text-xs font-black uppercase tracking-wider ${muted}`}>{label}</p><p className={`mt-2 text-3xl font-black ${color}`}>{value}</p></article>)}</section>
+
+    <MemoryHistoryPanel light={light} />
 
     <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{data.components.map((component) => { const Icon = iconByKey[component.key] || CpuChipIcon; return <article key={component.key} className={`rounded-2xl border p-5 ${panel}`}><div className="flex items-start justify-between gap-3"><div className="flex items-center gap-3"><div className={`grid h-11 w-11 place-items-center rounded-xl border ${tone(component.status)}`}><Icon className="h-6 w-6" /></div><div><p className={`font-black ${text}`}>{component.label}</p><p className={`mt-1 text-sm ${muted}`}>{component.detail}</p></div></div><span className={`rounded-full border px-2.5 py-1 text-[10px] font-black uppercase ${tone(component.status)}`}>{statusLabel(component.status)}</span></div>{component.key === 'backend' && component.metrics ? <div className={`mt-4 grid grid-cols-2 gap-2 text-xs ${muted}`}><div className={`rounded-lg p-3 ${light ? 'bg-slate-50' : 'bg-black/15'}`}><p>Memoria</p><p className={`mt-1 font-black ${text}`}>{component.metrics.memory_rss_mb} MB · {component.metrics.memory_percent}%</p></div><div className={`rounded-lg p-3 ${light ? 'bg-slate-50' : 'bg-black/15'}`}><p>Commit</p><p className={`mt-1 font-black ${text}`}>{component.metrics.commit || '—'}</p></div></div> : null}</article>; })}</section>
 
