@@ -26,6 +26,14 @@ const Configuracion: React.FC = () => {
       bg: 'bg-blue-900/20', 
       border: 'border-blue-500/30' 
     },
+    {
+      titulo: 'Sedes y Ramas',
+      desc: 'Gestiona ubicaciones y disciplinas deportivas de la academia',
+      icono: '🏢',
+      ruta: '/configuracion/estructura',
+      bg: 'bg-teal-900/20',
+      border: 'border-teal-500/30'
+    },
     { 
       titulo: 'Uniformes e Inventario', 
       desc: 'Catálogo de prendas, tallas y entregas', 
