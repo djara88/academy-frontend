@@ -62,20 +62,20 @@ const money = (value: number) => new Intl.NumberFormat('es-CL', {
 const featureMap: Record<string, string[]> = {
   formacion: [
     'Gestión completa, finanzas, partidos y torneos',
+    'Radar multideporte con criterios estándar Syncademia',
     'Portal del apoderado + WhatsApp individual',
-    '100 alumnos · 3 profesores',
-    '1 sede · 1 rama deportiva',
+    '100 alumnos · 3 profesores · 1 sede · 1 rama deportiva',
   ],
   competencia: [
     'Todo Formación',
-    'Evaluaciones multideporte, radar y preparación',
-    'Grupos WhatsApp, alertas y exportaciones',
+    'Criterios de evaluación personalizados por rama',
+    'Grupos WhatsApp, alertas, preparación y exportaciones',
     '300 alumnos · 10 profesores · hasta 2 sedes/ramas',
   ],
   alto_rendimiento: [
     'Todo Competencia',
-    'Ficha médica, analítica avanzada y branding',
-    'Comunicaciones y automatizaciones avanzadas',
+    'Criterios personalizados + analítica deportiva avanzada',
+    'Ficha médica, branding y automatizaciones avanzadas',
     'Alumnos ilimitados · 30 profesores · multi-sede avanzada',
   ],
 };
@@ -179,7 +179,7 @@ const Subscription = () => {
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-300/10 text-cyan-200"><SparklesIcon className="h-6 w-6" /></div>
         <p className="mt-5 text-xs font-black uppercase tracking-[0.24em] text-[#48d8d0]">Tu siguiente etapa</p>
         <h1 className="mt-3 text-4xl font-black text-white sm:text-5xl">Elige el nivel de operación ideal</h1>
-        <p className="mx-auto mt-4 max-w-2xl text-[#9aa6b5]">Todos los planes incluyen la gestión esencial. Elige cómo pagar sin descuentos ocultos ni acumulaciones confusas.</p>
+        <p className="mx-auto mt-4 max-w-2xl text-[#9aa6b5]">Todos los planes incluyen la gestión esencial y radar multideporte. Desde Competencia, tu dirección deportiva puede definir su propio método de evaluación por rama.</p>
       </header>
 
       <section className="mx-auto max-w-3xl rounded-3xl border border-white/10 bg-[#151b25] p-3">
