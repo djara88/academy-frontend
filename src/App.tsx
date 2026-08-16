@@ -44,6 +44,8 @@ const ApoderadoPortal = lazy(() => import('./pages/ApoderadoPortal'));
 const PrivacyRequests = lazy(() => import('./pages/PrivacyRequests'));
 const AdminMonitor = lazy(() => import('./pages/AdminMonitor'));
 const ChatCenter = lazy(() => import('./pages/ChatCenter'));
+const CommunicationsHub = lazy(() => import('./pages/CommunicationsHub'));
+const WhatsAppGroups = lazy(() => import('./pages/WhatsAppGroups'));
 
 const queryClient = new QueryClient();
 
@@ -132,7 +134,8 @@ const App = () => (
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/profesores" element={<Profesores />} />
                     <Route path="/apoderados" element={<Apoderados />} />
-                    <Route path="/comunicaciones" element={<ChatCenter />} />
+                    <Route path="/comunicaciones" element={<CommunicationsHub />} />
+                    <Route path="/comunicaciones/grupos" element={<WhatsAppGroups />} />
                     <Route path="/jugadores" element={<Jugadores />} />
                     <Route path="/matricula" element={<Matricula />} />
                     <Route path="/importacion" element={<Importacion />} />
