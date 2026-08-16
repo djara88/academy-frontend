@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DialogProvider } from './contexts/DialogContext';
 import { AdminThemeProvider } from './contexts/AdminThemeContext';
+import { usePresenceHeartbeat } from './hooks/usePresenceHeartbeat';
 import { isGuardianRole, isProfessorRole, isSuperAdminRole } from './utils/roles';
 
 const Layout = lazy(() => import('./layouts/Layout'));
@@ -52,6 +53,7 @@ const queryClient = new QueryClient();
 
 const ProtectedRoutes = () => {
   const { user, loading } = useAuth();
+  usePresenceHeartbeat(Boolean(user) && !loading && !user?.requiere_cambio_password);
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">Cargando sistema...</div>;
   if (!user) return <Navigate to="/login" replace />;
   if (user.requiere_cambio_password) return <Navigate to="/cambiar-password" replace />;
@@ -82,27 +84,11 @@ const DirectorRoutes = () => {
 const SuperAdminRoutes = () => {
   const { user } = useAuth();
   if (!isSuperAdminRole(user?.rol)) return <Navigate to="/dashboard" replace />;
-  return (
-    <SuperadminMfaGate>
-      <Outlet />
-    </SuperadminMfaGate>
-  );
+  return <SuperadminMfaGate><Outlet /></SuperadminMfaGate>;
 };
-
-const ProfessorRoute = () => {
-  const { user } = useAuth();
-  return isProfessorRole(user?.rol) ? <ProfesorPortal /> : <Navigate to="/dashboard" replace />;
-};
-
-const GuardianRoute = () => {
-  const { user } = useAuth();
-  return isGuardianRole(user?.rol) ? <ApoderadoPortal /> : <Navigate to="/dashboard" replace />;
-};
-
-const GuardianChatRoute = () => {
-  const { user } = useAuth();
-  return isGuardianRole(user?.rol) ? <ChatCenter /> : <Navigate to="/dashboard" replace />;
-};
+const ProfessorRoute = () => { const { user } = useAuth(); return isProfessorRole(user?.rol) ? <ProfesorPortal /> : <Navigate to="/dashboard" replace />; };
+const GuardianRoute = () => { const { user } = useAuth(); return isGuardianRole(user?.rol) ? <ApoderadoPortal /> : <Navigate to="/dashboard" replace />; };
+const GuardianChatRoute = () => { const { user } = useAuth(); return isGuardianRole(user?.rol) ? <ChatCenter /> : <Navigate to="/dashboard" replace />; };
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -113,11 +99,7 @@ const App = () => (
             <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">Cargando Syncademia...</div>}>
               <Routes>
                 <Route path="/prematricula/:token" element={<PreMatriculaPublica />} />
-                <Route element={<PublicRoutes />}>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/registro" element={<Registro />} />
-                </Route>
+                <Route element={<PublicRoutes />}><Route path="/" element={<Home />} /><Route path="/login" element={<Login />} /><Route path="/registro" element={<Registro />} /></Route>
                 <Route path="/completar-perfil" element={<CompletarPerfil />} />
                 <Route path="/cambiar-password" element={<CambiarPassword />} />
                 <Route element={<ProtectedRoutes />}>
@@ -132,29 +114,12 @@ const App = () => (
                     <Route path="/admin/monitor" element={<AdminMonitor />} />
                   </Route>
                   <Route element={<DirectorRoutes />}>
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/profesores" element={<Profesores />} />
-                    <Route path="/apoderados" element={<Apoderados />} />
-                    <Route path="/comunicaciones" element={<CommunicationsHub />} />
-                    <Route path="/comunicaciones/grupos" element={<WhatsAppGroups />} />
-                    <Route path="/jugadores" element={<Jugadores />} />
-                    <Route path="/matricula" element={<Matricula />} />
-                    <Route path="/importacion" element={<Importacion />} />
-                    <Route path="/asistencias" element={<Asistencias />} />
-                    <Route path="/uniformes" element={<Uniformes />} />
-                    <Route path="/torneos" element={<Torneos />} />
-                    <Route path="/nuevo-torneo" element={<NuevoTorneo />} />
-                    <Route path="/torneos/:id" element={<GestionarTorneo />} />
-                    <Route path="/partidos" element={<Partidos />} />
-                    <Route path="/finanzas" element={<Finanzas />} />
-                    <Route path="/suscripcion" element={<Subscription />} />
-                    <Route path="/configuracion" element={<Configuracion />} />
-                    <Route path="/privacidad" element={<PrivacyRequests />} />
-                    <Route path="/configuracion/perfil" element={<PerfilAcademia />} />
-                    <Route path="/configuracion/estructura" element={<EstructuraAcademia />} />
-                    <Route path="/terminos" element={<Terminos />} />
-                    <Route path="/whatsapp" element={<WhatsApp />} />
-                    <Route path="/configuracion/finanzas" element={<FinanzasConfig />} />
+                    <Route path="/dashboard" element={<Dashboard />} /><Route path="/profesores" element={<Profesores />} /><Route path="/apoderados" element={<Apoderados />} />
+                    <Route path="/comunicaciones" element={<CommunicationsHub />} /><Route path="/comunicaciones/grupos" element={<WhatsAppGroups />} /><Route path="/jugadores" element={<Jugadores />} />
+                    <Route path="/matricula" element={<Matricula />} /><Route path="/importacion" element={<Importacion />} /><Route path="/asistencias" element={<Asistencias />} /><Route path="/uniformes" element={<Uniformes />} />
+                    <Route path="/torneos" element={<Torneos />} /><Route path="/nuevo-torneo" element={<NuevoTorneo />} /><Route path="/torneos/:id" element={<GestionarTorneo />} /><Route path="/partidos" element={<Partidos />} />
+                    <Route path="/finanzas" element={<Finanzas />} /><Route path="/suscripcion" element={<Subscription />} /><Route path="/configuracion" element={<Configuracion />} /><Route path="/privacidad" element={<PrivacyRequests />} />
+                    <Route path="/configuracion/perfil" element={<PerfilAcademia />} /><Route path="/configuracion/estructura" element={<EstructuraAcademia />} /><Route path="/terminos" element={<Terminos />} /><Route path="/whatsapp" element={<WhatsApp />} /><Route path="/configuracion/finanzas" element={<FinanzasConfig />} />
                   </Route>
                 </Route>
                 <Route path="*" element={<Navigate to="/" replace />} />
