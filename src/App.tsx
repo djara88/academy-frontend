@@ -41,6 +41,8 @@ const Profesores = lazy(() => import('./pages/Profesores'));
 const ProfesorPortal = lazy(() => import('./pages/ProfesorPortal'));
 const Apoderados = lazy(() => import('./pages/Apoderados'));
 const ApoderadoPortal = lazy(() => import('./pages/ApoderadoPortal'));
+const PrivacyRequests = lazy(() => import('./pages/PrivacyRequests'));
+const AdminMonitor = lazy(() => import('./pages/AdminMonitor'));
 
 const queryClient = new QueryClient();
 
@@ -117,6 +119,7 @@ const App = () => (
                     <Route path="/admin/academias" element={<SaaSAdmin />} />
                     <Route path="/admin/finanzas" element={<AdminFinance />} />
                     <Route path="/admin/perfil" element={<AdminProfile />} />
+                    <Route path="/admin/monitor" element={<AdminMonitor />} />
                   </Route>
                   <Route element={<DirectorRoutes />}>
                     <Route path="/dashboard" element={<Dashboard />} />
@@ -134,6 +137,7 @@ const App = () => (
                     <Route path="/finanzas" element={<Finanzas />} />
                     <Route path="/suscripcion" element={<Subscription />} />
                     <Route path="/configuracion" element={<Configuracion />} />
+                    <Route path="/privacidad" element={<PrivacyRequests />} />
                     <Route path="/configuracion/perfil" element={<PerfilAcademia />} />
                     <Route path="/terminos" element={<Terminos />} />
                     <Route path="/whatsapp" element={<WhatsApp />} />

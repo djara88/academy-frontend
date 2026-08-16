@@ -5,7 +5,7 @@ import {
   AcademicCapIcon, BanknotesIcon, Bars3Icon, BuildingOffice2Icon, CalendarDaysIcon,
   ChartBarIcon, ClipboardDocumentCheckIcon, Cog6ToothIcon, HomeIcon,
   MoonIcon, PaintBrushIcon, ShieldCheckIcon, ShoppingBagIcon, SunIcon,
-  TrophyIcon, UserGroupIcon, UsersIcon, XMarkIcon,
+  TrophyIcon, UserGroupIcon, UsersIcon, XMarkIcon, ServerStackIcon,
 } from '@heroicons/react/24/outline';
 import api from '../api/axiosConfig';
 import { useAuth } from '../contexts/AuthContext';
@@ -37,11 +37,13 @@ const directorItems: NavItem[] = [
   { to: '/partidos', label: 'Partidos', icon: CalendarDaysIcon, feature: 'partidos' },
   { to: '/finanzas', label: 'Finanzas academia', icon: BanknotesIcon, feature: 'finanzas' },
   { to: '/configuracion', label: 'Configuración', icon: Cog6ToothIcon },
+  { to: '/privacidad', label: 'Privacidad', icon: ShieldCheckIcon },
 ];
 const adminItems: NavItem[] = [
   { to: '/admin', label: 'Resumen ejecutivo', icon: ChartBarIcon },
   { to: '/admin/academias', label: 'Academias', icon: BuildingOffice2Icon },
   { to: '/admin/finanzas', label: 'Finanzas Syncademia', icon: BanknotesIcon },
+  { to: '/admin/monitor', label: 'Monitor del sistema', icon: ServerStackIcon },
   { to: '/admin/perfil', label: 'Mi perfil', icon: ShieldCheckIcon },
 ];
 
