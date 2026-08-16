@@ -1,0 +1,39 @@
+from pathlib import Path
+
+# App routes
+p = Path('src/App.tsx')
+s = p.read_text()
+if "const PrivacyRequests" not in s:
+    s = s.replace("const ApoderadoPortal = lazy(() => import('./pages/ApoderadoPortal'));", "const ApoderadoPortal = lazy(() => import('./pages/ApoderadoPortal'));\nconst PrivacyRequests = lazy(() => import('./pages/PrivacyRequests'));\nconst AdminMonitor = lazy(() => import('./pages/AdminMonitor'));")
+if 'path="/admin/monitor"' not in s:
+    s = s.replace('<Route path="/admin/perfil" element={<AdminProfile />} />', '<Route path="/admin/perfil" element={<AdminProfile />} />\n                    <Route path="/admin/monitor" element={<AdminMonitor />} />')
+if 'path="/privacidad"' not in s:
+    s = s.replace('<Route path="/configuracion" element={<Configuracion />} />', '<Route path="/configuracion" element={<Configuracion />} />\n                    <Route path="/privacidad" element={<PrivacyRequests />} />')
+p.write_text(s)
+
+# Layout navigation
+p = Path('src/layouts/Layout.tsx')
+s = p.read_text()
+if 'ServerStackIcon' not in s:
+    s = s.replace('TrophyIcon, UserGroupIcon, UsersIcon, XMarkIcon,', 'TrophyIcon, UserGroupIcon, UsersIcon, XMarkIcon, ServerStackIcon,')
+if "to: '/privacidad'" not in s:
+    s = s.replace("  { to: '/configuracion', label: 'Configuración', icon: Cog6ToothIcon },", "  { to: '/configuracion', label: 'Configuración', icon: Cog6ToothIcon },\n  { to: '/privacidad', label: 'Privacidad', icon: ShieldCheckIcon },")
+if "to: '/admin/monitor'" not in s:
+    s = s.replace("  { to: '/admin/finanzas', label: 'Finanzas Syncademia', icon: BanknotesIcon },", "  { to: '/admin/finanzas', label: 'Finanzas Syncademia', icon: BanknotesIcon },\n  { to: '/admin/monitor', label: 'Monitor del sistema', icon: ServerStackIcon },")
+p.write_text(s)
+
+# Guardian portal privacy form
+p = Path('src/pages/ApoderadoPortal.tsx')
+s = p.read_text()
+s = s.replace("import { useQuery } from '@tanstack/react-query';", "import { useState } from 'react';\nimport { useQuery, useQueryClient } from '@tanstack/react-query';")
+s = s.replace("import { BanknotesIcon, CalendarDaysIcon, CheckCircleIcon, UserIcon } from '@heroicons/react/24/outline';", "import { BanknotesIcon, CalendarDaysIcon, CheckCircleIcon, ShieldCheckIcon, UserIcon } from '@heroicons/react/24/outline';")
+needle = "const ApoderadoPortal = () => {\n  const { data, isLoading, error } = useQuery({ queryKey: ['apoderado-portal'], queryFn: async () => (await api.get('/api/apoderados/me')).data.data as Portal });"
+if "guardian-privacy" not in s:
+    replacement = "const ApoderadoPortal = () => {\n  const queryClient = useQueryClient();\n  const [privacyForm, setPrivacyForm] = useState({ jugador_id: '', tipo: 'acceso', detalle: '', bloqueo_solicitado: false });\n  const [privacyStatus, setPrivacyStatus] = useState('');\n  const [privacySaving, setPrivacySaving] = useState(false);\n  const { data, isLoading, error } = useQuery({ queryKey: ['apoderado-portal'], queryFn: async () => (await api.get('/api/apoderados/me')).data.data as Portal });\n  const privacyQuery = useQuery({ queryKey: ['guardian-privacy'], queryFn: async () => (await api.get('/api/apoderados/me/solicitudes-privacidad')).data.data as any[] });\n  const sendPrivacyRequest = async () => {\n    if (!privacyForm.jugador_id || !privacyForm.detalle.trim()) { setPrivacyStatus('Selecciona un alumno y describe tu solicitud.'); return; }\n    setPrivacySaving(true); setPrivacyStatus('');\n    try {\n      await api.post('/api/apoderados/me/solicitudes-privacidad', privacyForm);\n      setPrivacyForm({ jugador_id: '', tipo: 'acceso', detalle: '', bloqueo_solicitado: false });\n      setPrivacyStatus('Solicitud registrada correctamente. La academia podrá revisar su estado y responderte.');\n      await queryClient.invalidateQueries({ queryKey: ['guardian-privacy'] });\n    } catch (err: any) { setPrivacyStatus(err.response?.data?.error || 'No fue posible registrar la solicitud.'); }\n    finally { setPrivacySaving(false); }\n  };"
+    s = s.replace(needle, replacement)
+
+marker = '    <section className="rounded-3xl border border-white/10 bg-[#151b25] p-5"><div className="flex items-center gap-3"><CheckCircleIcon'
+if 'Tus derechos sobre los datos' not in s:
+    block = '''    <section className="rounded-3xl border border-violet-400/20 bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.12),transparent_35%),#151b25] p-5 sm:p-6"><div className="flex items-center gap-3"><ShieldCheckIcon className="h-7 w-7 text-violet-300" /><div><h2 className="text-xl font-black">Tus derechos sobre los datos</h2><p className="mt-1 text-sm text-[#8995a4]">Puedes registrar una solicitud respecto de uno de tus jugadores vinculados. La academia verificará identidad y responderá por este mismo expediente.</p></div></div><div className="mt-5 grid gap-3 md:grid-cols-2"><label className="text-sm text-[#9aa6b5]">Alumno<select value={privacyForm.jugador_id} onChange={(e) => setPrivacyForm({ ...privacyForm, jugador_id: e.target.value })} className="mt-2 w-full rounded-xl border border-white/10 bg-[#101620] px-3 py-3 text-white"><option value="">Seleccionar</option>{data.jugadores.map((player) => <option key={player.id} value={player.id}>{player.nombre}</option>)}</select></label><label className="text-sm text-[#9aa6b5]">Tipo de solicitud<select value={privacyForm.tipo} onChange={(e) => setPrivacyForm({ ...privacyForm, tipo: e.target.value })} className="mt-2 w-full rounded-xl border border-white/10 bg-[#101620] px-3 py-3 text-white"><option value="acceso">Acceso a datos</option><option value="rectificacion">Rectificación</option><option value="supresion">Supresión</option><option value="oposicion">Oposición</option><option value="portabilidad">Portabilidad</option><option value="bloqueo">Bloqueo temporal</option><option value="revocacion_imagen">Revocación de fotografías / imagen</option></select></label></div><textarea value={privacyForm.detalle} onChange={(e) => setPrivacyForm({ ...privacyForm, detalle: e.target.value })} placeholder="Describe claramente qué necesitas y qué datos están involucrados." className="mt-3 min-h-24 w-full rounded-xl border border-white/10 bg-[#101620] p-3 text-sm text-white" /><label className="mt-3 flex items-start gap-3 rounded-xl border border-white/10 bg-[#101620] p-3 text-sm text-[#b6c0cc]"><input type="checkbox" checked={privacyForm.bloqueo_solicitado} onChange={(e) => setPrivacyForm({ ...privacyForm, bloqueo_solicitado: e.target.checked })} className="mt-1" /> Solicitar también bloqueo temporal del tratamiento mientras se revisa, cuando corresponda.</label><button disabled={privacySaving} onClick={() => void sendPrivacyRequest()} className="mt-4 rounded-xl bg-violet-500 px-5 py-3 text-sm font-black text-white disabled:opacity-50">{privacySaving ? 'Enviando...' : 'Registrar solicitud'}</button>{privacyStatus ? <p className="mt-3 rounded-xl border border-white/10 bg-[#101620] p-3 text-sm text-violet-100">{privacyStatus}</p> : null}<div className="mt-6 border-t border-white/10 pt-4"><p className="text-xs font-black uppercase tracking-wider text-[#8995a4]">Solicitudes recientes</p><div className="mt-3 space-y-2">{(privacyQuery.data || []).slice(0, 5).map((item: any) => <div key={item.id} className="flex flex-col gap-1 rounded-xl border border-white/10 bg-[#101620] p-3 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-sm font-black">{item.jugadores?.nombre || 'Alumno'} · {String(item.tipo).replaceAll('_', ' ')}</p><p className="text-xs text-[#8995a4]">Ingresada: {new Date(item.fecha_recepcion).toLocaleDateString('es-CL')}</p></div><span className="rounded-full bg-violet-500/15 px-2 py-1 text-xs font-black text-violet-300">{item.estado}</span></div>)}{!privacyQuery.data?.length ? <p className="text-sm text-[#6f7c8d]">Aún no tienes solicitudes.</p> : null}</div></div></section>\n'''
+    s = s.replace(marker, block + marker)
+p.write_text(s)
