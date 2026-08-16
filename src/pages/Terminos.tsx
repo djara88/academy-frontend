@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import api from '../api/axiosConfig';
 import { useAuth } from '../contexts/AuthContext';
 import { useAcademyMessages } from '../hooks/useAcademyMessages';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 
 const Terminos: React.FC = () => {
   const { notify } = useAcademyMessages();
@@ -37,7 +35,7 @@ const Terminos: React.FC = () => {
       }
     };
 
-    cargarTerminos();
+    void cargarTerminos();
   }, [user?.academia_id]);
 
   const handleGuardar = async () => {
@@ -50,10 +48,10 @@ const Terminos: React.FC = () => {
       });
       
       setIsEditing(false);
-      notify('✅ Términos y condiciones guardados con éxito.');
+      void notify('✅ Términos y condiciones guardados con éxito.');
     } catch (error: any) {
       console.error('Error al guardar términos:', error);
-      notify(`❌ Error al guardar: ${error.response?.data?.message || 'Error de conexión'}`);
+      void notify(`❌ Error al guardar: ${error.response?.data?.message || 'Error de conexión'}`);
     } finally {
       setSaving(false);
     }
@@ -63,6 +61,14 @@ const Terminos: React.FC = () => {
     if (!pdfRef.current) return;
     try {
       setGenerandoPDF(true);
+
+      // Estas dos librerías son el bloque más pesado de esta pantalla. Se cargan
+      // únicamente cuando el usuario solicita el PDF para no penalizar la
+      // navegación normal ni el primer render de Términos.
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ]);
       
       const canvas = await html2canvas(pdfRef.current, {
         scale: 2,
@@ -80,7 +86,7 @@ const Terminos: React.FC = () => {
       
     } catch (error) {
       console.error('Error generando PDF:', error);
-      notify('Hubo un problema al generar el documento PDF.');
+      void notify('Hubo un problema al generar el documento PDF.');
     } finally {
       setGenerandoPDF(false);
     }
