@@ -1,8 +1,28 @@
 // src/pages/Partidos.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import api from '../api/axiosConfig';
 import { useAuth } from '../contexts/AuthContext';
 import { useAcademyMessages } from '../hooks/useAcademyMessages';
+
+interface CompetitiveMetric {
+  code: string;
+  label: string;
+  aggregate?: string;
+  unit?: string | null;
+  decimals?: number;
+}
+
+interface CompetitiveProfile {
+  code: string;
+  label: string;
+  icon: string;
+  activityLabel: string;
+  opponentLabel: string;
+  scoreLabel: string;
+  usesHeadToHeadScore: boolean;
+  metricVersion: number;
+  metrics: CompetitiveMetric[];
+}
 
 interface Partido {
   id: string;
@@ -24,7 +44,33 @@ interface Partido {
   torneo_id?: string;
   categorias?: { nombre: string };
   torneos?: { nombre: string };
+  sport_profile?: CompetitiveProfile;
 }
+
+interface StatJugador {
+  jugador_id: string;
+  nombre: string;
+  foto_base64?: string;
+  metricas_competitivas: Record<string, number>;
+  es_mvp: boolean;
+}
+
+const FALLBACK_PROFILE: CompetitiveProfile = {
+  code: 'generico',
+  label: 'Deporte',
+  icon: '🏅',
+  activityLabel: 'Encuentro',
+  opponentLabel: 'Rival / evento',
+  scoreLabel: 'Puntos',
+  usesHeadToHeadScore: true,
+  metricVersion: 1,
+  metrics: [
+    { code: 'participaciones', label: 'Participaciones', decimals: 0 },
+    { code: 'victorias', label: 'Victorias', decimals: 0 },
+    { code: 'podios', label: 'Podios', decimals: 0 },
+    { code: 'puntos', label: 'Puntos', decimals: 2 },
+  ],
+};
 
 const toMinutes = (value: string) => {
   const [hours, minutes] = value.slice(0, 5).split(':').map(Number);
@@ -52,17 +98,6 @@ const TimeSelector = ({ label, value, onChange, quickTimes, help }: { label: str
   </div>
 );
 
-interface StatJugador {
-  jugador_id: string;
-  nombre: string;
-  foto_base64?: string;
-  goles: number;
-  asistencias: number;
-  tarjetas_amarillas: number;
-  tarjetas_rojas: number;
-  es_mvp: boolean;
-}
-
 const Partidos: React.FC = () => {
   const { user } = useAuth();
   const { confirmAction, notify } = useAcademyMessages();
@@ -70,22 +105,20 @@ const Partidos: React.FC = () => {
   const [torneos, setTorneos] = useState<any[]>([]);
   const [categorias, setCategorias] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Modales
+
   const [showModalPartido, setShowModalPartido] = useState(false);
   const [idPartidoEditando, setIdPartidoEditando] = useState<string | null>(null);
   const [showModalCitaciones, setShowModalCitaciones] = useState(false);
   const [showModalResultado, setShowModalResultado] = useState(false);
-  
+
   const [partidoSeleccionado, setPartidoSeleccionado] = useState<Partido | null>(null);
   const [citados, setCitados] = useState<any[]>([]);
   const [statsJugadores, setStatsJugadores] = useState<StatJugador[]>([]);
-  
-  // Formulario Resultado
-  const [golesFavor, setGolesFavor] = useState<number>(0);
-  const [golesContra, setGolesContra] = useState<number>(0);
-  const [enviarWhatsappResumen, setEnviarWhatsappResumen] = useState<boolean>(true);
+  const [competitiveProfile, setCompetitiveProfile] = useState<CompetitiveProfile>(FALLBACK_PROFILE);
 
+  const [resultadoFavor, setResultadoFavor] = useState<number>(0);
+  const [resultadoContra, setResultadoContra] = useState<number>(0);
+  const [enviarWhatsappResumen, setEnviarWhatsappResumen] = useState<boolean>(true);
   const [enviandoCitacion, setEnviandoCitacion] = useState(false);
   const [guardando, setGuardando] = useState(false);
 
@@ -102,12 +135,10 @@ const Partidos: React.FC = () => {
     color_uniforme: 'Titular',
     condicion: 'Local',
     cobra_arbitraje: false,
-    monto_arbitraje_jugador: 0
+    monto_arbitraje_jugador: 0,
   });
 
-  useEffect(() => {
-    cargarDatos();
-  }, []);
+  useEffect(() => { void cargarDatos(); }, []);
 
   const cargarDatos = async () => {
     try {
@@ -115,14 +146,13 @@ const Partidos: React.FC = () => {
       const [resP, resT, resC] = await Promise.all([
         api.get('/api/partidos'),
         api.get('/api/torneos'),
-        api.get('/api/jugadores/categorias')
+        api.get('/api/jugadores/categorias'),
       ]);
-
       setPartidos(resP.data.data || []);
       setTorneos(resT.data.data || []);
       setCategorias(resC.data.data || []);
     } catch (error) {
-      console.error('Error cargando partidos:', error);
+      console.error('Error cargando encuentros:', error);
     } finally {
       setLoading(false);
     }
@@ -143,7 +173,7 @@ const Partidos: React.FC = () => {
       color_uniforme: 'Titular',
       condicion: 'Local',
       cobra_arbitraje: false,
-      monto_arbitraje_jugador: 0
+      monto_arbitraje_jugador: 0,
     });
     setShowModalPartido(true);
   };
@@ -163,36 +193,34 @@ const Partidos: React.FC = () => {
       color_uniforme: p.color_uniforme || 'Titular',
       condicion: p.condicion || 'Local',
       cobra_arbitraje: p.cobra_arbitraje || false,
-      monto_arbitraje_jugador: p.monto_arbitraje_jugador || 0
+      monto_arbitraje_jugador: p.monto_arbitraje_jugador || 0,
     });
     setShowModalPartido(true);
   };
 
-  const handleEliminarPartido = async (id: string, rival: string) => {
-    const conf = await confirmAction(`¿Estás seguro de eliminar el partido vs "${rival}"?`, 'danger');
+  const handleEliminarPartido = async (partido: Partido) => {
+    const conf = await confirmAction(`¿Estás seguro de eliminar este encuentro con "${partido.rival}"?`, 'danger');
     if (!conf) return;
-
     try {
-      await api.delete(`/api/partidos/${id}`);
-      cargarDatos();
-    } catch (error) {
-      notify('Error al eliminar el partido.');
+      await api.delete(`/api/partidos/${partido.id}`);
+      void cargarDatos();
+    } catch (_error) {
+      void notify('Error al eliminar el encuentro.');
     }
   };
 
   const handleEnviarCitacion = async (partido: Partido) => {
-    if (!partido.categoria_id) return notify('Este partido no tiene una categoría asignada.');
-    
-    const conf = await confirmAction(`¿Deseas enviar la citación de WhatsApp a todos los jugadores de la categoría ${partido.categorias?.nombre || ''}?`);
+    if (!partido.categoria_id) return notify('Este encuentro no tiene una categoría asignada.');
+    const conf = await confirmAction(`¿Deseas enviar la citación de WhatsApp a la categoría ${partido.categorias?.nombre || ''}?`);
     if (!conf) return;
 
     setEnviandoCitacion(true);
     try {
       await api.post(`/api/partidos/${partido.id}/citacion`);
-      notify('✅ ¡Citaciones de WhatsApp enviadas con éxito!');
-      abrirCitaciones(partido);
+      await notify('✅ Citaciones de WhatsApp enviadas con éxito.');
+      void abrirCitaciones(partido);
     } catch (error: any) {
-      notify(error.response?.data?.error || 'Error enviando citaciones.');
+      await notify(error.response?.data?.error || 'Error enviando citaciones.');
     } finally {
       setEnviandoCitacion(false);
     }
@@ -211,48 +239,58 @@ const Partidos: React.FC = () => {
 
   const abrirModalResultado = async (partido: Partido) => {
     setPartidoSeleccionado(partido);
-    setGolesFavor(partido.goles_favor || 0);
-    setGolesContra(partido.goles_contra || 0);
+    setResultadoFavor(partido.goles_favor || 0);
+    setResultadoContra(partido.goles_contra || 0);
+    setCompetitiveProfile(partido.sport_profile || FALLBACK_PROFILE);
     setShowModalResultado(true);
 
     try {
       const res = await api.get(`/api/partidos/${partido.id}/estadisticas`);
-      setStatsJugadores(res.data.data || []);
+      const profile: CompetitiveProfile = res.data.profile || partido.sport_profile || FALLBACK_PROFILE;
+      setCompetitiveProfile(profile);
+      const players = (res.data.data || []).map((stat: StatJugador) => ({
+        ...stat,
+        metricas_competitivas: Object.fromEntries(profile.metrics.map((metric) => [
+          metric.code,
+          Number(stat.metricas_competitivas?.[metric.code] || 0),
+        ])),
+      }));
+      setStatsJugadores(players);
     } catch (error) {
-      console.error('Error al cargar estadísticas del partido:', error);
+      console.error('Error al cargar estadísticas del encuentro:', error);
+      setStatsJugadores([]);
     }
   };
 
-  const handleStatChange = (jugadorId: string, field: keyof StatJugador, value: any) => {
-    setStatsJugadores(prev => prev.map(s => {
-      if (s.jugador_id === jugadorId) {
-        return { ...s, [field]: value };
-      }
-      // Si se marca un MVP, desmarcamos los demás
-      if (field === 'es_mvp' && value === true) {
-        return { ...s, es_mvp: false };
-      }
-      return s;
-    }));
+  const handleMetricChange = (jugadorId: string, metricCode: string, value: number) => {
+    setStatsJugadores((prev) => prev.map((stat) => stat.jugador_id === jugadorId
+      ? { ...stat, metricas_competitivas: { ...stat.metricas_competitivas, [metricCode]: value } }
+      : stat));
+  };
+
+  const handleMvpChange = (jugadorId: string, checked: boolean) => {
+    setStatsJugadores((prev) => prev.map((stat) => ({
+      ...stat,
+      es_mvp: stat.jugador_id === jugadorId ? checked : (checked ? false : stat.es_mvp),
+    })));
   };
 
   const guardarResultadoCompleto = async () => {
     if (!partidoSeleccionado) return;
     setGuardando(true);
-
     try {
       await api.post(`/api/partidos/${partidoSeleccionado.id}/guardar-resultado`, {
-        goles_favor: golesFavor,
-        goles_contra: golesContra,
+        resultado_favor: resultadoFavor,
+        resultado_contra: resultadoContra,
         estadisticas: statsJugadores,
-        enviarWhatsapp: enviarWhatsappResumen
+        enviarWhatsapp: enviarWhatsappResumen,
       });
 
-      notify('✅ ¡Resultado guardado e informe enviado por WhatsApp!');
+      await notify(enviarWhatsappResumen ? '✅ Resultado guardado e informe enviado por WhatsApp.' : '✅ Resultado guardado correctamente.');
       setShowModalResultado(false);
-      cargarDatos();
+      void cargarDatos();
     } catch (error: any) {
-      notify(error.response?.data?.error || 'Error al guardar el resultado.');
+      await notify(error.response?.data?.error || 'Error al guardar el resultado.');
     } finally {
       setGuardando(false);
     }
@@ -262,15 +300,12 @@ const Partidos: React.FC = () => {
     e.preventDefault();
     setGuardando(true);
     try {
-      if (idPartidoEditando) {
-        await api.put(`/api/partidos/${idPartidoEditando}`, form);
-      } else {
-        await api.post('/api/partidos', form);
-      }
+      if (idPartidoEditando) await api.put(`/api/partidos/${idPartidoEditando}`, form);
+      else await api.post('/api/partidos', form);
       setShowModalPartido(false);
-      cargarDatos();
+      void cargarDatos();
     } catch (error: any) {
-      notify(error.response?.data?.error || 'Error al procesar el partido.');
+      await notify(error.response?.data?.error || 'Error al procesar el encuentro.');
     } finally {
       setGuardando(false);
     }
@@ -278,410 +313,134 @@ const Partidos: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-10">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-[#e6edf3]">⚽ Fixture y Resultados</h1>
-          <p className="text-sm text-gray-400">Programación de encuentros, citaciones y registro de estadísticas.</p>
+          <h1 className="text-3xl font-bold text-[#e6edf3]">🏆 Competencias y Resultados</h1>
+          <p className="text-sm text-gray-400">Programación, citaciones y estadísticas específicas para cada disciplina.</p>
         </div>
-        <button 
-          onClick={abrirModalCrear}
-          className="bg-[#289E9D] hover:bg-[#207f7e] text-white px-5 py-2.5 rounded-lg font-bold shadow-lg transition-colors cursor-pointer"
-        >
-          + Programar Partido
-        </button>
+        <button onClick={abrirModalCrear} className="rounded-lg bg-[#289E9D] px-5 py-2.5 font-bold text-white shadow-lg transition-colors hover:bg-[#207f7e]">+ Programar Encuentro</button>
       </div>
 
-      {/* LISTA DE PARTIDOS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {loading ? (
-          <div className="col-span-full text-center py-10 text-[#289E9D] font-bold">Cargando partidos...</div>
+          <div className="col-span-full py-10 text-center font-bold text-[#289E9D]">Cargando competencias...</div>
         ) : partidos.length === 0 ? (
-          <div className="col-span-full text-center py-12 bg-[#0d1117] rounded-xl border border-[#30363d] text-gray-500">
-            No hay partidos programados.
-          </div>
-        ) : (
-          partidos.map(p => (
-            <div key={p.id} className="bg-[#0d1117] border border-[#30363d] rounded-xl p-5 space-y-4 relative hover:border-[#289E9D] transition-colors flex flex-col justify-between">
+          <div className="col-span-full rounded-xl border border-[#30363d] bg-[#0d1117] py-12 text-center text-gray-500">No hay encuentros programados.</div>
+        ) : partidos.map((p) => {
+          const profile = p.sport_profile || FALLBACK_PROFILE;
+          return (
+            <div key={p.id} className="relative flex flex-col justify-between space-y-4 rounded-xl border border-[#30363d] bg-[#0d1117] p-5 transition-colors hover:border-[#289E9D]">
               <div className="space-y-3">
-                <div className="flex justify-between items-center text-xs">
-                  <div className="flex items-center gap-1.5">
-                    {p.es_amistoso ? (
-                      <span className="bg-purple-500/20 text-purple-400 border border-purple-500/30 px-2.5 py-0.5 rounded-full font-bold">🤝 Amistoso</span>
-                    ) : (
-                      <span className="bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2.5 py-0.5 rounded-full font-bold truncate max-w-[120px]">🏆 {p.torneos?.nombre}</span>
-                    )}
-                    <span className={`px-2 py-0.5 rounded-full font-bold border ${p.condicion === 'Visita' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' : 'bg-green-500/20 text-green-400 border-green-500/30'}`}>
-                      {p.condicion === 'Visita' ? '✈️ Visita' : '🏠 Local'}
-                    </span>
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="rounded-full border border-[#289E9D]/35 bg-[#289E9D]/10 px-2.5 py-0.5 font-bold text-[#70e4df]">{profile.icon} {profile.label}</span>
+                    {p.es_amistoso ? <span className="rounded-full border border-purple-500/30 bg-purple-500/20 px-2.5 py-0.5 font-bold text-purple-400">🤝 Amistoso</span> : <span className="max-w-[120px] truncate rounded-full border border-blue-500/30 bg-blue-500/20 px-2.5 py-0.5 font-bold text-blue-400">🏆 {p.torneos?.nombre}</span>}
+                    <span className={`rounded-full border px-2 py-0.5 font-bold ${p.condicion === 'Visita' ? 'border-orange-500/30 bg-orange-500/20 text-orange-400' : 'border-green-500/30 bg-green-500/20 text-green-400'}`}>{p.condicion === 'Visita' ? '✈️ Visita' : '🏠 Local'}</span>
                   </div>
-                  
                   <div className="flex items-center gap-2">
-                    <span className="bg-gray-800 text-gray-300 border border-gray-700 px-2 py-0.5 rounded-full font-bold">🏷️ {p.categorias?.nombre || 'Sin Cat.'}</span>
-                    <button onClick={() => abrirModalEditar(p)} className="text-gray-400 hover:text-white p-1" title="Editar">✏️</button>
-                    <button onClick={() => handleEliminarPartido(p.id, p.rival)} className="text-red-400 hover:text-red-300 p-1" title="Eliminar">🗑️</button>
+                    <span className="rounded-full border border-gray-700 bg-gray-800 px-2 py-0.5 font-bold text-gray-300">🏷️ {p.categorias?.nombre || 'Sin Cat.'}</span>
+                    <button onClick={() => abrirModalEditar(p)} className="p-1 text-gray-400 hover:text-white" title="Editar">✏️</button>
+                    <button onClick={() => void handleEliminarPartido(p)} className="p-1 text-red-400 hover:text-red-300" title="Eliminar">🗑️</button>
                   </div>
                 </div>
 
-                <div>
-                  <span className="text-xs text-gray-400 uppercase font-semibold">Rival</span>
-                  <h3 className="text-xl font-bold text-white">vs {p.rival}</h3>
-                </div>
+                <div><span className="text-xs font-semibold uppercase text-gray-400">{profile.opponentLabel}</span><h3 className="text-xl font-bold text-white">{profile.usesHeadToHeadScore ? 'vs ' : ''}{p.rival}</h3></div>
 
-                {/* MARCADOR SI EL PARTIDO YA SE JUGÓ */}
                 {p.estado === 'Jugado' && (
-                  <div className="bg-[#161b22] border border-[#289E9D]/40 p-3 rounded-lg text-center">
-                    <span className="text-xs text-gray-400 block mb-1">Resultado Final</span>
-                    <span className="text-2xl font-black text-[#289E9D]">
-                      {p.goles_favor} - {p.goles_contra}
-                    </span>
+                  <div className="rounded-lg border border-[#289E9D]/40 bg-[#161b22] p-3 text-center">
+                    <span className="mb-1 block text-xs text-gray-400">Resultado registrado</span>
+                    {profile.usesHeadToHeadScore ? <span className="text-2xl font-black text-[#289E9D]">{p.goles_favor || 0} - {p.goles_contra || 0} <small className="text-xs font-bold text-gray-500">{profile.scoreLabel}</small></span> : <span className="text-sm font-black text-[#70e4df]">{profile.icon} Competencia completada</span>}
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-2 text-xs bg-[#161b22] p-3 rounded-lg border border-[#30363d]/50 text-gray-300">
-                  <div><span className="text-gray-500 block">📅 Fecha:</span> <strong className="text-white">{p.fecha}</strong></div>
-                  <div><span className="text-gray-500 block">📣 Citación:</span> <strong className="text-[#70e4df]">{p.hora_citacion?.slice(0, 5) || 'Por definir'}</strong></div>
-                  <div><span className="text-gray-500 block">⏰ Partido:</span> <strong className="text-white">{p.hora?.slice(0, 5)} hrs</strong></div>
-                  <div><span className="text-gray-500 block">👕 Uniforme:</span> <strong className="text-white">{p.color_uniforme}</strong></div>
-                  <div><span className="text-gray-500 block">🏟️ Lugar:</span> <strong className="text-white truncate block">{p.ubicacion || 'Por confirmar'}</strong></div>
+                <div className="grid grid-cols-2 gap-2 rounded-lg border border-[#30363d]/50 bg-[#161b22] p-3 text-xs text-gray-300">
+                  <div><span className="block text-gray-500">📅 Fecha:</span><strong className="text-white">{p.fecha}</strong></div>
+                  <div><span className="block text-gray-500">📣 Citación:</span><strong className="text-[#70e4df]">{p.hora_citacion?.slice(0, 5) || 'Por definir'}</strong></div>
+                  <div><span className="block text-gray-500">⏰ Inicio:</span><strong className="text-white">{p.hora?.slice(0, 5)} hrs</strong></div>
+                  <div><span className="block text-gray-500">👕 Indumentaria:</span><strong className="text-white">{p.color_uniforme}</strong></div>
+                  <div><span className="block text-gray-500">🏟️ Lugar:</span><strong className="block truncate text-white">{p.ubicacion || 'Por confirmar'}</strong></div>
                 </div>
 
-                {p.link_maps && (
-                  <a 
-                    href={p.link_maps} 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="block text-center bg-[#161b22] hover:bg-[#21262d] text-[#289E9D] border border-[#289E9D]/30 py-1.5 rounded text-xs font-bold transition-colors"
-                  >
-                    🗺️ Ver Ubicación en Mapas
-                  </a>
-                )}
+                {p.link_maps && <a href={p.link_maps} target="_blank" rel="noreferrer" className="block rounded border border-[#289E9D]/30 bg-[#161b22] py-1.5 text-center text-xs font-bold text-[#289E9D] transition-colors hover:bg-[#21262d]">🗺️ Ver ubicación</a>}
               </div>
 
-              <div className="pt-3 grid grid-cols-3 gap-2 border-t border-[#30363d]/50">
-                <button 
-                  onClick={() => handleEnviarCitacion(p)}
-                  disabled={enviandoCitacion}
-                  className="bg-[#289E9D] hover:bg-[#207f7e] text-white py-2 rounded text-xs font-bold transition-colors shadow flex justify-center items-center gap-1"
-                >
-                  📢 Citación
-                </button>
-                <button 
-                  onClick={() => abrirCitaciones(p)}
-                  className="bg-[#21262d] hover:bg-[#30363d] text-white py-2 rounded text-xs font-bold border border-[#30363d] transition-colors"
-                >
-                  📋 Citados
-                </button>
-                <button 
-                  onClick={() => abrirModalResultado(p)}
-                  className="bg-amber-600 hover:bg-amber-500 text-white py-2 rounded text-xs font-bold transition-colors shadow"
-                >
-                  🏆 Resultado
-                </button>
+              <div className="grid grid-cols-3 gap-2 border-t border-[#30363d]/50 pt-3">
+                <button onClick={() => void handleEnviarCitacion(p)} disabled={enviandoCitacion} className="flex items-center justify-center gap-1 rounded bg-[#289E9D] py-2 text-xs font-bold text-white shadow transition-colors hover:bg-[#207f7e] disabled:opacity-50">📢 Citación</button>
+                <button onClick={() => void abrirCitaciones(p)} className="rounded border border-[#30363d] bg-[#21262d] py-2 text-xs font-bold text-white transition-colors hover:bg-[#30363d]">📋 Citados</button>
+                <button onClick={() => void abrirModalResultado(p)} className="rounded bg-amber-600 py-2 text-xs font-bold text-white shadow transition-colors hover:bg-amber-500">🏆 Resultado</button>
               </div>
             </div>
-          ))
-        )}
+          );
+        })}
       </div>
 
-      {/* MODAL PROGRAMAR O EDITAR PARTIDO */}
       {showModalPartido && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#161b22] border border-[#30363d] rounded-xl w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold text-white">
-              {idPartidoEditando ? '✏️ Editar Partido' : '⚽ Programar Partido'}
-            </h2>
-            
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="max-h-[90vh] w-full max-w-lg space-y-4 overflow-y-auto rounded-xl border border-[#30363d] bg-[#161b22] p-6">
+            <h2 className="text-2xl font-bold text-white">{idPartidoEditando ? '✏️ Editar Encuentro' : '🏅 Programar Encuentro'}</h2>
             <form onSubmit={handleSubmit} className="space-y-4 text-sm">
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-gray-400 mb-1 font-semibold">Categoría *</label>
-                  <select 
-                    required 
-                    value={form.categoria_id} 
-                    onChange={e => setForm({ ...form, categoria_id: e.target.value })}
-                    className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]"
-                  >
-                    <option value="">-- Seleccionar --</option>
-                    {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-gray-400 mb-1 font-semibold">Tipo *</label>
-                  <select 
-                    value={form.es_amistoso ? 'amistoso' : 'torneo'} 
-                    onChange={e => setForm({ ...form, es_amistoso: e.target.value === 'amistoso' })}
-                    className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]"
-                  >
-                    <option value="torneo">🏆 Torneo</option>
-                    <option value="amistoso">🤝 Amistoso</option>
-                  </select>
-                </div>
+                <div><label className="mb-1 block font-semibold text-gray-400">Categoría *</label><select required value={form.categoria_id} onChange={(e) => setForm({ ...form, categoria_id: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]"><option value="">-- Seleccionar --</option>{categorias.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}</select></div>
+                <div><label className="mb-1 block font-semibold text-gray-400">Tipo *</label><select value={form.es_amistoso ? 'amistoso' : 'torneo'} onChange={(e) => setForm({ ...form, es_amistoso: e.target.value === 'amistoso' })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]"><option value="torneo">🏆 Torneo / competencia</option><option value="amistoso">🤝 Amistoso</option></select></div>
               </div>
 
-              {!form.es_amistoso && (
-                <div>
-                  <label className="block text-gray-400 mb-1 font-semibold">Torneo *</label>
-                  <select 
-                    required={!form.es_amistoso} 
-                    value={form.torneo_id} 
-                    onChange={e => setForm({ ...form, torneo_id: e.target.value })}
-                    className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]"
-                  >
-                    <option value="">-- Seleccionar Torneo --</option>
-                    {torneos.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
-                  </select>
-                </div>
-              )}
+              {!form.es_amistoso && <div><label className="mb-1 block font-semibold text-gray-400">Torneo *</label><select required={!form.es_amistoso} value={form.torneo_id} onChange={(e) => setForm({ ...form, torneo_id: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]"><option value="">-- Seleccionar Torneo --</option>{torneos.map((t) => <option key={t.id} value={t.id}>{t.nombre}</option>)}</select></div>}
 
-              <div>
-                <label className="block text-gray-400 mb-1 font-semibold">Rival *</label>
-                <input required type="text" placeholder="Ej: Colo Colo Filial Sur" value={form.rival} onChange={e => setForm({ ...form, rival: e.target.value })} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]" />
-              </div>
+              <div><label className="mb-1 block font-semibold text-gray-400">Rival / evento *</label><input required type="text" placeholder="Ej: Club rival / 100 m libre / Torneo Regional" value={form.rival} onChange={(e) => setForm({ ...form, rival: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]" /></div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-gray-400 mb-1 font-semibold">Condición *</label>
-                  <select 
-                    value={form.condicion} 
-                    onChange={e => setForm({ ...form, condicion: e.target.value })}
-                    className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]"
-                  >
-                    <option value="Local">🏠 Local</option>
-                    <option value="Visita">✈️ Visita</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-gray-400 mb-1 font-semibold">Uniforme *</label>
-                  <select 
-                    value={form.color_uniforme} 
-                    onChange={e => setForm({ ...form, color_uniforme: e.target.value })}
-                    className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]"
-                  >
-                    <option value="Titular">Titular</option>
-                    <option value="Visita">Visita</option>
-                    <option value="Ambas (Llevar ambos)">Ambas (Llevar ambos)</option>
-                  </select>
-                </div>
+                <div><label className="mb-1 block font-semibold text-gray-400">Condición *</label><select value={form.condicion} onChange={(e) => setForm({ ...form, condicion: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]"><option value="Local">🏠 Local</option><option value="Visita">✈️ Visita</option></select></div>
+                <div><label className="mb-1 block font-semibold text-gray-400">Indumentaria *</label><select value={form.color_uniforme} onChange={(e) => setForm({ ...form, color_uniforme: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]"><option value="Titular">Titular</option><option value="Visita">Visita</option><option value="Ambas (Llevar ambos)">Ambas</option></select></div>
               </div>
 
-              <div>
-                <label className="block text-gray-400 mb-1 font-semibold">Fecha *</label>
-                <input required type="date" value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]" />
-              </div>
+              <div><label className="mb-1 block font-semibold text-gray-400">Fecha *</label><input required type="date" value={form.fecha} onChange={(e) => setForm({ ...form, fecha: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]" /></div>
 
-              <TimeSelector
-                label="Hora de inicio del partido"
-                value={form.hora}
-                onChange={(hora) => setForm((current) => ({ ...current, hora, hora_citacion: shiftTime(hora, -60) }))}
-                quickTimes={['09:00', '10:00', '11:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00']}
-                help="Selecciona una hora común o ajústala de 15 en 15 minutos."
-              />
+              <TimeSelector label="Hora de inicio" value={form.hora} onChange={(hora) => setForm((current) => ({ ...current, hora, hora_citacion: shiftTime(hora, -60) }))} quickTimes={['09:00', '10:00', '11:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00']} help="Selecciona una hora común o ajústala de 15 en 15 minutos." />
+              <TimeSelector label="Hora de citación" value={form.hora_citacion} onChange={(hora_citacion) => setForm((current) => ({ ...current, hora_citacion }))} quickTimes={[shiftTime(form.hora, -120), shiftTime(form.hora, -90), shiftTime(form.hora, -60), shiftTime(form.hora, -45)]} help="Se propone 60 minutos antes del inicio." />
 
-              <TimeSelector
-                label="Hora de citación"
-                value={form.hora_citacion}
-                onChange={(hora_citacion) => setForm((current) => ({ ...current, hora_citacion }))}
-                quickTimes={[shiftTime(form.hora, -120), shiftTime(form.hora, -90), shiftTime(form.hora, -60), shiftTime(form.hora, -45)]}
-                help="Solo la dirección puede modificarla. Se propone 60 minutos antes."
-              />
+              <div><label className="mb-1 block font-semibold text-gray-400">Lugar / recinto</label><input type="text" placeholder="Ej: Complejo Deportivo / Piscina / Estadio" value={form.ubicacion} onChange={(e) => setForm({ ...form, ubicacion: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]" /></div>
+              <div><label className="mb-1 block font-semibold text-gray-400">Link de ubicación</label><input type="url" placeholder="https://maps.app.goo.gl/..." value={form.link_maps} onChange={(e) => setForm({ ...form, link_maps: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]" /></div>
 
-              <div>
-                <label className="block text-gray-400 mb-1 font-semibold">Lugar / Cancha</label>
-                <input type="text" placeholder="Ej: Complejo Deportivo Cordillera" value={form.ubicacion} onChange={e => setForm({ ...form, ubicacion: e.target.value })} className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]" />
-              </div>
+              <div className="space-y-2 rounded-lg border border-[#30363d] bg-[#0d1117] p-3"><label className="flex cursor-pointer items-center justify-between font-semibold text-white"><span>⚖️ ¿Aplica cuota de arbitraje / jueces?</span><input type="checkbox" checked={form.cobra_arbitraje} onChange={(e) => setForm({ ...form, cobra_arbitraje: e.target.checked })} className="accent-[#289E9D]" /></label>{form.cobra_arbitraje && <input type="number" min="0" placeholder="Monto por deportista ($)" value={form.monto_arbitraje_jugador} onChange={(e) => setForm({ ...form, monto_arbitraje_jugador: Number(e.target.value) })} className="w-full rounded border border-[#30363d] bg-[#161b22] p-2 text-white outline-none focus:border-[#289E9D]" />}</div>
 
-              <div>
-                <label className="block text-gray-400 mb-1 font-semibold">Link de Ubicación (Waze / Google Maps)</label>
-                <input 
-                  type="url" 
-                  placeholder="https://maps.app.goo.gl/..." 
-                  value={form.link_maps} 
-                  onChange={e => setForm({ ...form, link_maps: e.target.value })} 
-                  className="w-full bg-[#0d1117] border border-[#30363d] rounded p-2.5 text-white outline-none focus:border-[#289E9D]" 
-                />
-              </div>
-
-              <div className="p-3 bg-[#0d1117] border border-[#30363d] rounded-lg space-y-2">
-                <label className="flex items-center justify-between cursor-pointer text-white font-semibold">
-                  <span>⚖️ ¿Aplica cuota de arbitraje?</span>
-                  <input type="checkbox" checked={form.cobra_arbitraje} onChange={e => setForm({ ...form, cobra_arbitraje: e.target.checked })} className="accent-[#289E9D]" />
-                </label>
-                {form.cobra_arbitraje && (
-                  <input type="number" placeholder="Monto por jugador ($)" value={form.monto_arbitraje_jugador} onChange={e => setForm({ ...form, monto_arbitraje_jugador: Number(e.target.value) })} className="w-full bg-[#161b22] border border-[#30363d] rounded p-2 text-white outline-none focus:border-[#289E9D]" />
-                )}
-              </div>
-
-              <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowModalPartido(false)} className="px-4 py-2 text-gray-400 hover:text-white">Cancelar</button>
-                <button type="submit" disabled={guardando} className="bg-[#289E9D] hover:bg-[#207f7e] text-white px-6 py-2 rounded-lg font-bold">
-                  {idPartidoEditando ? 'Actualizar Partido' : 'Guardar'}
-                </button>
-              </div>
+              <div className="flex justify-end gap-3 pt-2"><button type="button" onClick={() => setShowModalPartido(false)} className="px-4 py-2 text-gray-400 hover:text-white">Cancelar</button><button type="submit" disabled={guardando} className="rounded-lg bg-[#289E9D] px-6 py-2 font-bold text-white disabled:opacity-50">{idPartidoEditando ? 'Actualizar Encuentro' : 'Guardar'}</button></div>
             </form>
           </div>
         </div>
       )}
 
-      {/* MODAL VER CITADOS */}
       {showModalCitaciones && partidoSeleccionado && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#161b22] border border-[#30363d] rounded-xl w-full max-w-2xl p-6 space-y-4 shadow-2xl">
-            <div className="flex justify-between items-center border-b border-[#30363d] pb-3">
-              <div>
-                <h2 className="text-xl font-bold text-white">📋 Nómina de Citados</h2>
-                <p className="text-xs text-gray-400">vs {partidoSeleccionado.rival} | Categoría: {partidoSeleccionado.categorias?.nombre}</p>
-              </div>
-              <button onClick={() => setShowModalCitaciones(false)} className="text-gray-400 hover:text-white font-bold">✕</button>
-            </div>
-
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="w-full max-w-2xl space-y-4 rounded-xl border border-[#30363d] bg-[#161b22] p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#30363d] pb-3"><div><h2 className="text-xl font-bold text-white">📋 Nómina de Citados</h2><p className="text-xs text-gray-400">{partidoSeleccionado.rival} · Categoría: {partidoSeleccionado.categorias?.nombre}</p></div><button onClick={() => setShowModalCitaciones(false)} className="font-bold text-gray-400 hover:text-white">✕</button></div>
             <div className="max-h-[60vh] overflow-y-auto">
-              {citados.length === 0 ? (
-                <p className="text-center text-gray-500 py-8">Aún no se han enviado citaciones para este partido.</p>
-              ) : (
-                <table className="w-full text-sm text-left">
-                  <thead className="bg-[#0d1117] text-gray-400">
-                    <tr>
-                      <th className="p-3">Jugador</th>
-                      <th className="p-3 text-center">Estado</th>
-                      <th className="p-3">Motivo Ausencia</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#30363d]">
-                    {citados.map(c => (
-                      <tr key={c.id} className="hover:bg-[#0d1117]/50">
-                        <td className="p-3 font-bold text-white flex items-center gap-2">
-                          <img src={c.jugadores?.foto_base64 || 'https://via.placeholder.com/150'} className="w-7 h-7 rounded-full object-cover" alt="img"/>
-                          {c.jugadores?.nombre}
-                        </td>
-                        <td className="p-3 text-center">
-                          {c.respuesta === 'Si' && <span className="bg-green-500/20 text-green-400 border border-green-500/40 px-2.5 py-1 rounded-full text-xs font-bold">✔️ Confirmado</span>}
-                          {c.respuesta === 'No' && <span className="bg-red-500/20 text-red-400 border border-red-500/40 px-2.5 py-1 rounded-full text-xs font-bold">❌ Ausente</span>}
-                          {c.respuesta === 'Pendiente' && <span className="bg-yellow-500/20 text-yellow-400 border border-yellow-500/40 px-2.5 py-1 rounded-full text-xs font-bold">⏳ Pendiente</span>}
-                        </td>
-                        <td className="p-3 text-gray-300 italic text-xs">
-                          {c.motivo_ausencia || (c.respuesta === 'No' ? 'Sin motivo especificado' : '-')}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              {citados.length === 0 ? <p className="py-8 text-center text-gray-500">Aún no se han enviado citaciones para este encuentro.</p> : (
+                <table className="w-full text-left text-sm"><thead className="bg-[#0d1117] text-gray-400"><tr><th className="p-3">Deportista</th><th className="p-3 text-center">Estado</th><th className="p-3">Motivo ausencia</th></tr></thead><tbody className="divide-y divide-[#30363d]">{citados.map((c) => <tr key={c.id} className="hover:bg-[#0d1117]/50"><td className="flex items-center gap-2 p-3 font-bold text-white"><img src={c.jugadores?.foto_base64 || 'https://via.placeholder.com/150'} className="h-7 w-7 rounded-full object-cover" alt=""/>{c.jugadores?.nombre}</td><td className="p-3 text-center">{c.respuesta === 'Si' && <span className="rounded-full border border-green-500/40 bg-green-500/20 px-2.5 py-1 text-xs font-bold text-green-400">✔️ Confirmado</span>}{c.respuesta === 'No' && <span className="rounded-full border border-red-500/40 bg-red-500/20 px-2.5 py-1 text-xs font-bold text-red-400">❌ Ausente</span>}{c.respuesta === 'Pendiente' && <span className="rounded-full border border-yellow-500/40 bg-yellow-500/20 px-2.5 py-1 text-xs font-bold text-yellow-400">⏳ Pendiente</span>}</td><td className="p-3 text-xs italic text-gray-300">{c.motivo_ausencia || (c.respuesta === 'No' ? 'Sin motivo especificado' : '-')}</td></tr>)}</tbody></table>
               )}
             </div>
           </div>
         </div>
       )}
 
-      {/* MODAL REGISTRAR RESULTADO Y ESTADÍSTICAS INDIVIDUALES */}
       {showModalResultado && partidoSeleccionado && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#161b22] border border-[#30363d] rounded-xl w-full max-w-3xl p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center border-b border-[#30363d] pb-3">
-              <div>
-                <h2 className="text-xl font-bold text-white">🏆 Resultado y Estadísticas</h2>
-                <p className="text-xs text-gray-400">vs {partidoSeleccionado.rival} | {partidoSeleccionado.fecha}</p>
-              </div>
-              <button onClick={() => setShowModalResultado(false)} className="text-gray-400 hover:text-white font-bold">✕</button>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="max-h-[90vh] w-full max-w-5xl space-y-5 overflow-y-auto rounded-xl border border-[#30363d] bg-[#161b22] p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#30363d] pb-3"><div><p className="text-xs font-black uppercase tracking-[.16em] text-[#70e4df]">{competitiveProfile.icon} {competitiveProfile.label}</p><h2 className="text-xl font-bold text-white">Resultado y estadísticas</h2><p className="text-xs text-gray-400">{competitiveProfile.usesHeadToHeadScore ? 'vs ' : ''}{partidoSeleccionado.rival} · {partidoSeleccionado.fecha}</p></div><button onClick={() => setShowModalResultado(false)} className="font-bold text-gray-400 hover:text-white">✕</button></div>
 
-            {/* MARCADOR FINAL */}
-            <div className="bg-[#0d1117] p-4 rounded-xl border border-[#30363d] space-y-2">
-              <h3 className="text-sm font-bold text-gray-300 text-center">Marcador Final del Encuentro</h3>
-              <div className="flex justify-center items-center gap-6">
-                <div className="text-center">
-                  <span className="text-xs text-[#289E9D] font-bold block mb-1">{user?.nombre_academia || 'Tu academia'}</span>
-                  <input 
-                    type="number" 
-                    min="0"
-                    value={golesFavor} 
-                    onChange={e => setGolesFavor(Number(e.target.value))}
-                    className="w-20 bg-[#161b22] border-2 border-[#289E9D] rounded-lg py-2 text-center text-2xl font-black text-white outline-none"
-                  />
-                </div>
-                <span className="text-2xl font-black text-gray-500 mt-5">-</span>
-                <div className="text-center">
-                  <span className="text-xs text-red-400 font-bold block mb-1">vs {partidoSeleccionado.rival}</span>
-                  <input 
-                    type="number" 
-                    min="0"
-                    value={golesContra} 
-                    onChange={e => setGolesContra(Number(e.target.value))}
-                    className="w-20 bg-[#161b22] border-2 border-red-500/50 rounded-lg py-2 text-center text-2xl font-black text-white outline-none"
-                  />
-                </div>
-              </div>
-            </div>
+            {competitiveProfile.usesHeadToHeadScore ? (
+              <div className="space-y-2 rounded-xl border border-[#30363d] bg-[#0d1117] p-4"><h3 className="text-center text-sm font-bold text-gray-300">Resultado final · {competitiveProfile.scoreLabel}</h3><div className="flex items-center justify-center gap-6"><div className="text-center"><span className="mb-1 block text-xs font-bold text-[#289E9D]">{user?.nombre_academia || 'Tu academia'}</span><input type="number" min="0" step="1" value={resultadoFavor} onChange={(e) => setResultadoFavor(Number(e.target.value))} className="w-20 rounded-lg border-2 border-[#289E9D] bg-[#161b22] py-2 text-center text-2xl font-black text-white outline-none" /></div><span className="mt-5 text-2xl font-black text-gray-500">-</span><div className="text-center"><span className="mb-1 block text-xs font-bold text-red-400">{partidoSeleccionado.rival}</span><input type="number" min="0" step="1" value={resultadoContra} onChange={(e) => setResultadoContra(Number(e.target.value))} className="w-20 rounded-lg border-2 border-red-500/50 bg-[#161b22] py-2 text-center text-2xl font-black text-white outline-none" /></div></div></div>
+            ) : (
+              <div className="rounded-xl border border-[#289E9D]/30 bg-[#0d1117] p-4"><p className="text-sm font-bold text-[#70e4df]">{competitiveProfile.icon} {competitiveProfile.activityLabel}: {partidoSeleccionado.rival}</p><p className="mt-1 text-xs text-gray-400">Esta disciplina se registra por métricas individuales; no se fuerza un marcador de dos equipos.</p></div>
+            )}
 
-            {/* TABLA DE ESTADÍSTICAS INDIVIDUALES DE JUGADORES CONFIRMADOS */}
             <div>
-              <h3 className="text-sm font-bold text-white mb-2">Desempeño Individual de Alumnos Confirmados</h3>
-              {statsJugadores.length === 0 ? (
-                <p className="text-center text-gray-500 py-6 text-sm">No hay jugadores confirmados para este partido.</p>
-              ) : (
-                <div className="overflow-x-auto border border-[#30363d] rounded-lg">
-                  <table className="w-full text-xs text-left">
-                    <thead className="bg-[#0d1117] text-gray-400">
-                      <tr>
-                        <th className="p-2.5">Jugador</th>
-                        <th className="p-2.5 text-center">Goles</th>
-                        <th className="p-2.5 text-center">Asist.</th>
-                        <th className="p-2.5 text-center">🟨 Amarillas</th>
-                        <th className="p-2.5 text-center">🟥 Rojas</th>
-                        <th className="p-2.5 text-center">🌟 MVP</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[#30363d] bg-[#161b22]">
-                      {statsJugadores.map(s => (
-                        <tr key={s.jugador_id}>
-                          <td className="p-2.5 font-bold text-white flex items-center gap-2">
-                            <img src={s.foto_base64 || 'https://via.placeholder.com/150'} className="w-6 h-6 rounded-full object-cover" alt="img"/>
-                            {s.nombre}
-                          </td>
-                          <td className="p-2.5 text-center">
-                            <input type="number" min="0" value={s.goles} onChange={e => handleStatChange(s.jugador_id, 'goles', Number(e.target.value))} className="w-12 bg-[#0d1117] border border-[#30363d] rounded text-center p-1 text-white" />
-                          </td>
-                          <td className="p-2.5 text-center">
-                            <input type="number" min="0" value={s.asistencias} onChange={e => handleStatChange(s.jugador_id, 'asistencias', Number(e.target.value))} className="w-12 bg-[#0d1117] border border-[#30363d] rounded text-center p-1 text-white" />
-                          </td>
-                          <td className="p-2.5 text-center">
-                            <input type="number" min="0" value={s.tarjetas_amarillas} onChange={e => handleStatChange(s.jugador_id, 'tarjetas_amarillas', Number(e.target.value))} className="w-12 bg-[#0d1117] border border-[#30363d] rounded text-center p-1 text-white" />
-                          </td>
-                          <td className="p-2.5 text-center">
-                            <input type="number" min="0" value={s.tarjetas_rojas} onChange={e => handleStatChange(s.jugador_id, 'tarjetas_rojas', Number(e.target.value))} className="w-12 bg-[#0d1117] border border-[#30363d] rounded text-center p-1 text-white" />
-                          </td>
-                          <td className="p-2.5 text-center">
-                            <input type="checkbox" checked={s.es_mvp} onChange={e => handleStatChange(s.jugador_id, 'es_mvp', e.target.checked)} className="accent-amber-500 w-4 h-4" />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+              <h3 className="mb-2 text-sm font-bold text-white">Desempeño individual · {competitiveProfile.label}</h3>
+              {statsJugadores.length === 0 ? <p className="py-6 text-center text-sm text-gray-500">No hay deportistas confirmados para este encuentro.</p> : (
+                <div className="overflow-x-auto rounded-lg border border-[#30363d]"><table className="min-w-full text-left text-xs"><thead className="bg-[#0d1117] text-gray-400"><tr><th className="sticky left-0 z-10 min-w-48 bg-[#0d1117] p-2.5">Deportista</th>{competitiveProfile.metrics.map((metric) => <th key={metric.code} className="min-w-24 p-2.5 text-center">{metric.label}{metric.unit ? <span className="ml-1 text-[9px] text-gray-600">({metric.unit})</span> : null}</th>)}<th className="min-w-20 p-2.5 text-center">🌟 Destacado</th></tr></thead><tbody className="divide-y divide-[#30363d] bg-[#161b22]">{statsJugadores.map((stat) => <tr key={stat.jugador_id}><td className="sticky left-0 flex items-center gap-2 bg-[#161b22] p-2.5 font-bold text-white"><img src={stat.foto_base64 || 'https://via.placeholder.com/150'} className="h-6 w-6 rounded-full object-cover" alt=""/>{stat.nombre}</td>{competitiveProfile.metrics.map((metric) => <td key={metric.code} className="p-2.5 text-center"><input type="number" min="0" step={(metric.decimals || 0) > 0 ? 0.01 : 1} value={stat.metricas_competitivas?.[metric.code] ?? 0} onChange={(e) => handleMetricChange(stat.jugador_id, metric.code, Number(e.target.value))} className="w-20 rounded border border-[#30363d] bg-[#0d1117] p-1.5 text-center text-white outline-none focus:border-[#289E9D]" /></td>)}<td className="p-2.5 text-center"><input type="checkbox" checked={stat.es_mvp} onChange={(e) => handleMvpChange(stat.jugador_id, e.target.checked)} className="h-4 w-4 accent-amber-500" /></td></tr>)}</tbody></table></div>
               )}
             </div>
 
-            {/* OPCIÓN WHATSAPP Y ACCIONES */}
-            <div className="pt-2 border-t border-[#30363d] flex flex-col md:flex-row items-center justify-between gap-3">
-              <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-300 font-semibold">
-                <input 
-                  type="checkbox" 
-                  checked={enviarWhatsappResumen} 
-                  onChange={e => setEnviarWhatsappResumen(e.target.checked)}
-                  className="accent-[#289E9D] w-4 h-4" 
-                />
-                📲 Enviar informe detallado por WhatsApp a los apoderados confirmados
-              </label>
-
-              <div className="flex gap-3">
-                <button type="button" onClick={() => setShowModalResultado(false)} className="px-4 py-2 text-xs text-gray-400">Cancelar</button>
-                <button 
-                  onClick={guardarResultadoCompleto} 
-                  disabled={guardando} 
-                  className="bg-[#289E9D] hover:bg-[#207f7e] text-white px-5 py-2 rounded-lg text-xs font-bold"
-                >
-                  {guardando ? 'Guardando...' : '💾 Guardar y Enviar Informe'}
-                </button>
-              </div>
-            </div>
+            <div className="flex flex-col items-center justify-between gap-3 border-t border-[#30363d] pt-2 md:flex-row"><label className="flex cursor-pointer items-center gap-2 text-xs font-semibold text-gray-300"><input type="checkbox" checked={enviarWhatsappResumen} onChange={(e) => setEnviarWhatsappResumen(e.target.checked)} className="h-4 w-4 accent-[#289E9D]" />📲 Enviar resumen individual por WhatsApp a los apoderados</label><div className="flex gap-3"><button type="button" onClick={() => setShowModalResultado(false)} className="px-4 py-2 text-xs text-gray-400">Cancelar</button><button onClick={() => void guardarResultadoCompleto()} disabled={guardando} className="rounded-lg bg-[#289E9D] px-5 py-2 text-xs font-bold text-white disabled:opacity-50">{guardando ? 'Guardando...' : enviarWhatsappResumen ? '💾 Guardar y enviar' : '💾 Guardar resultado'}</button></div></div>
           </div>
         </div>
       )}
