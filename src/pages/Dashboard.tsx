@@ -93,7 +93,16 @@ const Dashboard = () => {
     </section>
 
     {showOnboarding ? <section className="overflow-hidden rounded-3xl border border-[#289E9D]/30 bg-[linear-gradient(135deg,rgba(40,158,157,0.13),rgba(21,27,37,0.96)_42%)] p-5 shadow-xl shadow-black/10 sm:p-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"><div className="flex items-start gap-4"><div className="rounded-2xl border border-[#48d8d0]/25 bg-[#289E9D]/15 p-3 text-[#70e4df]"><RocketLaunchIcon className="h-7 w-7" /></div><div><p className="text-xs font-black uppercase tracking-[0.16em] text-[#70e4df]">Puesta en marcha</p><h2 className="mt-1 text-2xl font-black text-white">Haz que tu academia empiece a trabajar contigo.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-[#9aa6b5]">Completa estos hitos una sola vez. El progreso se calcula con datos reales de tu operación y desaparece cuando terminas.</p></div></div><div className="min-w-52"><div className="flex items-center justify-between text-xs font-bold text-[#9aa6b5]"><span>Progreso</span><span>{completedOnboarding}/{onboardingSteps.length}</span></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#48d8d0] transition-all" style={{ width: `${(completedOnboarding / onboardingSteps.length) * 100}%` }} /></div></div></div></div>
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex items-start gap-4">
+          <div className="rounded-2xl border border-[#48d8d0]/25 bg-[#289E9D]/15 p-3 text-[#70e4df]"><RocketLaunchIcon className="h-7 w-7" /></div>
+          <div><p className="text-xs font-black uppercase tracking-[0.16em] text-[#70e4df]">Puesta en marcha</p><h2 className="mt-1 text-2xl font-black text-white">Haz que tu academia empiece a trabajar contigo.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-[#9aa6b5]">Completa estos hitos una sola vez. El progreso se calcula con datos reales de tu operación y desaparece cuando terminas.</p></div>
+        </div>
+        <div className="min-w-52">
+          <div className="flex items-center justify-between text-xs font-bold text-[#9aa6b5]"><span>Progreso</span><span>{completedOnboarding}/{onboardingSteps.length}</span></div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#48d8d0] transition-all" style={{ width: `${(completedOnboarding / onboardingSteps.length) * 100}%` }} /></div>
+        </div>
+      </div>
       <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-5">{onboardingSteps.map(({ code, label, detail, done, to, icon: Icon }) => <Link key={code} to={to} className={`group rounded-2xl border p-4 transition ${done ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-white/10 bg-[#101620] hover:-translate-y-0.5 hover:border-[#289E9D]/50'}`}><div className="flex items-center justify-between"><div className={`rounded-xl p-2 ${done ? 'bg-emerald-500/10 text-emerald-300' : 'bg-white/5 text-[#70e4df]'}`}><Icon className="h-5 w-5" /></div>{done ? <CheckCircleIcon className="h-5 w-5 text-emerald-300" /> : <span className="text-xs font-black text-[#70e4df]">Continuar →</span>}</div><p className={`mt-4 text-sm font-black ${done ? 'text-emerald-100' : 'text-white'}`}>{label}</p><p className="mt-2 text-xs leading-5 text-[#8995a4]">{done ? 'Completado' : detail}</p></Link>)}</div>
     </section> : null}
 
