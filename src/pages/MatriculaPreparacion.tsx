@@ -22,7 +22,9 @@ const validarRut = (rut: string) => {
 };
 
 const emptyTutor = { nombre_completo: '', rut: '', telefono: '', email: '' };
-const emptyPlayer = { nombre: '', rut: '', fecha_nacimiento: '', sexo: '', posicion_cancha: '', tipo_alumno: 'Nuevo', certificado_medico: 'Pendiente', talla_uniforme: '', numero_camiseta: '', nombre_camiseta: '', talla_apoderado: 'No desea', monto_camiseta_apoderado: '' };
+type StructureBranch = { id: string; sede_id: string; nombre: string; disciplina: string; principal: boolean; activa: boolean };
+type StructureSite = { id: string; nombre: string; principal: boolean; activa: boolean; ramas: StructureBranch[] };
+const emptyPlayer = { nombre: '', rut: '', fecha_nacimiento: '', sexo: '', posicion_cancha: '', tipo_alumno: 'Nuevo', certificado_medico: 'Pendiente', talla_uniforme: '', numero_camiseta: '', nombre_camiseta: '', talla_apoderado: 'No desea', monto_camiseta_apoderado: '', sede_id: '', rama_id: '' };
 const emptyFinance = { monto_matricula: '', abono_matricula: '', monto_mensualidad: '' };
 const steps = ['Apoderado', 'Alumno', 'Perfil deportivo', 'Valores y envío'];
 
@@ -44,9 +46,16 @@ const MatriculaPreparacion: React.FC = () => {
   const [rutConflict, setRutConflict] = useState('');
   const [rutChecking, setRutChecking] = useState(false);
   const [lastAction, setLastAction] = useState<'created' | 'updated'>('created');
+  const [structure, setStructure] = useState<StructureSite[]>([]);
 
   const loadRecent = () => api.get('/api/prematriculas').then((r) => setRecent(r.data?.data || [])).catch(() => setRecent([]));
-  useEffect(() => { loadRecent(); }, []);
+  useEffect(() => { loadRecent(); api.get('/api/estructura').then((r) => setStructure(r.data?.data || [])).catch(() => setStructure([])); }, []);
+  useEffect(() => {
+    if (jugador.sede_id || !structure.length) return;
+    const site = structure.find((item) => item.principal && item.activa) || structure.find((item) => item.activa);
+    const branch = site?.ramas.find((item) => item.principal && item.activa) || site?.ramas.find((item) => item.activa);
+    if (site) setJugador((current) => ({ ...current, sede_id: site.id, rama_id: branch?.id || '' }));
+  }, [structure, jugador.sede_id]);
 
   const skills = useMemo(() => {
     const map: Record<string, string[]> = {
@@ -69,6 +78,7 @@ const MatriculaPreparacion: React.FC = () => {
     setError('');
     if (step === 0 && (!tutor.nombre_completo.trim() || !validarRut(tutor.rut) || !tutor.telefono.trim() || !tutor.email.trim())) return setError('Completa nombre, RUT válido, teléfono y correo del apoderado.'), false;
     if (step === 1 && (!jugador.nombre.trim() || !jugador.fecha_nacimiento || !jugador.sexo || !jugador.posicion_cancha)) return setError('Completa los datos obligatorios del alumno.'), false;
+    if (step === 1 && structure.length && (!jugador.sede_id || !jugador.rama_id)) return setError('Selecciona la sede y rama deportiva del alumno.'), false;
     if (step === 1 && jugador.rut && !validarRut(jugador.rut)) return setError('El RUT del alumno no es válido.'), false;
     if (step === 1 && rutConflict) return setError(rutConflict), false;
     return true;
@@ -196,6 +206,8 @@ const MatriculaPreparacion: React.FC = () => {
     {result && <div className="rounded-2xl border border-emerald-700/40 bg-emerald-950/20 p-5"><p className="text-xs font-black uppercase tracking-[.16em] text-emerald-300">{lastAction === 'updated' ? 'Pre-matrícula corregida y reenviada' : 'Pre-matrícula enviada'}</p><p className="mt-2 font-bold text-white">{result.email_sent ? (lastAction === 'updated' ? 'Se invalidó el enlace anterior y se envió el enlace corregido al apoderado.' : 'El correo fue enviado al apoderado.') : 'El registro quedó guardado, pero no pudimos confirmar el envío del correo.'}</p><div className="mt-4 flex flex-col gap-2 md:flex-row"><input readOnly value={result.link} className="min-w-0 flex-1 rounded-xl border border-[#30363d] bg-[#0d1117] px-4 py-3 text-xs text-slate-300"/><button onClick={() => navigator.clipboard.writeText(result.link)} className="rounded-xl bg-emerald-500 px-4 py-3 text-sm font-black text-emerald-950">Copiar enlace</button></div></div>}
 
     {editingId && <div className="flex flex-col gap-3 rounded-2xl border border-sky-500/30 bg-sky-950/25 p-4 text-sm text-sky-100 md:flex-row md:items-center md:justify-between"><div><b className="text-sky-300">Editando pre-matrícula.</b> Al guardar se invalidará el enlace anterior y se enviará uno nuevo al apoderado.</div><button type="button" onClick={reset} className="rounded-xl border border-sky-400/30 px-4 py-2 font-bold text-sky-200">Cancelar edición</button></div>}
+
+    <section className="rounded-2xl border border-[#289E9D]/25 bg-[#289E9D]/[0.06] p-4 sm:p-5"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-black uppercase tracking-[.14em] text-[#70e4df]">Ubicación y rama</p><p className="mt-1 text-sm text-[#9ca3af]">Define dónde y en qué disciplina quedará registrado el alumno.</p></div><a href="/configuracion/estructura" className="text-xs font-black text-[#D8BE87]">Administrar sedes y ramas →</a></div><div className="mt-4 grid gap-3 sm:grid-cols-2"><select className={inputClass} value={jugador.sede_id} onChange={(e) => { const sede_id=e.target.value; const site=structure.find((s)=>s.id===sede_id); const branch=site?.ramas.find((r)=>r.principal&&r.activa)||site?.ramas.find((r)=>r.activa); setJugador({...jugador,sede_id,rama_id:branch?.id||''}); }}><option value="">Selecciona sede</option>{structure.filter((s)=>s.activa).map((s)=><option key={s.id} value={s.id}>{s.nombre}</option>)}</select><select className={inputClass} value={jugador.rama_id} onChange={(e)=>setJugador({...jugador,rama_id:e.target.value})}><option value="">Selecciona rama</option>{(structure.find((s)=>s.id===jugador.sede_id)?.ramas||[]).filter((r)=>r.activa).map((r)=><option key={r.id} value={r.id}>{r.nombre} · {r.disciplina}</option>)}</select></div></section>
 
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_330px]">
       <main className="space-y-5">
