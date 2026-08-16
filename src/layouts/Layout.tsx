@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   AcademicCapIcon, BanknotesIcon, Bars3Icon, BuildingOffice2Icon, CalendarDaysIcon,
-  ChartBarIcon, ClipboardDocumentCheckIcon, Cog6ToothIcon, HomeIcon,
+  ChartBarIcon, ChatBubbleLeftRightIcon, ClipboardDocumentCheckIcon, Cog6ToothIcon, HomeIcon,
   MoonIcon, PaintBrushIcon, ShieldCheckIcon, ShoppingBagIcon, SunIcon,
   TrophyIcon, UserGroupIcon, UsersIcon, XMarkIcon, ServerStackIcon,
 } from '@heroicons/react/24/outline';
@@ -32,6 +32,7 @@ const directorItems: NavItem[] = [
   { to: '/asistencias', label: 'Asistencias', icon: ClipboardDocumentCheckIcon },
   { to: '/profesores', label: 'Profesores', icon: AcademicCapIcon, feature: 'profesores' },
   { to: '/apoderados', label: 'Apoderados', icon: UserGroupIcon, feature: 'apoderados', badge: 'ADD-ON' },
+  { to: '/comunicaciones', label: 'Comunicaciones', icon: ChatBubbleLeftRightIcon, feature: 'apoderados', badge: 'ADD-ON' },
   { to: '/uniformes', label: 'Uniformes', icon: ShoppingBagIcon, feature: 'uniformes' },
   { to: '/torneos', label: 'Torneos', icon: TrophyIcon, feature: 'torneos' },
   { to: '/partidos', label: 'Partidos', icon: CalendarDaysIcon, feature: 'partidos' },
@@ -85,7 +86,7 @@ const Layout = () => {
     <div className="min-h-dvh overflow-x-hidden bg-[#0d1117] text-white">
       <header className="sticky top-0 z-40 border-b border-[#30363d] bg-[#151b25]/95 px-3 py-3 backdrop-blur sm:px-4"><div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
         <Link to={`/${kind}`} className="flex min-w-0 items-center gap-3"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#289E9D]/50 bg-[#0d1117] p-1.5 sm:h-11 sm:w-11"><Logo variant="mark" className="h-full w-full" /></div><div className="min-w-0"><p className="truncate text-sm font-black text-[#48d8d0] sm:text-base">{nombreAcademia}</p><p className="truncate text-[11px] text-[#8b949e] sm:text-xs">Portal de {kind} · {BRAND.name}</p></div></Link>
-        <button type="button" onClick={handleLogout} className="shrink-0 rounded-lg border border-[#30363d] px-3 py-2 text-xs text-[#b1bac4] hover:border-red-500 hover:text-red-300 sm:text-sm">Salir</button>
+        <div className="flex shrink-0 items-center gap-2">{kind === 'apoderado' ? <Link to="/apoderado/mensajes" className={`rounded-lg border px-3 py-2 text-xs font-black sm:text-sm ${location.pathname === '/apoderado/mensajes' ? 'border-[#289E9D] bg-[#289E9D]/15 text-[#70e4df]' : 'border-[#30363d] text-[#b1bac4] hover:border-[#289E9D] hover:text-[#70e4df]'}`}>Mensajes</Link> : null}<button type="button" onClick={handleLogout} className="rounded-lg border border-[#30363d] px-3 py-2 text-xs text-[#b1bac4] hover:border-red-500 hover:text-red-300 sm:text-sm">Salir</button></div>
       </div></header>
       <main className="app-content mx-auto min-w-0 max-w-6xl p-3 sm:p-6"><AcademyTrialNotice subscription={planAccess?.subscription} canManage={false} />{planAccess?.subscription.blocked ? <AcademyBlocked subscription={planAccess.subscription} canManage={false} /> : <Outlet />}</main>
     </div>
