@@ -11,7 +11,7 @@ type Player = { id: string; nombre: string };
 type Contact = { id: string; nombre?: string; nombre_completo?: string; email?: string | null; telefono?: string | null; usuario_id?: string | null; acceso_activo?: boolean; can_chat: boolean; jugadores: Player[] };
 type Message = { id: string; conversation_id: string; sender_user_id?: string | null; sender_role: string; body: string; created_at: string; deleted_at?: string | null };
 type Conversation = {
-  id: string; tutor_id: string; jugador_id?: string | null; asunto: string; estado: 'activa' | 'cerrada';
+  id: string; tutor_id: string; jugador_id?: string | null; asunto: string; estado: 'activa' | 'cerrada'; created_at: string;
   last_message_at?: string | null; unread_count: number; last_message?: Message | null;
   tutores?: { id: string; nombre?: string; nombre_completo?: string; email?: string | null } | null;
   jugadores?: { id: string; nombre: string } | null;
