@@ -32,7 +32,6 @@ export default function EstructuraAcademia() {
   useEffect(()=>{ void load(); },[]);
   useEffect(()=>{ if(!branchForm.sede_id && sites[0]?.id) setBranchForm(v=>({...v,sede_id:sites[0].id})); },[sites,branchForm.sede_id]);
 
-  const totalBranches=useMemo(()=>sites.reduce((n,s)=>n+s.ramas.length,0),[sites]);
   const activeSites=useMemo(()=>sites.filter(s=>s.activa).length,[sites]);
   const activeBranches=useMemo(()=>sites.reduce((n,s)=>n+s.ramas.filter(r=>r.activa).length,0),[sites]);
   const canCreateSite=limits.sites===null || activeSites<limits.sites;
