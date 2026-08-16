@@ -34,6 +34,14 @@ const Configuracion: React.FC = () => {
       bg: 'bg-teal-900/20',
       border: 'border-teal-500/30'
     },
+    {
+      titulo: 'Inscripciones Multideporte',
+      desc: 'Inscribe al mismo alumno en otra disciplina sin duplicar su ficha ni su apoderado',
+      icono: '🔄',
+      ruta: '/inscripciones',
+      bg: 'bg-violet-900/20',
+      border: 'border-violet-500/30'
+    },
     { 
       titulo: 'Uniformes e Inventario', 
       desc: 'Catálogo de prendas, tallas y entregas', 
