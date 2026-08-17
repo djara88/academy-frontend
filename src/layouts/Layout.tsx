@@ -28,7 +28,7 @@ type NavItem = { to: string; label: string; icon: ComponentType<{ className?: st
 const directorItems: NavItem[] = [
   { to: '/dashboard', label: 'Resumen', icon: HomeIcon },
   { to: '/matricula', label: 'Nueva matrícula', icon: ClipboardDocumentCheckIcon },
-  { to: '/jugadores', label: 'Jugadores', icon: UsersIcon },
+  { to: '/alumnos', label: 'Alumnos', icon: UsersIcon },
   { to: '/asistencias', label: 'Asistencias', icon: ClipboardDocumentCheckIcon },
   { to: '/profesores', label: 'Profesores', icon: AcademicCapIcon, feature: 'profesores' },
   { to: '/apoderados', label: 'Apoderados', icon: UserGroupIcon, feature: 'apoderados', badge: 'ADD-ON' },

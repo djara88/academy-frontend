@@ -16,7 +16,7 @@ const Login = lazy(() => import('./pages/Login'));
 const Registro = lazy(() => import('./pages/Registro'));
 const CompletarPerfil = lazy(() => import('./pages/CompletarPerfil'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
-const Jugadores = lazy(() => import('./pages/Jugadores'));
+const Alumnos = lazy(() => import('./pages/Alumnos'));
 const Matricula = lazy(() => import('./pages/MatriculaPreparacion'));
 const InscripcionesDeportivas = lazy(() => import('./pages/InscripcionesDeportivasEnhanced'));
 const PreMatriculaPublica = lazy(() => import('./pages/PreMatriculaPublica'));
@@ -117,7 +117,7 @@ const App = () => (
                   </Route>
                   <Route element={<DirectorRoutes />}>
                     <Route path="/dashboard" element={<Dashboard />} /><Route path="/profesores" element={<Profesores />} /><Route path="/apoderados" element={<Apoderados />} /><Route path="/apoderados-pro" element={<ApoderadosPro />} />
-                    <Route path="/comunicaciones" element={<CommunicationsHub />} /><Route path="/comunicaciones/grupos" element={<WhatsAppGroups />} /><Route path="/jugadores" element={<Jugadores />} />
+                    <Route path="/comunicaciones" element={<CommunicationsHub />} /><Route path="/comunicaciones/grupos" element={<WhatsAppGroups />} /><Route path="/alumnos" element={<Alumnos />} /><Route path="/jugadores" element={<Navigate to="/alumnos" replace />} />
                     <Route path="/matricula" element={<Matricula />} /><Route path="/inscripciones" element={<InscripcionesDeportivas />} /><Route path="/importacion" element={<Importacion />} /><Route path="/asistencias" element={<Asistencias />} /><Route path="/uniformes" element={<Uniformes />} />
                     <Route path="/torneos" element={<Torneos />} /><Route path="/nuevo-torneo" element={<NuevoTorneo />} /><Route path="/torneos/:id" element={<GestionarTorneo />} /><Route path="/partidos" element={<Partidos />} />
                     <Route path="/finanzas" element={<Finanzas />} /><Route path="/suscripcion" element={<Subscription />} /><Route path="/configuracion" element={<Configuracion />} /><Route path="/privacidad" element={<PrivacyRequests />} />
