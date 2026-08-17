@@ -1,18 +1,26 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import api from '../api/axiosConfig';
 import { useAuth } from '../contexts/AuthContext';
 import { useAcademyMessages } from '../hooks/useAcademyMessages';
 
+const LEGACY_EMPTY_TEXT = 'Aún no se han establecido los términos y condiciones de la academia.';
+
+const normalizeTerms = (value: unknown) => {
+  const text = String(value ?? '').trim();
+  if (!text || text === LEGACY_EMPTY_TEXT) return '';
+  if (text.startsWith(LEGACY_EMPTY_TEXT)) return text.slice(LEGACY_EMPTY_TEXT.length).trim();
+  return text;
+};
+
 const Terminos: React.FC = () => {
   const { notify } = useAcademyMessages();
   const { user } = useAuth();
-  
-  const [terminos, setTerminos] = useState<string>('');
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [saving, setSaving] = useState<boolean>(false);
-  const [generandoPDF, setGenerandoPDF] = useState<boolean>(false);
-
+  const [terminos, setTerminos] = useState('');
+  const [savedTerms, setSavedTerms] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [generandoPDF, setGenerandoPDF] = useState(false);
   const pdfRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -21,69 +29,59 @@ const Terminos: React.FC = () => {
       try {
         setLoading(true);
         const response = await api.get(`/api/academias/${user.academia_id}`);
-        const data = response.data.data;
-        
-        if (data && data.terminos_condiciones) {
-          setTerminos(data.terminos_condiciones);
-        } else {
-          setTerminos('Aún no se han establecido los términos y condiciones de la academia.');
-        }
+        const normalized = normalizeTerms(response.data?.data?.terminos_condiciones);
+        setTerminos(normalized);
+        setSavedTerms(normalized);
       } catch (error) {
         console.error('Error cargando los términos:', error);
+        void notify('No fue posible cargar los términos de matrícula.');
       } finally {
         setLoading(false);
       }
     };
-
     void cargarTerminos();
   }, [user?.academia_id]);
 
   const handleGuardar = async () => {
     if (!user?.academia_id) return;
+    const clean = terminos.trim();
     try {
       setSaving(true);
-      
-      await api.put(`/api/academias/${user.academia_id}/terminos`, {
-        terminos_condiciones: terminos
-      });
-      
+      await api.put(`/api/academias/${user.academia_id}/terminos`, { terminos_condiciones: clean || null });
+      setTerminos(clean);
+      setSavedTerms(clean);
       setIsEditing(false);
-      void notify('✅ Términos y condiciones guardados con éxito.');
+      void notify(clean
+        ? 'Términos de matrícula guardados. Las nuevas pre-matrículas usarán esta versión.'
+        : 'Se eliminaron los términos personalizados. Las nuevas pre-matrículas quedarán sin condiciones adicionales.');
     } catch (error: any) {
       console.error('Error al guardar términos:', error);
-      void notify(`❌ Error al guardar: ${error.response?.data?.message || 'Error de conexión'}`);
+      void notify(`No fue posible guardar: ${error.response?.data?.message || error.response?.data?.error || 'Error de conexión'}`);
     } finally {
       setSaving(false);
     }
+  };
+
+  const cancelEdit = () => {
+    setTerminos(savedTerms);
+    setIsEditing(false);
   };
 
   const handleGenerarPDF = async () => {
     if (!pdfRef.current) return;
     try {
       setGenerandoPDF(true);
-
-      // Estas dos librerías son el bloque más pesado de esta pantalla. Se cargan
-      // únicamente cuando el usuario solicita el PDF para no penalizar la
-      // navegación normal ni el primer render de Términos.
       const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
         import('html2canvas'),
         import('jspdf'),
       ]);
-      
-      const canvas = await html2canvas(pdfRef.current, {
-        scale: 2,
-        backgroundColor: '#ffffff',
-        useCORS: true,
-      });
-      
+      const canvas = await html2canvas(pdfRef.current, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
       const imgData = canvas.toDataURL('image/jpeg', 1.0);
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`Terminos_y_Condiciones_${user?.nombre_academia?.replace(/\s+/g, '_')}.pdf`);
-      
+      pdf.save(`Terminos_y_Condiciones_${user?.nombre_academia?.replace(/\s+/g, '_') || 'Academia'}.pdf`);
     } catch (error) {
       console.error('Error generando PDF:', error);
       void notify('Hubo un problema al generar el documento PDF.');
@@ -92,113 +90,38 @@ const Terminos: React.FC = () => {
     }
   };
 
-  if (loading) {
-    return <div className="text-[#289E9D] text-center mt-10 font-bold">Cargando documento...</div>;
-  }
+  if (loading) return <div className="mt-10 text-center font-bold text-[#289E9D]">Cargando documento...</div>;
+
+  const visibleTerms = terminos.trim();
+  const termsForPdf = visibleTerms || 'La academia no ha configurado condiciones adicionales de matrícula.';
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 relative overflow-hidden">
-      
-      {/* PLANTILLA OCULTA PARA EL PDF */}
+    <div className="relative mx-auto max-w-5xl space-y-6 overflow-hidden pb-12">
       <div className="absolute left-[-10000px] top-0">
-        <div ref={pdfRef} className="w-[800px] min-h-[1130px] bg-white text-black p-12 font-sans flex flex-col">
-          <div className="flex justify-between items-center border-b-2 border-gray-800 pb-6 mb-8">
-            {user?.logo_url ? (
-              <img src={user.logo_url} className="w-24 h-24 object-contain" alt="Logo" />
-            ) : (
-              <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500">LOGO</div>
-            )}
-            <div className="text-right">
-              <h1 className="text-2xl font-black uppercase text-gray-900">Términos y Condiciones</h1>
-              <h2 className="text-lg text-gray-600 font-semibold">{user?.nombre_academia || 'Academia Deportiva'}</h2>
-            </div>
+        <div ref={pdfRef} className="flex min-h-[1130px] w-[800px] flex-col bg-white p-12 font-sans text-black">
+          <div className="mb-8 flex items-center justify-between border-b-2 border-gray-800 pb-6">
+            {user?.logo_url ? <img src={user.logo_url} className="h-24 w-24 object-contain" alt="Logo" /> : <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-200 font-bold text-gray-500">LOGO</div>}
+            <div className="text-right"><h1 className="text-2xl font-black uppercase text-gray-900">Términos y Condiciones</h1><h2 className="text-lg font-semibold text-gray-600">{user?.nombre_academia || 'Academia Deportiva'}</h2></div>
           </div>
-          
-          <div className="flex-1">
-            <h3 className="font-bold text-lg mb-4 text-center underline">CONTRATO DE MATRÍCULA Y REGLAMENTO</h3>
-            <div className="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap text-justify">
-              {terminos}
-            </div>
-          </div>
-
-          <div className="mt-20 pt-8 border-t border-gray-400 grid grid-cols-2 gap-8">
-            <div className="text-center">
-              <div className="border-b border-gray-800 w-48 mx-auto mb-2"></div>
-              <p className="font-bold text-sm">Firma del Director</p>
-              <p className="text-xs text-gray-500">{user?.nombre_completo}</p>
-            </div>
-            <div className="text-center">
-              <div className="border-b border-gray-800 w-48 mx-auto mb-2"></div>
-              <p className="font-bold text-sm">Firma del Apoderado / Jugador</p>
-              <p className="text-xs text-gray-500">Aceptación de Términos</p>
-            </div>
-          </div>
+          <div className="flex-1"><h3 className="mb-4 text-center text-lg font-bold underline">CONTRATO DE MATRÍCULA Y REGLAMENTO</h3><div className="whitespace-pre-wrap text-justify text-sm leading-relaxed text-gray-800">{termsForPdf}</div></div>
+          <div className="mt-20 grid grid-cols-2 gap-8 border-t border-gray-400 pt-8"><div className="text-center"><div className="mx-auto mb-2 w-48 border-b border-gray-800"/><p className="text-sm font-bold">Firma del Director</p><p className="text-xs text-gray-500">{user?.nombre_completo}</p></div><div className="text-center"><div className="mx-auto mb-2 w-48 border-b border-gray-800"/><p className="text-sm font-bold">Firma del Apoderado / Jugador</p><p className="text-xs text-gray-500">Aceptación de Términos</p></div></div>
         </div>
       </div>
 
-      {/* INTERFAZ DE USUARIO */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-[#e6edf3]">📄 Términos y Condiciones</h1>
-        <div className="flex gap-3">
-          {!isEditing ? (
-            <>
-              <button 
-                onClick={() => setIsEditing(true)} 
-                className="bg-[#21262d] text-white px-4 py-2 rounded-lg font-bold hover:bg-[#30363d] border border-[#30363d]"
-              >
-                ✏️ Editar Texto
-              </button>
-              <button 
-                onClick={handleGenerarPDF} 
-                disabled={generandoPDF}
-                className="bg-orange-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-orange-700 disabled:opacity-50"
-              >
-                {generandoPDF ? 'Generando...' : '📄 Descargar PDF'}
-              </button>
-            </>
-          ) : (
-            <>
-              <button 
-                onClick={() => setIsEditing(false)} 
-                className="bg-transparent text-gray-400 px-4 py-2 hover:text-white"
-              >
-                Cancelar
-              </button>
-              <button 
-                onClick={handleGuardar} 
-                disabled={saving}
-                className="bg-[#289E9D] text-white px-6 py-2 rounded-lg font-bold hover:bg-[#207f7e] disabled:opacity-50"
-              >
-                {saving ? 'Guardando...' : '💾 Guardar Definitivo'}
-              </button>
-            </>
-          )}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div><h1 className="text-3xl font-bold text-[#e6edf3]">📄 Términos de matrícula</h1><p className="mt-1 text-sm text-gray-400">Define las condiciones que verá y aceptará el apoderado antes de firmar.</p></div>
+        <div className="flex flex-wrap gap-3">
+          {!isEditing ? <><button onClick={() => setIsEditing(true)} className="rounded-lg border border-[#30363d] bg-[#21262d] px-4 py-2 font-bold text-white hover:bg-[#30363d]">✏️ Editar texto</button><button onClick={handleGenerarPDF} disabled={generandoPDF} className="rounded-lg bg-[#C8A96B] px-4 py-2 font-bold text-[#111827] disabled:opacity-50">{generandoPDF ? 'Generando...' : '📄 Descargar vista PDF'}</button></> : <><button onClick={cancelEdit} className="px-4 py-2 text-gray-400 hover:text-white">Cancelar</button><button onClick={handleGuardar} disabled={saving} className="rounded-lg bg-[#289E9D] px-6 py-2 font-bold text-white hover:bg-[#207f7e] disabled:opacity-50">{saving ? 'Guardando...' : '💾 Guardar términos'}</button></>}
         </div>
       </div>
 
-      <div className="bg-[#0d1117] p-6 rounded-xl border border-[#30363d] shadow-lg">
-        {isEditing ? (
-          <div className="space-y-4">
-            <p className="text-sm text-gray-400">
-              Modifica los términos, condiciones y reglamento interno de tu academia.
-            </p>
-            <textarea
-              value={terminos}
-              onChange={(e) => setTerminos(e.target.value)}
-              className="w-full h-[60vh] bg-[#161b22] text-gray-200 border border-[#30363d] rounded-lg p-4 outline-none focus:border-[#289E9D] leading-relaxed resize-none"
-              placeholder="Escribe aquí los términos de matrícula..."
-            />
-          </div>
-        ) : (
-          <div className="bg-white rounded-lg p-8 h-[60vh] overflow-y-auto">
-            <div className="max-w-3xl mx-auto text-black">
-              <h2 className="font-bold text-xl text-center mb-6 underline">REGLAMENTO Y TÉRMINOS DE MATRÍCULA</h2>
-              <div className="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap text-justify">
-                {terminos}
-              </div>
-            </div>
-          </div>
-        )}
+      <section className="rounded-2xl border border-[#289E9D]/30 bg-[#289E9D]/[.07] p-5 text-sm leading-6 text-[#b8dedd]">
+        <p className="font-black text-[#70e4df]">Cómo se utiliza este texto</p>
+        <p className="mt-1">Al enviar una pre-matrícula, Syncademia guarda una <b>copia exacta de estos términos</b>. El apoderado ve esa copia, la acepta y firma. La misma versión queda incorporada en la matrícula final firmada; cambios posteriores no modifican documentos ya enviados o firmados.</p>
+      </section>
+
+      <div className="rounded-xl border border-[#30363d] bg-[#0d1117] p-6 shadow-lg">
+        {isEditing ? <div className="space-y-4"><p className="text-sm text-gray-400">Escribe únicamente las condiciones reales de la escuela. El texto de ayuda de la interfaz no se guarda como parte del contrato.</p><textarea value={terminos} onChange={(e) => setTerminos(e.target.value)} className="h-[60vh] w-full resize-none rounded-lg border border-[#30363d] bg-[#161b22] p-4 leading-relaxed text-gray-200 outline-none focus:border-[#289E9D]" placeholder={'Ejemplo:\n1. La matrícula corresponde a...\n2. Las mensualidades vencen...\n3. El alumno y apoderado se comprometen a...'} /></div> : <div className="h-[60vh] overflow-y-auto rounded-lg bg-white p-8"><div className="mx-auto max-w-3xl text-black"><h2 className="mb-6 text-center text-xl font-bold underline">REGLAMENTO Y TÉRMINOS DE MATRÍCULA</h2>{visibleTerms ? <div className="whitespace-pre-wrap text-justify text-sm leading-relaxed text-gray-800">{visibleTerms}</div> : <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-8 text-center text-sm text-gray-500">Aún no hay términos personalizados. Pulsa <b>Editar texto</b> para configurar las condiciones que se incluirán en las nuevas matrículas.</div>}</div></div>}
       </div>
     </div>
   );
