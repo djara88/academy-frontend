@@ -11,7 +11,7 @@ import { isGuardianRole, isProfessorRole, isSuperAdminRole } from './utils/roles
 
 const Layout = lazy(() => import('./layouts/Layout'));
 const SuperadminMfaGate = lazy(() => import('./components/SuperadminMfaGate'));
-const Home = lazy(() => import('./pages/Home'));
+const Home = lazy(() => import('./pages/HomeCommercial'));
 const Login = lazy(() => import('./pages/Login'));
 const Registro = lazy(() => import('./pages/Registro'));
 const CompletarPerfil = lazy(() => import('./pages/CompletarPerfil'));
