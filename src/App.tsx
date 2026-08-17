@@ -18,7 +18,7 @@ const CompletarPerfil = lazy(() => import('./pages/CompletarPerfil'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Jugadores = lazy(() => import('./pages/Jugadores'));
 const Matricula = lazy(() => import('./pages/MatriculaPreparacion'));
-const InscripcionesDeportivas = lazy(() => import('./pages/InscripcionesDeportivas'));
+const InscripcionesDeportivas = lazy(() => import('./pages/InscripcionesDeportivasEnhanced'));
 const PreMatriculaPublica = lazy(() => import('./pages/PreMatriculaPublica'));
 const Importacion = lazy(() => import('./pages/Importacion'));
 const Torneos = lazy(() => import('./pages/Torneos'));
@@ -30,6 +30,7 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminFinance = lazy(() => import('./pages/AdminFinance'));
 const AdminProfile = lazy(() => import('./pages/AdminProfile'));
 const Subscription = lazy(() => import('./pages/Subscription'));
+const ApoderadosPro = lazy(() => import('./pages/ApoderadosPro'));
 const CambiarPassword = lazy(() => import('./pages/CambiarPassword'));
 const Terminos = lazy(() => import('./pages/Terminos'));
 const WhatsApp = lazy(() => import('./pages/WhatsApp'));
@@ -42,7 +43,7 @@ const Finanzas = lazy(() => import('./pages/Finanzas'));
 const Profesores = lazy(() => import('./pages/Profesores'));
 const ProfesorPortal = lazy(() => import('./pages/ProfesorPortal'));
 const Apoderados = lazy(() => import('./pages/Apoderados'));
-const ApoderadoPortal = lazy(() => import('./pages/ApoderadoPortal'));
+const ApoderadoPortal = lazy(() => import('./pages/ApoderadoPortalEnhanced'));
 const PrivacyRequests = lazy(() => import('./pages/PrivacyRequests'));
 const AdminMonitor = lazy(() => import('./pages/AdminMonitor'));
 const ChatCenter = lazy(() => import('./pages/ChatCenter'));
@@ -115,7 +116,7 @@ const App = () => (
                     <Route path="/admin/monitor" element={<AdminMonitor />} />
                   </Route>
                   <Route element={<DirectorRoutes />}>
-                    <Route path="/dashboard" element={<Dashboard />} /><Route path="/profesores" element={<Profesores />} /><Route path="/apoderados" element={<Apoderados />} />
+                    <Route path="/dashboard" element={<Dashboard />} /><Route path="/profesores" element={<Profesores />} /><Route path="/apoderados" element={<Apoderados />} /><Route path="/apoderados-pro" element={<ApoderadosPro />} />
                     <Route path="/comunicaciones" element={<CommunicationsHub />} /><Route path="/comunicaciones/grupos" element={<WhatsAppGroups />} /><Route path="/jugadores" element={<Jugadores />} />
                     <Route path="/matricula" element={<Matricula />} /><Route path="/inscripciones" element={<InscripcionesDeportivas />} /><Route path="/importacion" element={<Importacion />} /><Route path="/asistencias" element={<Asistencias />} /><Route path="/uniformes" element={<Uniformes />} />
                     <Route path="/torneos" element={<Torneos />} /><Route path="/nuevo-torneo" element={<NuevoTorneo />} /><Route path="/torneos/:id" element={<GestionarTorneo />} /><Route path="/partidos" element={<Partidos />} />
