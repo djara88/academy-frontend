@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckIcon, PlusIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import api from '../api/axiosConfig';
+import StudentReportCard from './StudentReportCard';
 
 type Category = {
   id: string;
@@ -154,6 +155,14 @@ export default function EnrollmentCategoryManager({
           La etiqueta “Referencia de la rama” mantiene compatibilidad con funciones antiguas que esperan una sola categoría; <strong className="text-[#8995a4]">no limita</strong> la pertenencia del alumno a las demás categorías seleccionadas.
         </p>
       ) : null}
+
+      <StudentReportCard
+        studentId={studentId}
+        branchId={branchId}
+        branchLabel={branchLabel}
+        disabled={disabled}
+        onNotice={onNotice}
+      />
     </div>
   );
 }
