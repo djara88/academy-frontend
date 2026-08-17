@@ -27,7 +27,6 @@ export default function ApoderadosPro() {
   const { data, isLoading } = useQuery({ queryKey: ['guardian-addon-catalog'], queryFn: async () => (await api.get('/api/subscriptions/plans')).data.data as Data });
 
   if (isLoading || !data) return <div className="py-20 text-center text-[#8995a4]">Cargando Apoderados PRO...</div>;
-  const quote = cycle === 'annual' ? data.guardianAddon.annual : data.guardianAddon.monthly;
   const active = data.currentGuardianLicense.active;
 
   const checkout = async () => {
