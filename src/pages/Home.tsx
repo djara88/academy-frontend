@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
   ArrowRightIcon,
-  ArrowTrendingUpIcon,
   BuildingOffice2Icon,
   ChartBarSquareIcon,
   ChatBubbleLeftRightIcon,
@@ -24,28 +23,15 @@ import { BRAND } from '../config/brand';
 type OfferMode = 'monthly' | 'annual' | 'founder';
 type PriceBlock = { netClp: number; grossClp: number };
 type GuardianQuote = {
-  billingCycle: 'monthly' | 'annual';
-  billingPeriodMonths: number;
-  regularNetClp: number;
   chargedNetClp: number;
-  regularGrossClp: number;
   chargedGrossClp: number;
-  discountGrossClp: number;
   monthlyEquivalentNetClp: number;
 };
 type MarketingPlan = {
   code: string;
   name: string;
-  priceClp: number;
-  professorLimit: number;
-  playerLimit: number | null;
   monthly: PriceBlock;
-  annual: PriceBlock & {
-    regularNetClp: number;
-    monthsIncluded: number;
-    monthsCharged: number;
-    equivalentMonthlyNetClp: number;
-  };
+  annual: PriceBlock & { equivalentMonthlyNetClp: number };
   founder: PriceBlock & { durationMonths: number };
 };
 type PublicCatalog = {
@@ -58,32 +44,29 @@ type PublicCatalog = {
     trialIncluded: boolean;
   };
   founder: { available: boolean; remainingSlots: number; totalSlots: number };
-  billingRules: {
-    annualMonthsCharged: number;
-    annualMonthsIncluded: number;
-    founderDurationMonths: number;
-    discountsStackable: boolean;
-  };
 };
 type MarketingIcon = typeof UserGroupIcon;
 
 const fallbackPlans: MarketingPlan[] = [
   {
-    code: 'formacion', name: 'Formación', priceClp: 59000, professorLimit: 3, playerLimit: 100,
+    code: 'formacion',
+    name: 'Formación',
     monthly: { netClp: 59000, grossClp: 70210 },
-    annual: { netClp: 590000, grossClp: 702100, regularNetClp: 708000, monthsIncluded: 12, monthsCharged: 10, equivalentMonthlyNetClp: 49167 },
+    annual: { netClp: 590000, grossClp: 702100, equivalentMonthlyNetClp: 49167 },
     founder: { netClp: 49000, grossClp: 58310, durationMonths: 12 },
   },
   {
-    code: 'competencia', name: 'Competencia', priceClp: 99000, professorLimit: 10, playerLimit: 300,
+    code: 'competencia',
+    name: 'Competencia',
     monthly: { netClp: 99000, grossClp: 117810 },
-    annual: { netClp: 990000, grossClp: 1178100, regularNetClp: 1188000, monthsIncluded: 12, monthsCharged: 10, equivalentMonthlyNetClp: 82500 },
+    annual: { netClp: 990000, grossClp: 1178100, equivalentMonthlyNetClp: 82500 },
     founder: { netClp: 79000, grossClp: 94010, durationMonths: 12 },
   },
   {
-    code: 'alto_rendimiento', name: 'Alto Rendimiento', priceClp: 149000, professorLimit: 30, playerLimit: null,
+    code: 'alto_rendimiento',
+    name: 'Alto Rendimiento',
     monthly: { netClp: 149000, grossClp: 177310 },
-    annual: { netClp: 1490000, grossClp: 1773100, regularNetClp: 1788000, monthsIncluded: 12, monthsCharged: 10, equivalentMonthlyNetClp: 124167 },
+    annual: { netClp: 1490000, grossClp: 1773100, equivalentMonthlyNetClp: 124167 },
     founder: { netClp: 119000, grossClp: 141610, durationMonths: 12 },
   },
 ];
@@ -95,7 +78,7 @@ const planCopy: Record<string, { eyebrow: string; limit: string; features: strin
     features: [
       'Matrícula y pre-matrícula digital',
       'Finanzas, mensualidades, partidos y torneos',
-      'Radar multideporte con criterios estándar Syncademia',
+      'Radar multideporte con criterios estándar',
       'WhatsApp individual, asistencias y gestión operativa',
     ],
   },
@@ -106,7 +89,7 @@ const planCopy: Record<string, { eyebrow: string; limit: string; features: strin
       'Todo Formación',
       'Criterios de evaluación personalizados por rama',
       'Grupos WhatsApp, alertas y exportaciones',
-      'Dashboards y reportes de cobranza avanzados',
+      'Dashboards y cobranza avanzada',
     ],
   },
   alto_rendimiento: {
@@ -114,12 +97,21 @@ const planCopy: Record<string, { eyebrow: string; limit: string; features: strin
     limit: 'Alumnos ilimitados · 30 profesores · multi-sede avanzada',
     features: [
       'Todo Competencia',
-      'Metodología propia + analítica deportiva avanzada',
-      'Branding, campañas y automatizaciones avanzadas',
-      'Onboarding, migración asistida y soporte preferencial',
+      'Metodología propia y analítica avanzada',
+      'Branding y automatizaciones avanzadas',
+      'Onboarding, migración y soporte preferencial',
     ],
   },
 };
+
+const capabilities: { icon: MarketingIcon; title: string; copy: string }[] = [
+  { icon: UserGroupIcon, title: 'Matrícula y comunidad', copy: 'Alumnos, profesores, categorías, documentos y pre-matrícula en un solo flujo.' },
+  { icon: CreditCardIcon, title: 'Finanzas conectadas', copy: 'Matrículas, mensualidades, morosidad, ingresos, egresos y cobranza.' },
+  { icon: ChatBubbleLeftRightIcon, title: 'Comunicación integrada', copy: 'WhatsApp individual desde Formación y grupos desde Competencia.' },
+  { icon: TrophyIcon, title: 'Partidos y torneos', copy: 'Competencia, citaciones, preparación y torneos en la misma plataforma.' },
+  { icon: ChartBarSquareIcon, title: 'Rendimiento multideporte', copy: 'Radar deportivo desde Formación y metodología propia desde Competencia.' },
+  { icon: ShieldCheckIcon, title: 'Privacidad y trazabilidad', copy: 'Consentimientos, solicitudes de derechos y aislamiento entre academias.' },
+];
 
 const sports = [
   ['Fútbol', 'Control · Pase · Remate · 1 vs 1'],
@@ -130,35 +122,13 @@ const sports = [
   ['Atletismo', 'Técnica · Velocidad · Potencia · Consistencia'],
 ] as const;
 
-const capabilityCards: { icon: MarketingIcon; title: string; copy: string }[] = [
-  { icon: UserGroupIcon, title: 'Matrícula y comunidad', copy: 'Pre-matrícula, firma digital, jugadores, profesores, categorías y documentos en una sola operación.' },
-  { icon: CreditCardIcon, title: 'Finanzas conectadas', copy: 'Matrícula, mensualidades automáticas, morosidad, vencimientos, ingresos, egresos y reportes de cobranza.' },
-  { icon: ChatBubbleLeftRightIcon, title: 'Comunicación integrada', copy: 'WhatsApp individual desde el plan de entrada y grupos/automatizaciones desde Competencia.' },
-  { icon: TrophyIcon, title: 'Competencia y torneos', copy: 'Partidos, citaciones, preparación deportiva y torneos incluidos en todos los planes.' },
-  { icon: ChartBarSquareIcon, title: 'Rendimiento multideporte', copy: 'Radar desde Formación; desde Competencia, la dirección puede definir y versionar sus propios criterios por rama.' },
-  { icon: ShieldCheckIcon, title: 'Privacidad operativa', copy: 'Consentimientos, solicitudes de rectificación/eliminación, trazabilidad y separación entre academias.' },
-];
-
-const structureCards: { icon: MarketingIcon; title: string; value: string }[] = [
-  { icon: MapPinIcon, title: 'Sede', value: 'Providencia' },
-  { icon: BuildingOffice2Icon, title: 'Ramas', value: 'Fútbol · Básquetbol' },
-  { icon: UserGroupIcon, title: 'Categorías', value: 'Por rama y operación' },
-];
-
-const securityCards: { icon: MarketingIcon; title: string; copy: string }[] = [
-  { icon: ShieldCheckIcon, title: 'Aislamiento multiacademia', copy: 'Las operaciones se resuelven dentro del contexto de la organización autenticada.' },
-  { icon: LockClosedIcon, title: 'Roles y permisos', copy: 'Dirección, profesores, apoderados y superadministración tienen experiencias separadas.' },
-  { icon: DevicePhoneMobileIcon, title: 'Privacidad familiar', copy: 'Consentimientos, información sensible y solicitudes de derechos tienen flujos específicos.' },
-  { icon: CreditCardIcon, title: 'Pagos externos', copy: 'Mercado Pago procesa el pago; Syncademia no almacena tarjetas ni claves bancarias.' },
-];
-
 const money = (value: number) => new Intl.NumberFormat('es-CL', {
   style: 'currency',
   currency: 'CLP',
   maximumFractionDigits: 0,
 }).format(value || 0);
 
-const Home = () => {
+export default function Home() {
   const [offerMode, setOfferMode] = useState<OfferMode>('monthly');
   const { data: catalog } = useQuery({
     queryKey: ['public-plan-catalog'],
@@ -175,107 +145,273 @@ const Home = () => {
   const effectiveMode: OfferMode = offerMode === 'founder' && !founderAvailable ? 'monthly' : offerMode;
   const founderMessage = useMemo(() => {
     if (!catalog) return 'Precio especial para las primeras 10 academias';
-    if (!catalog.founder.available) return 'Los 10 cupos Fundador ya fueron asignados';
-    return `${catalog.founder.remainingSlots} de ${catalog.founder.totalSlots} cupos Fundador disponibles`;
+    if (!catalog.founder.available) return 'Cupos Fundador agotados';
+    return `${catalog.founder.remainingSlots} de ${catalog.founder.totalSlots} cupos disponibles`;
   }, [catalog]);
 
   return (
-    <div className="min-h-screen scroll-smooth overflow-hidden bg-[#081018] text-white selection:bg-[#289E9D] selection:text-white">
-      <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#081018]/88 px-4 py-3 backdrop-blur-xl sm:px-8">
+    <div className="min-h-screen bg-[#081018] text-white selection:bg-[#289E9D] selection:text-white">
+      <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#081018]/90 px-4 py-3 backdrop-blur-xl sm:px-8">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-          <Logo className="h-10 max-w-[135px] shrink-0 sm:h-12 sm:max-w-[220px]" />
-          <div className="hidden items-center gap-7 text-sm font-bold text-[#9dacbb] lg:flex">
-            <a href="#producto" className="transition hover:text-white">Producto</a>
-            <a href="#multideporte" className="transition hover:text-white">Multideporte</a>
-            <a href="#apoderados-pro" className="transition hover:text-white">Apoderados PRO</a>
-            <a href="#planes" className="transition hover:text-white">Planes</a>
-            <a href="#seguridad" className="transition hover:text-white">Seguridad</a>
+          <Logo className="h-10 max-w-[145px] sm:h-12 sm:max-w-[220px]" />
+          <div className="hidden items-center gap-6 text-sm font-bold text-[#9dacbb] lg:flex">
+            <a href="#producto" className="hover:text-white">Producto</a>
+            <a href="#multideporte" className="hover:text-white">Multideporte</a>
+            <a href="#apoderados-pro" className="hover:text-white">Apoderados PRO</a>
+            <a href="#planes" className="hover:text-white">Planes</a>
+            <a href="#seguridad" className="hover:text-white">Seguridad</a>
           </div>
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-            <Link to="/login" className="rounded-xl px-3 py-2 text-xs font-black text-[#d4dde7] transition hover:bg-white/5 hover:text-white sm:text-sm">Entrar</Link>
-            <Link to="/registro" className="whitespace-nowrap rounded-xl bg-[#289E9D] px-3.5 py-2.5 text-xs font-black text-white shadow-[0_0_28px_rgba(40,158,157,0.25)] transition hover:bg-[#35b8b5] sm:px-5 sm:text-sm">Probar 15 días</Link>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link to="/login" className="rounded-xl px-3 py-2 text-xs font-black text-[#d4dde7] hover:bg-white/5 sm:text-sm">Entrar</Link>
+            <Link to="/registro" className="rounded-xl bg-[#289E9D] px-4 py-2.5 text-xs font-black shadow-[0_0_28px_rgba(40,158,157,0.25)] hover:bg-[#35b8b5] sm:px-5 sm:text-sm">Probar 15 días</Link>
           </div>
         </div>
       </nav>
 
       <main>
-        <header className="relative px-5 pb-24 pt-16 sm:pt-24 lg:pb-32">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_18%,rgba(40,158,157,0.22),transparent_27%),radial-gradient(circle_at_82%_18%,rgba(200,169,107,0.12),transparent_23%),linear-gradient(180deg,rgba(8,16,24,0),#081018_86%)]" />
-          <div className="relative mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-[1.03fr_0.97fr]">
+        <header className="relative overflow-hidden px-5 pb-24 pt-16 sm:pt-24 lg:pb-32">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_16%,rgba(40,158,157,0.22),transparent_28%),radial-gradient(circle_at_84%_20%,rgba(139,92,246,0.14),transparent_24%)]" />
+          <div className="relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/8 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#70e4df]"><SparklesIcon className="h-4 w-4" /> 15 días Full · Apoderados PRO incluido en la prueba</div>
-              <h1 className="mt-7 max-w-4xl text-5xl font-black leading-[0.94] tracking-[-0.045em] sm:text-6xl xl:text-[78px]">Toda tu academia.<span className="mt-2 block bg-gradient-to-r from-[#70e4df] via-[#38bdb8] to-[#d8be87] bg-clip-text text-transparent">Una sola operación.</span></h1>
-              <p className="mt-7 max-w-2xl text-lg leading-8 text-[#a7b4c3] sm:text-xl">Syncademia conecta matrícula, asistencia, finanzas, WhatsApp, torneos y rendimiento deportivo. Y cuando quieras sumar una experiencia privada para las familias, activas Apoderados PRO como complemento independiente.</p>
-              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-                <Link to="/registro" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#289E9D] px-7 py-3 font-black text-white shadow-[0_18px_45px_rgba(40,158,157,0.22)] transition hover:-translate-y-0.5 hover:bg-[#35b8b5]">Crear mi academia <ArrowRightIcon className="h-5 w-5" /></Link>
-                <a href="#apoderados-pro" className="inline-flex min-h-14 items-center justify-center rounded-2xl border border-violet-300/20 bg-violet-300/[0.05] px-7 py-3 font-black text-violet-100 transition hover:border-violet-300/45 hover:bg-violet-300/[0.09]">Ver Apoderados PRO</a>
+              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/8 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#70e4df]">
+                <SparklesIcon className="h-4 w-4" />
+                15 días Full · Apoderados PRO incluido en la prueba
               </div>
-              <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm text-[#8492a3]">{['Sin tarjeta para probar', 'Torneos en todos los planes', 'WhatsApp individual incluido', 'Portal familiar opcional'].map((item) => <span key={item} className="inline-flex items-center gap-2"><CheckCircleIcon className="h-4 w-4 text-[#48d8d0]" />{item}</span>)}</div>
+              <h1 className="mt-7 max-w-4xl text-5xl font-black leading-[0.94] tracking-[-0.045em] sm:text-6xl xl:text-[78px]">
+                Toda tu academia.
+                <span className="mt-2 block bg-gradient-to-r from-[#70e4df] via-[#38bdb8] to-[#d8be87] bg-clip-text text-transparent">Una sola operación.</span>
+              </h1>
+              <p className="mt-7 max-w-2xl text-lg leading-8 text-[#a7b4c3] sm:text-xl">
+                Syncademia conecta matrícula, asistencia, finanzas, WhatsApp, torneos y rendimiento deportivo. El portal familiar se activa aparte con Apoderados PRO cuando tu academia lo necesita.
+              </p>
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                <Link to="/registro" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#289E9D] px-7 py-3 font-black shadow-[0_18px_45px_rgba(40,158,157,0.22)] hover:bg-[#35b8b5]">
+                  Crear mi academia <ArrowRightIcon className="h-5 w-5" />
+                </Link>
+                <a href="#apoderados-pro" className="inline-flex min-h-14 items-center justify-center rounded-2xl border border-violet-300/20 bg-violet-300/[0.05] px-7 py-3 font-black text-violet-100 hover:border-violet-300/45">
+                  Ver Apoderados PRO
+                </a>
+              </div>
+              <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm text-[#8492a3]">
+                {['Sin tarjeta para probar', 'Torneos en todos los planes', 'WhatsApp individual incluido', 'Portal familiar opcional'].map((item) => (
+                  <span key={item} className="inline-flex items-center gap-2"><CheckCircleIcon className="h-4 w-4 text-[#48d8d0]" />{item}</span>
+                ))}
+              </div>
             </div>
 
-            <div className="relative">
-              <div className="absolute -inset-6 rounded-[48px] bg-gradient-to-br from-[#289E9D]/20 via-transparent to-[#C8A96B]/12 blur-3xl" />
-              <div className="relative overflow-hidden rounded-[34px] border border-white/10 bg-[#111a24] p-4 shadow-[0_35px_100px_rgba(0,0,0,0.42)] sm:p-6">
-                <div className="flex items-center justify-between border-b border-white/8 pb-5"><div><p className="text-[11px] font-black uppercase tracking-[0.19em] text-[#70e4df]">Centro de operación</p><p className="mt-1 text-xl font-black">Tu academia, conectada de punta a punta</p></div><span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-emerald-300">Vista de ejemplo</span></div>
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-white/8 bg-[#0b131c] p-4"><div className="flex items-center gap-3"><div className="rounded-xl bg-cyan-300/10 p-2 text-cyan-200"><BuildingOffice2Icon className="h-5 w-5" /></div><div><p className="text-xs text-[#7f8d9e]">Estructura</p><p className="font-black">Sedes + ramas</p></div></div><div className="mt-4 space-y-2 text-xs text-[#a7b4c3]"><p className="rounded-lg bg-white/[0.04] px-3 py-2">Providencia · Fútbol</p><p className="rounded-lg bg-white/[0.04] px-3 py-2">Maipú · Tenis</p></div></div>
-                  <div className="rounded-2xl border border-white/8 bg-[#0b131c] p-4"><div className="flex items-center gap-3"><div className="rounded-xl bg-[#C8A96B]/10 p-2 text-[#D8BE87]"><ChartBarSquareIcon className="h-5 w-5" /></div><div><p className="text-xs text-[#7f8d9e]">Rendimiento</p><p className="font-black">Radar por disciplina</p></div></div><div className="mt-4 flex h-[78px] items-center justify-center rounded-xl border border-white/5 bg-[radial-gradient(circle,rgba(40,158,157,0.18),transparent_58%)]"><div className="relative h-14 w-14 rotate-45 border border-[#48d8d0]/45"><div className="absolute inset-2 border border-[#C8A96B]/50" /><div className="absolute inset-[18px] bg-[#289E9D]/55" /></div></div></div></div>
-                  <div className="rounded-2xl border border-white/8 bg-[#0b131c] p-4 sm:col-span-2"><div className="flex items-center justify-between gap-4"><div><p className="text-xs text-[#7f8d9e]">Flujo operativo</p><p className="mt-1 font-black">Matrícula → mensualidades → asistencia → comunicación</p></div><ArrowTrendingUpIcon className="h-6 w-6 shrink-0 text-[#48d8d0]" /></div><div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">{['Matrícula', 'Cobranza', 'Asistencia', 'Familias'].map((step, index) => <div key={step} className="rounded-xl border border-white/6 bg-white/[0.035] p-3"><p className="text-[10px] font-black text-[#48d8d0]">0{index + 1}</p><p className="mt-1 text-xs font-bold text-[#d9e1e9]">{step}</p></div>)}</div></div>
+            <div className="rounded-[34px] border border-white/10 bg-[#111a24] p-5 shadow-[0_35px_100px_rgba(0,0,0,0.42)] sm:p-6">
+              <div className="flex items-center justify-between border-b border-white/8 pb-5">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.19em] text-[#70e4df]">Centro de operación</p>
+                  <p className="mt-1 text-xl font-black">Tu academia conectada</p>
+                </div>
+                <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[10px] font-black uppercase text-emerald-300">Vista de ejemplo</span>
+              </div>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-white/8 bg-[#0b131c] p-4">
+                  <BuildingOffice2Icon className="h-6 w-6 text-[#70e4df]" />
+                  <p className="mt-3 text-xs text-[#7f8d9e]">Estructura</p>
+                  <p className="font-black">Sedes + ramas</p>
+                  <p className="mt-3 text-sm text-[#a7b4c3]">Providencia · Fútbol<br />Maipú · Tenis</p>
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-[#0b131c] p-4">
+                  <ChartBarSquareIcon className="h-6 w-6 text-[#D8BE87]" />
+                  <p className="mt-3 text-xs text-[#7f8d9e]">Rendimiento</p>
+                  <p className="font-black">Radar por disciplina</p>
+                  <div className="mt-4 h-12 rounded-xl bg-[radial-gradient(circle,rgba(40,158,157,0.2),transparent_65%)]" />
+                </div>
+                <div className="rounded-2xl border border-violet-300/15 bg-violet-300/[0.04] p-4 sm:col-span-2">
+                  <UserGroupIcon className="h-6 w-6 text-violet-300" />
+                  <p className="mt-3 text-xs text-[#7f8d9e]">Complemento familiar</p>
+                  <p className="font-black">Apoderados PRO</p>
+                  <p className="mt-2 text-sm text-[#a7b4c3]">Una licencia para todas las familias autorizadas de la academia.</p>
                 </div>
               </div>
             </div>
           </div>
         </header>
 
-        <section className="border-y border-white/8 bg-[#0d1620] px-5 py-8"><div className="mx-auto grid max-w-7xl gap-4 text-center text-sm font-bold text-[#9fabb9] sm:grid-cols-2 lg:grid-cols-4">{[['Multiacademia', 'Aislamiento por organización'], ['Multisede', 'Una o múltiples ubicaciones'], ['Multideporte', 'Perfiles y métricas por disciplina'], ['Modular', 'Activa complementos solo si los necesitas']].map(([title, copy]) => <div key={title} className="rounded-2xl px-4 py-3"><p className="text-white">{title}</p><p className="mt-1 text-xs font-medium text-[#738195]">{copy}</p></div>)}</div></section>
-
-        <section id="producto" className="px-5 py-24 lg:py-32">
+        <section id="producto" className="border-y border-white/8 bg-[#0d1620] px-5 py-24 lg:py-32">
           <div className="mx-auto max-w-7xl">
-            <div className="grid gap-10 lg:grid-cols-[0.72fr_1.28fr] lg:items-end"><div><p className="text-xs font-black uppercase tracking-[0.22em] text-[#48d8d0]">El sistema operativo de tu academia</p><h2 className="mt-4 text-4xl font-black leading-tight tracking-[-0.035em] sm:text-5xl">Menos planillas, menos chats sueltos. Más control.</h2></div><p className="max-w-2xl text-lg leading-8 text-[#91a0b2]">Cada dato entra una vez y alimenta el resto de la operación. La dirección ve el negocio, los profesores trabajan en terreno y, con Apoderados PRO, las familias acceden a su experiencia privada.</p></div>
-            <div className="mt-14 grid gap-4 md:grid-cols-2 xl:grid-cols-3">{capabilityCards.map(({ icon: Icon, title, copy }) => <article key={title} className="group rounded-[26px] border border-white/8 bg-[#0e1721] p-6 transition duration-300 hover:-translate-y-1 hover:border-[#289E9D]/45 hover:bg-[#111d28]"><div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-cyan-300/15 bg-cyan-300/8 text-[#70e4df]"><Icon className="h-6 w-6" /></div><h3 className="mt-6 text-xl font-black">{title}</h3><p className="mt-3 leading-7 text-[#8f9dad]">{copy}</p></article>)}</div>
-          </div>
-        </section>
-
-        <section id="multideporte" className="border-y border-white/8 bg-[#0d1620] px-5 py-24 lg:py-32"><div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:items-center"><div><p className="text-xs font-black uppercase tracking-[0.22em] text-[#D8BE87]">Multideporte de verdad</p><h2 className="mt-4 text-4xl font-black leading-tight tracking-[-0.035em] sm:text-5xl">El radar se adapta al deporte. Y tu metodología puede adaptarlo aún más.</h2><p className="mt-6 text-lg leading-8 text-[#95a3b3]">Formación parte con perfiles multideporte listos para usar. Desde Competencia, el director puede definir entre 3 y 10 criterios propios para cada rama; cada cambio queda versionado para no mezclar evoluciones incompatibles.</p><div className="mt-8 space-y-3">{['Radar multideporte incluido desde Formación', 'Criterios propios por rama desde Competencia', 'Historial versionado para no comparar metodologías incompatibles'].map((item) => <div key={item} className="flex gap-3"><CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-[#48d8d0]" /><p className="text-[#c6d0da]">{item}</p></div>)}</div></div><div className="grid gap-3 sm:grid-cols-2">{sports.map(([sport, metrics], index) => <div key={sport} className={`rounded-[24px] border p-5 ${index === 2 ? 'border-[#D8BE87]/35 bg-[#D8BE87]/8' : 'border-white/8 bg-[#09121b]'}`}><div className="flex items-center justify-between gap-3"><p className="text-lg font-black">{sport}</p><span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-[#7f8e9f]">Perfil estándar</span></div><p className="mt-4 text-sm leading-6 text-[#91a0b2]">{metrics}</p></div>)}</div></div></section>
-
-        <section className="px-5 py-24 lg:py-32"><div className="mx-auto max-w-7xl"><div className="rounded-[36px] border border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(40,158,157,0.18),transparent_34%),#0e1721] p-6 sm:p-10 lg:p-14"><div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center"><div><p className="text-xs font-black uppercase tracking-[0.22em] text-[#48d8d0]">Crece sin cambiar de sistema</p><h2 className="mt-4 text-4xl font-black leading-tight tracking-[-0.035em]">De una sede a una organización deportiva.</h2><p className="mt-5 leading-7 text-[#92a0b0]">Sedes y ramas forman parte del modelo operativo. Cada alumno, categoría, cobro, entrenamiento, evaluación, partido y torneo puede quedar vinculado a su estructura correspondiente.</p></div><div className="grid gap-3 sm:grid-cols-3">{structureCards.map(({ icon: Icon, title, value }) => <div key={title} className="rounded-2xl border border-white/8 bg-[#09121b]/85 p-5"><Icon className="h-6 w-6 text-[#70e4df]" /><p className="mt-5 text-xs font-black uppercase tracking-[.16em] text-[#708095]">{title}</p><p className="mt-2 font-black">{value}</p></div>)}</div></div></div></div></section>
-
-        <section className="border-y border-white/8 bg-[#0d1620] px-5 py-24"><div className="mx-auto max-w-7xl"><div className="text-center"><p className="text-xs font-black uppercase tracking-[0.22em] text-[#48d8d0]">Una plataforma, tres experiencias</p><h2 className="mt-4 text-4xl font-black tracking-[-0.035em]">Cada persona ve lo que necesita para actuar.</h2></div><div className="mt-12 grid gap-5 lg:grid-cols-3">{[['Dirección', 'Dashboard, estructura, finanzas, profesores, comunicaciones, rendimiento y control del plan.', 'Control ejecutivo'], ['Profesor', 'Categorías asignadas, asistencia en terreno, jugadores, preparación y seguimiento deportivo.', 'Trabajo en cancha'], ['Apoderado · PRO', 'Jugadores vinculados, citaciones, asistencia, estado de cuenta, comunicaciones, documentos y solicitudes de nuevas disciplinas.', 'Complemento familiar']].map(([title, copy, label], index) => <article key={title} className={`rounded-[28px] border p-7 ${index === 2 ? 'border-violet-300/25 bg-violet-300/[0.055]' : 'border-white/8 bg-[#09121b]'}`}><p className={`text-xs font-black uppercase tracking-[0.18em] ${index === 2 ? 'text-violet-300' : 'text-[#708095]'}`}>0{index + 1} · {label}</p><h3 className="mt-5 text-2xl font-black">{title}</h3><p className="mt-4 leading-7 text-[#8f9dad]">{copy}</p></article>)}</div></div></section>
-
-        <section id="apoderados-pro" className="px-5 py-24 lg:py-32">
-          <div className="mx-auto max-w-7xl overflow-hidden rounded-[38px] border border-violet-300/20 bg-[radial-gradient(circle_at_85%_20%,rgba(139,92,246,.2),transparent_34%),linear-gradient(145deg,#15172a,#0c1520)] p-6 sm:p-10 lg:p-14">
-            <div className="grid gap-12 lg:grid-cols-[1.02fr_0.98fr] lg:items-center">
+            <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-violet-300/20 bg-violet-300/[0.06] px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-violet-200"><UserGroupIcon className="h-4 w-4" /> Complemento opcional</div>
-                <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.035em] sm:text-5xl">Apoderados PRO.<span className="block text-violet-200">Una licencia para todas las familias.</span></h2>
-                <p className="mt-6 max-w-2xl text-lg leading-8 text-[#a3adbc]">No te cobramos por cada padre o tutor. La academia activa una sola licencia y habilita el portal familiar para todos sus apoderados autorizados.</p>
-                <div className="mt-8 grid gap-3 sm:grid-cols-2">{['Portal privado de cada familia', 'Estado de cuenta y documentos', 'Comunicaciones y privacidad', 'Solicitud de otra disciplina'].map((item) => <div key={item} className="flex gap-3 rounded-2xl border border-white/8 bg-black/15 p-4"><CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-violet-300" /><span className="text-sm font-bold text-[#e1e5eb]">{item}</span></div>)}</div>
-                <p className="mt-7 text-sm leading-6 text-[#8492a3]">Durante los 15 días Full, Apoderados PRO viene habilitado sin costo para que puedas probar la experiencia completa antes de decidir si lo contratas.</p>
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-[#48d8d0]">El sistema operativo de tu academia</p>
+                <h2 className="mt-4 text-4xl font-black tracking-[-0.035em] sm:text-5xl">Menos planillas. Más control.</h2>
               </div>
-
-              <div className="rounded-[30px] border border-white/10 bg-[#0a111a]/85 p-6 sm:p-8">
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-300">Precio por academia</p>
-                <div className="mt-5 rounded-2xl border border-violet-300/20 bg-violet-300/[0.05] p-5"><p className="text-sm font-bold text-[#9ca8b7]">Mensual</p><p className="mt-2 text-4xl font-black text-white">{money(guardianMonthly)} <span className="text-sm text-[#8492a3]">+ IVA/mes</span></p><p className="mt-2 text-sm text-violet-200">{money(guardianGrossMonthly)} IVA incluido</p></div>
-                <div className="mt-3 rounded-2xl border border-[#C8A96B]/25 bg-[#C8A96B]/[0.06] p-5"><p className="text-sm font-bold text-[#D8BE87]">Anual · 2 meses gratis</p><p className="mt-2 text-3xl font-black text-white">{money(guardianAnnual)} <span className="text-sm text-[#8492a3]">+ IVA/año</span></p><p className="mt-2 text-sm text-[#D8BE87]">12 meses de licencia pagando 10</p></div>
-                <div className="mt-5 rounded-2xl border border-white/8 bg-white/[0.025] p-4 text-sm leading-6 text-[#9aa6b5]">El apoderado puede solicitar una segunda disciplina, pero Dirección conserva el control: define categoría, matrícula, abono y mensualidad antes de aprobar.</div>
-                <Link to="/registro" className="mt-6 flex min-h-13 items-center justify-center gap-2 rounded-2xl bg-violet-500 px-5 py-3.5 font-black text-white transition hover:bg-violet-400">Probar Apoderados PRO 15 días <ArrowRightIcon className="h-5 w-5" /></Link>
-              </div>
+              <p className="text-lg leading-8 text-[#91a0b2]">La dirección administra el negocio, los profesores trabajan en terreno y las familias pueden tener su portal privado mediante Apoderados PRO.</p>
+            </div>
+            <div className="mt-14 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {capabilities.map(({ icon: Icon, title, copy }) => (
+                <article key={title} className="rounded-[26px] border border-white/8 bg-[#09121b] p-6 hover:border-[#289E9D]/40">
+                  <Icon className="h-7 w-7 text-[#70e4df]" />
+                  <h3 className="mt-5 text-xl font-black">{title}</h3>
+                  <p className="mt-3 leading-7 text-[#8f9dad]">{copy}</p>
+                </article>
+              ))}
             </div>
           </div>
         </section>
 
-        <section id="planes" className="border-y border-white/8 bg-[#0d1620] px-5 py-24 lg:py-32"><div className="mx-auto max-w-7xl"><div className="mx-auto max-w-3xl text-center"><p className="text-xs font-black uppercase tracking-[0.22em] text-[#48d8d0]">Planes transparentes</p><h2 className="mt-4 text-4xl font-black tracking-[-0.035em] sm:text-5xl">El software funciona bien desde Formación.</h2><p className="mt-5 text-lg leading-8 text-[#91a0b2]">Subes de plan por capacidad, automatización y profundidad deportiva. El portal familiar no infla tu plan base: Apoderados PRO se agrega solo si tu academia lo necesita.</p></div>
-          <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-[#081018] p-2"><div className="grid gap-2 sm:grid-cols-3"><button type="button" onClick={() => setOfferMode('monthly')} className={`rounded-2xl px-4 py-4 text-left transition ${effectiveMode === 'monthly' ? 'bg-[#289E9D] text-white shadow-lg' : 'text-white/65 hover:bg-white/[0.04]'}`}><span className="block font-black">Mensual</span><span className="mt-1 block text-xs opacity-75">Flexibilidad mes a mes</span></button><button type="button" onClick={() => setOfferMode('annual')} className={`rounded-2xl px-4 py-4 text-left transition ${effectiveMode === 'annual' ? 'bg-[#289E9D] text-white shadow-lg' : 'text-white/65 hover:bg-white/[0.04]'}`}><span className="block font-black">Anual · 2 meses gratis</span><span className="mt-1 block text-xs opacity-75">Paga 10 · usa 12</span></button><button type="button" disabled={!founderAvailable} onClick={() => founderAvailable && setOfferMode('founder')} className={`rounded-2xl px-4 py-4 text-left transition ${effectiveMode === 'founder' ? 'bg-[#C8A96B] text-[#111923] shadow-lg' : founderAvailable ? 'text-[#D8BE87] hover:bg-[#C8A96B]/8' : 'cursor-not-allowed text-white/30'}`}><span className="block font-black">Precio Fundador</span><span className="mt-1 block text-xs opacity-75">{founderMessage}</span></button></div></div>
-          <div className="mt-10 grid gap-5 lg:grid-cols-3">{plans.map((plan) => { const featured = plan.code === 'competencia'; const copy = planCopy[plan.code]; const pricing = effectiveMode === 'annual' ? plan.annual : effectiveMode === 'founder' ? plan.founder : plan.monthly; const mainValue = pricing.netClp; const suffix = effectiveMode === 'annual' ? '+ IVA / año' : '+ IVA / mes'; return <article key={plan.code} className={`relative flex flex-col overflow-hidden rounded-[30px] border p-7 transition duration-300 hover:-translate-y-1 ${featured ? 'border-[#48d8d0]/70 bg-[linear-gradient(180deg,#13272d,#0f1b24)] shadow-[0_28px_80px_rgba(40,158,157,0.16)]' : 'border-white/10 bg-[#081018] hover:border-white/20'}`}>{featured ? <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#48d8d0] via-cyan-300 to-[#D8BE87]" /> : null}{featured ? <span className="absolute right-5 top-5 rounded-full bg-[#289E9D] px-3 py-1 text-[10px] font-black uppercase tracking-wide">Recomendado</span> : null}<p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#7b8b9c]">{copy?.eyebrow}</p><h3 className="mt-2 text-2xl font-black">{plan.name}</h3><div className="mt-6"><p><span className="text-4xl font-black tracking-[-0.035em] text-[#70e4df]">{money(mainValue)}</span></p><p className="mt-1 text-xs font-bold text-[#7f8e9f]">{suffix}</p>{effectiveMode === 'annual' ? <p className="mt-3 text-sm font-bold text-[#D8BE87]">Equivale a {money(plan.annual.equivalentMonthlyNetClp)}/mes · 12 meses</p> : null}{effectiveMode === 'founder' ? <p className="mt-3 text-sm font-bold text-[#D8BE87]">Precio protegido durante los primeros 12 meses</p> : null}</div><p className="mt-5 rounded-xl border border-white/6 bg-white/[0.025] px-3 py-2 text-xs font-bold text-[#a8b4c1]">{copy?.limit}</p><ul className="mt-6 flex-1 space-y-3">{copy?.features.map((feature) => <li key={feature} className="flex gap-2.5 text-sm leading-6 text-[#d6dee7]"><CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-[#48d8d0]" />{feature}</li>)}</ul><div className="mt-6 rounded-xl border border-violet-300/15 bg-violet-300/[0.04] px-3 py-2 text-xs font-bold text-violet-200">Apoderados PRO se contrata por separado.</div><Link to="/registro" className={`mt-5 rounded-2xl px-5 py-3.5 text-center font-black transition ${featured ? 'bg-[#289E9D] text-white hover:bg-[#35b8b5]' : 'border border-white/15 text-white hover:border-[#289E9D]/70 hover:bg-white/[0.03]'}`}>Probar Full primero</Link></article>; })}</div><p className="mt-5 text-center text-xs text-[#68778a]">Precios netos en pesos chilenos. Se agrega IVA. Pago anual y Precio Fundador no se acumulan. Apoderados PRO es un complemento independiente.</p></div></section>
+        <section id="multideporte" className="px-5 py-24 lg:py-32">
+          <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-[#D8BE87]">Multideporte de verdad</p>
+              <h2 className="mt-4 text-4xl font-black tracking-[-0.035em] sm:text-5xl">Un alumno puede vivir varias disciplinas sin duplicar su ficha.</h2>
+              <p className="mt-6 text-lg leading-8 text-[#95a3b3]">Cada inscripción mantiene su rama, categoría, mensualidad y seguimiento deportivo. La ficha personal y el apoderado siguen siendo únicos.</p>
+              <div className="mt-8 space-y-3">
+                {['Radar multideporte desde Formación', 'Criterios propios desde Competencia', 'Inscripciones y cobros separados por disciplina'].map((item) => (
+                  <div key={item} className="flex gap-3"><CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-[#48d8d0]" /><p className="text-[#c6d0da]">{item}</p></div>
+                ))}
+              </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {sports.map(([sport, metrics]) => (
+                <article key={sport} className="rounded-[24px] border border-white/8 bg-[#0d1620] p-5">
+                  <p className="text-lg font-black">{sport}</p>
+                  <p className="mt-3 text-sm leading-6 text-[#91a0b2]">{metrics}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
 
-        <section id="seguridad" className="px-5 py-24"><div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center"><div><div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-300/15 bg-emerald-300/8 text-emerald-300"><LockClosedIcon className="h-6 w-6" /></div><p className="mt-6 text-xs font-black uppercase tracking-[0.22em] text-emerald-300">Seguridad y privacidad</p><h2 className="mt-4 text-4xl font-black leading-tight tracking-[-0.035em]">La información de una academia no pertenece a otra.</h2><p className="mt-5 leading-7 text-[#91a0b2]">Syncademia opera como SaaS multiacademia, con controles de acceso, aislamiento lógico, consentimientos y trazabilidad para datos de jugadores y familias.</p></div><div className="grid gap-4 sm:grid-cols-2">{securityCards.map(({ icon: Icon, title, copy }) => <div key={title} className="rounded-2xl border border-white/8 bg-[#09121b] p-5"><Icon className="h-6 w-6 text-emerald-300" /><h3 className="mt-5 font-black">{title}</h3><p className="mt-2 text-sm leading-6 text-[#8493a5]">{copy}</p></div>)}</div></div></section>
+        <section id="apoderados-pro" className="border-y border-violet-300/10 bg-[#0d1220] px-5 py-24 lg:py-32">
+          <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-violet-300/20 bg-violet-300/[0.06] px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-violet-200">
+                <UserGroupIcon className="h-4 w-4" /> Complemento opcional
+              </div>
+              <h2 className="mt-5 text-4xl font-black tracking-[-0.035em] sm:text-5xl">Apoderados PRO.<span className="block text-violet-200">Una licencia para todas las familias.</span></h2>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-[#a3adbc]">La academia paga una licencia única. No hay cobro por cada padre o tutor habilitado.</p>
+              <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                {['Portal privado de cada familia', 'Estado de cuenta y documentos', 'Comunicaciones y privacidad', 'Solicitud de otra disciplina'].map((item) => (
+                  <div key={item} className="flex gap-3 rounded-2xl border border-white/8 bg-black/15 p-4">
+                    <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-violet-300" />
+                    <span className="text-sm font-bold text-[#e1e5eb]">{item}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-7 text-sm leading-6 text-[#8492a3]">La prueba Full de 15 días lo incluye para que puedas evaluar el portal antes de contratarlo.</p>
+            </div>
 
-        <section className="border-y border-white/8 bg-[#0d1620] px-5 py-24 lg:py-32"><div className="mx-auto flex max-w-5xl flex-col items-center overflow-hidden rounded-[38px] border border-[#289E9D]/25 bg-[radial-gradient(circle_at_50%_0%,rgba(40,158,157,0.24),transparent_48%),linear-gradient(145deg,#101c26,#0b131c)] px-6 py-16 text-center shadow-[0_30px_100px_rgba(0,0,0,0.28)] sm:px-12"><SparklesIcon className="h-11 w-11 text-[#70e4df]" /><p className="mt-6 text-xs font-black uppercase tracking-[0.22em] text-[#70e4df]">15 días Full</p><h2 className="mt-4 max-w-3xl text-4xl font-black leading-tight tracking-[-0.035em] sm:text-5xl">No pruebes una versión recortada. Prueba la operación completa.</h2><p className="mt-6 max-w-2xl text-lg leading-8 text-[#9daab8]">Activa Syncademia con todas las capacidades de Alto Rendimiento, criterios propios y Apoderados PRO durante la prueba. Después eliges tu plan base y decides si mantienes el complemento familiar.</p><div className="mt-9 flex flex-col gap-3 sm:flex-row"><Link to="/registro" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-white px-7 py-3 font-black text-[#0c1520] transition hover:-translate-y-0.5">Comenzar prueba Full <ArrowRightIcon className="h-5 w-5" /></Link><Link to="/login" className="inline-flex min-h-14 items-center justify-center rounded-2xl border border-white/15 px-7 py-3 font-black text-white transition hover:bg-white/5">Ya tengo una cuenta</Link></div></div></section>
+            <div className="rounded-[30px] border border-violet-300/20 bg-[#09111c] p-6 sm:p-8">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-violet-300">Precio por academia</p>
+              <div className="mt-5 rounded-2xl border border-violet-300/20 bg-violet-300/[0.05] p-5">
+                <p className="text-sm font-bold text-[#9ca8b7]">Mensual</p>
+                <p className="mt-2 text-4xl font-black">{money(guardianMonthly)} <span className="text-sm text-[#8492a3]">+ IVA/mes</span></p>
+                <p className="mt-2 text-sm text-violet-200">{money(guardianGrossMonthly)} IVA incluido</p>
+              </div>
+              <div className="mt-3 rounded-2xl border border-[#C8A96B]/25 bg-[#C8A96B]/[0.06] p-5">
+                <p className="text-sm font-bold text-[#D8BE87]">Anual · 2 meses gratis</p>
+                <p className="mt-2 text-3xl font-black">{money(guardianAnnual)} <span className="text-sm text-[#8492a3]">+ IVA/año</span></p>
+                <p className="mt-2 text-sm text-[#D8BE87]">12 meses pagando 10</p>
+              </div>
+              <div className="mt-5 rounded-2xl border border-white/8 bg-white/[0.025] p-4 text-sm leading-6 text-[#9aa6b5]">
+                Las solicitudes de nuevas disciplinas no crean cobros automáticamente. Dirección define categoría, matrícula, abono y mensualidad antes de aprobar.
+              </div>
+              <Link to="/registro" className="mt-6 flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-violet-500 px-5 py-3.5 font-black hover:bg-violet-400">
+                Probar Apoderados PRO 15 días <ArrowRightIcon className="h-5 w-5" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section id="planes" className="px-5 py-24 lg:py-32">
+          <div className="mx-auto max-w-7xl">
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-[#48d8d0]">Planes transparentes</p>
+              <h2 className="mt-4 text-4xl font-black tracking-[-0.035em] sm:text-5xl">Elige capacidad, no funciones familiares obligatorias.</h2>
+              <p className="mt-5 text-lg leading-8 text-[#91a0b2]">Apoderados PRO no infla tu plan base. Lo agregas solo si quieres habilitar el portal privado para las familias.</p>
+            </div>
+
+            <div className="mx-auto mt-10 grid max-w-3xl gap-2 rounded-3xl border border-white/10 bg-[#0d1620] p-2 sm:grid-cols-3">
+              <button type="button" onClick={() => setOfferMode('monthly')} className={`rounded-2xl px-4 py-4 text-left ${effectiveMode === 'monthly' ? 'bg-[#289E9D]' : 'text-white/65 hover:bg-white/[0.04]'}`}>
+                <span className="block font-black">Mensual</span><span className="mt-1 block text-xs opacity-75">Mes a mes</span>
+              </button>
+              <button type="button" onClick={() => setOfferMode('annual')} className={`rounded-2xl px-4 py-4 text-left ${effectiveMode === 'annual' ? 'bg-[#289E9D]' : 'text-white/65 hover:bg-white/[0.04]'}`}>
+                <span className="block font-black">Anual · 2 meses gratis</span><span className="mt-1 block text-xs opacity-75">Paga 10 · usa 12</span>
+              </button>
+              <button type="button" disabled={!founderAvailable} onClick={() => founderAvailable && setOfferMode('founder')} className={`rounded-2xl px-4 py-4 text-left ${effectiveMode === 'founder' ? 'bg-[#C8A96B] text-[#111923]' : founderAvailable ? 'text-[#D8BE87] hover:bg-[#C8A96B]/8' : 'cursor-not-allowed text-white/30'}`}>
+                <span className="block font-black">Precio Fundador</span><span className="mt-1 block text-xs opacity-75">{founderMessage}</span>
+              </button>
+            </div>
+
+            <div className="mt-10 grid gap-5 lg:grid-cols-3">
+              {plans.map((plan) => {
+                const copy = planCopy[plan.code];
+                const featured = plan.code === 'competencia';
+                const pricing = effectiveMode === 'annual' ? plan.annual : effectiveMode === 'founder' ? plan.founder : plan.monthly;
+                return (
+                  <article key={plan.code} className={`flex flex-col rounded-[30px] border p-7 ${featured ? 'border-[#48d8d0]/70 bg-[#10212a] shadow-[0_28px_80px_rgba(40,158,157,0.14)]' : 'border-white/10 bg-[#0d1620]'}`}>
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#7b8b9c]">{copy?.eyebrow}</p>
+                    <h3 className="mt-2 text-2xl font-black">{plan.name}</h3>
+                    <p className="mt-6 text-4xl font-black text-[#70e4df]">{money(pricing.netClp)}</p>
+                    <p className="mt-1 text-xs font-bold text-[#7f8e9f]">{effectiveMode === 'annual' ? '+ IVA / año' : '+ IVA / mes'}</p>
+                    {effectiveMode === 'annual' && <p className="mt-3 text-sm font-bold text-[#D8BE87]">Equivale a {money(plan.annual.equivalentMonthlyNetClp)}/mes</p>}
+                    {effectiveMode === 'founder' && <p className="mt-3 text-sm font-bold text-[#D8BE87]">Precio protegido durante 12 meses</p>}
+                    <p className="mt-5 rounded-xl border border-white/6 bg-white/[0.025] px-3 py-2 text-xs font-bold text-[#a8b4c1]">{copy?.limit}</p>
+                    <ul className="mt-6 flex-1 space-y-3">
+                      {copy?.features.map((feature) => <li key={feature} className="flex gap-2.5 text-sm leading-6 text-[#d6dee7]"><CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-[#48d8d0]" />{feature}</li>)}
+                    </ul>
+                    <div className="mt-6 rounded-xl border border-violet-300/15 bg-violet-300/[0.04] px-3 py-2 text-xs font-bold text-violet-200">Apoderados PRO se contrata por separado.</div>
+                    <Link to="/registro" className={`mt-5 rounded-2xl px-5 py-3.5 text-center font-black ${featured ? 'bg-[#289E9D] hover:bg-[#35b8b5]' : 'border border-white/15 hover:border-[#289E9D]/70'}`}>Probar Full primero</Link>
+                  </article>
+                );
+              })}
+            </div>
+            <p className="mt-5 text-center text-xs text-[#68778a]">Precios netos en pesos chilenos. Se agrega IVA. Pago anual y Precio Fundador no se acumulan.</p>
+          </div>
+        </section>
+
+        <section id="seguridad" className="border-y border-white/8 bg-[#0d1620] px-5 py-24">
+          <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+            <div>
+              <LockClosedIcon className="h-10 w-10 text-emerald-300" />
+              <p className="mt-6 text-xs font-black uppercase tracking-[0.22em] text-emerald-300">Seguridad y privacidad</p>
+              <h2 className="mt-4 text-4xl font-black tracking-[-0.035em]">La información de una academia no pertenece a otra.</h2>
+              <p className="mt-5 leading-7 text-[#91a0b2]">Controles de acceso, aislamiento lógico, consentimientos y trazabilidad para datos deportivos, financieros y familiares.</p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {[
+                [ShieldCheckIcon, 'Aislamiento multiacademia', 'Cada operación se resuelve dentro de la organización autenticada.'],
+                [DevicePhoneMobileIcon, 'Roles separados', 'Dirección, profesores y apoderados tienen experiencias distintas.'],
+                [CreditCardIcon, 'Pagos externos', 'Mercado Pago procesa el pago; Syncademia no almacena tarjetas.'],
+                [MapPinIcon, 'Estructura trazable', 'Sedes y ramas mantienen el contexto de cada operación.'],
+              ].map(([Icon, title, copy]) => {
+                const CardIcon = Icon as MarketingIcon;
+                return <article key={String(title)} className="rounded-2xl border border-white/8 bg-[#09121b] p-5"><CardIcon className="h-6 w-6 text-emerald-300" /><h3 className="mt-5 font-black">{String(title)}</h3><p className="mt-2 text-sm leading-6 text-[#8493a5]">{String(copy)}</p></article>;
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section className="px-5 py-24 lg:py-32">
+          <div className="mx-auto max-w-5xl rounded-[38px] border border-[#289E9D]/25 bg-[radial-gradient(circle_at_50%_0%,rgba(40,158,157,0.24),transparent_48%),#0b131c] px-6 py-16 text-center sm:px-12">
+            <SparklesIcon className="mx-auto h-11 w-11 text-[#70e4df]" />
+            <p className="mt-6 text-xs font-black uppercase tracking-[0.22em] text-[#70e4df]">15 días Full</p>
+            <h2 className="mt-4 text-4xl font-black tracking-[-0.035em] sm:text-5xl">Prueba la operación completa antes de pagar.</h2>
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-[#9daab8]">Durante la prueba tendrás las capacidades Full y Apoderados PRO habilitado. Después eliges tu plan base y si mantienes el complemento familiar.</p>
+            <Link to="/registro" className="mt-9 inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-white px-7 py-3 font-black text-[#0c1520]">Comenzar prueba Full <ArrowRightIcon className="h-5 w-5" /></Link>
+          </div>
+        </section>
       </main>
 
-      <footer className="border-t border-white/8 px-5 py-10"><div className="mx-auto flex max-w-7xl flex-col gap-7 sm:flex-row sm:items-end sm:justify-between"><div><Logo className="h-10 max-w-[170px]" /><p className="mt-4 max-w-md text-sm leading-6 text-[#718095]">Gestión integral para academias deportivas: operación, finanzas, rendimiento y comunidad en un solo ecosistema.</p></div><div className="flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-[#7d8b9c]"><a href="#producto" className="hover:text-white">Producto</a><a href="#multideporte" className="hover:text-white">Multideporte</a><a href="#apoderados-pro" className="hover:text-white">Apoderados PRO</a><a href="#planes" className="hover:text-white">Planes</a><Link to="/login" className="hover:text-white">Acceso</Link></div></div><div className="mx-auto mt-8 max-w-7xl border-t border-white/6 pt-6 text-xs text-[#59687a]">© 2026 {BRAND.name}. {BRAND.tagline}.</div></footer>
+      <footer className="border-t border-white/8 px-5 py-10">
+        <div className="mx-auto flex max-w-7xl flex-col gap-7 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <Logo className="h-10 max-w-[170px]" />
+            <p className="mt-4 max-w-md text-sm leading-6 text-[#718095]">Gestión integral para academias deportivas: operación, finanzas, rendimiento y comunidad.</p>
+          </div>
+          <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold text-[#7d8b9c]">
+            <a href="#producto" className="hover:text-white">Producto</a>
+            <a href="#multideporte" className="hover:text-white">Multideporte</a>
+            <a href="#apoderados-pro" className="hover:text-white">Apoderados PRO</a>
+            <a href="#planes" className="hover:text-white">Planes</a>
+            <Link to="/login" className="hover:text-white">Acceso</Link>
+          </div>
+        </div>
+        <div className="mx-auto mt-8 max-w-7xl border-t border-white/6 pt-6 text-xs text-[#59687a]">© 2026 {BRAND.name}. {BRAND.tagline}.</div>
+      </footer>
     </div>
   );
-};
-
-export default Home;
+}
