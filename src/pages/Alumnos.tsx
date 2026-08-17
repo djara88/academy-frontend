@@ -30,6 +30,7 @@ import {
 import api from '../api/axiosConfig';
 import EvaluationCriteriaEditor from '../components/EvaluationCriteriaEditor';
 import RecognitionCatalogEditor, { type RecognitionDefinition } from '../components/RecognitionCatalogEditor';
+import EnrollmentCategoryManager from '../components/EnrollmentCategoryManager';
 
 type Branch = { id: string; nombre: string; disciplina: string };
 type Site = { id: string; nombre: string };
@@ -410,6 +411,16 @@ export default function Alumnos() {
         <div className={`${panel} p-5 sm:p-6`}>
           <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-black uppercase tracking-[.16em] text-violet-300">Disciplina seleccionada</p><h2 className="mt-1 text-2xl font-black text-white">{enrollment.rama?.disciplina || evaluationProfile.label}</h2><p className="mt-1 text-sm text-[#8995a4]">{enrollment.rama?.nombre}{enrollment.sede?.nombre ? ` · ${enrollment.sede.nombre}` : ''}{enrollment.categoria?.nombre ? ` · ${enrollment.categoria.nombre}` : ''}</p></div><span className={`rounded-full px-3 py-1 text-[10px] font-black uppercase ${enrollment.estado === 'Activa' ? 'bg-emerald-500/15 text-emerald-300' : 'bg-slate-500/15 text-slate-300'}`}>{enrollment.estado}</span></div>
           <div className="mt-5 grid gap-3 sm:grid-cols-3"><div className="rounded-2xl border border-white/10 bg-[#0d1117] p-4"><p className="text-[10px] font-black uppercase text-[#697586]">Inicio</p><p className="mt-1 font-black text-white">{dateLabel(enrollment.fecha_inicio)}</p></div><div className="rounded-2xl border border-white/10 bg-[#0d1117] p-4"><p className="text-[10px] font-black uppercase text-[#697586]">Mensualidad</p><p className="mt-1 font-black text-emerald-300">{money(enrollment.monto_mensualidad)}</p></div><div className="rounded-2xl border border-white/10 bg-[#0d1117] p-4"><p className="text-[10px] font-black uppercase text-[#697586]">Categoría</p><p className="mt-1 truncate font-black text-white">{enrollment.categoria?.nombre || 'Sin categoría'}</p></div></div>
+          <EnrollmentCategoryManager
+            studentId={selectedStudentId}
+            branchId={enrollment.rama_id}
+            branchLabel={enrollment.rama?.nombre || enrollment.rama?.disciplina || 'esta rama'}
+            currentCategoryId={enrollment.categoria_id}
+            currentCategoryName={enrollment.categoria?.nombre}
+            disabled={enrollment.estado !== 'Activa'}
+            onSaved={refreshDetail}
+            onNotice={setNotice}
+          />
           <div className="mt-5 border-t border-white/10 pt-5"><div className="flex items-center gap-2"><UserCircleIcon className="h-5 w-5 text-[#70e4df]"/><p className="font-black text-white">Rol / posición / especialidad en esta rama</p></div><p className="mt-1 text-xs leading-5 text-[#7f8c9c]">Este dato es independiente por disciplina. Ej.: Arquero, Base, Kata, Kumite, Velocista, Libero.</p><div className="mt-3 flex flex-col gap-2 sm:flex-row"><input value={roleDraft} onChange={(event) => setRoleDraft(event.target.value)} maxLength={120} placeholder={`Especialidad en ${enrollment.rama?.disciplina || 'esta rama'}`} className={field}/><button disabled={roleMutation.isPending} onClick={() => roleMutation.mutate()} className="min-h-11 shrink-0 rounded-xl bg-[#289E9D] px-4 text-sm font-black text-white disabled:opacity-50">{roleMutation.isPending ? 'Guardando...' : 'Guardar especialidad'}</button></div></div>
         </div>
 
