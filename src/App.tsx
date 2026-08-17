@@ -39,7 +39,7 @@ const Asistencias = lazy(() => import('./pages/AsistenciasMultirama'));
 const Configuracion = lazy(() => import('./pages/Configuracion'));
 const PerfilAcademia = lazy(() => import('./pages/PerfilAcademia'));
 const Uniformes = lazy(() => import('./pages/UniformesMultirama'));
-const Finanzas = lazy(() => import('./pages/Finanzas'));
+const Finanzas = lazy(() => import('./pages/FinanzasMultirama'));
 const Profesores = lazy(() => import('./pages/ProfesoresMultirama'));
 const ProfesorPortal = lazy(() => import('./pages/ProfesorPortal'));
 const Apoderados = lazy(() => import('./pages/Apoderados'));
