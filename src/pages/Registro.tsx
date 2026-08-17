@@ -6,6 +6,7 @@ import { Logo } from '../components/Logo';
 import { BRAND } from '../config/brand';
 import { useAppDialog } from '../contexts/DialogContext';
 import { PASSWORD_REQUIREMENTS, validateStrongPassword } from '../utils/passwordPolicy';
+import { DISCIPLINES, defaultBranchName } from '../config/disciplines';
 
 const Registro: React.FC = () => {
   const navigate = useNavigate();
@@ -16,27 +17,40 @@ const Registro: React.FC = () => {
     nombre_academia: '',
     nombre_director: '',
     email: '',
-    password: ''
+    password: '',
+    disciplina_principal: 'Fútbol',
+    nombre_rama_principal: 'Fútbol',
+    nombre_sede_principal: 'Sede Principal',
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((current) => ({ ...current, [event.target.name]: event.target.value }));
   };
 
-  const handleRegistroManual = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+  const changeDiscipline = (discipline: string) => {
+    setFormData((current) => ({
+      ...current,
+      disciplina_principal: discipline,
+      nombre_rama_principal:
+        !current.nombre_rama_principal || current.nombre_rama_principal === defaultBranchName(current.disciplina_principal)
+          ? defaultBranchName(discipline)
+          : current.nombre_rama_principal,
+    }));
+  };
 
-    if (!validateStrongPassword(formData.password)) {
-      setError(PASSWORD_REQUIREMENTS);
-      return;
+  const handleRegistroManual = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError('');
+    if (!validateStrongPassword(formData.password)) return setError(PASSWORD_REQUIREMENTS);
+    if (!formData.disciplina_principal || !formData.nombre_rama_principal.trim()) {
+      return setError('Selecciona la disciplina principal e indica el nombre de la primera rama.');
     }
 
     setLoading(true);
     try {
       const response = await api.post('/api/academias/registro-publico', formData);
       if (response.data?.success) {
-        await notify(`¡${formData.nombre_academia} fue creada con éxito! Inicia sesión con tus credenciales.`, { title: BRAND.name });
+        await notify(`¡${formData.nombre_academia} fue creada con su rama principal ${formData.nombre_rama_principal}! Inicia sesión con tus credenciales.`, { title: BRAND.name });
         navigate('/login');
       }
     } catch (err: any) {
@@ -51,11 +65,11 @@ const Registro: React.FC = () => {
     setLoading(true);
     setError('');
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: `${window.location.origin}/completar-perfil` }
+        options: { redirectTo: `${window.location.origin}/completar-perfil` },
       });
-      if (error) throw error;
+      if (oauthError) throw oauthError;
     } catch (err: any) {
       console.error('Error con Google:', err);
       setError('No se pudo conectar con Google. Intenta de nuevo.');
@@ -64,63 +78,46 @@ const Registro: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0d1117] p-4 font-sans">
-      <div className="bg-[#161b22] p-8 rounded-xl border border-[#30363d] shadow-2xl w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-2xl border border-[#289E9D]/60 bg-[#0d1117] p-3 shadow-[0_0_20px_rgba(40,158,157,0.25)]">
-            <Logo variant="mark" className="h-full w-full" />
-          </div>
-          <h1 className="text-2xl font-extrabold text-[#e6edf3]">Crea tu Academia</h1>
-          <p className="text-sm text-[#8b949e] mt-1">Únete a {BRAND.name} en segundos</p>
-          <p className="text-xs text-[#289E9D] mt-1">{BRAND.tagline}</p>
+    <div className="min-h-screen bg-[#0d1117] p-4 font-sans text-white sm:py-10">
+      <div className="mx-auto w-full max-w-2xl rounded-[28px] border border-[#30363d] bg-[#161b22] p-6 shadow-2xl sm:p-8">
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-2xl border border-[#289E9D]/60 bg-[#0d1117] p-3 shadow-[0_0_20px_rgba(40,158,157,0.25)]"><Logo variant="mark" className="h-full w-full" /></div>
+          <h1 className="text-3xl font-black text-[#e6edf3]">Crea tu academia</h1>
+          <p className="mt-2 text-sm text-[#8b949e]">La primera sede y rama quedan listas desde el inicio; luego podrás agregar más según tu plan.</p>
         </div>
 
-        <button type="button" onClick={handleGoogleLogin} disabled={loading}
-          className="w-full bg-white hover:bg-gray-100 text-gray-900 font-bold py-2.5 px-4 rounded-md transition-colors flex items-center justify-center gap-3 mb-6 cursor-pointer">
-          <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5" />
+        <button type="button" onClick={handleGoogleLogin} disabled={loading} className="mb-6 flex w-full items-center justify-center gap-3 rounded-xl bg-white px-4 py-3 font-bold text-gray-900 transition hover:bg-gray-100 disabled:opacity-50">
+          <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="h-5 w-5" />
           <span>Continuar con Google</span>
         </button>
 
-        <div className="flex items-center mb-6">
-          <div className="flex-grow border-t border-[#30363d]"></div>
-          <span className="px-3 text-[#8b949e] text-xs font-semibold">O REGÍSTRATE CON TU CORREO</span>
-          <div className="flex-grow border-t border-[#30363d]"></div>
-        </div>
+        <div className="mb-6 flex items-center"><div className="flex-grow border-t border-[#30363d]"/><span className="px-3 text-xs font-semibold text-[#8b949e]">O REGÍSTRATE CON TU CORREO</span><div className="flex-grow border-t border-[#30363d]"/></div>
 
-        <form onSubmit={handleRegistroManual} className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Nombre de la Academia *</label>
-            <input type="text" name="nombre_academia" value={formData.nombre_academia} onChange={handleChange} required disabled={loading}
-              className="w-full bg-[#0d1117] border border-[#30363d] rounded-md p-2.5 text-[#e6edf3] focus:border-[#58a6ff] focus:outline-none" placeholder="Ej. Escuela Los Leones" />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Tu Nombre Completo *</label>
-            <input type="text" name="nombre_director" value={formData.nombre_director} onChange={handleChange} required disabled={loading}
-              className="w-full bg-[#0d1117] border border-[#30363d] rounded-md p-2.5 text-[#e6edf3] focus:border-[#58a6ff] focus:outline-none" placeholder="Ej. Juan Pérez" />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Correo Electrónico *</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} required disabled={loading}
-              className="w-full bg-[#0d1117] border border-[#30363d] rounded-md p-2.5 text-[#e6edf3] focus:border-[#58a6ff] focus:outline-none" placeholder="tu@correo.com" />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold mb-1 text-[#e6edf3]">Contraseña Segura *</label>
-            <input type="password" name="password" value={formData.password} onChange={handleChange} required disabled={loading} minLength={10} maxLength={128}
-              className="w-full bg-[#0d1117] border border-[#30363d] rounded-md p-2.5 text-[#e6edf3] focus:border-[#58a6ff] focus:outline-none" placeholder="Ej. Academia9!" />
-            <p className="mt-1.5 text-xs text-[#8b949e]">{PASSWORD_REQUIREMENTS}</p>
+        <form onSubmit={handleRegistroManual} className="space-y-5">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block sm:col-span-2"><span className="mb-1 block text-sm font-semibold text-[#e6edf3]">Nombre de la academia *</span><input type="text" name="nombre_academia" value={formData.nombre_academia} onChange={handleChange} required disabled={loading} className="w-full rounded-xl border border-[#30363d] bg-[#0d1117] p-3 text-[#e6edf3] outline-none focus:border-[#289E9D]" placeholder="Ej. Escuela Los Leones" /></label>
+            <label className="block"><span className="mb-1 block text-sm font-semibold text-[#e6edf3]">Tu nombre completo *</span><input type="text" name="nombre_director" value={formData.nombre_director} onChange={handleChange} required disabled={loading} className="w-full rounded-xl border border-[#30363d] bg-[#0d1117] p-3 text-[#e6edf3] outline-none focus:border-[#289E9D]" placeholder="Ej. Juan Pérez" /></label>
+            <label className="block"><span className="mb-1 block text-sm font-semibold text-[#e6edf3]">Correo electrónico *</span><input type="email" name="email" value={formData.email} onChange={handleChange} required disabled={loading} className="w-full rounded-xl border border-[#30363d] bg-[#0d1117] p-3 text-[#e6edf3] outline-none focus:border-[#289E9D]" placeholder="tu@correo.com" /></label>
           </div>
 
-          {error && <div className="text-[#e74c3c] text-sm bg-[#2c1a1a] border border-[#e74c3c] p-3 rounded-lg">{error}</div>}
+          <section className="rounded-2xl border border-[#289E9D]/30 bg-[#289E9D]/[.07] p-4 sm:p-5">
+            <p className="text-xs font-black uppercase tracking-[.16em] text-[#70e4df]">Estructura inicial</p>
+            <h2 className="mt-1 text-lg font-black">¿Cuál es tu disciplina principal?</h2>
+            <p className="mt-1 text-xs leading-5 text-[#8b949e]">Esto no te limita a un solo deporte. Solo define el contexto inicial y la rama que Syncademia abrirá por defecto.</p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <label className="block"><span className="mb-1 block text-sm font-semibold">Disciplina *</span><select value={formData.disciplina_principal} onChange={(event) => changeDiscipline(event.target.value)} disabled={loading} className="w-full rounded-xl border border-[#30363d] bg-[#0d1117] p-3 outline-none focus:border-[#289E9D]">{DISCIPLINES.map((discipline) => <option key={discipline}>{discipline}</option>)}</select></label>
+              <label className="block"><span className="mb-1 block text-sm font-semibold">Nombre de la rama *</span><input name="nombre_rama_principal" value={formData.nombre_rama_principal} onChange={handleChange} required disabled={loading} className="w-full rounded-xl border border-[#30363d] bg-[#0d1117] p-3 outline-none focus:border-[#289E9D]" placeholder={formData.disciplina_principal === 'Otro' ? 'Ej. Escalada' : formData.disciplina_principal}/></label>
+              <label className="block sm:col-span-2"><span className="mb-1 block text-sm font-semibold">Nombre de la primera sede</span><input name="nombre_sede_principal" value={formData.nombre_sede_principal} onChange={handleChange} disabled={loading} className="w-full rounded-xl border border-[#30363d] bg-[#0d1117] p-3 outline-none focus:border-[#289E9D]" placeholder="Sede Principal"/></label>
+            </div>
+          </section>
 
-          <button type="submit" disabled={loading}
-            className="w-full bg-[#238636] hover:bg-[#2ea043] text-white font-bold py-3 px-4 rounded-md transition-colors mt-2 cursor-pointer">
-            {loading ? 'Creando cuenta...' : 'Crear mi Academia'}
-          </button>
+          <label className="block"><span className="mb-1 block text-sm font-semibold text-[#e6edf3]">Contraseña segura *</span><input type="password" name="password" value={formData.password} onChange={handleChange} required disabled={loading} minLength={10} maxLength={128} className="w-full rounded-xl border border-[#30363d] bg-[#0d1117] p-3 text-[#e6edf3] outline-none focus:border-[#289E9D]" placeholder="Ej. Academia9!"/><p className="mt-1.5 text-xs text-[#8b949e]">{PASSWORD_REQUIREMENTS}</p></label>
+
+          {error && <div className="rounded-xl border border-[#e74c3c] bg-[#2c1a1a] p-3 text-sm text-[#ff8b82]">{error}</div>}
+          <button type="submit" disabled={loading} className="w-full rounded-xl bg-[#289E9D] px-4 py-3.5 font-black text-white transition hover:bg-[#35b8b5] disabled:opacity-50">{loading ? 'Creando academia y estructura...' : 'Crear mi academia'}</button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-[#8b949e]">
-          ¿Ya tienes una cuenta? <Link to="/login" className="text-[#58a6ff] hover:underline font-semibold">Inicia Sesión aquí</Link>
-        </p>
+        <p className="mt-6 text-center text-sm text-[#8b949e]">¿Ya tienes una cuenta? <Link to="/login" className="font-semibold text-[#58a6ff] hover:underline">Inicia sesión aquí</Link></p>
       </div>
     </div>
   );
