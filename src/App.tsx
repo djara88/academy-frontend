@@ -29,7 +29,7 @@ const SaaSAdmin = lazy(() => import('./pages/SaaSAdmin'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminFinance = lazy(() => import('./pages/AdminFinance'));
 const AdminProfile = lazy(() => import('./pages/AdminProfile'));
-const Subscription = lazy(() => import('./pages/Subscription'));
+const Subscription = lazy(() => import('./pages/SubscriptionCommercial'));
 const ApoderadosPro = lazy(() => import('./pages/ApoderadosPro'));
 const CambiarPassword = lazy(() => import('./pages/CambiarPassword'));
 const Terminos = lazy(() => import('./pages/Terminos'));
