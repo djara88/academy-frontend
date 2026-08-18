@@ -1,0 +1,61 @@
+name: Remove internal match costs from UI
+
+on:
+  push:
+    branches: [fix/separate-match-costs-from-finance]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/separate-match-costs-from-finance
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Dejar costos internos exclusivamente en Finanzas
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          targets = [Path('src/pages/PartidosMultirama.tsx'), Path('src/pages/Partidos.tsx')]
+          for p in targets:
+              if not p.exists():
+                  continue
+              s = p.read_text()
+              s = s.replace(",costo_arbitraje_total:'0',costo_cancha:'0'", '')
+              s = s.replace(",costo_arbitraje_total:Number(form.costo_arbitraje_total)||0,costo_cancha:Number(form.costo_cancha)||0", '')
+              s = s.replace(",costo_arbitraje_total:'0',costo_cancha:'0'}", '}')
+              s = re.sub(r"\{!editing\?<div className=\"grid gap-3 sm:grid-cols-2\"><input type=\"number\" min=\"0\" value=\{form\.costo_arbitraje_total\}.*?value=\{form\.costo_cancha\}.*?</div>:null\}", '', s, count=1, flags=re.S)
+              # Mejora el texto del único costo que sí corresponde a Partidos: el cobro al alumno.
+              s = s.replace('Cobrar arbitraje/jueces por alumno', 'Cobrar cuota de arbitraje/jueces al alumno')
+              s = s.replace('placeholder="Valor por alumno"', 'placeholder="Monto a cobrar por alumno"')
+              p.write_text(s)
+
+          remaining=[]
+          for p in targets:
+              if p.exists():
+                  text=p.read_text()
+                  if 'costo_arbitraje_total' in text or 'costo_cancha' in text:
+                      remaining.append(str(p))
+          if remaining:
+              raise SystemExit('Quedaron campos internos en: ' + ', '.join(remaining))
+          PY
+      - run: npm run build
+      - name: Guardar cambio limpio
+        run: |
+          rm -f .github/workflows/remove-match-internal-costs.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/pages/PartidosMultirama.tsx src/pages/Partidos.tsx .github/workflows/remove-match-internal-costs.yml
+          git commit -m "ux: mover costos internos de encuentros a Finanzas"
+          git push
