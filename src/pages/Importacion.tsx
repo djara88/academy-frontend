@@ -115,23 +115,23 @@ const Importacion: React.FC = () => {
     XLSX.utils.book_append_sheet(book, matrix, 'Alumnos');
 
     const instructions = XLSX.utils.aoa_to_sheet([
-      ['SYNCademia · Guía de importación multirrama'],
+      ['LESTRA · Guía de importación multirrama'],
       ['Regla','Qué hacer'],
-      ['Rama deportiva','Antes de subir el archivo, selecciona en Syncademia una sola rama destino. Cada lote pertenece a una rama y sede.'],
+      ['Rama deportiva','Antes de subir el archivo, selecciona en Lestra una sola rama destino. Cada lote pertenece a una rama y sede.'],
       ['Nombre del alumno','Obligatorio. Un alumno por fila.'],
-      ['RUT alumno','Recomendado. Si el alumno ya existe en la academia, Syncademia reutiliza su ficha y agrega la nueva rama sin duplicarlo.'],
+      ['RUT alumno','Recomendado. Si el alumno ya existe en la academia, Lestra reutiliza su ficha y agrega la nueva rama sin duplicarlo.'],
       ['Fecha nacimiento','Usa una fecha real de Excel o formato AAAA-MM-DD.'],
       ['Posición / especialidad','Es el rol dentro de la rama seleccionada: posición, grado, especialidad, modalidad, etc.'],
       ['Apoderado','Para alumnos nuevos, idealmente completa nombre, RUT, teléfono y correo. En alumnos existentes no se sobrescriben datos personales.'],
       ['Montos','Usa números. No escribas “35 mil” ni fórmulas. Los valores quedan asociados a la inscripción deportiva de la rama.'],
       ['Saldo pendiente','Solo deuda real ya existente al migrar. El cobro se crea dentro de la rama seleccionada.'],
-      ['Categoría','Escribe el nombre de la categoría dentro de la rama. Si no existe, Syncademia la crea en esa misma sede y rama.'],
+      ['Categoría','Escribe el nombre de la categoría dentro de la rama. Si no existe, Lestra la crea en esa misma sede y rama.'],
       ['Estado','Usa Activo, Inactivo o Retirado.'],
       ['Flujo','Selecciona rama → completa → sube → valida → corrige → importa. Máximo 3.000 filas por lote.'],
     ]);
     instructions['!cols'] = [{ wch: 26 }, { wch: 100 }];
     XLSX.utils.book_append_sheet(book, instructions, 'Instrucciones');
-    XLSX.writeFile(book, 'Matriz_Importacion_Multirrama_Syncademia.xlsx');
+    XLSX.writeFile(book, 'Matriz_Importacion_Multirrama_Lestra.xlsx');
   };
 
   const loadHistory = () =>
@@ -274,7 +274,7 @@ const Importacion: React.FC = () => {
       <span className="rounded-full border border-[#289E9D]/30 bg-[#289E9D]/10 px-3 py-1 text-xs font-black uppercase tracking-[.16em] text-[#48d8d0]">Migración multirrama</span>
       <h1 className="mt-4 text-3xl font-black text-white">Importar alumnos por rama deportiva</h1>
       <p className="mt-2 max-w-4xl text-sm leading-6 text-[#9ca3af]">
-        Cada lote se importa a una rama concreta. Si el RUT ya existe en la academia, Syncademia reutiliza la ficha del alumno y crea únicamente su nueva inscripción deportiva; nunca duplica a la persona.
+        Cada lote se importa a una rama concreta. Si el RUT ya existe en la academia, Lestra reutiliza la ficha del alumno y crea únicamente su nueva inscripción deportiva; nunca duplica a la persona.
       </p>
     </section>
 
@@ -324,7 +324,7 @@ const Importacion: React.FC = () => {
           <p className="font-black text-white">¿La escuela no tiene una planilla estándar?</p>
           <p className="mt-1 text-sm text-[#9ca3af]">Descarga la matriz multirrama. La rama no se escribe en cada fila: se selecciona una sola vez arriba para evitar cruces entre deportes.</p>
         </div>
-        <button type="button" onClick={downloadTemplate} className="shrink-0 rounded-xl bg-[#C8A96B] px-4 py-3 text-sm font-black text-[#111827]">Descargar matriz Syncademia</button>
+        <button type="button" onClick={downloadTemplate} className="shrink-0 rounded-xl bg-[#C8A96B] px-4 py-3 text-sm font-black text-[#111827]">Descargar matriz Lestra</button>
       </div>
       <div className="grid gap-5 md:grid-cols-[1fr_auto] md:items-end">
         <div>
@@ -339,7 +339,7 @@ const Importacion: React.FC = () => {
       <div>
         <p className="text-xs font-black uppercase tracking-[.16em] text-[#C8A96B]">Paso 2</p>
         <h2 className="mt-1 text-2xl font-black text-white">Relaciona las columnas</h2>
-        <p className="mt-1 text-sm text-[#8b949e]">Syncademia propone coincidencias automáticamente. Posición / especialidad y categoría quedarán vinculadas a <b className="text-[#b1bac4]">{selectedBranch?.nombre || 'la rama seleccionada'}</b>.</p>
+        <p className="mt-1 text-sm text-[#8b949e]">Lestra propone coincidencias automáticamente. Posición / especialidad y categoría quedarán vinculadas a <b className="text-[#b1bac4]">{selectedBranch?.nombre || 'la rama seleccionada'}</b>.</p>
       </div>
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {fields.map((field) => <div key={field.key} className="rounded-2xl border border-[#30363d] bg-[#0d1117] p-4">

@@ -103,7 +103,7 @@ const PerfilAcademia: React.FC = () => {
             <div>
               <p className="text-xs font-black uppercase tracking-[.16em] text-[#D8BE87]">Calendario de mensualidades</p>
               <h2 className="mt-1 text-xl font-black text-white">Define cuándo pagan tus apoderados</h2>
-              <p className="mt-2 text-sm leading-6 text-[#9ca3af]">Syncademia generará automáticamente cada mensualidad. Un alumno recién matriculado comienza a pagar desde el ciclo siguiente y solo se considera moroso después de la fecha de vencimiento.</p>
+              <p className="mt-2 text-sm leading-6 text-[#9ca3af]">Lestra generará automáticamente cada mensualidad. Un alumno recién matriculado comienza a pagar desde el ciclo siguiente y solo se considera moroso después de la fecha de vencimiento.</p>
             </div>
           </div>
 
