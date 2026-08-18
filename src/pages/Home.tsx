@@ -182,7 +182,7 @@ export default function Home() {
                 <span className="mt-2 block bg-gradient-to-r from-[#70e4df] via-[#38bdb8] to-[#d8be87] bg-clip-text text-transparent">Una sola operación.</span>
               </h1>
               <p className="mt-7 max-w-2xl text-lg leading-8 text-[#a7b4c3] sm:text-xl">
-                Syncademia conecta matrícula, asistencia, finanzas, WhatsApp, torneos y rendimiento deportivo. El portal familiar se activa aparte con Apoderados PRO cuando tu academia lo necesita.
+                Lestra conecta matrícula, asistencia, finanzas, WhatsApp, torneos y rendimiento deportivo. El portal familiar se activa aparte con Apoderados PRO cuando tu academia lo necesita.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <Link to="/registro" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#289E9D] px-7 py-3 font-black shadow-[0_18px_45px_rgba(40,158,157,0.22)] hover:bg-[#35b8b5]">
@@ -375,7 +375,7 @@ export default function Home() {
               {[
                 [ShieldCheckIcon, 'Aislamiento multiacademia', 'Cada operación se resuelve dentro de la organización autenticada.'],
                 [DevicePhoneMobileIcon, 'Roles separados', 'Dirección, profesores y apoderados tienen experiencias distintas.'],
-                [CreditCardIcon, 'Pagos externos', 'Mercado Pago procesa el pago; Syncademia no almacena tarjetas.'],
+                [CreditCardIcon, 'Pagos externos', 'Mercado Pago procesa el pago; Lestra no almacena tarjetas.'],
                 [MapPinIcon, 'Estructura trazable', 'Sedes y ramas mantienen el contexto de cada operación.'],
               ].map(([Icon, title, copy]) => {
                 const CardIcon = Icon as MarketingIcon;

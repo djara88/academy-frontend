@@ -11,7 +11,7 @@ const AdminProfile = () => {
   const { notify } = useAppDialog();
   const { theme, setTheme } = useAdminTheme();
   const light = theme === 'light';
-  const [name, setName] = useState(user?.nombre_completo || 'Administración Syncademia');
+  const [name, setName] = useState(user?.nombre_completo || `Administración ${BRAND.name}`);
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
   const [savingName, setSavingName] = useState(false);
@@ -69,7 +69,7 @@ const AdminProfile = () => {
           </div>
           <div>
             <p className="text-xs font-black uppercase tracking-[0.2em] text-orange-300">Cuenta propietaria</p>
-            <h1 className={`mt-2 text-3xl font-black ${light ? 'text-slate-950' : 'text-white'}`}>{user?.nombre_completo || 'Administración Syncademia'}</h1>
+            <h1 className={`mt-2 text-3xl font-black ${light ? 'text-slate-950' : 'text-white'}`}>{user?.nombre_completo || `Administración ${BRAND.name}`}</h1>
             <p className={`mt-2 text-sm ${light ? 'text-slate-500' : 'text-[#9aa6b5]'}`}>Administrador maestro de {BRAND.name} · acceso global al ecosistema</p>
           </div>
         </div>

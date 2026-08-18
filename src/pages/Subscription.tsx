@@ -62,7 +62,7 @@ const money = (value: number) => new Intl.NumberFormat('es-CL', {
 const featureMap: Record<string, string[]> = {
   formacion: [
     'Gestión completa, finanzas, partidos y torneos',
-    'Radar multideporte con criterios estándar Syncademia',
+    'Radar multideporte con criterios estándar Lestra',
     'Portal del apoderado + WhatsApp individual',
     '100 alumnos · 3 profesores · 1 sede · 1 rama deportiva',
   ],
@@ -116,7 +116,7 @@ const Subscription = () => {
       setReference('');
       await queryClient.invalidateQueries({ queryKey: ['subscription-plans'] });
     } catch (err: any) {
-      await notify(err.response?.data?.error || 'No fue posible preparar el pago.', { title: 'Contratar Syncademia' });
+      await notify(err.response?.data?.error || 'No fue posible preparar el pago.', { title: 'Contratar Lestra' });
       if (err.response?.data?.code === 'FOUNDER_SOLD_OUT' || err.response?.data?.code === 'FOUNDER_EXPIRED') {
         setOfferMode('monthly');
         await queryClient.invalidateQueries({ queryKey: ['subscription-plans'] });
@@ -156,7 +156,7 @@ const Subscription = () => {
         setOrderState('paid');
         await queryClient.invalidateQueries({ queryKey: ['mi-plan'] });
         await queryClient.invalidateQueries({ queryKey: ['subscription-plans'] });
-        await notify('Tu pago fue validado y la licencia ya está activa.', { title: 'Syncademia activado' });
+        await notify('Tu pago fue validado y la licencia ya está activa.', { title: 'Lestra activado' });
       } else {
         setOrderState('notified');
         await notify('El pago sigue pendiente de validación. Tu solicitud ya está registrada.', { title: 'Validación pendiente' });
@@ -227,7 +227,7 @@ const Subscription = () => {
         })}
       </section>
 
-      <div className="flex items-start gap-3 rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-5"><ShieldCheckIcon className="h-7 w-7 shrink-0 text-emerald-300" /><p className="text-sm leading-6 text-emerald-100">El pago se realiza directamente en Mercado Pago. Syncademia no almacena tarjetas, claves bancarias ni datos financieros sensibles. La licencia se activa después de validar el abono.</p></div>
+      <div className="flex items-start gap-3 rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-5"><ShieldCheckIcon className="h-7 w-7 shrink-0 text-emerald-300" /><p className="text-sm leading-6 text-emerald-100">El pago se realiza directamente en Mercado Pago. Lestra no almacena tarjetas, claves bancarias ni datos financieros sensibles. La licencia se activa después de validar el abono.</p></div>
 
       {order ? (
         <div className="fixed inset-0 z-[80] flex items-center justify-center overflow-y-auto bg-[#070b12]/90 p-4 backdrop-blur-md">
@@ -238,14 +238,14 @@ const Subscription = () => {
               <div className="flex items-center gap-3"><div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#009ee3]/15 text-[#52c7ff]"><CreditCardIcon className="h-7 w-7" /></div><div><p className="text-xs font-black uppercase tracking-[0.2em] text-[#52c7ff]">Checkout Mercado Pago</p><h2 className="text-2xl font-black text-white">{order.planName}{order.promotionCode === 'founder' ? ' · Fundador' : order.billingCycle === 'annual' ? ' · Anual' : ''}</h2></div></div>
 
               {orderState === 'paid' ? (
-                <div className="mt-7 rounded-3xl border border-emerald-400/25 bg-emerald-500/10 p-7 text-center"><CheckCircleIcon className="mx-auto h-14 w-14 text-emerald-300" /><h3 className="mt-4 text-2xl font-black text-white">Licencia activada</h3><p className="mt-2 text-sm text-emerald-100/75">El pago fue validado correctamente. Ya puedes usar el plan contratado.</p><button onClick={() => setOrder(null)} className="btn-primary mt-6 px-8">Continuar en Syncademia</button></div>
+                <div className="mt-7 rounded-3xl border border-emerald-400/25 bg-emerald-500/10 p-7 text-center"><CheckCircleIcon className="mx-auto h-14 w-14 text-emerald-300" /><h3 className="mt-4 text-2xl font-black text-white">Licencia activada</h3><p className="mt-2 text-sm text-emerald-100/75">El pago fue validado correctamente. Ya puedes usar el plan contratado.</p><button onClick={() => setOrder(null)} className="btn-primary mt-6 px-8">Continuar en Lestra</button></div>
               ) : (
                 <>
-                  <div className="mt-7 rounded-3xl border border-white/10 bg-black/20 p-6 text-center"><p className="text-xs font-black uppercase tracking-[0.18em] text-white/45">Monto exacto a ingresar en Mercado Pago</p><div className="mt-2 flex items-center justify-center gap-3"><strong className="text-4xl font-black text-white sm:text-5xl">{money(order.amountClp)}</strong><button onClick={() => void copyAmount()} className="rounded-xl border border-white/10 bg-white/5 p-2.5 text-white/60 transition hover:bg-white/10 hover:text-white" title="Copiar monto"><ClipboardDocumentIcon className="h-5 w-5" /></button></div><p className="mt-3 text-xs text-white/45">Orden Syncademia #{order.chargeId.slice(0, 8).toUpperCase()}</p>{order.founderSlot ? <p className="mt-2 text-xs font-black text-[#D8BE87]">Cupo Fundador #{order.founderSlot} reservado por esta orden</p> : null}</div>
+                  <div className="mt-7 rounded-3xl border border-white/10 bg-black/20 p-6 text-center"><p className="text-xs font-black uppercase tracking-[0.18em] text-white/45">Monto exacto a ingresar en Mercado Pago</p><div className="mt-2 flex items-center justify-center gap-3"><strong className="text-4xl font-black text-white sm:text-5xl">{money(order.amountClp)}</strong><button onClick={() => void copyAmount()} className="rounded-xl border border-white/10 bg-white/5 p-2.5 text-white/60 transition hover:bg-white/10 hover:text-white" title="Copiar monto"><ClipboardDocumentIcon className="h-5 w-5" /></button></div><p className="mt-3 text-xs text-white/45">Orden Lestra #{order.chargeId.slice(0, 8).toUpperCase()}</p>{order.founderSlot ? <p className="mt-2 text-xs font-black text-[#D8BE87]">Cupo Fundador #{order.founderSlot} reservado por esta orden</p> : null}</div>
                   <div className="mt-6 grid gap-3 sm:grid-cols-3">{[['1', 'Abre Mercado Pago', 'Se abrirá en una pestaña nueva.'], ['2', `Ingresa ${money(order.amountClp)}`, 'Usa exactamente el monto mostrado.'], ['3', 'Informa tu pago', 'Lo validamos y activamos tu licencia.']].map(([step, title, detail]) => <div key={step} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#009ee3]/15 text-xs font-black text-[#52c7ff]">{step}</span><p className="mt-3 text-sm font-black text-white">{title}</p><p className="mt-1 text-xs leading-5 text-white/45">{detail}</p></div>)}</div>
                   <button onClick={() => window.open(order.checkoutUrl, '_blank', 'noopener,noreferrer')} className="mt-6 flex min-h-14 w-full items-center justify-center gap-3 rounded-2xl bg-[#009ee3] px-6 text-base font-black text-white shadow-[0_16px_45px_rgba(0,158,227,0.25)] transition hover:-translate-y-0.5 hover:bg-[#00aef0]">Pagar con Mercado Pago <ArrowTopRightOnSquareIcon className="h-5 w-5" /></button>
                   <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-5"><div className="flex items-center gap-2"><SparklesIcon className="h-5 w-5 text-violet-300" /><h3 className="font-black text-white">¿Ya pagaste?</h3></div><p className="mt-1 text-sm text-white/50">Déjanos un dato para encontrar tu operación más rápido. La referencia es opcional.</p><div className="mt-4 grid gap-3 sm:grid-cols-2"><input value={payerName} onChange={(e) => setPayerName(e.target.value)} placeholder="Nombre del pagador" maxLength={120} className="w-full" /><input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Referencia / operación (opcional)" maxLength={120} className="w-full" /></div><div className="mt-4 flex flex-col gap-3 sm:flex-row"><button disabled={informing} onClick={() => void informPayment()} className="btn-primary flex-1 disabled:opacity-50">{informing ? 'Informando...' : orderState === 'notified' ? 'Pago informado ✓' : 'Informar que ya pagué'}</button><button disabled={checking} onClick={() => void checkPayment()} className="flex-1 rounded-xl border border-white/15 px-4 py-3 text-sm font-black text-white transition hover:bg-white/5 disabled:opacity-50">{checking ? 'Revisando...' : 'Revisar activación'}</button></div></div>
-                  <div className="mt-5 flex items-start gap-3 rounded-2xl border border-emerald-400/15 bg-emerald-500/5 p-4"><ShieldCheckIcon className="h-5 w-5 shrink-0 text-emerald-300" /><p className="text-xs leading-5 text-emerald-100/65">Tu pago se procesa fuera de Syncademia en el sitio seguro de Mercado Pago. Nunca te pediremos la contraseña de tu banco ni los datos completos de tu tarjeta.</p></div>
+                  <div className="mt-5 flex items-start gap-3 rounded-2xl border border-emerald-400/15 bg-emerald-500/5 p-4"><ShieldCheckIcon className="h-5 w-5 shrink-0 text-emerald-300" /><p className="text-xs leading-5 text-emerald-100/65">Tu pago se procesa fuera de Lestra en el sitio seguro de Mercado Pago. Nunca te pediremos la contraseña de tu banco ni los datos completos de tu tarjeta.</p></div>
                 </>
               )}
             </div>

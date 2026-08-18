@@ -8,6 +8,7 @@ import { DialogProvider } from './contexts/DialogContext';
 import { AdminThemeProvider } from './contexts/AdminThemeContext';
 import { usePresenceHeartbeat } from './hooks/usePresenceHeartbeat';
 import { isGuardianRole, isProfessorRole, isSuperAdminRole } from './utils/roles';
+import { BRAND } from './config/brand';
 
 const Layout = lazy(() => import('./layouts/Layout'));
 const SuperadminMfaGate = lazy(() => import('./components/SuperadminMfaGate'));
@@ -98,7 +99,7 @@ const App = () => (
       <AdminThemeProvider>
         <AuthProvider>
           <BrowserRouter>
-            <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">Cargando Syncademia...</div>}>
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">Cargando {BRAND.name}...</div>}>
               <Routes>
                 <Route path="/prematricula/:token" element={<PreMatriculaPublica />} />
                 <Route element={<PublicRoutes />}><Route path="/" element={<Home />} /><Route path="/login" element={<Login />} /><Route path="/registro" element={<Registro />} /></Route>

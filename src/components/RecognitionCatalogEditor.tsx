@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { PlusIcon, SparklesIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import api from '../api/axiosConfig';
+import { BRAND } from '../config/brand';
 
 export type RecognitionDefinition = {
   code: string;
@@ -85,7 +86,7 @@ export default function RecognitionCatalogEditor({ branch, initialItems, onClose
     try {
       await api.delete(`/api/alumnos/ramas/${branch.id}/reconocimientos-config`);
       setItems([]);
-      setMessage('Se restauró el catálogo estándar de Syncademia para esta disciplina.');
+      setMessage(`Se restauró el catálogo estándar de ${BRAND.name} para esta disciplina.`);
       await onSaved?.();
     } catch (error: unknown) {
       const apiError = error as { response?: { data?: { error?: string } } };
@@ -101,14 +102,14 @@ export default function RecognitionCatalogEditor({ branch, initialItems, onClose
         <div>
           <p className="text-xs font-black uppercase tracking-[0.18em] text-[#D8BE87]">Reconocimientos · {branch.disciplina}</p>
           <h2 className="mt-1 text-2xl font-black text-white">Medallas propias de {branch.nombre}</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#8995a4]">Se suman al catálogo estándar de Syncademia. Puedes crear reconocimientos formativos o competitivos propios de tu metodología.</p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#8995a4]">Se suman al catálogo estándar de {BRAND.name}. Puedes crear reconocimientos formativos o competitivos propios de tu metodología.</p>
         </div>
         <button onClick={onClose} className="rounded-xl border border-white/10 p-2 text-[#9aa6b5] hover:bg-white/5 hover:text-white" aria-label="Cerrar"><XMarkIcon className="h-5 w-5" /></button>
       </div>
 
       <div className="space-y-5 p-5 sm:p-7">
         <div className="rounded-2xl border border-[#C8A96B]/25 bg-[#C8A96B]/[.07] p-4">
-          <div className="flex items-start gap-3"><SparklesIcon className="mt-0.5 h-6 w-6 shrink-0 text-[#D8BE87]"/><div><p className="font-black text-white">Catálogo mixto</p><p className="mt-1 text-sm leading-6 text-[#9aa6b5]">Los reconocimientos de Syncademia no se eliminan. Estos son adicionales y quedan disponibles solo para esta rama.</p></div></div>
+          <div className="flex items-start gap-3"><SparklesIcon className="mt-0.5 h-6 w-6 shrink-0 text-[#D8BE87]"/><div><p className="font-black text-white">Catálogo mixto</p><p className="mt-1 text-sm leading-6 text-[#9aa6b5]">Los reconocimientos de {BRAND.name} no se eliminan. Estos son adicionales y quedan disponibles solo para esta rama.</p></div></div>
         </div>
 
         <div className="space-y-3">

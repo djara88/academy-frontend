@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { supabase } from '../config/supabase';
+import { BRAND } from '../config/brand';
 
 export interface User {
   id: string;
@@ -85,7 +86,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         newUser = {
           id: session.user.id,
           email: session.user.email || '',
-          nombre_completo: session.user.user_metadata?.full_name || 'Administración Syncademia',
+          nombre_completo: session.user.user_metadata?.full_name || `Administración ${BRAND.name}`,
           rol: 'superadmin',
           academia_id: null,
           requiere_cambio_password: false,
@@ -109,8 +110,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           activo: usuarioBD.activo !== false,
         };
       } else if (isGoogleSession(session.user)) {
-        // Única excepción: una primera sesión Google necesita llegar a
-        // /completar-perfil para crear su academia y su fila en `usuarios`.
         newUser = {
           id: session.user.id,
           email: session.user.email || '',
@@ -120,8 +119,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           requiere_cambio_password: false,
         };
       } else {
-        // Una cuenta Auth huérfana por correo/contraseña nunca recibe un rol
-        // provisional. El backend aplica la misma regla con HTTP 403.
         await supabase.auth.signOut();
         clearLocalSession();
         setLoading(false);
@@ -158,7 +155,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         newUser = {
           id: authData.user.id,
           email: authData.user.email || '',
-          nombre_completo: authData.user.user_metadata?.full_name || 'Administración Syncademia',
+          nombre_completo: authData.user.user_metadata?.full_name || `Administración ${BRAND.name}`,
           rol: 'superadmin',
           academia_id: null,
           requiere_cambio_password: false,

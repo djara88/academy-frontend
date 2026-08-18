@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CheckCircleIcon, PlusIcon, SparklesIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import api from '../api/axiosConfig';
+import { BRAND } from '../config/brand';
 
 type Branch = { id: string; nombre: string; disciplina: string };
 type ProfileResponse = {
@@ -86,7 +87,7 @@ export default function EvaluationCriteriaEditor({ branch, onClose, onSaved }: P
       const next = response.data?.data?.profile as ProfileResponse;
       setProfile({ ...next, customization: response.data?.data?.customization });
       setMetrics(next?.metrics || []);
-      setMessage('Se restauraron los criterios estándar de Syncademia. El historial personalizado anterior se conserva.');
+      setMessage(`Se restauraron los criterios estándar de ${BRAND.name}. El historial personalizado anterior se conserva.`);
       await onSaved?.();
     } catch (error: any) {
       setMessage(error?.response?.data?.error || 'No fue posible restaurar los criterios estándar.');
@@ -115,10 +116,10 @@ export default function EvaluationCriteriaEditor({ branch, onClose, onSaved }: P
             <div className="flex items-start gap-3">
               <SparklesIcon className={`mt-0.5 h-6 w-6 shrink-0 ${allowed ? 'text-[#70e4df]' : 'text-[#D8BE87]'}`} />
               <div>
-                <p className="font-black text-white">{allowed ? (active ? 'Perfil personalizado activo' : 'Puedes crear tu propio método de evaluación') : 'Perfil estándar de Syncademia'}</p>
+                <p className="font-black text-white">{allowed ? (active ? 'Perfil personalizado activo' : 'Puedes crear tu propio método de evaluación') : `Perfil estándar de ${BRAND.name}`}</p>
                 <p className="mt-1 text-sm leading-6 text-[#9aa6b5]">{allowed
                   ? 'Competencia y Alto Rendimiento permiten adaptar los criterios a la metodología de cada rama. Cada cambio crea una nueva versión para proteger la evolución histórica.'
-                  : 'Formación utiliza los criterios multideporte definidos por Syncademia. La personalización por rama está disponible desde Competencia.'}</p>
+                  : `Formación utiliza los criterios multideporte definidos por ${BRAND.name}. La personalización por rama está disponible desde Competencia.`}</p>
               </div>
             </div>
           </div>
