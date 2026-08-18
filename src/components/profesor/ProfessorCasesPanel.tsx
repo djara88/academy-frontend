@@ -3,7 +3,6 @@ import {
   ArrowPathIcon,
   ChatBubbleLeftRightIcon,
   ChevronRightIcon,
-  ExclamationTriangleIcon,
   PlusIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
