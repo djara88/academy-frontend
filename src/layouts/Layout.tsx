@@ -43,7 +43,7 @@ const directorItems: NavItem[] = [
 const adminItems: NavItem[] = [
   { to: '/admin', label: 'Resumen ejecutivo', icon: ChartBarIcon },
   { to: '/admin/academias', label: 'Academias', icon: BuildingOffice2Icon },
-  { to: '/admin/finanzas', label: 'Finanzas Syncademia', icon: BanknotesIcon },
+  { to: '/admin/finanzas', label: `Finanzas ${BRAND.name}`, icon: BanknotesIcon },
   { to: '/admin/monitor', label: 'Monitor del sistema', icon: ServerStackIcon },
   { to: '/admin/perfil', label: 'Mi perfil', icon: ShieldCheckIcon },
 ];
@@ -115,7 +115,7 @@ const Layout = () => {
           <button type="button" onClick={() => setMobileMenuOpen(false)} className={`absolute right-3 top-3 rounded-lg p-2 lg:hidden ${light ? 'text-slate-500 hover:bg-slate-100' : 'text-gray-400 hover:bg-[#131722]'}`} aria-label="Cerrar navegación"><XMarkIcon className="h-6 w-6" /></button>
           {logoAcademia && !isSuperAdmin ? <img src={logoAcademia} alt={`Logo de ${nombreAcademia}`} className="mb-2 h-14 w-14 rounded-2xl border-2 border-[#289E9D] object-cover shadow-md" /> : <div className={`mb-2 flex h-16 w-16 items-center justify-center rounded-2xl border border-[#289E9D]/60 p-2 shadow-md ${light ? 'bg-slate-50' : 'bg-[#131722]'}`}><Logo variant="mark" className="h-full w-full" /></div>}
           <h1 className="max-w-[200px] truncate text-xl font-black tracking-wide text-[#289E9D]">{isSuperAdmin ? BRAND.name : nombreAcademia}</h1>
-          <p className={`mt-1 text-xs font-semibold ${isSuperAdmin ? 'text-orange-500' : 'text-[#8995a4]'}`}>{isSuperAdmin ? 'Administración global' : planAccess?.plan.trial ? 'Prueba Full' : `Plan ${planAccess?.plan.name || 'Syncademia'}`}</p>
+          <p className={`mt-1 text-xs font-semibold ${isSuperAdmin ? 'text-orange-500' : 'text-[#8995a4]'}`}>{isSuperAdmin ? 'Administración global' : planAccess?.plan.trial ? 'Prueba Full' : `Plan ${planAccess?.plan.name || BRAND.name}`}</p>
         </div>
         <nav className="mt-3 space-y-1 p-3">{items.map((item) => {
           const enabled = isSuperAdmin || !item.feature || Boolean(planAccess?.features.includes(item.feature));
@@ -133,7 +133,7 @@ const Layout = () => {
       <header className={`sticky top-0 z-30 flex min-h-16 shrink-0 items-center gap-3 border-b px-3 py-2 backdrop-blur lg:hidden ${light ? 'border-slate-200 bg-white/95' : 'border-gray-800 bg-[#1C212D]/95'}`}>
         <button type="button" onClick={() => setMobileMenuOpen(true)} className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${light ? 'border-slate-200 bg-slate-50 text-slate-700' : 'border-gray-700 bg-[#131722] text-gray-200'}`} aria-label="Abrir navegación"><Bars3Icon className="h-6 w-6" /></button>
         <div className="min-w-0 flex-1">
-          <p className={`truncate text-[10px] font-black uppercase tracking-[0.16em] ${isSuperAdmin ? 'text-orange-500' : 'text-[#48d8d0]'}`}>{isSuperAdmin ? 'Panel maestro' : 'Syncademia'}</p>
+          <p className={`truncate text-[10px] font-black uppercase tracking-[0.16em] ${isSuperAdmin ? 'text-orange-500' : 'text-[#48d8d0]'}`}>{isSuperAdmin ? 'Panel maestro' : BRAND.name}</p>
           <p className={`truncate text-sm font-black ${light ? 'text-slate-900' : 'text-white'}`}>{isSuperAdmin ? BRAND.name : nombreAcademia}</p>
         </div>
         {logoAcademia && !isSuperAdmin ? <img src={logoAcademia} alt="Logo academia" className="h-10 w-10 shrink-0 rounded-xl border border-[#289E9D]/60 object-cover" /> : <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#289E9D]/50 p-1.5 ${light ? 'bg-slate-50' : 'bg-[#131722]'}`}><Logo variant="mark" className="h-full w-full" /></div>}
