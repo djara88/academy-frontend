@@ -1,0 +1,36 @@
+name: Apply Lestra brand
+
+on:
+  push:
+    branches:
+      - brand-lestra-v1
+
+permissions:
+  contents: write
+
+jobs:
+  apply-brand:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout brand branch
+        uses: actions/checkout@v4
+        with:
+          ref: brand-lestra-v1
+          fetch-depth: 0
+
+      - name: Apply visible brand replacement
+        run: node scripts/apply-lestra-brand.mjs
+
+      - name: Commit deterministic brand cleanup
+        shell: bash
+        run: |
+          if git diff --quiet -- src index.html; then
+            echo "No visible legacy brand remains."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src index.html
+          git commit -m "brand: completar reemplazo visible a Lestra"
+          git push origin HEAD:brand-lestra-v1
