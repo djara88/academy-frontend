@@ -12,6 +12,13 @@ interface CompetitiveMetric {
   decimals?: number;
 }
 
+interface EventUiProfile {
+  conditionMode: 'required' | 'optional' | 'hidden';
+  equipmentMode: 'uniform' | 'freeform';
+  equipmentLabel: string;
+  equipmentPlaceholder?: string | null;
+}
+
 interface CompetitiveProfile {
   code: string;
   label: string;
@@ -20,6 +27,7 @@ interface CompetitiveProfile {
   opponentLabel: string;
   scoreLabel: string;
   usesHeadToHeadScore: boolean;
+  eventUi?: EventUiProfile;
   metricVersion: number;
   metrics: CompetitiveMetric[];
 }
@@ -63,6 +71,7 @@ const FALLBACK_PROFILE: CompetitiveProfile = {
   opponentLabel: 'Rival / evento',
   scoreLabel: 'Puntos',
   usesHeadToHeadScore: true,
+  eventUi: { conditionMode: 'optional', equipmentMode: 'freeform', equipmentLabel: 'Indumentaria / equipamiento', equipmentPlaceholder: 'Ej: equipamiento requerido' },
   metricVersion: 1,
   metrics: [
     { code: 'participaciones', label: 'Participaciones', decimals: 0 },
@@ -83,6 +92,15 @@ const fromMinutes = (value: number) => {
 };
 
 const shiftTime = (value: string, minutes: number) => fromMinutes(toMinutes(value) + minutes);
+
+const LEGACY_UNIFORM_VALUES = new Set(['Titular', 'Visita', 'Ambas (Llevar ambos)', 'Indumentaria principal']);
+const eventUiOf = (profile: CompetitiveProfile): EventUiProfile => profile.eventUi || FALLBACK_PROFILE.eventUi!;
+const meaningfulEquipment = (profile: CompetitiveProfile, value?: string | null) => {
+  const text = String(value || '').trim();
+  if (!text) return '';
+  if (eventUiOf(profile).equipmentMode === 'freeform' && LEGACY_UNIFORM_VALUES.has(text)) return '';
+  return text;
+};
 
 const TimeSelector = ({ label, value, onChange, quickTimes, help }: { label: string; value: string; onChange: (value: string) => void; quickTimes: string[]; help?: string }) => (
   <div className="rounded-2xl border border-[#30363d] bg-[#0d1117] p-4">
@@ -115,6 +133,7 @@ const Partidos: React.FC = () => {
   const [citados, setCitados] = useState<any[]>([]);
   const [statsJugadores, setStatsJugadores] = useState<StatJugador[]>([]);
   const [competitiveProfile, setCompetitiveProfile] = useState<CompetitiveProfile>(FALLBACK_PROFILE);
+  const [formSportProfile, setFormSportProfile] = useState<CompetitiveProfile>(FALLBACK_PROFILE);
 
   const [resultadoFavor, setResultadoFavor] = useState<number>(0);
   const [resultadoContra, setResultadoContra] = useState<number>(0);
@@ -139,6 +158,37 @@ const Partidos: React.FC = () => {
   });
 
   useEffect(() => { void cargarDatos(); }, []);
+
+  const aplicarPerfilFormulario = (profile?: CompetitiveProfile | null) => {
+    const nextProfile = profile || FALLBACK_PROFILE;
+    const eventUi = eventUiOf(nextProfile);
+    setFormSportProfile(nextProfile);
+    setForm((current) => {
+      const currentEquipment = String(current.color_uniforme || '');
+      const nextEquipment = eventUi.equipmentMode === 'uniform'
+        ? (LEGACY_UNIFORM_VALUES.has(currentEquipment) ? currentEquipment : 'Titular')
+        : (LEGACY_UNIFORM_VALUES.has(currentEquipment) ? '' : currentEquipment);
+      const nextCondition = eventUi.conditionMode === 'required'
+        ? (['Local', 'Visita'].includes(current.condicion) ? current.condicion : 'Local')
+        : eventUi.conditionMode === 'optional'
+          ? (['Local', 'Visita', 'Evento'].includes(current.condicion) ? current.condicion : 'Evento')
+          : 'Evento';
+      return { ...current, color_uniforme: nextEquipment, condicion: nextCondition };
+    });
+  };
+
+  const cargarPerfilCategoria = async (categoriaId: string) => {
+    if (!categoriaId) return aplicarPerfilFormulario(FALLBACK_PROFILE);
+    const category = categorias.find((item: any) => String(item.id) === String(categoriaId));
+    if (!category?.rama_id) return aplicarPerfilFormulario(FALLBACK_PROFILE);
+    try {
+      const response = await api.get('/api/sport-profiles', { params: { rama_id: category.rama_id } });
+      aplicarPerfilFormulario(response.data?.data?.competitive || FALLBACK_PROFILE);
+    } catch (error) {
+      console.error('No fue posible cargar el perfil competitivo de la categoría:', error);
+      aplicarPerfilFormulario(FALLBACK_PROFILE);
+    }
+  };
 
   const cargarDatos = async () => {
     try {
@@ -175,6 +225,7 @@ const Partidos: React.FC = () => {
       cobra_arbitraje: false,
       monto_arbitraje_jugador: 0,
     });
+    setFormSportProfile(FALLBACK_PROFILE);
     setShowModalPartido(true);
   };
 
@@ -195,6 +246,7 @@ const Partidos: React.FC = () => {
       cobra_arbitraje: p.cobra_arbitraje || false,
       monto_arbitraje_jugador: p.monto_arbitraje_jugador || 0,
     });
+    setFormSportProfile(p.sport_profile || FALLBACK_PROFILE);
     setShowModalPartido(true);
   };
 
@@ -335,7 +387,7 @@ const Partidos: React.FC = () => {
                   <div className="flex flex-wrap items-center gap-1.5">
                     <span className="rounded-full border border-[#289E9D]/35 bg-[#289E9D]/10 px-2.5 py-0.5 font-bold text-[#70e4df]">{profile.icon} {profile.label}</span>
                     {p.es_amistoso ? <span className="rounded-full border border-purple-500/30 bg-purple-500/20 px-2.5 py-0.5 font-bold text-purple-400">🤝 Amistoso</span> : <span className="max-w-[120px] truncate rounded-full border border-blue-500/30 bg-blue-500/20 px-2.5 py-0.5 font-bold text-blue-400">🏆 {p.torneos?.nombre}</span>}
-                    <span className={`rounded-full border px-2 py-0.5 font-bold ${p.condicion === 'Visita' ? 'border-orange-500/30 bg-orange-500/20 text-orange-400' : 'border-green-500/30 bg-green-500/20 text-green-400'}`}>{p.condicion === 'Visita' ? '✈️ Visita' : '🏠 Local'}</span>
+                    {eventUiOf(profile).conditionMode !== 'hidden' && <span className={`rounded-full border px-2 py-0.5 font-bold ${p.condicion === 'Visita' ? 'border-orange-500/30 bg-orange-500/20 text-orange-400' : p.condicion === 'Local' ? 'border-green-500/30 bg-green-500/20 text-green-400' : 'border-gray-600 bg-gray-800 text-gray-300'}`}>{p.condicion === 'Visita' ? '✈️ Visita' : p.condicion === 'Local' ? '🏠 Local' : '📍 Evento'}</span>}
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="rounded-full border border-gray-700 bg-gray-800 px-2 py-0.5 font-bold text-gray-300">🏷️ {p.categorias?.nombre || 'Sin Cat.'}</span>
@@ -357,7 +409,7 @@ const Partidos: React.FC = () => {
                   <div><span className="block text-gray-500">📅 Fecha:</span><strong className="text-white">{p.fecha}</strong></div>
                   <div><span className="block text-gray-500">📣 Citación:</span><strong className="text-[#70e4df]">{p.hora_citacion?.slice(0, 5) || 'Por definir'}</strong></div>
                   <div><span className="block text-gray-500">⏰ Inicio:</span><strong className="text-white">{p.hora?.slice(0, 5)} hrs</strong></div>
-                  <div><span className="block text-gray-500">👕 Indumentaria:</span><strong className="text-white">{p.color_uniforme}</strong></div>
+                  {meaningfulEquipment(profile, p.color_uniforme) && <div><span className="block text-gray-500">🎽 {eventUiOf(profile).equipmentLabel}:</span><strong className="text-white">{meaningfulEquipment(profile, p.color_uniforme)}</strong></div>}
                   <div><span className="block text-gray-500">🏟️ Lugar:</span><strong className="block truncate text-white">{p.ubicacion || 'Por confirmar'}</strong></div>
                 </div>
 
@@ -380,17 +432,25 @@ const Partidos: React.FC = () => {
             <h2 className="text-2xl font-bold text-white">{idPartidoEditando ? '✏️ Editar Encuentro' : '🏅 Programar Encuentro'}</h2>
             <form onSubmit={handleSubmit} className="space-y-4 text-sm">
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="mb-1 block font-semibold text-gray-400">Categoría *</label><select required value={form.categoria_id} onChange={(e) => setForm({ ...form, categoria_id: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]"><option value="">-- Seleccionar --</option>{categorias.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}</select></div>
+                <div><label className="mb-1 block font-semibold text-gray-400">Categoría *</label><select required value={form.categoria_id} onChange={(e) => { const categoria_id = e.target.value; setForm({ ...form, categoria_id }); void cargarPerfilCategoria(categoria_id); }} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]"><option value="">-- Seleccionar --</option>{categorias.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}</select></div>
                 <div><label className="mb-1 block font-semibold text-gray-400">Tipo *</label><select value={form.es_amistoso ? 'amistoso' : 'torneo'} onChange={(e) => setForm({ ...form, es_amistoso: e.target.value === 'amistoso' })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]"><option value="torneo">🏆 Torneo / competencia</option><option value="amistoso">🤝 Amistoso</option></select></div>
               </div>
 
               {!form.es_amistoso && <div><label className="mb-1 block font-semibold text-gray-400">Torneo *</label><select required={!form.es_amistoso} value={form.torneo_id} onChange={(e) => setForm({ ...form, torneo_id: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]"><option value="">-- Seleccionar Torneo --</option>{torneos.map((t) => <option key={t.id} value={t.id}>{t.nombre}</option>)}</select></div>}
 
-              <div><label className="mb-1 block font-semibold text-gray-400">Rival / evento *</label><input required type="text" placeholder="Ej: Club rival / 100 m libre / Torneo Regional" value={form.rival} onChange={(e) => setForm({ ...form, rival: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]" /></div>
+              {form.categoria_id && <div className="rounded-xl border border-[#289E9D]/30 bg-[#289E9D]/10 p-3"><p className="text-xs font-black uppercase tracking-[.15em] text-[#70e4df]">{formSportProfile.icon} {formSportProfile.label}</p><p className="mt-1 text-xs text-gray-400">Lestra adaptó los datos del encuentro a esta disciplina.</p></div>}
 
-              <div className="grid grid-cols-2 gap-3">
-                <div><label className="mb-1 block font-semibold text-gray-400">Condición *</label><select value={form.condicion} onChange={(e) => setForm({ ...form, condicion: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]"><option value="Local">🏠 Local</option><option value="Visita">✈️ Visita</option></select></div>
-                <div><label className="mb-1 block font-semibold text-gray-400">Indumentaria *</label><select value={form.color_uniforme} onChange={(e) => setForm({ ...form, color_uniforme: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]"><option value="Titular">Titular</option><option value="Visita">Visita</option><option value="Ambas (Llevar ambos)">Ambas</option></select></div>
+              <div><label className="mb-1 block font-semibold text-gray-400">{formSportProfile.opponentLabel} *</label><input required type="text" placeholder={`Ej: ${formSportProfile.opponentLabel === 'Rival' ? 'Club rival' : 'evento, rival o prueba'}`} value={form.rival} onChange={(e) => setForm({ ...form, rival: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]" /></div>
+
+              <div className={`grid gap-3 ${eventUiOf(formSportProfile).conditionMode === 'hidden' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'}`}>
+                {eventUiOf(formSportProfile).conditionMode !== 'hidden' && (
+                  <div><label className="mb-1 block font-semibold text-gray-400">Condición {eventUiOf(formSportProfile).conditionMode === 'required' ? '*' : '(opcional)'}</label><select value={form.condicion} onChange={(e) => setForm({ ...form, condicion: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]">{eventUiOf(formSportProfile).conditionMode === 'optional' && <option value="Evento">📍 Evento / sede neutral</option>}<option value="Local">🏠 Local</option><option value="Visita">✈️ Visita</option></select></div>
+                )}
+                {eventUiOf(formSportProfile).equipmentMode === 'uniform' ? (
+                  <div><label className="mb-1 block font-semibold text-gray-400">{eventUiOf(formSportProfile).equipmentLabel} *</label><select value={form.color_uniforme} onChange={(e) => setForm({ ...form, color_uniforme: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]"><option value="Titular">Titular</option><option value="Visita">Visita</option><option value="Ambas (Llevar ambos)">Ambas</option></select></div>
+                ) : (
+                  <div><label className="mb-1 block font-semibold text-gray-400">{eventUiOf(formSportProfile).equipmentLabel} <span className="font-normal text-gray-600">(opcional)</span></label><input type="text" value={form.color_uniforme} placeholder={eventUiOf(formSportProfile).equipmentPlaceholder || 'Equipamiento requerido'} onChange={(e) => setForm({ ...form, color_uniforme: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]" /></div>
+                )}
               </div>
 
               <div><label className="mb-1 block font-semibold text-gray-400">Fecha *</label><input required type="date" value={form.fecha} onChange={(e) => setForm({ ...form, fecha: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]" /></div>
