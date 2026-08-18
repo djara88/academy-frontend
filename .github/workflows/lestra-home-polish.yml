@@ -1,0 +1,56 @@
+name: Lestra home polish
+
+on:
+  push:
+    branches:
+      - brand-lestra-v1
+
+permissions:
+  contents: write
+
+jobs:
+  polish:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: brand-lestra-v1
+          fetch-depth: 0
+      - name: Apply Lestra visual tokens to public home
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/pages/HomeCommercial.tsx')
+          s = p.read_text(encoding='utf-8')
+          replacements = [
+              ('Tu academia deportiva,', 'Gestión que mueve'),
+              ('operando como una sola.', 'el deporte.'),
+              ('Matrícula, asistencia, finanzas, sedes, disciplinas, torneos y rendimiento en una plataforma multideporte. Activa el portal familiar solo cuando tu academia lo necesite.', 'La operación completa de tu academia o club, conectada en una plataforma multideporte: matrícula, asistencia, finanzas, sedes, disciplinas, competencia y rendimiento.'),
+              ('#081018', '#070B14'),
+              ('#289E9D', '#3157FF'),
+              ('#70e4df', '#B8FF3D'),
+              ('#48d8d0', '#B8FF3D'),
+              ('#38bdb8', '#6C7CFF'),
+              ('#111a24', '#0F172A'),
+              ('#0b131c', '#0B1220'),
+              ('#d8be87', '#B8FF3D'),
+              ('#D8BE87', '#B8FF3D'),
+              ('rgba(40,158,157', 'rgba(49,87,255'),
+          ]
+          original = s
+          for old, new in replacements:
+              s = s.replace(old, new)
+          if s == original:
+              raise SystemExit('No se aplicaron cambios; revisar tokens objetivo.')
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit public brand polish
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/pages/HomeCommercial.tsx
+          git commit -m "brand: alinear portada comercial con identidad Lestra"
+          git push origin HEAD:brand-lestra-v1
