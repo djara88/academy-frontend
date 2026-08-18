@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { supabase } from '../config/supabase';
+import { BRAND } from '../config/brand';
 import { useAuth } from '../contexts/AuthContext';
 import { Logo } from './Logo';
 
@@ -48,9 +49,6 @@ const SuperadminMfaGate: React.FC<Props> = ({ children }) => {
         return;
       }
 
-      // Los factores incompletos no aportan seguridad y pueden acumularse si el
-      // usuario recarga a mitad del enrolamiento. Intentamos retirarlos antes de
-      // crear un QR nuevo; cualquier fallo de limpieza no bloquea el setup.
       const unverifiedFactors = totpFactors.filter((factor) => factor.status !== 'verified');
       await Promise.all(unverifiedFactors.map(async (factor) => {
         try {
@@ -62,7 +60,7 @@ const SuperadminMfaGate: React.FC<Props> = ({ children }) => {
 
       const { data: enrollData, error: enrollError } = await supabase.auth.mfa.enroll({
         factorType: 'totp',
-        friendlyName: 'Syncademia Superadmin',
+        friendlyName: `${BRAND.name} Superadmin`,
       });
       if (enrollError) throw enrollError;
 
@@ -100,8 +98,6 @@ const SuperadminMfaGate: React.FC<Props> = ({ children }) => {
         throw new Error('La sesión no alcanzó AAL2');
       }
 
-      // challengeAndVerify actualiza la sesión; refreshSession fuerza que el JWT
-      // AAL2 quede disponible inmediatamente para las llamadas al backend.
       const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
       if (refreshError) throw refreshError;
       if (refreshed.session?.access_token) {
@@ -159,7 +155,7 @@ const SuperadminMfaGate: React.FC<Props> = ({ children }) => {
 
         {mode === 'challenge' && (
           <p className="text-sm leading-6 text-[#b1bac4] mb-5">
-            Abre tu autenticador y escribe el código temporal de 6 dígitos asociado a Syncademia.
+            Abre tu autenticador y escribe el código temporal de 6 dígitos asociado a {BRAND.name}.
           </p>
         )}
 
