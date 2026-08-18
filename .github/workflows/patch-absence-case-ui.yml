@@ -1,0 +1,54 @@
+name: Patch Absence Case UI
+
+on:
+  push:
+    branches: [fix/professor-absence-whatsapp]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/professor-absence-whatsapp
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Ajustar UI de mensajes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('src/components/profesor/ProfessorCasesPanel.tsx')
+          s = p.read_text()
+          old = "${message.autor_rol === 'profesor' ? 'ml-auto border-[#289E9D]/30 bg-[#289E9D]/10' : 'border-violet-400/25 bg-violet-500/10'}"
+          new = "${message.autor_rol === 'profesor' ? 'ml-auto border-[#289E9D]/30 bg-[#289E9D]/10' : message.autor_rol === 'apoderado' ? 'border-amber-400/30 bg-amber-500/10' : 'border-violet-400/25 bg-violet-500/10'}"
+          if old not in s: raise SystemExit('No se encontró estilo mensajes profesor')
+          s = s.replace(old, new, 1)
+          s = s.replace('Caso resuelto por dirección.', 'Caso resuelto.')
+          p.write_text(s)
+
+          p = Path('src/components/profesor/DirectorProfessorCasesPanel.tsx')
+          s = p.read_text()
+          old = "${message.autor_rol === 'director' ? 'ml-auto border-violet-400/25 bg-violet-500/10' : 'border-[#289E9D]/30 bg-[#289E9D]/10'}"
+          new = "${message.autor_rol === 'director' ? 'ml-auto border-violet-400/25 bg-violet-500/10' : message.autor_rol === 'apoderado' ? 'border-amber-400/30 bg-amber-500/10' : 'border-[#289E9D]/30 bg-[#289E9D]/10'}"
+          if old not in s: raise SystemExit('No se encontró estilo mensajes director')
+          s = s.replace(old, new, 1)
+          p.write_text(s)
+          PY
+      - name: Compilar
+        run: npm run build
+      - name: Commit limpio
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/patch-absence-case-ui.yml
+          git add src/components/profesor/ProfessorCasesPanel.tsx src/components/profesor/DirectorProfessorCasesPanel.tsx src/components/profesor/types.ts
+          git commit -m "feat: mostrar respuestas del apoderado en casos de asistencia"
+          git push
