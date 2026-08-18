@@ -20,35 +20,25 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Dejar costos internos exclusivamente en Finanzas
+      - name: Retirar costos internos del formulario real de encuentros
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
           import re
-
-          targets = [Path('src/pages/PartidosMultirama.tsx'), Path('src/pages/Partidos.tsx')]
-          for p in targets:
-              if not p.exists():
-                  continue
-              s = p.read_text()
-              s = s.replace(",costo_arbitraje_total:'0',costo_cancha:'0'", '')
-              s = s.replace(",costo_arbitraje_total:Number(form.costo_arbitraje_total)||0,costo_cancha:Number(form.costo_cancha)||0", '')
-              s = s.replace(",costo_arbitraje_total:'0',costo_cancha:'0'}", '}')
-              s = re.sub(r"\{!editing\?<div className=\"grid gap-3 sm:grid-cols-2\"><input type=\"number\" min=\"0\" value=\{form\.costo_arbitraje_total\}.*?value=\{form\.costo_cancha\}.*?</div>:null\}", '', s, count=1, flags=re.S)
-              # Mejora el texto del único costo que sí corresponde a Partidos: el cobro al alumno.
-              s = s.replace('Cobrar arbitraje/jueces por alumno', 'Cobrar cuota de arbitraje/jueces al alumno')
-              s = s.replace('placeholder="Valor por alumno"', 'placeholder="Monto a cobrar por alumno"')
-              p.write_text(s)
-
-          remaining=[]
-          for p in targets:
-              if p.exists():
-                  text=p.read_text()
-                  if 'costo_arbitraje_total' in text or 'costo_cancha' in text:
-                      remaining.append(str(p))
-          if remaining:
-              raise SystemExit('Quedaron campos internos en: ' + ', '.join(remaining))
+          p=Path('src/pages/PartidosMultirama.tsx')
+          s=p.read_text()
+          before=s
+          s=s.replace(",costo_arbitraje_total:'0',costo_cancha:'0'", '')
+          s=s.replace(",costo_arbitraje_total:Number(form.costo_arbitraje_total)||0,costo_cancha:Number(form.costo_cancha)||0", '')
+          s=re.sub(r"\{!editing\?<div className=\"grid gap-3 sm:grid-cols-2\"><input type=\"number\" min=\"0\" value=\{form\.costo_arbitraje_total\}.*?value=\{form\.costo_cancha\}.*?</div>:null\}", '', s, count=1, flags=re.S)
+          s=s.replace('Cobrar arbitraje/jueces por alumno', 'Cobrar cuota de arbitraje/jueces al alumno')
+          s=s.replace('placeholder="Valor por alumno"', 'placeholder="Monto a cobrar por alumno"')
+          if s==before:
+              raise SystemExit('No se aplicó ningún cambio')
+          if 'costo_arbitraje_total' in s or 'costo_cancha' in s:
+              raise SystemExit('Aún quedan campos de costos internos en PartidosMultirama.tsx')
+          p.write_text(s)
           PY
       - run: npm run build
       - name: Guardar cambio limpio
@@ -56,6 +46,6 @@ jobs:
           rm -f .github/workflows/remove-match-internal-costs.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/pages/PartidosMultirama.tsx src/pages/Partidos.tsx .github/workflows/remove-match-internal-costs.yml
+          git add src/pages/PartidosMultirama.tsx .github/workflows/remove-match-internal-costs.yml
           git commit -m "ux: mover costos internos de encuentros a Finanzas"
           git push
