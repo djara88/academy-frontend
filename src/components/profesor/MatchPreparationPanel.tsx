@@ -8,7 +8,7 @@ type Form = { sistema_juego: string; objetivo: string; indicaciones: string; est
 
 const EMPTY_FORM: Form = { sistema_juego: '', objetivo: '', indicaciones: '', estado: 'Borrador' };
 
-const MatchPreparationPanel = ({ matchId, academyName, onBack, onSaved }: { matchId: string; academyName?: string; onBack: () => void; onSaved: () => void }) => {
+const MatchPreparationPanel = ({ matchId, academyName, onBack, onSaved }: { matchId: string; academyName?: string; onBack: () => void; onSaved?: () => void }) => {
   const { notify } = useAppDialog();
   const [match, setMatch] = useState<Match | null>(null);
   const [players, setPlayers] = useState<MatchPlanPlayer[]>([]);
@@ -42,13 +42,13 @@ const MatchPreparationPanel = ({ matchId, academyName, onBack, onSaved }: { matc
       const planned = players.filter((player) => player.rol_plan).map((player, index) => ({
         jugador_id: player.id,
         rol: player.rol_plan,
-        posicion: player.posicion_plan || player.posicion_principal || player.posicion_cancha || '',
+        posicion: player.posicion_plan || player.rol_especialidad || player.posicion_principal || player.posicion_cancha || '',
         orden: index,
       }));
       await api.put(`/api/profesores/me/partidos/${matchId}/preparacion`, { ...form, estado: status, jugadores: planned });
       setForm((current) => ({ ...current, estado: status }));
       await notify(status === 'Lista' ? '✅ Preparación marcada como lista.' : 'Borrador guardado.', { title: academyName });
-      onSaved();
+      onSaved?.();
     } catch (error: any) {
       await notify(error.response?.data?.error || 'No fue posible guardar la preparación.', { title: academyName });
     } finally {
@@ -62,18 +62,18 @@ const MatchPreparationPanel = ({ matchId, academyName, onBack, onSaved }: { matc
     <section className="space-y-4">
       <div className="card p-4 sm:p-6">
         <button type="button" onClick={onBack} className="mb-4 min-h-11 rounded-lg border border-[#30363d] px-3 py-2 text-sm font-bold text-[#b1bac4] hover:bg-[#21262d]">← Volver</button>
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-[#48d8d0]">Preparación de partido</p>
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-[#48d8d0]">Preparación de encuentro</p>
         <h2 className="mt-2 text-2xl font-black">vs. {match?.rival}</h2>
-        <p className="mt-1 text-sm text-[#8b949e]">{match?.fecha} · {match?.condicion || 'Partido'} · {match?.ubicacion || 'Lugar por confirmar'}</p>
+        <p className="mt-1 text-sm text-[#8b949e]">{match?.fecha} · {match?.condicion || 'Encuentro'} · {match?.ubicacion || 'Lugar por confirmar'}</p>
         <div className="mt-4 grid grid-cols-2 gap-3 rounded-2xl border border-[#30363d] bg-[#0d1117] p-4">
           <div><p className="text-xs font-bold uppercase tracking-wider text-[#8b949e]">Citación</p><p className="mt-1 text-xl font-black text-[#70e4df]">{match?.hora_citacion?.slice(0, 5) || 'Por definir'}</p></div>
           <div><p className="text-xs font-bold uppercase tracking-wider text-[#8b949e]">Inicio</p><p className="mt-1 text-xl font-black text-white">{match?.hora?.slice(0, 5)}</p></div>
           <p className="col-span-2 text-xs text-[#8b949e]">Horario definido por la dirección. Tu preparación aquí es exclusivamente técnica.</p>
         </div>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <label><span className="label">Sistema de juego</span><input maxLength={80} value={form.sistema_juego} onChange={(event) => setForm((current) => ({ ...current, sistema_juego: event.target.value }))} placeholder="Ej.: 1-4-3-3" className="w-full" /></label>
-          <label><span className="label">Objetivo del partido</span><textarea rows={3} maxLength={700} value={form.objetivo} onChange={(event) => setForm((current) => ({ ...current, objetivo: event.target.value }))} placeholder="Objetivo técnico y competitivo" className="w-full" /></label>
-          <label><span className="label">Indicaciones tácticas</span><textarea rows={3} maxLength={2500} value={form.indicaciones} onChange={(event) => setForm((current) => ({ ...current, indicaciones: event.target.value }))} placeholder="Presión, salida, transiciones y balón detenido" className="w-full" /></label>
+          <label><span className="label">Sistema / estructura de juego</span><input maxLength={80} value={form.sistema_juego} onChange={(event) => setForm((current) => ({ ...current, sistema_juego: event.target.value }))} placeholder="Ej.: 1-4-3-3, rotación, esquema" className="w-full" /></label>
+          <label><span className="label">Objetivo del encuentro</span><textarea rows={3} maxLength={700} value={form.objetivo} onChange={(event) => setForm((current) => ({ ...current, objetivo: event.target.value }))} placeholder="Objetivo técnico y competitivo" className="w-full" /></label>
+          <label><span className="label">Indicaciones técnicas</span><textarea rows={3} maxLength={2500} value={form.indicaciones} onChange={(event) => setForm((current) => ({ ...current, indicaciones: event.target.value }))} placeholder="Aspectos clave para el grupo" className="w-full" /></label>
         </div>
       </div>
 
@@ -82,7 +82,7 @@ const MatchPreparationPanel = ({ matchId, academyName, onBack, onSaved }: { matc
       <div className="space-y-3">
         {players.map((player) => {
           const photo = player.foto_url || player.avatar_url;
-          return <article key={player.id} className="card p-4"><div className="flex items-center gap-3">{photo ? <img src={photo} alt="" className="h-11 w-11 rounded-full object-cover" /> : <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#289E9D]/15 font-black text-[#48d8d0]">{player.nombre.slice(0, 1)}</div>}<div className="min-w-0 flex-1"><h3 className="truncate font-black">{player.nombre}</h3><p className="text-xs text-[#8b949e]">{player.posicion_principal || player.posicion_cancha || 'Jugador'}</p></div></div><div className="mt-3 grid grid-cols-3 gap-2">{([null, 'Titular', 'Suplente'] as const).map((role) => <button key={role || 'fuera'} type="button" onClick={() => setRole(player.id, role)} className={`min-h-11 rounded-xl border px-2 py-2 text-xs font-bold ${player.rol_plan === role ? role === 'Titular' ? 'border-[#48d8d0] bg-[#289E9D]/20 text-[#70e4df]' : role === 'Suplente' ? 'border-orange-400 bg-orange-500/20 text-orange-200' : 'border-[#8b949e] bg-[#30363d] text-white' : 'border-[#30363d] bg-[#0d1117] text-[#8b949e]'}`}>{role || 'No citado'}</button>)}</div>{player.rol_plan ? <label className="mt-3 block"><span className="label">Posición o función</span><input maxLength={60} value={player.posicion_plan || ''} onChange={(event) => setPlayers((current) => current.map((item) => item.id === player.id ? { ...item, posicion_plan: event.target.value } : item))} placeholder={player.posicion_principal || player.posicion_cancha || 'Posición'} className="w-full" /></label> : null}</article>;
+          return <article key={player.id} className="card p-4"><div className="flex items-center gap-3">{photo ? <img src={photo} alt="" className="h-11 w-11 rounded-full object-cover" /> : <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#289E9D]/15 font-black text-[#48d8d0]">{player.nombre.slice(0, 1)}</div>}<div className="min-w-0 flex-1"><h3 className="truncate font-black">{player.nombre}</h3><p className="text-xs text-[#8b949e]">{player.rol_especialidad || player.posicion_principal || player.posicion_cancha || 'Sin función registrada'}</p></div></div><div className="mt-3 grid grid-cols-3 gap-2">{([null, 'Titular', 'Suplente'] as const).map((role) => <button key={role || 'fuera'} type="button" onClick={() => setRole(player.id, role)} className={`min-h-11 rounded-xl border px-2 py-2 text-xs font-bold ${player.rol_plan === role ? role === 'Titular' ? 'border-[#48d8d0] bg-[#289E9D]/20 text-[#70e4df]' : role === 'Suplente' ? 'border-orange-400 bg-orange-500/20 text-orange-200' : 'border-[#8b949e] bg-[#30363d] text-white' : 'border-[#30363d] bg-[#0d1117] text-[#8b949e]'}`}>{role || 'No citado'}</button>)}</div>{player.rol_plan ? <label className="mt-3 block"><span className="label">Posición o función</span><input maxLength={60} value={player.posicion_plan || ''} onChange={(event) => setPlayers((current) => current.map((item) => item.id === player.id ? { ...item, posicion_plan: event.target.value } : item))} placeholder={player.rol_especialidad || player.posicion_principal || player.posicion_cancha || 'Posición'} className="w-full" /></label> : null}</article>;
         })}
       </div>
 
