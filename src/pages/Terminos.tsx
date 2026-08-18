@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import api from '../api/axiosConfig';
 import { useAuth } from '../contexts/AuthContext';
 import { useAcademyMessages } from '../hooks/useAcademyMessages';
+import { BRAND } from '../config/brand';
 
 const LEGACY_EMPTY_TEXT = 'Aún no se han establecido los términos y condiciones de la academia.';
 
@@ -117,7 +118,7 @@ const Terminos: React.FC = () => {
 
       <section className="rounded-2xl border border-[#289E9D]/30 bg-[#289E9D]/[.07] p-5 text-sm leading-6 text-[#b8dedd]">
         <p className="font-black text-[#70e4df]">Cómo se utiliza este texto</p>
-        <p className="mt-1">Al enviar una pre-matrícula, Syncademia guarda una <b>copia exacta de estos términos</b>. El apoderado ve esa copia, la acepta y firma. La misma versión queda incorporada en la matrícula final firmada; cambios posteriores no modifican documentos ya enviados o firmados.</p>
+        <p className="mt-1">Al enviar una pre-matrícula, {BRAND.name} guarda una <b>copia exacta de estos términos</b>. El apoderado ve esa copia, la acepta y firma. La misma versión queda incorporada en la matrícula final firmada; cambios posteriores no modifican documentos ya enviados o firmados.</p>
       </section>
 
       <div className="rounded-xl border border-[#30363d] bg-[#0d1117] p-6 shadow-lg">
