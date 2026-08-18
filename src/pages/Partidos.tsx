@@ -401,7 +401,20 @@ const Partidos: React.FC = () => {
               <div><label className="mb-1 block font-semibold text-gray-400">Lugar / recinto</label><input type="text" placeholder="Ej: Complejo Deportivo / Piscina / Estadio" value={form.ubicacion} onChange={(e) => setForm({ ...form, ubicacion: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]" /></div>
               <div><label className="mb-1 block font-semibold text-gray-400">Link de ubicación</label><input type="url" placeholder="https://maps.app.goo.gl/..." value={form.link_maps} onChange={(e) => setForm({ ...form, link_maps: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]" /></div>
 
-              <div className="space-y-2 rounded-lg border border-[#30363d] bg-[#0d1117] p-3"><label className="flex cursor-pointer items-center justify-between font-semibold text-white"><span>⚖️ ¿Aplica cuota de arbitraje / jueces?</span><input type="checkbox" checked={form.cobra_arbitraje} onChange={(e) => setForm({ ...form, cobra_arbitraje: e.target.checked })} className="accent-[#289E9D]" /></label>{form.cobra_arbitraje && <input type="number" min="0" placeholder="Monto por deportista ($)" value={form.monto_arbitraje_jugador} onChange={(e) => setForm({ ...form, monto_arbitraje_jugador: Number(e.target.value) })} className="w-full rounded border border-[#30363d] bg-[#161b22] p-2 text-white outline-none focus:border-[#289E9D]" />}</div>
+              <div className="space-y-3 rounded-lg border border-[#30363d] bg-[#0d1117] p-3">
+      <label className="flex cursor-pointer items-center justify-between gap-4 font-semibold text-white">
+        <span>⚖️ ¿Cobrar cuota de arbitraje / jueces a los convocados?</span>
+        <input type="checkbox" checked={form.cobra_arbitraje} onChange={(e) => setForm({ ...form, cobra_arbitraje: e.target.checked })} className="accent-[#289E9D]" />
+      </label>
+      <p className="text-xs leading-5 text-gray-500">Opcional. Actívalo solo cuando cada deportista deba aportar una parte del arbitraje, jueces u oficiales. Lestra generará ese cobro individual al enviar la citación.</p>
+      {form.cobra_arbitraje && (
+        <div className="space-y-1.5">
+          <label className="block text-xs font-bold text-gray-300">Monto a cobrar por deportista</label>
+          <input type="number" min="0" placeholder="Ej: 3000" value={form.monto_arbitraje_jugador} onChange={(e) => setForm({ ...form, monto_arbitraje_jugador: Number(e.target.value) })} className="w-full rounded border border-[#30363d] bg-[#161b22] p-2 text-white outline-none focus:border-[#289E9D]" />
+          <p className="text-xs text-gray-500">Es el valor por alumno convocado, no el costo total del arbitraje.</p>
+        </div>
+      )}
+    </div>
 
               <div className="flex justify-end gap-3 pt-2"><button type="button" onClick={() => setShowModalPartido(false)} className="px-4 py-2 text-gray-400 hover:text-white">Cancelar</button><button type="submit" disabled={guardando} className="rounded-lg bg-[#289E9D] px-6 py-2 font-bold text-white disabled:opacity-50">{idPartidoEditando ? 'Actualizar Encuentro' : 'Guardar'}</button></div>
             </form>
