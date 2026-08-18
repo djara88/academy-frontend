@@ -1,0 +1,46 @@
+name: Equipment field guidance
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ux/equipment-field-guidance
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Hacer autoexplicativo el campo de equipamiento
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('src/pages/PartidosMultirama.tsx')
+          s=p.read_text()
+          old="""{formEventUi.equipmentMode==='uniform'?<select value={form.color_uniforme} onChange={(event)=>setForm({...form,color_uniforme:event.target.value})} className={field}><option value=\"Titular\">Indumentaria titular</option><option value=\"Visita\">Indumentaria visita</option><option value=\"Ambas (Llevar ambos)\">Llevar ambas</option></select>:<input value={form.color_uniforme} onChange={(event)=>setForm({...form,color_uniforme:event.target.value})} className={field} placeholder={formEventUi.equipmentPlaceholder||formEventUi.equipmentLabel}/>}"""
+          new="""<div className=\"rounded-2xl border border-[#289E9D]/20 bg-[#0d1117] p-3\"><p className=\"text-[10px] font-black uppercase tracking-[.14em] text-[#70e4df]\">Información para el alumno</p><p className=\"mt-1 text-sm font-black text-white\">{formEventUi.equipmentMode==='uniform'?'Indumentaria del encuentro':'¿Qué debe llevar el alumno?'}</p><p className=\"mb-2 mt-1 text-xs leading-5 text-[#8b949e]\">{formEventUi.equipmentMode==='uniform'?'Selecciona qué uniforme debe llevar el alumno.':'Indica la indumentaria, protecciones o implementos necesarios para esta actividad.'} Esta información se incluirá en la citación por WhatsApp.</p>{formEventUi.equipmentMode==='uniform'?<select value={form.color_uniforme} onChange={(event)=>setForm({...form,color_uniforme:event.target.value})} className={field}><option value=\"Titular\">Indumentaria titular</option><option value=\"Visita\">Indumentaria visita</option><option value=\"Ambas (Llevar ambos)\">Llevar ambas</option></select>:<input value={form.color_uniforme} onChange={(event)=>setForm({...form,color_uniforme:event.target.value})} className={field} aria-label={formEventUi.equipmentLabel} placeholder={formEventUi.equipmentPlaceholder||'Ej: equipamiento o implementación requerida'}/>}</div>"""
+          if old not in s:
+              raise SystemExit('No se encontró el bloque de equipamiento esperado')
+          s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+      - run: npm run build
+      - name: Guardar cambio y retirar workflow temporal
+        run: |
+          rm -f .github/workflows/equipment-guidance.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/pages/PartidosMultirama.tsx .github/workflows/equipment-guidance.yml
+          git commit -m "ux: explicar equipamiento requerido en encuentros"
+          git push origin HEAD:ux/equipment-field-guidance
