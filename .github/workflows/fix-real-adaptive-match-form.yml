@@ -78,3 +78,4 @@ jobs:
           git add src/pages/PartidosMultirama.tsx .github/workflows/fix-real-adaptive-match-form.yml .github/workflows/locate-real-match-form.yml .github/real-match-form-locations.txt
           git commit -m "fix: adaptar formulario multirrama real por deporte"
           git push
+# trigger
