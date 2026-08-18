@@ -14,7 +14,7 @@ type Training = { id: string; fecha: string; hora?: string | null; lugar?: strin
 
 const EMPTY_LOG: TrainingLog = { objetivo: '', contenidos: '', observaciones: '', incidencias: '', intensidad: 'Media' };
 
-const TrainingLogPanel = ({ trainingId, academyName, onBack, onSaved }: { trainingId: string; academyName?: string; onBack: () => void; onSaved: () => void }) => {
+const TrainingLogPanel = ({ trainingId, academyName, onBack, onSaved }: { trainingId: string; academyName?: string; onBack: () => void; onSaved?: () => void }) => {
   const { notify } = useAppDialog();
   const [training, setTraining] = useState<Training | null>(null);
   const [form, setForm] = useState<TrainingLog>(EMPTY_LOG);
@@ -34,7 +34,7 @@ const TrainingLogPanel = ({ trainingId, academyName, onBack, onSaved }: { traini
     try {
       await api.put(`/api/profesores/me/entrenamientos/${trainingId}/bitacora`, form);
       await notify('✅ Bitácora guardada correctamente.', { title: academyName });
-      onSaved();
+      onSaved?.();
     } catch (error: any) {
       await notify(error.response?.data?.error || 'No fue posible guardar la bitácora.', { title: academyName });
     } finally {

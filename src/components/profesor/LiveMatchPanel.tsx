@@ -1,0 +1,213 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  ArrowLeftIcon,
+  ArrowPathIcon,
+  CheckCircleIcon,
+  MinusIcon,
+  PlayIcon,
+  PlusIcon,
+  StarIcon,
+  StopIcon,
+  UserGroupIcon,
+} from '@heroicons/react/24/outline';
+import api from '../../api/axiosConfig';
+import { useAppDialog } from '../../contexts/DialogContext';
+import type { ProfessorSportProfile } from './types';
+
+type LivePlayer = {
+  id: string;
+  nombre: string;
+  foto_url?: string | null;
+  avatar_url?: string | null;
+  posicion?: string | null;
+  rol_plan?: 'Titular' | 'Suplente' | null;
+  metricas: Record<string, number>;
+  es_mvp: boolean;
+};
+
+type LiveMatch = {
+  id: string;
+  rival: string;
+  fecha: string;
+  hora?: string | null;
+  estado?: string | null;
+  condicion?: string | null;
+  ubicacion?: string | null;
+  goles_favor?: number | null;
+  goles_contra?: number | null;
+  en_vivo?: boolean;
+  live_etapa?: string | null;
+  categorias?: { id: string; nombre: string } | null;
+  ramas?: { id: string; nombre: string; disciplina: string } | null;
+};
+
+type LivePayload = {
+  partido: LiveMatch;
+  sport_profile: ProfessorSportProfile;
+  jugadores: LivePlayer[];
+  eventos: { id: string; accion: string; jugador_id?: string | null; detalle?: Record<string, any>; created_at: string }[];
+  puede_iniciar: boolean;
+};
+
+type Props = {
+  matchId: string;
+  academyName?: string;
+  onBack: () => void;
+  onFinished?: () => void;
+};
+
+const time = (value?: string | null) => String(value || '').slice(0, 5) || '—';
+const metricStep = (decimals?: number) => decimals && decimals > 0 ? 1 / (10 ** decimals) : 1;
+
+export default function LiveMatchPanel({ matchId, academyName, onBack, onFinished }: Props) {
+  const { notify, confirmAction } = useAppDialog();
+  const [data, setData] = useState<LivePayload | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [stage, setStage] = useState('');
+  const [selectedPlayerId, setSelectedPlayerId] = useState('');
+  const [metricDraft, setMetricDraft] = useState<Record<string, number>>({});
+  const [mvpDraft, setMvpDraft] = useState(false);
+
+  const load = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
+    try {
+      const response = await api.get(`/api/profesores/me/partidos/${matchId}/en-vivo`);
+      const payload = response.data.data as LivePayload;
+      setData(payload);
+      setStage(payload.partido.live_etapa || '');
+      setSelectedPlayerId((current) => current && payload.jugadores.some((player) => player.id === current) ? current : (payload.jugadores[0]?.id || ''));
+    } catch (error: any) {
+      if (!silent) await notify(error.response?.data?.error || 'No fue posible abrir el encuentro en vivo.', { title: academyName });
+    } finally {
+      if (!silent) setLoading(false);
+    }
+  }, [academyName, matchId, notify]);
+
+  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    if (!data?.partido.en_vivo) return undefined;
+    const timer = window.setInterval(() => void load(true), 5000);
+    return () => window.clearInterval(timer);
+  }, [data?.partido.en_vivo, load]);
+
+  const selectedPlayer = useMemo(() => data?.jugadores.find((player) => player.id === selectedPlayerId) || null, [data?.jugadores, selectedPlayerId]);
+
+  useEffect(() => {
+    setMetricDraft(selectedPlayer?.metricas || {});
+    setMvpDraft(Boolean(selectedPlayer?.es_mvp));
+  }, [selectedPlayerId, selectedPlayer?.metricas, selectedPlayer?.es_mvp]);
+
+  const start = async () => {
+    setBusy(true);
+    try {
+      await api.post(`/api/profesores/me/partidos/${matchId}/en-vivo/iniciar`, { etapa: stage || 'En juego' });
+      await load(true);
+    } catch (error: any) {
+      await notify(error.response?.data?.error || 'No fue posible iniciar el encuentro.', { title: academyName });
+    } finally { setBusy(false); }
+  };
+
+  const patchLive = async (payload: Record<string, unknown>) => {
+    if (!data?.partido.en_vivo) return;
+    setBusy(true);
+    try {
+      await api.patch(`/api/profesores/me/partidos/${matchId}/en-vivo`, payload);
+      await load(true);
+    } catch (error: any) {
+      await notify(error.response?.data?.error || 'No fue posible actualizar el encuentro.', { title: academyName });
+    } finally { setBusy(false); }
+  };
+
+  const changeScore = async (side: 'favor' | 'contra', delta: number) => {
+    if (!data) return;
+    const favor = Number(data.partido.goles_favor) || 0;
+    const contra = Number(data.partido.goles_contra) || 0;
+    await patchLive({
+      resultado_favor: side === 'favor' ? Math.max(0, favor + delta) : favor,
+      resultado_contra: side === 'contra' ? Math.max(0, contra + delta) : contra,
+    });
+  };
+
+  const savePlayerStats = async () => {
+    if (!selectedPlayer) return;
+    setBusy(true);
+    try {
+      await api.put(`/api/profesores/me/partidos/${matchId}/en-vivo/estadisticas/${selectedPlayer.id}`, { metricas: metricDraft, es_mvp: mvpDraft });
+      await load(true);
+      await notify(`Estadísticas de ${selectedPlayer.nombre} actualizadas.`, { title: academyName });
+    } catch (error: any) {
+      await notify(error.response?.data?.error || 'No fue posible guardar las estadísticas.', { title: academyName });
+    } finally { setBusy(false); }
+  };
+
+  const finish = async () => {
+    const accepted = await confirmAction('¿Finalizar el encuentro? El marcador y las estadísticas quedarán guardados para revisión de dirección.', { title: academyName, confirmLabel: 'Finalizar encuentro', tone: 'danger' });
+    if (!accepted) return;
+    setBusy(true);
+    try {
+      await api.post(`/api/profesores/me/partidos/${matchId}/en-vivo/finalizar`, { etapa: 'Finalizado' });
+      await notify('Encuentro finalizado y resultado guardado.', { title: academyName });
+      onFinished?.();
+      onBack();
+    } catch (error: any) {
+      await notify(error.response?.data?.error || 'No fue posible finalizar el encuentro.', { title: academyName });
+    } finally { setBusy(false); }
+  };
+
+  if (loading || !data) return <div className="rounded-3xl border border-[#30363d] bg-[#161b22] p-10 text-center text-[#8b949e]"><ArrowPathIcon className="mx-auto h-7 w-7 animate-spin"/><p className="mt-3 text-sm font-bold">Abriendo cancha...</p></div>;
+
+  const { partido, sport_profile: profile } = data;
+  const favor = Number(partido.goles_favor) || 0;
+  const contra = Number(partido.goles_contra) || 0;
+
+  return (
+    <div className="space-y-5 pb-8">
+      <button type="button" onClick={onBack} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#30363d] bg-[#161b22] px-4 text-sm font-black text-[#d0d7de]"><ArrowLeftIcon className="h-4 w-4"/>Volver al portal</button>
+
+      <section className={`overflow-hidden rounded-3xl border p-5 sm:p-7 ${partido.en_vivo ? 'border-red-400/40 bg-[radial-gradient(circle_at_top_right,rgba(239,68,68,.16),transparent_38%),#161b22]' : 'border-[#30363d] bg-[#161b22]'}`}>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div><div className="flex flex-wrap items-center gap-2"><span className="text-2xl">{profile.icon}</span><span className="rounded-full bg-violet-500/15 px-3 py-1 text-[10px] font-black uppercase text-violet-300">{profile.label}</span>{partido.en_vivo ? <span className="rounded-full bg-red-500/20 px-3 py-1 text-[10px] font-black uppercase text-red-300">● En vivo</span> : null}</div><h1 className="mt-3 text-2xl font-black text-white sm:text-3xl">{partido.rival}</h1><p className="mt-1 text-sm text-[#8b949e]">{partido.categorias?.nombre || 'Categoría'} · {partido.fecha} · {time(partido.hora)}{partido.ubicacion ? ` · ${partido.ubicacion}` : ''}</p></div>
+          <span className="rounded-xl border border-[#30363d] bg-[#0d1117] px-3 py-2 text-xs font-black text-[#b1bac4]">{partido.estado || 'Programado'}</span>
+        </div>
+
+        {profile.usesHeadToHeadScore ? (
+          <div className="mx-auto mt-7 grid max-w-2xl grid-cols-[1fr_auto_1fr] items-center gap-3 text-center">
+            <div><p className="text-xs font-black uppercase text-[#70e4df]">{academyName || 'Nuestra academia'}</p><p className="mt-2 text-6xl font-black text-white sm:text-7xl">{favor}</p>{partido.en_vivo ? <div className="mt-3 flex justify-center gap-2"><button disabled={busy || favor <= 0} onClick={() => void changeScore('favor', -1)} className="grid h-11 w-11 place-items-center rounded-xl border border-[#30363d] bg-[#0d1117] disabled:opacity-30"><MinusIcon className="h-5 w-5"/></button><button disabled={busy} onClick={() => void changeScore('favor', 1)} className="grid h-11 w-11 place-items-center rounded-xl bg-[#289E9D] text-white disabled:opacity-50"><PlusIcon className="h-5 w-5"/></button></div> : null}</div>
+            <div><p className="text-[10px] font-black uppercase text-[#697586]">{profile.scoreLabel}</p><p className="mt-2 text-3xl font-black text-[#596575]">—</p></div>
+            <div><p className="text-xs font-black uppercase text-violet-300">{partido.rival}</p><p className="mt-2 text-6xl font-black text-white sm:text-7xl">{contra}</p>{partido.en_vivo ? <div className="mt-3 flex justify-center gap-2"><button disabled={busy || contra <= 0} onClick={() => void changeScore('contra', -1)} className="grid h-11 w-11 place-items-center rounded-xl border border-[#30363d] bg-[#0d1117] disabled:opacity-30"><MinusIcon className="h-5 w-5"/></button><button disabled={busy} onClick={() => void changeScore('contra', 1)} className="grid h-11 w-11 place-items-center rounded-xl bg-violet-600 text-white disabled:opacity-50"><PlusIcon className="h-5 w-5"/></button></div> : null}</div>
+          </div>
+        ) : <div className="mt-6 rounded-2xl border border-[#289E9D]/25 bg-[#289E9D]/10 p-4 text-sm text-[#c7fffb]">Esta disciplina no usa un marcador cabeza a cabeza. El modo en vivo registra la etapa y permite actualizar métricas individuales durante la competencia.</div>}
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-[1fr_auto]">
+          <label><span className="mb-1 block text-xs font-black uppercase text-[#8b949e]">Periodo / etapa</span><input value={stage} onChange={(event) => setStage(event.target.value)} maxLength={60} disabled={!partido.en_vivo} placeholder="Ej.: 1er tiempo, Set 2, Serie final" className="w-full"/></label>
+          {partido.en_vivo ? <button type="button" disabled={busy} onClick={() => void patchLive({ etapa: stage })} className="min-h-11 self-end rounded-xl border border-[#289E9D]/40 bg-[#289E9D]/10 px-4 text-sm font-black text-[#70e4df] disabled:opacity-50">Guardar etapa</button> : null}
+        </div>
+
+        {!partido.en_vivo ? <button type="button" disabled={busy || !data.puede_iniciar} onClick={() => void start()} className="mt-6 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 text-base font-black text-white disabled:cursor-not-allowed disabled:opacity-40"><PlayIcon className="h-6 w-6"/>{data.puede_iniciar ? 'Iniciar encuentro en vivo' : partido.estado === 'Jugado' ? 'Encuentro finalizado' : 'Disponible el día del encuentro'}</button> : null}
+      </section>
+
+      {partido.en_vivo && data.jugadores.length ? (
+        <section className="rounded-3xl border border-[#30363d] bg-[#161b22] p-4 sm:p-5">
+          <div className="flex items-center gap-2"><UserGroupIcon className="h-6 w-6 text-[#70e4df]"/><div><h2 className="font-black text-white">Rendimiento individual</h2><p className="text-xs text-[#8b949e]">Opcional. Registra solo lo útil durante el encuentro; el resultado puede revisarse después.</p></div></div>
+          <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
+            {data.jugadores.map((player) => <button key={player.id} type="button" onClick={() => setSelectedPlayerId(player.id)} className={`flex min-w-[155px] items-center gap-2 rounded-xl border p-2 text-left ${selectedPlayerId === player.id ? 'border-[#289E9D] bg-[#289E9D]/10' : 'border-[#30363d] bg-[#0d1117]'}`}>{player.foto_url || player.avatar_url ? <img src={player.foto_url || player.avatar_url || ''} alt="" className="h-9 w-9 rounded-lg object-cover"/> : <div className="grid h-9 w-9 place-items-center rounded-lg bg-[#21262d] font-black">{player.nombre.slice(0,1)}</div>}<div className="min-w-0"><p className="truncate text-xs font-black text-white">{player.nombre}</p><p className="truncate text-[10px] text-[#8b949e]">{player.rol_plan || player.posicion || 'Plantel'}</p></div></button>)}
+          </div>
+
+          {selectedPlayer ? <div className="mt-3 rounded-2xl border border-[#30363d] bg-[#0d1117] p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="font-black text-white">{selectedPlayer.nombre}</p><p className="text-xs text-[#8b949e]">{selectedPlayer.posicion || selectedPlayer.rol_plan || 'Sin posición registrada'}</p></div><button type="button" onClick={() => setMvpDraft((value) => !value)} className={`inline-flex min-h-10 items-center gap-1 rounded-xl border px-3 text-xs font-black ${mvpDraft ? 'border-amber-400/40 bg-amber-500/15 text-amber-200' : 'border-[#30363d] text-[#8b949e]'}`}><StarIcon className="h-4 w-4"/>{mvpDraft ? 'Destacado/a' : 'Marcar destacado/a'}</button></div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{profile.metrics.map((metric) => {
+              const step = metricStep(metric.decimals);
+              const value = Number(metricDraft[metric.code] || 0);
+              return <div key={metric.code} className="rounded-xl border border-[#30363d] bg-[#161b22] p-3"><p className="text-xs font-black text-[#b1bac4]">{metric.label}</p><div className="mt-2 grid grid-cols-[40px_1fr_40px] gap-2"><button type="button" onClick={() => setMetricDraft((current) => ({ ...current, [metric.code]: Math.max(0, Number(current[metric.code] || 0) - step) }))} className="grid h-10 place-items-center rounded-lg border border-[#30363d]"><MinusIcon className="h-4 w-4"/></button><input type="number" min="0" step={step} value={value} onChange={(event) => setMetricDraft((current) => ({ ...current, [metric.code]: Math.max(0, Number(event.target.value) || 0) }))} className="h-10 min-w-0 text-center"/><button type="button" onClick={() => setMetricDraft((current) => ({ ...current, [metric.code]: Number(current[metric.code] || 0) + step }))} className="grid h-10 place-items-center rounded-lg bg-[#289E9D] text-white"><PlusIcon className="h-4 w-4"/></button></div></div>;
+            })}</div>
+            <button type="button" disabled={busy} onClick={() => void savePlayerStats()} className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#289E9D]/40 bg-[#289E9D]/10 px-4 text-sm font-black text-[#70e4df] disabled:opacity-50"><CheckCircleIcon className="h-5 w-5"/>Guardar estadísticas de {selectedPlayer.nombre.split(' ')[0]}</button>
+          </div> : null}
+        </section>
+      ) : null}
+
+      {partido.en_vivo ? <section className="rounded-3xl border border-red-500/25 bg-red-500/[.06] p-4 sm:p-5"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="font-black text-white">Cerrar jornada competitiva</h2><p className="mt-1 text-xs text-[#8b949e]">Finalizar detiene el modo en vivo. Dirección conserva la revisión final del resultado y estadísticas.</p></div><button disabled={busy} type="button" onClick={() => void finish()} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-red-600 px-5 text-sm font-black text-white disabled:opacity-50"><StopIcon className="h-5 w-5"/>Finalizar encuentro</button></div></section> : null}
+
+      {data.eventos.length ? <details className="rounded-2xl border border-[#30363d] bg-[#161b22] p-4"><summary className="cursor-pointer text-sm font-black text-[#b1bac4]">Bitácora en vivo · {data.eventos.length} movimientos recientes</summary><div className="mt-3 space-y-2">{data.eventos.slice(0, 10).map((event) => <div key={event.id} className="flex items-center justify-between gap-3 rounded-xl bg-[#0d1117] px-3 py-2 text-xs"><span className="font-bold capitalize text-[#d0d7de]">{event.accion}</span><span className="text-[#697586]">{new Date(event.created_at).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}</span></div>)}</div></details> : null}
+    </div>
+  );
+}
