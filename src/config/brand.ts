@@ -1,7 +1,9 @@
 export const BRAND = {
-  name: 'Syncademia',
-  tagline: 'Gestión de academias deportivas, tu ecosistema de élite',
-  mark: '/syncademia-mark.png',
+  name: 'Lestra',
+  displayName: 'LESTRA',
+  tagline: 'Gestión que mueve el deporte.',
+  descriptor: 'Plataforma de gestión para academias y clubes deportivos',
+  domain: 'lestra.app',
 } as const;
 
 export const getAcademyName = (name?: string | null) => (
