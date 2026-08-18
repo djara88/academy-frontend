@@ -1,0 +1,56 @@
+name: Apply match form arbitration help
+
+on:
+  push:
+    branches: [fix/match-form-arbitration-help]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/match-form-arbitration-help
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Aclarar campos de arbitraje
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/pages/Partidos.tsx')
+          s = p.read_text()
+          old = '''              <div className="space-y-2 rounded-lg border border-[#30363d] bg-[#0d1117] p-3"><label className="flex cursor-pointer items-center justify-between font-semibold text-white"><span>⚖️ ¿Aplica cuota de arbitraje / jueces?</span><input type="checkbox" checked={form.cobra_arbitraje} onChange={(e) => setForm({ ...form, cobra_arbitraje: e.target.checked })} className="accent-[#289E9D]" /></label>{form.cobra_arbitraje && <input type="number" min="0" placeholder="Monto por deportista ($)" value={form.monto_arbitraje_jugador} onChange={(e) => setForm({ ...form, monto_arbitraje_jugador: Number(e.target.value) })} className="w-full rounded border border-[#30363d] bg-[#161b22] p-2 text-white outline-none focus:border-[#289E9D]" />}</div>'''
+          new = '''              <div className="space-y-3 rounded-lg border border-[#30363d] bg-[#0d1117] p-3">
+                <label className="flex cursor-pointer items-center justify-between gap-4 font-semibold text-white">
+                  <span>⚖️ ¿Cobrar cuota de arbitraje / jueces a los convocados?</span>
+                  <input type="checkbox" checked={form.cobra_arbitraje} onChange={(e) => setForm({ ...form, cobra_arbitraje: e.target.checked })} className="accent-[#289E9D]" />
+                </label>
+                <p className="text-xs leading-5 text-gray-500">Opcional. Actívalo solo cuando cada deportista deba aportar una parte del arbitraje, jueces u oficiales. Lestra generará ese cobro individual al enviar la citación.</p>
+                {form.cobra_arbitraje && (
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-gray-300">Monto a cobrar por deportista</label>
+                    <input type="number" min="0" placeholder="Ej: 3000" value={form.monto_arbitraje_jugador} onChange={(e) => setForm({ ...form, monto_arbitraje_jugador: Number(e.target.value) })} className="w-full rounded border border-[#30363d] bg-[#161b22] p-2 text-white outline-none focus:border-[#289E9D]" />
+                    <p className="text-xs text-gray-500">Es el valor por alumno convocado, no el costo total del arbitraje.</p>
+                  </div>
+                )}
+              </div>'''
+          if old not in s: raise SystemExit('No se encontró bloque de arbitraje esperado')
+          s = s.replace(old, new, 1)
+          p.write_text(s)
+          PY
+      - run: npm run build
+      - name: Commit limpio y retirar workflow temporal
+        run: |
+          rm .github/workflows/apply-match-form-arbitration-help.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/pages/Partidos.tsx .github/workflows/apply-match-form-arbitration-help.yml
+          git commit -m "ux: aclarar cobro de arbitraje en encuentros"
+          git push
