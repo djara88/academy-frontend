@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { BanknotesIcon, BellAlertIcon, BuildingOffice2Icon, ChartBarIcon, CheckCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
 import api from '../api/axiosConfig';
+import { BRAND } from '../config/brand';
 import { useAdminTheme } from '../contexts/AdminThemeContext';
 import { useAppDialog } from '../contexts/DialogContext';
 
@@ -27,8 +28,8 @@ const AdminDashboard = () => {
   const text = light ? 'text-slate-950' : 'text-white';
   const soft = light ? 'border-slate-200 bg-slate-50' : 'border-white/10 bg-black/15';
   const extend = async (academyId: string) => {
-    try { await api.post(`/api/saas-admin/academias/${academyId}/extender-prueba`, { dias: 7 }); await queryClient.invalidateQueries({ queryKey: ['saas-resumen'] }); await notify('Prueba extendida por 7 días.', { title: 'Syncademia' }); }
-    catch (err: any) { await notify(err.response?.data?.error || 'No fue posible extender la prueba.', { title: 'Syncademia' }); }
+    try { await api.post(`/api/saas-admin/academias/${academyId}/extender-prueba`, { dias: 7 }); await queryClient.invalidateQueries({ queryKey: ['saas-resumen'] }); await notify('Prueba extendida por 7 días.', { title: BRAND.name }); }
+    catch (err: any) { await notify(err.response?.data?.error || 'No fue posible extender la prueba.', { title: BRAND.name }); }
   };
   if (isLoading) return <div className={`p-10 text-center ${muted}`}>Preparando visión ejecutiva...</div>;
   if (error || !data) return <div className="rounded-2xl border border-red-400/30 bg-red-500/10 p-6 text-red-300">No fue posible cargar el panel maestro.</div>;
@@ -40,7 +41,7 @@ const AdminDashboard = () => {
   ] as const;
   return <div className="space-y-6 pb-12">
     <section className={`relative overflow-hidden rounded-[30px] border p-7 sm:p-9 ${light ? 'border-cyan-200 bg-[radial-gradient(circle_at_top_right,rgba(40,158,157,0.18),transparent_38%),white]' : 'border-[#289E9D]/25 bg-[radial-gradient(circle_at_top_right,rgba(40,158,157,0.2),transparent_38%),#17202b]'}`}>
-      <div className="relative flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between"><div><p className="text-xs font-black uppercase tracking-[0.22em] text-[#289E9D]">Control central · Syncademia</p><h1 className={`mt-3 max-w-3xl text-4xl font-black leading-tight sm:text-5xl ${text}`}>Tu negocio completo, visible en una sola mirada.</h1><p className={`mt-4 max-w-2xl leading-7 ${muted}`}>Suscripciones, conversión, caja, pruebas y riesgos comerciales actualizados en tiempo real.</p></div><div className={`rounded-2xl border p-5 ${panel}`}><p className={`text-xs font-bold uppercase ${muted}`}>Estado comercial</p><div className="mt-2 flex items-center gap-2"><CheckCircleIcon className="h-7 w-7 text-emerald-500" /><span className={`text-xl font-black ${text}`}>{data.gateway.configured ? 'Operación conectada' : `${data.gateway.provider || 'Pasarela'} pendiente de configuración`}</span></div><p className={`mt-2 text-sm ${muted}`}>Cobros mensuales en pesos chilenos</p></div></div>
+      <div className="relative flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between"><div><p className="text-xs font-black uppercase tracking-[0.22em] text-[#289E9D]">Control central · {BRAND.name}</p><h1 className={`mt-3 max-w-3xl text-4xl font-black leading-tight sm:text-5xl ${text}`}>Tu negocio completo, visible en una sola mirada.</h1><p className={`mt-4 max-w-2xl leading-7 ${muted}`}>Suscripciones, conversión, caja, pruebas y riesgos comerciales actualizados en tiempo real.</p></div><div className={`rounded-2xl border p-5 ${panel}`}><p className={`text-xs font-bold uppercase ${muted}`}>Estado comercial</p><div className="mt-2 flex items-center gap-2"><CheckCircleIcon className="h-7 w-7 text-emerald-500" /><span className={`text-xl font-black ${text}`}>{data.gateway.configured ? 'Operación conectada' : `${data.gateway.provider || 'Pasarela'} pendiente de configuración`}</span></div><p className={`mt-2 text-sm ${muted}`}>Cobros mensuales en pesos chilenos</p></div></div>
     </section>
     <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{cards.map(([label, value, detail, Icon, color]) => <article key={label} className={`rounded-2xl border p-5 ${panel}`}><div className="flex items-start justify-between"><div><p className={`text-xs font-black uppercase tracking-wider ${muted}`}>{label}</p><p className={`mt-3 text-3xl font-black ${text}`}>{value}</p><p className={`mt-2 text-sm ${muted}`}>{detail}</p></div><Icon className={`h-8 w-8 ${color}`} /></div></article>)}</section>
 
