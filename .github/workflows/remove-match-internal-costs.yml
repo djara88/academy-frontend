@@ -1,8 +1,9 @@
 name: Remove internal match costs from UI
 
 on:
-  push:
-    branches: [fix/separate-match-costs-from-finance]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: write
@@ -48,4 +49,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/pages/PartidosMultirama.tsx .github/workflows/remove-match-internal-costs.yml
           git commit -m "ux: mover costos internos de encuentros a Finanzas"
-          git push
+          git push origin HEAD:fix/separate-match-costs-from-finance
