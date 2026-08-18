@@ -103,7 +103,7 @@ const Registro: React.FC = () => {
           <section className="rounded-2xl border border-[#289E9D]/30 bg-[#289E9D]/[.07] p-4 sm:p-5">
             <p className="text-xs font-black uppercase tracking-[.16em] text-[#70e4df]">Estructura inicial</p>
             <h2 className="mt-1 text-lg font-black">¿Cuál es tu disciplina principal?</h2>
-            <p className="mt-1 text-xs leading-5 text-[#8b949e]">Esto no te limita a un solo deporte. Solo define el contexto inicial y la rama que Syncademia abrirá por defecto.</p>
+            <p className="mt-1 text-xs leading-5 text-[#8b949e]">Esto no te limita a un solo deporte. Solo define el contexto inicial y la rama que {BRAND.name} abrirá por defecto.</p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <label className="block"><span className="mb-1 block text-sm font-semibold">Disciplina *</span><select value={formData.disciplina_principal} onChange={(event) => changeDiscipline(event.target.value)} disabled={loading} className="w-full rounded-xl border border-[#30363d] bg-[#0d1117] p-3 outline-none focus:border-[#289E9D]">{DISCIPLINES.map((discipline) => <option key={discipline}>{discipline}</option>)}</select></label>
               <label className="block"><span className="mb-1 block text-sm font-semibold">Nombre de la rama *</span><input name="nombre_rama_principal" value={formData.nombre_rama_principal} onChange={handleChange} required disabled={loading} className="w-full rounded-xl border border-[#30363d] bg-[#0d1117] p-3 outline-none focus:border-[#289E9D]" placeholder={formData.disciplina_principal === 'Otro' ? 'Ej. Escalada' : formData.disciplina_principal}/></label>
