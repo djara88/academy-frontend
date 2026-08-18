@@ -1,0 +1,104 @@
+name: Apply adaptive match frontend
+
+on:
+  push:
+    branches: [feat/adaptive-match-form]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/adaptive-match-form
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Adaptar formulario según disciplina
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/pages/Partidos.tsx')
+          s = p.read_text()
+
+          target = "interface CompetitiveProfile {\n  code: string;\n  label: string;\n  icon: string;\n  activityLabel: string;\n  opponentLabel: string;\n  scoreLabel: string;\n  usesHeadToHeadScore: boolean;\n  metricVersion: number;\n  metrics: CompetitiveMetric[];\n}"
+          replacement = "interface EventUiProfile {\n  conditionMode: 'required' | 'optional' | 'hidden';\n  equipmentMode: 'uniform' | 'freeform';\n  equipmentLabel: string;\n  equipmentPlaceholder?: string | null;\n}\n\ninterface CompetitiveProfile {\n  code: string;\n  label: string;\n  icon: string;\n  activityLabel: string;\n  opponentLabel: string;\n  scoreLabel: string;\n  usesHeadToHeadScore: boolean;\n  eventUi?: EventUiProfile;\n  metricVersion: number;\n  metrics: CompetitiveMetric[];\n}"
+          if 'interface EventUiProfile' not in s:
+              if target not in s: raise SystemExit('No se encontró CompetitiveProfile')
+              s = s.replace(target, replacement, 1)
+
+          target = "  usesHeadToHeadScore: true,\n  metricVersion: 1,"
+          replacement = "  usesHeadToHeadScore: true,\n  eventUi: { conditionMode: 'optional', equipmentMode: 'freeform', equipmentLabel: 'Indumentaria / equipamiento', equipmentPlaceholder: 'Ej: equipamiento requerido' },\n  metricVersion: 1,"
+          if "eventUi: { conditionMode: 'optional'" not in s:
+              s = s.replace(target, replacement, 1)
+
+          anchor = "const shiftTime = (value: string, minutes: number) => fromMinutes(toMinutes(value) + minutes);\n"
+          helper = """const shiftTime = (value: string, minutes: number) => fromMinutes(toMinutes(value) + minutes);\n\nconst LEGACY_UNIFORM_VALUES = new Set(['Titular', 'Visita', 'Ambas (Llevar ambos)', 'Indumentaria principal']);\nconst eventUiOf = (profile: CompetitiveProfile): EventUiProfile => profile.eventUi || FALLBACK_PROFILE.eventUi!;\nconst meaningfulEquipment = (profile: CompetitiveProfile, value?: string | null) => {\n  const text = String(value || '').trim();\n  if (!text) return '';\n  if (eventUiOf(profile).equipmentMode === 'freeform' && LEGACY_UNIFORM_VALUES.has(text)) return '';\n  return text;\n};\n"""
+          if 'const LEGACY_UNIFORM_VALUES' not in s:
+              if anchor not in s: raise SystemExit('No se encontró shiftTime')
+              s = s.replace(anchor, helper, 1)
+
+          target = "  const [competitiveProfile, setCompetitiveProfile] = useState<CompetitiveProfile>(FALLBACK_PROFILE);\n"
+          replacement = "  const [competitiveProfile, setCompetitiveProfile] = useState<CompetitiveProfile>(FALLBACK_PROFILE);\n  const [formSportProfile, setFormSportProfile] = useState<CompetitiveProfile>(FALLBACK_PROFILE);\n"
+          if 'const [formSportProfile' not in s:
+              s = s.replace(target, replacement, 1)
+
+          anchor = "  const cargarDatos = async () => {"
+          function = """  const aplicarPerfilFormulario = (profile?: CompetitiveProfile | null) => {\n    const nextProfile = profile || FALLBACK_PROFILE;\n    const eventUi = eventUiOf(nextProfile);\n    setFormSportProfile(nextProfile);\n    setForm((current) => {\n      const currentEquipment = String(current.color_uniforme || '');\n      const nextEquipment = eventUi.equipmentMode === 'uniform'\n        ? (LEGACY_UNIFORM_VALUES.has(currentEquipment) ? currentEquipment : 'Titular')\n        : (LEGACY_UNIFORM_VALUES.has(currentEquipment) ? '' : currentEquipment);\n      const nextCondition = eventUi.conditionMode === 'required'\n        ? (['Local', 'Visita'].includes(current.condicion) ? current.condicion : 'Local')\n        : eventUi.conditionMode === 'optional'\n          ? (['Local', 'Visita', 'Evento'].includes(current.condicion) ? current.condicion : 'Evento')\n          : 'Evento';\n      return { ...current, color_uniforme: nextEquipment, condicion: nextCondition };\n    });\n  };\n\n  const cargarPerfilCategoria = async (categoriaId: string) => {\n    if (!categoriaId) return aplicarPerfilFormulario(FALLBACK_PROFILE);\n    const category = categorias.find((item: any) => String(item.id) === String(categoriaId));\n    if (!category?.rama_id) return aplicarPerfilFormulario(FALLBACK_PROFILE);\n    try {\n      const response = await api.get('/api/sport-profiles', { params: { rama_id: category.rama_id } });\n      aplicarPerfilFormulario(response.data?.data?.competitive || FALLBACK_PROFILE);\n    } catch (error) {\n      console.error('No fue posible cargar el perfil competitivo de la categoría:', error);\n      aplicarPerfilFormulario(FALLBACK_PROFILE);\n    }\n  };\n\n  const cargarDatos = async () => {"""
+          if 'const cargarPerfilCategoria' not in s:
+              if anchor not in s: raise SystemExit('No se encontró cargarDatos')
+              s = s.replace(anchor, function, 1)
+
+          target = "    setShowModalPartido(true);\n  };\n\n  const abrirModalEditar = (p: Partido) => {"
+          replacement = "    setFormSportProfile(FALLBACK_PROFILE);\n    setShowModalPartido(true);\n  };\n\n  const abrirModalEditar = (p: Partido) => {"
+          if 'setFormSportProfile(FALLBACK_PROFILE);\n    setShowModalPartido(true);' not in s:
+              s = s.replace(target, replacement, 1)
+
+          target = "    setShowModalPartido(true);\n  };\n\n  const handleEliminarPartido"
+          replacement = "    setFormSportProfile(p.sport_profile || FALLBACK_PROFILE);\n    setShowModalPartido(true);\n  };\n\n  const handleEliminarPartido"
+          if 'setFormSportProfile(p.sport_profile || FALLBACK_PROFILE);' not in s:
+              if target not in s: raise SystemExit('No se encontró cierre abrirModalEditar')
+              s = s.replace(target, replacement, 1)
+
+          old = "<div><label className=\"mb-1 block font-semibold text-gray-400\">Categoría *</label><select required value={form.categoria_id} onChange={(e) => setForm({ ...form, categoria_id: e.target.value })}"
+          new = "<div><label className=\"mb-1 block font-semibold text-gray-400\">Categoría *</label><select required value={form.categoria_id} onChange={(e) => { const categoria_id = e.target.value; setForm({ ...form, categoria_id }); void cargarPerfilCategoria(categoria_id); }}"
+          if old not in s: raise SystemExit('No se encontró selector categoría')
+          s = s.replace(old, new, 1)
+
+          target = "              <div><label className=\"mb-1 block font-semibold text-gray-400\">Rival / evento *</label><input required type=\"text\" placeholder=\"Ej: Club rival / 100 m libre / Torneo Regional\""
+          replacement = "              {form.categoria_id && <div className=\"rounded-xl border border-[#289E9D]/30 bg-[#289E9D]/10 p-3\"><p className=\"text-xs font-black uppercase tracking-[.15em] text-[#70e4df]\">{formSportProfile.icon} {formSportProfile.label}</p><p className=\"mt-1 text-xs text-gray-400\">Lestra adaptó los datos del encuentro a esta disciplina.</p></div>}\n\n              <div><label className=\"mb-1 block font-semibold text-gray-400\">{formSportProfile.opponentLabel} *</label><input required type=\"text\" placeholder={`Ej: ${formSportProfile.opponentLabel === 'Rival' ? 'Club rival' : 'evento, rival o prueba'}`}"
+          if target not in s: raise SystemExit('No se encontró Rival / evento')
+          s = s.replace(target, replacement, 1)
+
+          old = '''              <div className="grid grid-cols-2 gap-3">\n                <div><label className="mb-1 block font-semibold text-gray-400">Condición *</label><select value={form.condicion} onChange={(e) => setForm({ ...form, condicion: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]"><option value="Local">🏠 Local</option><option value="Visita">✈️ Visita</option></select></div>\n                <div><label className="mb-1 block font-semibold text-gray-400">Indumentaria *</label><select value={form.color_uniforme} onChange={(e) => setForm({ ...form, color_uniforme: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]"><option value="Titular">Titular</option><option value="Visita">Visita</option><option value="Ambas (Llevar ambos)">Ambas</option></select></div>\n              </div>'''
+          new = '''              <div className={`grid gap-3 ${eventUiOf(formSportProfile).conditionMode === 'hidden' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'}`}>\n                {eventUiOf(formSportProfile).conditionMode !== 'hidden' && (\n                  <div><label className="mb-1 block font-semibold text-gray-400">Condición {eventUiOf(formSportProfile).conditionMode === 'required' ? '*' : '(opcional)'}</label><select value={form.condicion} onChange={(e) => setForm({ ...form, condicion: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]">{eventUiOf(formSportProfile).conditionMode === 'optional' && <option value="Evento">📍 Evento / sede neutral</option>}<option value="Local">🏠 Local</option><option value="Visita">✈️ Visita</option></select></div>\n                )}\n                {eventUiOf(formSportProfile).equipmentMode === 'uniform' ? (\n                  <div><label className="mb-1 block font-semibold text-gray-400">{eventUiOf(formSportProfile).equipmentLabel} *</label><select value={form.color_uniforme} onChange={(e) => setForm({ ...form, color_uniforme: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]"><option value="Titular">Titular</option><option value="Visita">Visita</option><option value="Ambas (Llevar ambos)">Ambas</option></select></div>\n                ) : (\n                  <div><label className="mb-1 block font-semibold text-gray-400">{eventUiOf(formSportProfile).equipmentLabel} <span className="font-normal text-gray-600">(opcional)</span></label><input type="text" value={form.color_uniforme} placeholder={eventUiOf(formSportProfile).equipmentPlaceholder || 'Equipamiento requerido'} onChange={(e) => setForm({ ...form, color_uniforme: e.target.value })} className="w-full rounded border border-[#30363d] bg-[#0d1117] p-2.5 text-white outline-none focus:border-[#289E9D]" /></div>\n                )}\n              </div>'''
+          if old not in s: raise SystemExit('No se encontró bloque Condición/Indumentaria')
+          s = s.replace(old, new, 1)
+
+          old = "                    <span className={`rounded-full border px-2 py-0.5 font-bold ${p.condicion === 'Visita' ? 'border-orange-500/30 bg-orange-500/20 text-orange-400' : 'border-green-500/30 bg-green-500/20 text-green-400'}`}>{p.condicion === 'Visita' ? '✈️ Visita' : '🏠 Local'}</span>"
+          new = "                    {eventUiOf(profile).conditionMode !== 'hidden' && <span className={`rounded-full border px-2 py-0.5 font-bold ${p.condicion === 'Visita' ? 'border-orange-500/30 bg-orange-500/20 text-orange-400' : p.condicion === 'Local' ? 'border-green-500/30 bg-green-500/20 text-green-400' : 'border-gray-600 bg-gray-800 text-gray-300'}`}>{p.condicion === 'Visita' ? '✈️ Visita' : p.condicion === 'Local' ? '🏠 Local' : '📍 Evento'}</span>}"
+          if old not in s: raise SystemExit('No se encontró badge condición')
+          s = s.replace(old, new, 1)
+
+          old = "                  <div><span className=\"block text-gray-500\">👕 Indumentaria:</span><strong className=\"text-white\">{p.color_uniforme}</strong></div>"
+          new = "                  {meaningfulEquipment(profile, p.color_uniforme) && <div><span className=\"block text-gray-500\">🎽 {eventUiOf(profile).equipmentLabel}:</span><strong className=\"text-white\">{meaningfulEquipment(profile, p.color_uniforme)}</strong></div>}"
+          if old not in s: raise SystemExit('No se encontró detalle indumentaria')
+          s = s.replace(old, new, 1)
+
+          p.write_text(s)
+          PY
+      - run: npm run build
+      - name: Commit limpio
+        run: |
+          rm .github/workflows/apply-adaptive-match-frontend.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/pages/Partidos.tsx .github/workflows/apply-adaptive-match-frontend.yml
+          git commit -m "feat: adaptar formulario de encuentros por deporte"
+          git push
