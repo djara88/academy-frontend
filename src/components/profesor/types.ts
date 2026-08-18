@@ -60,6 +60,7 @@ export type MatchPlanPlayer = {
 export type ProfessorCaseState = 'abierto' | 'en_revision' | 'resuelto';
 export type ProfessorCasePriority = 'baja' | 'normal' | 'alta' | 'urgente';
 export type ProfessorCaseType = 'seguimiento' | 'conducta' | 'salud' | 'asistencia' | 'familiar' | 'operativo' | 'feedback' | 'otro';
+export type ProfessorCaseMessageRole = 'profesor' | 'director' | 'apoderado';
 
 export type ProfessorCase = {
   id: string;
@@ -80,13 +81,13 @@ export type ProfessorCase = {
   jugador?: { id: string; nombre: string; foto_url?: string | null; avatar_url?: string | null } | null;
   profesor?: { id: string; nombre_completo: string } | null;
   mensajes_total?: number;
-  ultimo_mensaje?: { autor_rol: 'profesor' | 'director'; mensaje: string; created_at: string } | null;
+  ultimo_mensaje?: { autor_rol: ProfessorCaseMessageRole; mensaje: string; created_at: string } | null;
 };
 
 export type ProfessorCaseMessage = {
   id: string;
   autor_id?: string | null;
-  autor_rol: 'profesor' | 'director';
+  autor_rol: ProfessorCaseMessageRole;
   autor_nombre: string;
   mensaje: string;
   created_at: string;
