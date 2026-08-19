@@ -31,6 +31,7 @@ const NuevoTorneo = lazy(() => import('./pages/NuevoTorneoMultirama'));
 const GestionarTorneo = lazy(() => import('./pages/GestionarTorneoMultiramaEnhanced'));
 const EventosRendimiento = lazy(() => import('./pages/EventosRendimientoEnhanced'));
 const RendimientoAnalytics = lazy(() => import('./pages/RendimientoAnalytics'));
+const SaludDisponibilidad = lazy(() => import('./pages/SaludDisponibilidad'));
 const SaaSAdmin = lazy(() => import('./pages/SaaSAdmin'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminFinance = lazy(() => import('./pages/AdminFinance'));
@@ -128,7 +129,7 @@ const App = () => (
                     <Route path="/solicitudes" element={<AdmissionRequests />} /><Route path="/matricula" element={<Matricula />} /><Route path="/inscripciones" element={<InscripcionesDeportivas />} /><Route path="/importacion" element={<Importacion />} /><Route path="/asistencias" element={<Asistencias />} /><Route path="/uniformes" element={<Uniformes />} />
                     <Route path="/amistosos" element={<Amistosos />} />
                     <Route path="/torneos" element={<Torneos />} /><Route path="/torneos/almacen" element={<TorneosArchivados />} /><Route path="/nuevo-torneo" element={<NuevoTorneo />} /><Route path="/torneos/:id" element={<GestionarTorneo />} />
-                    <Route path="/partidos" element={<EventosRendimiento />} /><Route path="/rendimiento" element={<Navigate to="/partidos" replace />} /><Route path="/rendimiento/analitica" element={<RendimientoAnalytics />} />
+                    <Route path="/partidos" element={<EventosRendimiento />} /><Route path="/rendimiento" element={<Navigate to="/partidos" replace />} /><Route path="/rendimiento/analitica" element={<RendimientoAnalytics />} /><Route path="/salud-deportiva" element={<SaludDisponibilidad />} />
                     <Route path="/finanzas" element={<Finanzas />} /><Route path="/suscripcion" element={<Subscription />} /><Route path="/configuracion" element={<Configuracion />} /><Route path="/privacidad" element={<PrivacyRequests />} />
                     <Route path="/configuracion/perfil" element={<PerfilAcademia />} /><Route path="/configuracion/estructura" element={<EstructuraAcademia />} /><Route path="/terminos" element={<Terminos />} /><Route path="/whatsapp" element={<WhatsApp />} /><Route path="/configuracion/finanzas" element={<FinanzasConfig />} />
                   </Route>
