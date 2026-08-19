@@ -5,7 +5,7 @@ import {
   AcademicCapIcon, BanknotesIcon, Bars3Icon, BuildingOffice2Icon, CalendarDaysIcon,
   ChartBarIcon, ChatBubbleLeftRightIcon, ClipboardDocumentCheckIcon, Cog6ToothIcon, HomeIcon,
   MoonIcon, PaintBrushIcon, ShieldCheckIcon, ShoppingBagIcon, SunIcon,
-  TrophyIcon, UserGroupIcon, UsersIcon, XMarkIcon, ServerStackIcon,
+  TrophyIcon, UserGroupIcon, UserPlusIcon, UsersIcon, XMarkIcon, ServerStackIcon,
 } from '@heroicons/react/24/outline';
 import api from '../api/axiosConfig';
 import { useAuth } from '../contexts/AuthContext';
@@ -27,6 +27,7 @@ type NavItem = { to: string; label: string; icon: ComponentType<{ className?: st
 
 const directorItems: NavItem[] = [
   { to: '/dashboard', label: 'Resumen', icon: HomeIcon },
+  { to: '/solicitudes', label: 'Solicitudes', icon: UserPlusIcon },
   { to: '/matricula', label: 'Nueva matrícula', icon: ClipboardDocumentCheckIcon },
   { to: '/alumnos', label: 'Alumnos', icon: UsersIcon },
   { to: '/asistencias', label: 'Asistencias', icon: ClipboardDocumentCheckIcon },
