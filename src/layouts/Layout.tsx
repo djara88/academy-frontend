@@ -34,6 +34,7 @@ const directorItems: NavItem[] = [
   { to: '/apoderados', label: 'Apoderados', icon: UserGroupIcon, feature: 'apoderados', badge: 'ADD-ON' },
   { to: '/comunicaciones', label: 'Comunicaciones', icon: ChatBubbleLeftRightIcon, feature: 'apoderados', badge: 'ADD-ON' },
   { to: '/uniformes', label: 'Uniformes', icon: ShoppingBagIcon, feature: 'uniformes' },
+  { to: '/amistosos', label: 'Amistosos', icon: CalendarDaysIcon, feature: 'amistosos' },
   { to: '/torneos', label: 'Torneos', icon: TrophyIcon, feature: 'torneos' },
   { to: '/partidos', label: 'Eventos y Rendimiento', icon: CalendarDaysIcon, feature: 'partidos' },
   { to: '/rendimiento/analitica', label: 'Analítica deportiva', icon: ChartBarIcon, feature: 'analitica_avanzada', badge: 'ALTO' },
