@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import { useAppDialog } from '../contexts/DialogContext';
 
@@ -103,6 +104,8 @@ const legacyUniformValues = new Set(['Principal', 'Titular', 'Visita', 'Ambas', 
 
 export default function PartidosMultirama() {
   const { notify, confirmAction } = useAppDialog();
+  const [searchParams] = useSearchParams();
+  const requestedTournamentId = searchParams.get('torneo_id') || '';
   const [branches, setBranches] = useState<Branch[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
@@ -129,7 +132,7 @@ export default function PartidosMultirama() {
         api.get('/api/academias/rama-principal'),
         api.get('/api/jugadores/categorias'),
         api.get('/api/torneos'),
-        api.get('/api/partidos', { params: branchId ? { rama_id: branchId } : undefined }),
+        api.get('/api/partidos', { params: requestedTournamentId ? { torneo_id: requestedTournamentId } : branchId ? { rama_id: branchId } : undefined }),
       ]);
       const primary = primaryResponse.data.data;
       setBranches(primary?.ramas || []);
@@ -142,7 +145,7 @@ export default function PartidosMultirama() {
     } finally {
       setLoading(false);
     }
-  }, [branchId, notify]);
+  }, [branchId, notify, requestedTournamentId]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -226,10 +229,11 @@ export default function PartidosMultirama() {
   };
 
   const openCreate = () => {
-    const initialBranch = branchId || branches[0]?.id || '';
+    const requestedTournament = tournaments.find((item) => item.id === requestedTournamentId) || null;
+    const initialBranch = requestedTournament?.rama_id || branchId || branches[0]?.id || '';
     setEditing(null);
     setTournamentStructure(null);
-    setForm({ ...blankForm, rama_id: initialBranch });
+    setForm({ ...blankForm, rama_id: initialBranch, torneo_id: requestedTournament?.id || '' });
     setFormProfile(null);
     setModalOpen(true);
     if (initialBranch) void loadBranchProfile(initialBranch);
@@ -289,7 +293,7 @@ export default function PartidosMultirama() {
       else await api.post('/api/partidos', body);
       setModalOpen(false);
       await load();
-      await notify(editing ? 'Encuentro actualizado.' : 'Encuentro creado dentro de la rama seleccionada.');
+      await notify(editing ? 'Evento actualizado.' : 'Evento competitivo creado.');
     } catch (error: any) {
       await notify(error.response?.data?.error || 'No fue posible guardar el encuentro.');
     }
@@ -310,7 +314,7 @@ export default function PartidosMultirama() {
   };
 
   const remove = async (match: Match) => {
-    const accepted = await confirmAction(`¿Eliminar el encuentro contra/evento ${match.rival}?`, { tone: 'danger', confirmLabel: 'Eliminar' });
+    const accepted = await confirmAction(`¿Eliminar este ${match.sport_profile?.activityLabel?.toLowerCase() || 'evento'}: ${match.rival}?`, { tone: 'danger', confirmLabel: 'Eliminar' });
     if (!accepted) return;
     try {
       await api.delete(`/api/partidos/${match.id}`);
@@ -367,11 +371,11 @@ export default function PartidosMultirama() {
     <section className="rounded-[28px] border border-[#289E9D]/25 bg-[radial-gradient(circle_at_top_right,rgba(40,158,157,.17),transparent_38%),#151b25] p-6 sm:p-7">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-[.18em] text-[#70e4df]">Encuentros multirrama</p>
-          <h1 className="mt-2 text-3xl font-black text-white">Partidos y competencias</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#8b949e]">La categoría define la rama del encuentro. En competencias organizadas, cada encuentro queda conectado además a su división y fase.</p>
+          <p className="text-xs font-black uppercase tracking-[.18em] text-[#70e4df]">Eventos multideporte</p>
+          <h1 className="mt-2 text-3xl font-black text-white">Competencias y resultados</h1>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#8b949e]">Cada campeonato agrupa los eventos donde participa la academia. Lestra adapta cada evento y sus resultados a la disciplina: partido, duelo, prueba, carrera o presentación.</p>
         </div>
-        <button onClick={openCreate} className="rounded-xl bg-[#289E9D] px-5 py-2.5 text-sm font-black text-white">+ Nuevo encuentro</button>
+        <button onClick={openCreate} className="rounded-xl bg-[#289E9D] px-5 py-2.5 text-sm font-black text-white">+ Nuevo evento</button>
       </div>
     </section>
 
@@ -383,7 +387,7 @@ export default function PartidosMultirama() {
     </section>
 
     {loading
-      ? <div className={`${panel} p-10 text-center text-[#8b949e]`}>Cargando encuentros...</div>
+      ? <div className={`${panel} p-10 text-center text-[#8b949e]`}>Cargando eventos...</div>
       : <section className="grid gap-4 lg:grid-cols-2">
           {matches.map((match) => <article key={match.id} className={`${panel} overflow-hidden`}>
             <div className="p-5">
@@ -391,6 +395,7 @@ export default function PartidosMultirama() {
                 <div>
                   <div className="flex flex-wrap gap-2">
                     <span className="rounded-full bg-violet-500/10 px-2.5 py-1 text-[10px] font-black uppercase text-violet-300">{match.ramas?.disciplina || match.sport_profile?.label || 'Histórico'}</span>
+                    <span className="rounded-full bg-[#289E9D]/10 px-2.5 py-1 text-[10px] font-black uppercase text-[#70e4df]">{match.sport_profile?.activityLabel || 'Evento'}</span>
                     <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase ${match.estado === 'Jugado' ? 'bg-emerald-500/10 text-emerald-300' : 'bg-[#289E9D]/10 text-[#70e4df]'}`}>{match.estado}</span>
                   </div>
                   <h2 className="mt-3 text-xl font-black text-white">{match.sport_profile?.icon || '🏅'} {match.rival}</h2>
@@ -415,13 +420,13 @@ export default function PartidosMultirama() {
               <button onClick={() => void remove(match)} className="ml-auto rounded-xl border border-red-400/15 px-3 py-2 text-xs font-black text-red-300">Eliminar</button>
             </div>
           </article>)}
-          {!matches.length ? <div className={`${panel} col-span-full p-10 text-center text-sm text-[#697586]`}>No hay encuentros en el alcance seleccionado.</div> : null}
+          {!matches.length ? <div className={`${panel} col-span-full p-10 text-center text-sm text-[#697586]`}>No hay eventos competitivos en el alcance seleccionado.</div> : null}
         </section>}
 
     {modalOpen ? <div className="fixed inset-0 z-[70] grid place-items-center bg-black/80 p-4">
       <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[26px] border border-white/10 bg-[#151b25] p-6">
         <div className="flex items-start justify-between">
-          <div><p className="text-xs font-black uppercase text-[#70e4df]">{editing ? 'Editar' : 'Nuevo'} encuentro</p><h2 className="mt-1 text-2xl font-black text-white">Contexto deportivo</h2></div>
+          <div><p className="text-xs font-black uppercase text-[#70e4df]">{editing ? 'Editar' : 'Nuevo'} {formProfile?.activityLabel?.toLowerCase() || 'evento competitivo'}</p><h2 className="mt-1 text-2xl font-black text-white">Contexto deportivo</h2></div>
           <button onClick={() => setModalOpen(false)} className="text-2xl text-[#8995a4]">×</button>
         </div>
         <div className="mt-5 space-y-4">
@@ -429,20 +434,20 @@ export default function PartidosMultirama() {
             <option value="">Selecciona rama *</option>
             {branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.disciplina} · {branch.nombre}</option>)}
           </select>
-          {selectedBranch ? <div className="rounded-xl border border-violet-400/20 bg-violet-500/10 p-3 text-sm text-violet-200">Perfil competitivo: <strong>{formProfile?.label || selectedBranch.disciplina}</strong>. Lestra adapta condición, equipamiento y etiquetas a esta disciplina; categorías y torneos de otras ramas quedan bloqueados.</div> : null}
+          {selectedBranch ? <div className="rounded-xl border border-violet-400/20 bg-violet-500/10 p-3 text-sm text-violet-200">Perfil competitivo: <strong>{formProfile?.label || selectedBranch.disciplina}</strong>. Lestra adapta este evento, su equipamiento y sus métricas a la disciplina; categorías y campeonatos de otras ramas quedan bloqueados.</div> : null}
           <select value={form.categoria_id} onChange={(event) => changeCategory(event.target.value)} className={field}>
             <option value="">Categoría *</option>
             {branchCategories.map((category) => <option key={category.id} value={category.id}>{category.nombre}</option>)}
           </select>
           <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#0d1117] p-3 text-sm font-bold">
             <input type="checkbox" checked={form.es_amistoso} onChange={(event) => toggleFriendly(event.target.checked)} />
-            Encuentro amistoso / independiente
+            Evento independiente / fuera de campeonato
           </label>
 
           {!form.es_amistoso ? <>
             <select value={form.torneo_id} onChange={(event) => changeTournament(event.target.value)} className={field}>
-              <option value="">Selecciona torneo de la rama</option>
-              {branchTournaments.filter((item) => item.rama_id === form.rama_id).map((item) => <option key={item.id} value={item.id}>{item.nombre}{item.tipo_gestion === 'organizado' ? ' · Organizado' : ' · Externo'}</option>)}
+              <option value="">Campeonato / competencia</option>
+              {branchTournaments.filter((item) => item.rama_id === form.rama_id).map((item) => <option key={item.id} value={item.id}>{item.nombre}</option>)}
             </select>
             {organizedTournament
               ? structureLoading
@@ -493,7 +498,7 @@ export default function PartidosMultirama() {
             Cobrar cuota de arbitraje/jueces al alumno
           </label>
           {form.cobra_arbitraje ? <input type="number" min="0" value={form.monto_arbitraje_jugador} onChange={(event) => setForm({ ...form, monto_arbitraje_jugador: event.target.value })} className={field} placeholder="Monto a cobrar por alumno" /> : null}
-          <button onClick={() => void saveMatch()} className="min-h-11 w-full rounded-xl bg-[#289E9D] px-5 text-sm font-black text-white">{editing ? 'Guardar cambios' : 'Crear encuentro'}</button>
+          <button onClick={() => void saveMatch()} className="min-h-11 w-full rounded-xl bg-[#289E9D] px-5 text-sm font-black text-white">{editing ? 'Guardar cambios' : `Crear ${formProfile?.activityLabel?.toLowerCase() || 'evento'}` }</button>
         </div>
       </div>
     </div> : null}
@@ -506,7 +511,7 @@ export default function PartidosMultirama() {
         </div>
         {statsMatch.sport_profile?.usesHeadToHeadScore
           ? <div className="mt-5 rounded-2xl border border-[#289E9D]/20 bg-[#0d1117] p-4">
-              <div className="mb-3"><p className="text-[10px] font-black uppercase tracking-[.14em] text-[#70e4df]">Marcador del encuentro</p><p className="mt-1 text-xs text-[#8b949e]">Registra el resultado global en {statsMatch.sport_profile.scoreLabel.toLowerCase()}.</p></div>
+              <div className="mb-3"><p className="text-[10px] font-black uppercase tracking-[.14em] text-[#70e4df]">Resultado del evento</p><p className="mt-1 text-xs text-[#8b949e]">Registra el resultado global en {statsMatch.sport_profile.scoreLabel.toLowerCase()}.</p></div>
               <div className="grid grid-cols-2 gap-3">
                 <label><span className="text-xs font-bold text-[#9aa6b5]">A favor · {statsMatch.sport_profile.scoreLabel}</span><input type="number" min="0" value={score.favor} onChange={(event) => setScore({ ...score, favor: event.target.value })} className={`${field} mt-1 text-center text-xl font-black`} /></label>
                 <label><span className="text-xs font-bold text-[#9aa6b5]">Rival · {statsMatch.sport_profile.scoreLabel}</span><input type="number" min="0" value={score.contra} onChange={(event) => setScore({ ...score, contra: event.target.value })} className={`${field} mt-1 text-center text-xl font-black`} /></label>

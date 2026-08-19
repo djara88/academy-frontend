@@ -12,7 +12,7 @@ type CompetitionEvent={id:string;rival:string;fecha:string;hora:string;estado:st
 const panel='rounded-[24px] border border-white/10 bg-[#151b25]';
 const field='w-full rounded-xl border border-[#30363d] bg-[#0d1117] px-3 py-2.5 text-sm text-white outline-none focus:border-[#C8A96B]';
 const money=(value:number)=>`$${Math.round(Number(value)||0).toLocaleString('es-CL')}`;
-const photo=(student?:{foto_url?:string|null;foto_base64?:string|null})=>student?.foto_url||student?.foto_base64||'';
+const photo=(student?:{foto_url?:string|null;foto_base64?:string|null}|null)=>student?.foto_url||student?.foto_base64||'';
 
 export default function GestionarTorneoMultirama(){
   const {id}=useParams();
