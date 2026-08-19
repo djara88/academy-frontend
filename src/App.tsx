@@ -26,7 +26,7 @@ const Torneos = lazy(() => import('./pages/TorneosMultirama'));
 const TorneosArchivados = lazy(() => import('./pages/TorneosArchivados'));
 const NuevoTorneo = lazy(() => import('./pages/NuevoTorneoMultirama'));
 const GestionarTorneo = lazy(() => import('./pages/GestionarTorneoMultirama'));
-const Partidos = lazy(() => import('./pages/PartidosMultirama'));
+const EventosRendimiento = lazy(() => import('./pages/EventosRendimiento'));
 const SaaSAdmin = lazy(() => import('./pages/SaaSAdmin'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminFinance = lazy(() => import('./pages/AdminFinance'));
@@ -121,7 +121,7 @@ const App = () => (
                     <Route path="/dashboard" element={<Dashboard />} /><Route path="/profesores" element={<Profesores />} /><Route path="/apoderados" element={<Apoderados />} /><Route path="/apoderados-pro" element={<ApoderadosPro />} />
                     <Route path="/comunicaciones" element={<CommunicationsHub />} /><Route path="/comunicaciones/grupos" element={<WhatsAppGroups />} /><Route path="/alumnos" element={<Alumnos />} /><Route path="/jugadores" element={<Navigate to="/alumnos" replace />} />
                     <Route path="/matricula" element={<Matricula />} /><Route path="/inscripciones" element={<InscripcionesDeportivas />} /><Route path="/importacion" element={<Importacion />} /><Route path="/asistencias" element={<Asistencias />} /><Route path="/uniformes" element={<Uniformes />} />
-                    <Route path="/torneos" element={<Torneos />} /><Route path="/torneos/almacen" element={<TorneosArchivados />} /><Route path="/nuevo-torneo" element={<NuevoTorneo />} /><Route path="/torneos/:id" element={<GestionarTorneo />} /><Route path="/partidos" element={<Partidos />} />
+                    <Route path="/torneos" element={<Torneos />} /><Route path="/torneos/almacen" element={<TorneosArchivados />} /><Route path="/nuevo-torneo" element={<NuevoTorneo />} /><Route path="/torneos/:id" element={<GestionarTorneo />} /><Route path="/partidos" element={<EventosRendimiento />} /><Route path="/rendimiento" element={<Navigate to="/partidos" replace />} />
                     <Route path="/finanzas" element={<Finanzas />} /><Route path="/suscripcion" element={<Subscription />} /><Route path="/configuracion" element={<Configuracion />} /><Route path="/privacidad" element={<PrivacyRequests />} />
                     <Route path="/configuracion/perfil" element={<PerfilAcademia />} /><Route path="/configuracion/estructura" element={<EstructuraAcademia />} /><Route path="/terminos" element={<Terminos />} /><Route path="/whatsapp" element={<WhatsApp />} /><Route path="/configuracion/finanzas" element={<FinanzasConfig />} />
                   </Route>
