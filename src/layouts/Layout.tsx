@@ -35,7 +35,7 @@ const directorItems: NavItem[] = [
   { to: '/comunicaciones', label: 'Comunicaciones', icon: ChatBubbleLeftRightIcon, feature: 'apoderados', badge: 'ADD-ON' },
   { to: '/uniformes', label: 'Uniformes', icon: ShoppingBagIcon, feature: 'uniformes' },
   { to: '/torneos', label: 'Torneos', icon: TrophyIcon, feature: 'torneos' },
-  { to: '/partidos', label: 'Partidos', icon: CalendarDaysIcon, feature: 'partidos' },
+  { to: '/partidos', label: 'Eventos y Rendimiento', icon: CalendarDaysIcon, feature: 'partidos' },
   { to: '/finanzas', label: 'Finanzas academia', icon: BanknotesIcon, feature: 'finanzas' },
   { to: '/configuracion', label: 'Configuración', icon: Cog6ToothIcon },
   { to: '/privacidad', label: 'Privacidad', icon: ShieldCheckIcon },
