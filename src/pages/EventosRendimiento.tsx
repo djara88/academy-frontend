@@ -74,13 +74,7 @@ const blankForm = {
 };
 const defaultEventUi: EventUi = { conditionMode: 'optional', equipmentMode: 'freeform', equipmentLabel: 'Indumentaria / equipamiento', equipmentPlaceholder: 'Equipamiento requerido' };
 const legacyUniformValues = new Set(['Principal', 'Titular', 'Visita', 'Ambas', 'Ambas (Llevar ambos)', 'Indumentaria principal']);
-
 const numberStep = (metric: Metric) => metric.decimals ? String(1 / (10 ** metric.decimals)) : '1';
-const metricValue = (value: number | undefined, metric: Metric) => {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return '—';
-  return `${n.toLocaleString('es-CL', { maximumFractionDigits: metric.decimals || 0 })}${metric.unit ? ` ${metric.unit}` : ''}`;
-};
 
 export default function EventosRendimiento() {
   const { notify, confirmAction } = useAppDialog();
