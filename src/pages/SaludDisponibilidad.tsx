@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
-  ArrowPathIcon, CalendarDaysIcon, CheckCircleIcon, ClockIcon, DocumentCheckIcon, ExclamationTriangleIcon,
+  ArrowPathIcon, CheckCircleIcon, DocumentCheckIcon,
   HeartIcon, ShieldCheckIcon, SparklesIcon, UserIcon,
 } from '@heroicons/react/24/outline';
 import api from '../api/axiosConfig';
