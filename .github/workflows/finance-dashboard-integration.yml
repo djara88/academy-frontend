@@ -40,6 +40,14 @@ jobs:
               raise SystemExit('No se encontró punto de inserción del dashboard')
           s=s.replace(needle,insert,1)
           p.write_text(s)
+
+          dashboard=Path('src/components/FinanceSchoolDashboard.tsx')
+          d=dashboard.read_text()
+          old="analytics.months.at(-1)?.ingresos||0)} de ingresos y ${money(analytics.months.at(-1)?.egresos||0)"
+          new="analytics.months[analytics.months.length-1]?.ingresos||0)} de ingresos y ${money(analytics.months[analytics.months.length-1]?.egresos||0)"
+          if old not in d:
+              raise SystemExit('No se encontró compatibilidad mensual esperada')
+          dashboard.write_text(d.replace(old,new,1))
           PY
       - run: npm run build
       - name: Guardar cambio y retirar workflow temporal
