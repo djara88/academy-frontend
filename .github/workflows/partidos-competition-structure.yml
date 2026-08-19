@@ -1,6 +1,8 @@
 name: Partidos competition structure
 
 on:
+  push:
+    branches: [feat/partidos-competition-structure]
   pull_request:
     branches: [main]
 
