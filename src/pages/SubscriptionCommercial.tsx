@@ -12,7 +12,7 @@ const money=(v:number)=>new Intl.NumberFormat('es-CL',{style:'currency',currency
 const planFeatures:Record<string,string[]>={
  formacion:['Hasta 100 alumnos','5 profesores','1 sede y 1 rama','Matrícula, asistencia, finanzas y uniformes','Evaluaciones deportivas estándar','Amistosos programables','Exportación básica y avisos operacionales'],
  competencia:['Hasta 300 alumnos','10 profesores','2 sedes y 2 ramas','Campeonatos, eventos y resultados multideporte','Preparación de partidos y alertas','Criterios de evaluación personalizados','Grupos WhatsApp y exportaciones deportivas'],
- alto_rendimiento:['Alumnos sin límite','30 profesores','Sedes y ramas sin límite','Ficha médica y analítica avanzada','Marca personalizada y comunicaciones avanzadas']
+ alto_rendimiento:['Alumnos sin límite · 30 profesores','Sedes y ramas sin límite','Perfil 360° y analítica longitudinal','Salud y disponibilidad deportiva','Seguimiento de lesiones, retorno y certificados']
 };
 export default function SubscriptionCommercial(){
  const {notify}=useAppDialog();
