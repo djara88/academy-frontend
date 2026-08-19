@@ -10,8 +10,8 @@ type Payload={plans:Plan[];guardianAddon:{name:string;priceClp:number;grossClp:n
 type Checkout={chargeId:string;checkoutUrl:string;amountClp:number;netAmountClp:number;planName:string;guardianLicense:boolean;billingCycle:Cycle;promotionCode?:string|null;founderSlot?:number|null;discountClp:number;expiresAt:string};
 const money=(v:number)=>new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(v||0);
 const planFeatures:Record<string,string[]>={
- formacion:['Hasta 100 alumnos','3 profesores','Matrícula, asistencia y finanzas','Evaluaciones deportivas estándar','1 sede y 1 rama'],
- competencia:['Hasta 300 alumnos','10 profesores','2 sedes y 2 ramas','Campeonatos, eventos y resultados multideporte','Preparación de partidos y alertas','Criterios de evaluación personalizados','Grupos WhatsApp y exportaciones'],
+ formacion:['Hasta 100 alumnos','5 profesores','1 sede y 1 rama','Matrícula, asistencia, finanzas y uniformes','Evaluaciones deportivas estándar','Amistosos programables','Exportación básica y avisos operacionales'],
+ competencia:['Hasta 300 alumnos','10 profesores','2 sedes y 2 ramas','Campeonatos, eventos y resultados multideporte','Preparación de partidos y alertas','Criterios de evaluación personalizados','Grupos WhatsApp y exportaciones deportivas'],
  alto_rendimiento:['Alumnos sin límite','30 profesores','Sedes y ramas sin límite','Ficha médica y analítica avanzada','Marca personalizada y comunicaciones avanzadas']
 };
 export default function SubscriptionCommercial(){
