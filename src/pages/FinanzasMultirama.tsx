@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 import api from '../api/axiosConfig';
 import { useAcademyMessages } from '../hooks/useAcademyMessages';
+import FinanceSchoolDashboard from '../components/FinanceSchoolDashboard';
 
 type Branch={id:string;nombre:string;disciplina:string;sedes?:{id:string;nombre:string}|null};
 type Summary={totalIngresosReales:number;totalPorCobrar:number;totalVencido:number;totalPorVencer:number;totalEgresos:number;balanceNeto:number;totalAlumnos:number;alumnosMorosos:number;tasaMorosidad:number;calendarioMensual?:{configured?:boolean;dueDay?:number;warningDays?:number}};
@@ -9,7 +10,7 @@ type Account={id:string;nombre:string;foto_base64?:string|null;foto_url?:string|
 type Payment={id:string;monto:number;metodo_pago?:string|null;fecha_pago?:string|null;observaciones?:string|null;cobro?:{concepto?:string|null;tipo_concepto?:string|null}|null;jugador?:{nombre?:string|null}|null};
 type Expense={id:string;concepto:string;categoria_gasto?:string|null;centro_costo?:string|null;monto:number;metodo_pago?:string|null;fecha_gasto?:string|null;rama_id?:string|null;ramas?:{id:string;nombre:string;disciplina:string}|null};
 type FlowRow={id:string;tipo:'Ingreso'|'Egreso';concepto:string;monto:number;fecha?:string|null;metodo?:string|null;categoria?:string|null};
-type Tab='cuentas'|'pagos'|'egresos'|'flujo';
+type Tab='dashboard'|'cuentas'|'pagos'|'egresos'|'flujo';
 const panel='rounded-[24px] border border-white/10 bg-[#151b25]';
 const field='w-full rounded-xl border border-[#30363d] bg-[#0d1117] px-3 py-2.5 text-sm text-white outline-none focus:border-[#289E9D]';
 const money=(value:number)=>`$${Math.round(Number(value)||0).toLocaleString('es-CL')}`;
@@ -18,7 +19,7 @@ export default function FinanzasMultirama(){
   const {confirmAction,notify}=useAcademyMessages();
   const [branches,setBranches]=useState<Branch[]>([]);
   const [branchId,setBranchId]=useState('');
-  const [activeTab,setActiveTab]=useState<Tab>('cuentas');
+  const [activeTab,setActiveTab]=useState<Tab>('dashboard');
   const [summary,setSummary]=useState<Summary|null>(null);
   const [accounts,setAccounts]=useState<Account[]>([]);
   const [payments,setPayments]=useState<Payment[]>([]);
@@ -75,7 +76,9 @@ export default function FinanzasMultirama(){
 
       <div className="flex flex-wrap gap-2"><button onClick={openCharge} className="rounded-xl bg-[#289E9D] px-4 py-2.5 text-sm font-black text-white">+ Cobro {branch?'de rama':'manual'}</button><button onClick={()=>setExpenseModal(true)} className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-2.5 text-sm font-black text-red-300">- Registrar egreso</button>{!branchId?<span className="self-center text-xs text-[#697586]">Para crear un cobro manual selecciona una rama; los egresos sí pueden ser generales.</span>:null}</div>
 
-      <div className="flex overflow-hidden rounded-xl border border-white/10 bg-[#0d1117]">{([['cuentas','Cuentas'],['pagos','Pagos'],['egresos','Egresos'],['flujo','Flujo']] as Array<[Tab,string]>).map(([key,label])=><button key={key} onClick={()=>setActiveTab(key)} className={`flex-1 px-3 py-3 text-sm font-black ${activeTab===key?'bg-[#289E9D] text-white':'text-[#8995a4]'}`}>{label}</button>)}</div>
+      <div className="flex overflow-hidden rounded-xl border border-white/10 bg-[#0d1117]">{([['dashboard','Dashboard'],['cuentas','Cuentas'],['pagos','Pagos'],['egresos','Egresos'],['flujo','Flujo']] as Array<[Tab,string]>).map(([key,label])=><button key={key} onClick={()=>setActiveTab(key)} className={`flex-1 px-3 py-3 text-sm font-black ${activeTab===key?'bg-[#289E9D] text-white':'text-[#8995a4]'}`}>{label}</button>)}</div>
+
+      {activeTab==='dashboard'?<FinanceSchoolDashboard summary={summary} accounts={accounts} payments={payments} expenses={expenses} flow={flow} branches={branches} branchId={branchId}/>:null}
 
       {activeTab==='cuentas'?<section className="space-y-4"><div className={`${panel} flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between`}><input value={search} onChange={(event)=>setSearch(event.target.value)} placeholder="Buscar alumno o apoderado" className={`${field} sm:max-w-md`}/><span className="text-xs text-[#8995a4]">{filteredAccounts.length} alumnos</span></div>{filteredAccounts.map((account)=><article key={account.id} className={`${panel} p-5`}><div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div><h2 className="font-black text-white">{account.nombre}</h2><p className="mt-1 text-xs text-[#8995a4]">{account.tutores?.nombre_completo||'Sin apoderado'}{branch?` · ${branch.disciplina} · ${branch.nombre}`:''}</p></div><div className="text-right"><p className="text-[10px] uppercase text-[#697586]">Saldo pendiente</p><p className={`text-xl font-black ${Number(account.saldoTotalPendiente||0)>0?'text-amber-300':'text-emerald-300'}`}>{money(account.saldoTotalPendiente||0)}</p></div></div><div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-3">{(account.cobros||[]).filter((charge)=>charge.estado!=='Anulado').map((charge)=><div key={charge.id} className="rounded-xl border border-white/10 bg-[#0d1117] p-3"><div className="flex items-start justify-between gap-2"><div><p className="text-sm font-black text-white">{charge.concepto}</p><p className="mt-1 text-[10px] uppercase text-[#697586]">{charge.tipo_concepto||'Cobro'} · {charge.fecha_vencimiento||'Sin vencimiento'}</p></div><span className={`rounded-full px-2 py-1 text-[10px] font-black ${charge.estado==='Pagado'?'bg-emerald-500/10 text-emerald-300':'bg-amber-500/10 text-amber-300'}`}>{charge.estado}</span></div><div className="mt-3 flex items-end justify-between"><div><p className="text-xs text-[#8995a4]">{money(charge.monto_pagado||0)} / {money(charge.monto||0)}</p></div>{charge.estado!=='Pagado'?<button onClick={()=>openPayment(charge)} className="rounded-lg border border-[#289E9D]/30 px-2.5 py-1.5 text-[10px] font-black text-[#70e4df]">Abonar</button>:null}</div></div>)}</div></article>)}{!filteredAccounts.length?<div className={`${panel} p-8 text-center text-sm text-[#697586]`}>No hay alumnos/cuentas en este alcance.</div>:null}</section>:null}
 
