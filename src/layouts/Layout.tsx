@@ -36,6 +36,7 @@ const directorItems: NavItem[] = [
   { to: '/uniformes', label: 'Uniformes', icon: ShoppingBagIcon, feature: 'uniformes' },
   { to: '/torneos', label: 'Torneos', icon: TrophyIcon, feature: 'torneos' },
   { to: '/partidos', label: 'Eventos y Rendimiento', icon: CalendarDaysIcon, feature: 'partidos' },
+  { to: '/rendimiento/analitica', label: 'Analítica deportiva', icon: ChartBarIcon, feature: 'analitica_avanzada', badge: 'ALTO' },
   { to: '/finanzas', label: 'Finanzas academia', icon: BanknotesIcon, feature: 'finanzas' },
   { to: '/configuracion', label: 'Configuración', icon: Cog6ToothIcon },
   { to: '/privacidad', label: 'Privacidad', icon: ShieldCheckIcon },
