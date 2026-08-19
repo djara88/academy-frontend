@@ -1,0 +1,52 @@
+name: Integrate finance school dashboard
+on:
+  pull_request:
+    branches: [ main ]
+permissions:
+  contents: write
+jobs:
+  integrate:
+    if: github.head_ref == 'feat/finance-school-dashboard'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/finance-school-dashboard
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Integrar pestaña Dashboard
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('src/pages/FinanzasMultirama.tsx')
+          s=p.read_text()
+          replacements=[
+            ("import { useAcademyMessages } from '../hooks/useAcademyMessages';\n", "import { useAcademyMessages } from '../hooks/useAcademyMessages';\nimport FinanceSchoolDashboard from '../components/FinanceSchoolDashboard';\n"),
+            ("type Tab='cuentas'|'pagos'|'egresos'|'flujo';", "type Tab='dashboard'|'cuentas'|'pagos'|'egresos'|'flujo';"),
+            ("const [activeTab,setActiveTab]=useState<Tab>('cuentas');", "const [activeTab,setActiveTab]=useState<Tab>('dashboard');"),
+            ("{([['cuentas','Cuentas'],['pagos','Pagos'],['egresos','Egresos'],['flujo','Flujo']] as Array<[Tab,string]>).map", "{([['dashboard','Dashboard'],['cuentas','Cuentas'],['pagos','Pagos'],['egresos','Egresos'],['flujo','Flujo']] as Array<[Tab,string]>).map"),
+          ]
+          for old,new in replacements:
+              if old not in s:
+                  raise SystemExit(f'No encontrado: {old}')
+              s=s.replace(old,new,1)
+          needle="{activeTab==='cuentas'?<section"
+          insert="{activeTab==='dashboard'?<FinanceSchoolDashboard summary={summary} accounts={accounts} payments={payments} expenses={expenses} flow={flow} branches={branches} branchId={branchId}/>:null}\n\n      "+needle
+          if needle not in s:
+              raise SystemExit('No se encontró punto de inserción del dashboard')
+          s=s.replace(needle,insert,1)
+          p.write_text(s)
+          PY
+      - run: npm run build
+      - name: Guardar cambio y retirar workflow temporal
+        run: |
+          git config user.name "djara88"
+          git config user.email "d.jarazerene@gmail.com"
+          git rm .github/workflows/finance-dashboard-integration.yml
+          git add src/pages/FinanzasMultirama.tsx src/components/FinanceSchoolDashboard.tsx
+          git commit -m "Integrar dashboard financiero de academia" || true
+          git push origin HEAD:feat/finance-school-dashboard
