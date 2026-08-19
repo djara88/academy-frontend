@@ -21,7 +21,9 @@ const Alumnos = lazy(() => import('./pages/Alumnos'));
 const Matricula = lazy(() => import('./pages/MatriculaPreparacion'));
 const InscripcionesDeportivas = lazy(() => import('./pages/InscripcionesDeportivasEnhanced'));
 const PreMatriculaPublica = lazy(() => import('./pages/PreMatriculaPublica'));
+const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
 const Importacion = lazy(() => import('./pages/Importacion'));
+const Amistosos = lazy(() => import('./pages/Amistosos'));
 const Torneos = lazy(() => import('./pages/TorneosMultirama'));
 const TorneosArchivados = lazy(() => import('./pages/TorneosArchivados'));
 const NuevoTorneo = lazy(() => import('./pages/NuevoTorneoMultirama'));
@@ -104,6 +106,7 @@ const App = () => (
             <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">Cargando {BRAND.name}...</div>}>
               <Routes>
                 <Route path="/prematricula/:token" element={<PreMatriculaPublica />} />
+                <Route path="/a/:slug" element={<PublicAcademy />} />
                 <Route element={<PublicRoutes />}><Route path="/" element={<Home />} /><Route path="/login" element={<Login />} /><Route path="/registro" element={<Registro />} /></Route>
                 <Route path="/completar-perfil" element={<CompletarPerfil />} />
                 <Route path="/cambiar-password" element={<CambiarPassword />} />
@@ -122,6 +125,7 @@ const App = () => (
                     <Route path="/dashboard" element={<Dashboard />} /><Route path="/profesores" element={<Profesores />} /><Route path="/apoderados" element={<Apoderados />} /><Route path="/apoderados-pro" element={<ApoderadosPro />} />
                     <Route path="/comunicaciones" element={<CommunicationsHub />} /><Route path="/comunicaciones/grupos" element={<WhatsAppGroups />} /><Route path="/alumnos" element={<Alumnos />} /><Route path="/jugadores" element={<Navigate to="/alumnos" replace />} />
                     <Route path="/matricula" element={<Matricula />} /><Route path="/inscripciones" element={<InscripcionesDeportivas />} /><Route path="/importacion" element={<Importacion />} /><Route path="/asistencias" element={<Asistencias />} /><Route path="/uniformes" element={<Uniformes />} />
+                    <Route path="/amistosos" element={<Amistosos />} />
                     <Route path="/torneos" element={<Torneos />} /><Route path="/torneos/almacen" element={<TorneosArchivados />} /><Route path="/nuevo-torneo" element={<NuevoTorneo />} /><Route path="/torneos/:id" element={<GestionarTorneo />} />
                     <Route path="/partidos" element={<EventosRendimiento />} /><Route path="/rendimiento" element={<Navigate to="/partidos" replace />} /><Route path="/rendimiento/analitica" element={<RendimientoAnalytics />} />
                     <Route path="/finanzas" element={<Finanzas />} /><Route path="/suscripcion" element={<Subscription />} /><Route path="/configuracion" element={<Configuracion />} /><Route path="/privacidad" element={<PrivacyRequests />} />
