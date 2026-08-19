@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import api from '../api/axiosConfig';
 import { useAppDialog } from '../contexts/DialogContext';
-import { supabase } from '../config/supabase';
 
 type Socials = { instagram?: string; facebook?: string; tiktok?: string; youtube?: string; website?: string };
 type Photo = { id:string; url:string; storage_path:string; alt_text?:string|null; orden:number };
@@ -14,6 +13,7 @@ type PublicConfig = {
   pagina_color_fondo:string;
   pagina_rrss:Socials;
   fotos:Photo[];
+  url?:string;
 };
 
 const defaults:PublicConfig={
@@ -29,24 +29,28 @@ const socialFields:Array<[keyof Socials,string,string]> = [
   ['website','Sitio web','https://tuacademia.cl'],
 ];
 const allowedTypes=new Set(['image/jpeg','image/png','image/webp']);
-const extensionFor=(type:string)=>type==='image/png'?'png':type==='image/webp'?'webp':'jpg';
 
 export default function PublicPageEditor({academyName}:{academyName:string}){
-  const {user}=useAuth();
   const {notify}=useAppDialog();
   const [config,setConfig]=useState<PublicConfig>(defaults);
   const [loading,setLoading]=useState(true);
   const [saving,setSaving]=useState(false);
   const [uploading,setUploading]=useState(false);
 
+  const normalize=(data:any):PublicConfig=>({
+    ...defaults,
+    ...(data||{}),
+    pagina_rrss:{...(data?.pagina_rrss||{})},
+    fotos:Array.isArray(data?.fotos)?data.fotos:[],
+  });
+
   const load=async()=>{
     setLoading(true);
     try{
-      const {data,error}=await supabase.rpc('lestra_public_page_config_get');
-      if(error) throw error;
-      setConfig({...defaults,...(data||{}),pagina_rrss:{...(data?.pagina_rrss||{})},fotos:Array.isArray(data?.fotos)?data.fotos:[]});
+      const response=await api.get('/api/public/page-admin');
+      setConfig(normalize(response.data?.data));
     }catch(error:any){
-      await notify(error?.message||'No fue posible cargar la página pública.',{title:academyName});
+      await notify(error?.response?.data?.error||'No fue posible cargar la página pública.',{title:academyName});
     }finally{setLoading(false);}
   };
   useEffect(()=>{void load();},[]);
@@ -54,53 +58,52 @@ export default function PublicPageEditor({academyName}:{academyName:string}){
   const save=async()=>{
     setSaving(true);
     try{
-      const {data,error}=await supabase.rpc('lestra_public_page_config_save',{
-        p_slug:config.subdominio,
-        p_description:config.descripcion_publica||'',
-        p_active:config.pagina_publica_activa,
-        p_primary:config.pagina_color_primario,
-        p_secondary:config.pagina_color_secundario,
-        p_background:config.pagina_color_fondo,
-        p_socials:config.pagina_rrss,
+      const response=await api.put('/api/public/page-admin',{
+        slug:config.subdominio,
+        descripcion:config.descripcion_publica||'',
+        activa:config.pagina_publica_activa,
+        color_primario:config.pagina_color_primario,
+        color_secundario:config.pagina_color_secundario,
+        color_fondo:config.pagina_color_fondo,
+        rrss:config.pagina_rrss,
       });
-      if(error) throw error;
-      setConfig({...defaults,...(data||{}),pagina_rrss:{...(data?.pagina_rrss||{})},fotos:Array.isArray(data?.fotos)?data.fotos:[]});
+      setConfig(normalize(response.data?.data));
       await notify('Página pública actualizada. Los colores solo afectan esta página.',{title:academyName});
     }catch(error:any){
-      await notify(error?.message||'No fue posible guardar la página pública.',{title:academyName});
+      await notify(error?.response?.data?.error||'No fue posible guardar la página pública.',{title:academyName});
     }finally{setSaving(false);}
   };
 
   const uploadPhoto=async(event:React.ChangeEvent<HTMLInputElement>)=>{
     const file=event.target.files?.[0]; event.target.value='';
-    if(!file||!user?.academia_id) return;
+    if(!file) return;
     if(config.fotos.length>=6) return void notify('La galería permite hasta 6 fotos.',{title:academyName});
     if(!allowedTypes.has(file.type)) return void notify('Usa imágenes JPG, PNG o WEBP.',{title:academyName});
     if(file.size>5*1024*1024) return void notify('Cada foto puede pesar hasta 5 MB.',{title:academyName});
     setUploading(true);
-    const path=`${user.academia_id}/${crypto.randomUUID()}.${extensionFor(file.type)}`;
     try{
-      const {error:uploadError}=await supabase.storage.from('academia-publica').upload(path,file,{contentType:file.type,cacheControl:'3600',upsert:false});
-      if(uploadError) throw uploadError;
-      const url=supabase.storage.from('academia-publica').getPublicUrl(path).data.publicUrl;
-      const {data,error}=await supabase.rpc('lestra_public_page_photo_add',{p_path:path,p_url:url,p_alt:`Foto de ${academyName}`});
-      if(error){await supabase.storage.from('academia-publica').remove([path]); throw error;}
-      setConfig((current)=>({...current,fotos:[...current.fotos,data as Photo]}));
-    }catch(error:any){await notify(error?.message||'No fue posible subir la foto.',{title:academyName});}
-    finally{setUploading(false);}
+      const form=new FormData();
+      form.append('photo',file);
+      form.append('alt_text',`Foto de ${academyName}`);
+      const response=await api.post('/api/public/page-admin/photos',form,{headers:{'Content-Type':'multipart/form-data'}});
+      const photo=response.data?.data as Photo;
+      setConfig((current)=>({...current,fotos:[...current.fotos,photo]}));
+    }catch(error:any){
+      await notify(error?.response?.data?.error||'No fue posible subir la foto.',{title:academyName});
+    }finally{setUploading(false);}
   };
 
   const removePhoto=async(photo:Photo)=>{
     try{
-      const {data:path,error}=await supabase.rpc('lestra_public_page_photo_delete',{p_photo_id:photo.id});
-      if(error) throw error;
+      await api.delete(`/api/public/page-admin/photos/${photo.id}`);
       setConfig((current)=>({...current,fotos:current.fotos.filter((item)=>item.id!==photo.id)}));
-      if(path) await supabase.storage.from('academia-publica').remove([String(path)]);
-    }catch(error:any){await notify(error?.message||'No fue posible eliminar la foto.',{title:academyName});}
+    }catch(error:any){
+      await notify(error?.response?.data?.error||'No fue posible eliminar la foto.',{title:academyName});
+    }
   };
 
   if(loading)return <section className="rounded-2xl border border-white/10 bg-[#151b25] p-6 text-sm font-bold text-sky-200">Cargando página pública...</section>;
-  const url=config.subdominio?`https://lestra.app/a/${config.subdominio}`:'';
+  const url=config.url||config.subdominio?`https://lestra.app/a/${config.subdominio}`:'';
   const colorFields:Array<[keyof PublicConfig,string]>=[['pagina_color_primario','Color principal'],['pagina_color_secundario','Color de acento'],['pagina_color_fondo','Fondo']];
 
   return <section className="rounded-2xl border border-white/10 bg-[#151b25] p-5 sm:p-6">
