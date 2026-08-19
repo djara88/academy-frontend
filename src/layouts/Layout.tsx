@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   AcademicCapIcon, BanknotesIcon, Bars3Icon, BuildingOffice2Icon, CalendarDaysIcon,
-  ChartBarIcon, ChatBubbleLeftRightIcon, ClipboardDocumentCheckIcon, Cog6ToothIcon, HomeIcon,
+  ChartBarIcon, ChatBubbleLeftRightIcon, ClipboardDocumentCheckIcon, Cog6ToothIcon, HeartIcon, HomeIcon,
   MoonIcon, PaintBrushIcon, ShieldCheckIcon, ShoppingBagIcon, SunIcon,
   TrophyIcon, UserGroupIcon, UserPlusIcon, UsersIcon, XMarkIcon, ServerStackIcon,
 } from '@heroicons/react/24/outline';
@@ -39,6 +39,7 @@ const directorItems: NavItem[] = [
   { to: '/torneos', label: 'Torneos', icon: TrophyIcon, feature: 'torneos' },
   { to: '/partidos', label: 'Eventos y Rendimiento', icon: CalendarDaysIcon, feature: 'partidos' },
   { to: '/rendimiento/analitica', label: 'Analítica deportiva', icon: ChartBarIcon, feature: 'analitica_avanzada', badge: 'ALTO' },
+  { to: '/salud-deportiva', label: 'Salud y disponibilidad', icon: HeartIcon, feature: 'ficha_medica', badge: 'ALTO' },
   { to: '/finanzas', label: 'Finanzas academia', icon: BanknotesIcon, feature: 'finanzas' },
   { to: '/configuracion', label: 'Configuración', icon: Cog6ToothIcon },
   { to: '/privacidad', label: 'Privacidad', icon: ShieldCheckIcon },
