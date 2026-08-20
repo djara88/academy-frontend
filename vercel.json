@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    {
+      "source": "/pago-resultado",
+      "destination": "/pagar/resultado",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
