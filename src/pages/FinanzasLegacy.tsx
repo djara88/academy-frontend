@@ -5,10 +5,10 @@ import FinanceSchoolDashboard from '../components/FinanceSchoolDashboard';
 
 type Branch = { id: string; nombre: string; disciplina: string; sedes?: { id: string; nombre: string } | null };
 type Summary = { totalIngresosReales: number; totalPorCobrar: number; totalVencido: number; totalPorVencer: number; totalEgresos: number; balanceNeto: number; totalAlumnos: number; alumnosMorosos: number; tasaMorosidad: number };
-type Charge = { id: string; concepto: string; tipo_concepto?: string | null; monto: number; monto_pagado: number; estado: string; fecha_vencimiento?: string | null };
-type Account = { id: string; nombre: string; tutores?: { nombre_completo?: string | null; telefono?: string | null } | null; cobros?: Charge[]; saldoTotalPendiente?: number; saldoPendiente?: number };
+type Charge = { id: string; concepto: string; tipo_concepto?: string | null; monto: number; monto_pagado: number; estado: string; fecha_vencimiento?: string | null; rama_id?: string | null };
+type Account = { id: string; nombre: string; tutores?: { nombre_completo?: string | null; telefono?: string | null } | null; cobros: Charge[]; saldoTotalPendiente: number; saldoPendiente: number; alDia: boolean };
 type Payment = { id: string; monto: number; metodo_pago?: string | null; fecha_pago?: string | null; cobro?: { concepto?: string | null } | null; jugador?: { nombre?: string | null } | null };
-type Expense = { id: string; concepto: string; categoria_gasto?: string | null; centro_costo?: string | null; monto: number; metodo_pago?: string | null; fecha_gasto?: string | null };
+type Expense = { id: string; concepto: string; categoria_gasto?: string | null; centro_costo?: string | null; monto: number; metodo_pago?: string | null; fecha_gasto?: string | null; rama_id?: string | null };
 type FlowRow = { id: string; tipo: 'Ingreso' | 'Egreso'; concepto: string; monto: number; fecha?: string | null; metodo?: string | null; categoria?: string | null };
 type Tab = 'dashboard' | 'cuentas' | 'pagos' | 'egresos' | 'flujo';
 
