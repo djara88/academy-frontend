@@ -1,15 +1,18 @@
 import { Link } from 'react-router-dom';
 import { Logo } from '../components/Logo';
 
+const DEPORTIVO_URL = 'https://deportivo.lestra.app';
+
 const products = [
   {
     key: 'deportivo',
     eyebrow: 'Disponible',
     title: 'Lestra Deportivo',
     description: 'Gestión integral para academias, clubes y organizaciones deportivas: administra, compite y optimiza.',
-    href: '/deportivo',
+    href: DEPORTIVO_URL,
     cta: 'Conocer Deportivo',
     accent: 'from-[#3157FF]/30 to-[#3157FF]/5',
+    external: true,
   },
   {
     key: 'learn',
@@ -19,6 +22,7 @@ const products = [
     href: '/learn',
     cta: 'Conocer visión',
     accent: 'from-[#14B8A6]/25 to-[#14B8A6]/5',
+    external: false,
   },
   {
     key: 'profe',
@@ -28,6 +32,7 @@ const products = [
     href: '/profe',
     cta: 'Conocer visión',
     accent: 'from-[#B8FF3D]/20 to-[#B8FF3D]/5',
+    external: false,
   },
 ] as const;
 
@@ -49,12 +54,12 @@ const LestraHub = () => (
         </Link>
 
         <div className="flex items-center gap-2">
-          <Link to="/deportivo" className="hidden rounded-xl px-4 py-2 text-sm font-bold text-[#C4CEDB] transition hover:bg-white/5 hover:text-white sm:inline-flex">
+          <a href={DEPORTIVO_URL} className="hidden rounded-xl px-4 py-2 text-sm font-bold text-[#C4CEDB] transition hover:bg-white/5 hover:text-white sm:inline-flex">
             Soluciones
-          </Link>
-          <Link to="/login" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-black transition hover:border-[#3157FF]/60 hover:bg-[#3157FF]/10">
-            Ingresar
-          </Link>
+          </a>
+          <a href={`${DEPORTIVO_URL}/login`} className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-black transition hover:border-[#3157FF]/60 hover:bg-[#3157FF]/10">
+            Ingresar a Deportivo
+          </a>
         </div>
       </div>
     </header>
@@ -83,9 +88,15 @@ const LestraHub = () => (
                 </span>
                 <h2 className="mt-8 text-3xl font-black tracking-[-0.03em]">{product.title}</h2>
                 <p className="mt-4 min-h-24 text-sm leading-7 text-[#AAB5C5]">{product.description}</p>
-                <Link to={product.href} className="mt-7 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-[#08101B] transition group-hover:bg-[#EAF0F7]">
-                  {product.cta}<span aria-hidden="true">→</span>
-                </Link>
+                {product.external ? (
+                  <a href={product.href} className="mt-7 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-[#08101B] transition group-hover:bg-[#EAF0F7]">
+                    {product.cta}<span aria-hidden="true">→</span>
+                  </a>
+                ) : (
+                  <Link to={product.href} className="mt-7 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-[#08101B] transition group-hover:bg-[#EAF0F7]">
+                    {product.cta}<span aria-hidden="true">→</span>
+                  </Link>
+                )}
               </div>
             </article>
           ))}
@@ -109,8 +120,8 @@ const LestraHub = () => (
               <p className="mt-3 max-w-2xl text-[#AAB5C5]">El sistema que ya construimos sigue funcionando completo. La diferencia es que ahora pasa a ser el primer producto de una plataforma mayor.</p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Link to="/deportivo" className="rounded-xl bg-[#3157FF] px-5 py-3 text-sm font-black shadow-[0_14px_35px_rgba(49,87,255,.28)]">Explorar Deportivo</Link>
-              <Link to="/login" className="rounded-xl border border-white/15 px-5 py-3 text-sm font-black">Ingresar</Link>
+              <a href={DEPORTIVO_URL} className="rounded-xl bg-[#3157FF] px-5 py-3 text-sm font-black shadow-[0_14px_35px_rgba(49,87,255,.28)]">Explorar Deportivo</a>
+              <a href={`${DEPORTIVO_URL}/login`} className="rounded-xl border border-white/15 px-5 py-3 text-sm font-black">Ingresar</a>
             </div>
           </div>
         </div>
