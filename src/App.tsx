@@ -25,6 +25,7 @@ const AdmissionRequests = lazy(() => import('./pages/AdmissionRequests'));
 const InscripcionesDeportivas = lazy(() => import('./pages/InscripcionesDeportivasEnhanced'));
 const PreMatriculaPublica = lazy(() => import('./pages/PreMatriculaPublica'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
+const CollectionPortal = lazy(() => import('./pages/CollectionPortal'));
 const Importacion = lazy(() => import('./pages/Importacion'));
 const Amistosos = lazy(() => import('./pages/Amistosos'));
 const Torneos = lazy(() => import('./pages/TorneosMultirama'));
@@ -117,6 +118,8 @@ const App = () => (
               <Routes>
                 <Route path="/prematricula/:token" element={<PreMatriculaPublica />} />
                 <Route path="/a/:slug" element={<PublicAcademy />} />
+                <Route path="/a/:slug/pagos" element={<CollectionPortal />} />
+                <Route path="/pagar/:token" element={<CollectionPortal />} />
                 <Route element={<PublicRoutes />}>
                   <Route path="/" element={<LandingHome />} />
                   <Route path="/deportivo" element={<ProductHome />} />
