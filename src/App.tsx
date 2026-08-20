@@ -12,7 +12,9 @@ import { BRAND } from './config/brand';
 
 const Layout = lazy(() => import('./layouts/Layout'));
 const SuperadminMfaGate = lazy(() => import('./components/SuperadminMfaGate'));
-const Home = lazy(() => import('./pages/HomeCommercial'));
+const ProductHome = lazy(() => import('./pages/HomeCommercial'));
+const LestraHub = lazy(() => import('./pages/LestraHub'));
+const LestraProductPreview = lazy(() => import('./pages/LestraProductPreview'));
 const Login = lazy(() => import('./pages/Login'));
 const Registro = lazy(() => import('./pages/Registro'));
 const CompletarPerfil = lazy(() => import('./pages/CompletarPerfil'));
@@ -59,6 +61,12 @@ const CommunicationsHub = lazy(() => import('./pages/CommunicationsHub'));
 const WhatsAppGroups = lazy(() => import('./pages/WhatsAppGroups'));
 
 const queryClient = new QueryClient();
+
+const LandingHome = () => {
+  const hostname = window.location.hostname.toLowerCase();
+  const isLestraPlatformHost = hostname === 'lestra.app' || hostname === 'www.lestra.app';
+  return isLestraPlatformHost ? <LestraHub /> : <ProductHome />;
+};
 
 const ProtectedRoutes = () => {
   const { user, loading } = useAuth();
@@ -109,7 +117,14 @@ const App = () => (
               <Routes>
                 <Route path="/prematricula/:token" element={<PreMatriculaPublica />} />
                 <Route path="/a/:slug" element={<PublicAcademy />} />
-                <Route element={<PublicRoutes />}><Route path="/" element={<Home />} /><Route path="/login" element={<Login />} /><Route path="/registro" element={<Registro />} /></Route>
+                <Route element={<PublicRoutes />}>
+                  <Route path="/" element={<LandingHome />} />
+                  <Route path="/deportivo" element={<ProductHome />} />
+                  <Route path="/learn" element={<LestraProductPreview product="learn" />} />
+                  <Route path="/profe" element={<LestraProductPreview product="profe" />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/registro" element={<Registro />} />
+                </Route>
                 <Route path="/completar-perfil" element={<CompletarPerfil />} />
                 <Route path="/cambiar-password" element={<CambiarPassword />} />
                 <Route element={<ProtectedRoutes />}>
