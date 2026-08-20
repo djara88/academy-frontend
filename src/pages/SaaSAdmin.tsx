@@ -3,6 +3,7 @@ import api from '../api/axiosConfig';
 import { BRAND } from '../config/brand';
 import { useAppDialog } from '../contexts/DialogContext';
 import { useAdminTheme } from '../contexts/AdminThemeContext';
+import SubscriptionChangeRequestsPanel from '../components/SubscriptionChangeRequestsPanel';
 
 interface Academia {
   id: string;
@@ -42,7 +43,6 @@ const SaaSAdmin = () => {
   const [uploading, setUploading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // Formulario unificado (Crear y Editar)
   const [nombre, setNombre] = useState('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [direccion, setDireccion] = useState('');
@@ -82,12 +82,12 @@ const SaaSAdmin = () => {
 
   const openEditModal = (a: Academia) => {
     setEditingId(a.id);
-    setNombre(a.nombre); 
-    setLogoFile(null); 
-    setDireccion(a.direccion || ''); 
-    setTelefono(a.telefono || ''); 
-    setCorreoAcademia(a.correo_academia || ''); 
-    setNombreDirector(a.nombre_director || ''); 
+    setNombre(a.nombre);
+    setLogoFile(null);
+    setDireccion(a.direccion || '');
+    setTelefono(a.telefono || '');
+    setCorreoAcademia(a.correo_academia || '');
+    setNombreDirector(a.nombre_director || '');
     setDirectorEmail(a.director_email);
     setPlan(a.plan_codigo || (a.plan === 'Alto Rendimiento' ? 'alto_rendimiento' : a.plan === 'Competencia' ? 'competencia' : 'formacion'));
     setGuardianLicense(a.licencia_apoderados === true);
@@ -128,7 +128,7 @@ const SaaSAdmin = () => {
         await api.post('/api/academias', formData);
         notify('Academia creada exitosamente.');
       }
-      
+
       setShowModal(false);
       fetchAcademias();
     } catch (err: any) {
@@ -164,7 +164,7 @@ const SaaSAdmin = () => {
   const totalAcademias = academias.length;
   const activas = academias.filter(a => a.estado === 'Activa').length;
   const totalJugadores = academias.reduce((acc, curr) => acc + (curr.jugadores_count || 0), 0);
-  
+
   const mrrClp = academias.filter((a) => a.subscription_status === 'active' && a.estado === 'Activa').reduce((sum, academy) => sum + Number(academy.plan_price_clp || 0) + Number(academy.guardian_price_clp || 0), 0);
   const panel = light ? 'border-slate-200 bg-white shadow-sm' : 'border-gray-800 bg-[#1C212D]';
   const text = light ? 'text-slate-950' : 'text-white';
@@ -173,14 +173,14 @@ const SaaSAdmin = () => {
 
   return (
     <div className="space-y-8 pb-12">
-      
+
       <div className={`flex items-center justify-between border-b pb-6 ${light ? 'border-slate-200' : 'border-gray-800'}`}>
         <div>
           <h1 className={`flex items-center gap-3 text-3xl font-bold ${text}`}>
             <span>🏢</span> Gestión de academias
           </h1>
           <p className={`mt-1 text-sm ${muted}`}>
-            Altas, licencias, planes y accesos de cada organización.
+            Altas, licencias, contratos y accesos de cada organización.
           </p>
         </div>
         <button onClick={openCreateModal} className="bg-[#289E9D] hover:bg-[#1f7a79] text-white font-bold px-5 py-2.5 rounded-lg transition-colors flex items-center gap-2 shadow-lg">
@@ -207,6 +207,8 @@ const SaaSAdmin = () => {
           <p className="text-3xl font-extrabold text-emerald-400 mt-2">100% OK</p>
         </div>
       </div>
+
+      <SubscriptionChangeRequestsPanel />
 
       <div className={`overflow-hidden rounded-xl border ${panel}`}>
         <div className="p-6 border-b border-gray-800">
@@ -244,7 +246,6 @@ const SaaSAdmin = () => {
                       <div className="text-xs text-gray-500">{a.director_email}</div>
                     </td>
                     <td className="p-4">
-                      {/* Ahora esto es solo texto visual, no un <select> */}
                       <div className={`font-semibold ${text}`}>{a.plan}</div>
                       {a.subscription_status === 'trialing' ? <div className="mt-1 text-[11px] font-black text-amber-400">Prueba Full · vence {a.trial_ends_at ? new Date(a.trial_ends_at).toLocaleDateString('es-CL') : 'sin fecha'}</div> : null}
                       <div className={`mt-1 inline-block rounded-full border px-2 py-0.5 text-[10px] font-bold ${a.licencia_apoderados ? 'border-cyan-700 bg-cyan-900/40 text-cyan-200' : 'border-gray-700 text-gray-500'}`}>Apoderados: {a.licencia_apoderados ? 'Licencia activa' : 'Sin licencia'}</div>
@@ -271,17 +272,16 @@ const SaaSAdmin = () => {
         )}
       </div>
 
-      {/* MODAL CREAR/EDITAR ACADEMIA */}
       {showModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 overflow-y-auto">
           <div className="bg-[#1C212D] p-6 rounded-xl border border-gray-800 max-w-2xl w-full my-8">
             <h3 className="text-xl font-bold text-white mb-6 border-b border-gray-800 pb-4">
               {editingId ? 'Editar Academia' : 'Registrar Nueva Academia'}
             </h3>
-            
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                
+
                 <div className="space-y-4">
                   <h4 className="text-[#289E9D] text-sm font-bold uppercase">Datos Institucionales</h4>
                   <div>
@@ -310,19 +310,20 @@ const SaaSAdmin = () => {
                   </div>
                   <div>
                     <label className="block text-xs text-gray-400 mb-1">Correo Director (Login) *</label>
-                    <input type="email" value={directorEmail} onChange={(e) => setDirectorEmail(e.target.value)} className="w-full bg-[#131722] border border-gray-700 rounded p-2 text-white text-sm focus:outline-none" required disabled={!!editingId} title={editingId ? "No se puede cambiar el correo de login al editar" : ""} />
+                    <input type="email" value={directorEmail} onChange={(e) => setDirectorEmail(e.target.value)} className="w-full bg-[#131722] border border-gray-700 rounded p-2 text-white text-sm focus:outline-none" required disabled={!!editingId} title={editingId ? 'No se puede cambiar el correo de login al editar' : ''} />
                   </div>
                   <div>
                     <label className="block text-xs text-gray-400 mb-1">Plan SaaS *</label>
                     <select value={plan} onChange={(e) => setPlan(e.target.value as PlanCode)} className="w-full bg-[#131722] border border-gray-700 rounded p-2 text-white text-sm focus:outline-none">
-                      <option value="formacion">Formación · 100 jugadores · 3 profesores</option>
+                      <option value="formacion">Formación · 100 jugadores · 5 profesores</option>
                       <option value="competencia">Competencia · 300 jugadores · 10 profesores</option>
                       <option value="alto_rendimiento">Alto Rendimiento · jugadores sin límite · 30 profesores</option>
                     </select>
+                    {editingId ? <p className="mt-1 text-[11px] text-amber-300/80">Uso administrativo excepcional. Los directores cambian de plan mediante solicitud y aprobación contractual.</p> : null}
                   </div>
                   {editingTrial ? <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3"><div><span className="block text-sm font-black text-amber-100">Activar plan ahora</span><span className="mt-1 block text-xs text-amber-200/70">Al marcarlo finalizarás la prueba Full y aplicarás el plan seleccionado.</span></div><input type="checkbox" checked={activateSubscription} onChange={(event) => setActivateSubscription(event.target.checked)} className="mt-1 h-5 w-5 accent-amber-500" /></label> : null}
                   <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-cyan-900/60 bg-cyan-950/25 p-3">
-                    <div><span className="block text-sm font-black text-cyan-100">Licencia Apoderados</span><span className="mt-1 block text-xs text-cyan-300/70">Complemento con cobro separado; no pertenece a ningún plan base.</span></div>
+                    <div><span className="block text-sm font-black text-cyan-100">Licencia Apoderados</span><span className="mt-1 block text-xs text-cyan-300/70">Parte del contrato comercial cuando la academia ya tiene un plan pagado.</span></div>
                     <input type="checkbox" checked={guardianLicense} onChange={(event) => setGuardianLicense(event.target.checked)} className="mt-1 h-5 w-5 accent-[#289E9D]" />
                   </label>
                   {editingId && (
