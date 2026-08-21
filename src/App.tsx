@@ -9,6 +9,8 @@ import { AdminThemeProvider } from './contexts/AdminThemeContext';
 import { usePresenceHeartbeat } from './hooks/usePresenceHeartbeat';
 import { isGuardianRole, isProfessorRole, isSuperAdminRole } from './utils/roles';
 import { BRAND } from './config/brand';
+import LestraRealtimeProvider from './realtime/LestraRealtimeProvider';
+import RealtimeRouteBoundary from './realtime/RealtimeRouteBoundary';
 
 const Layout = lazy(() => import('./layouts/Layout'));
 const SuperadminMfaGate = lazy(() => import('./components/SuperadminMfaGate'));
@@ -62,7 +64,15 @@ const EstructuraAcademia = lazy(() => import('./pages/EstructuraAcademia'));
 const CommunicationsHub = lazy(() => import('./pages/CommunicationsHub'));
 const WhatsAppGroups = lazy(() => import('./pages/WhatsAppGroups'));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+      retry: 1,
+    },
+  },
+});
 const GOOGLE_LOGIN_INTENT_KEY = 'lestra_google_login_intent';
 
 const LandingHome = () => {
@@ -99,7 +109,7 @@ const DirectorRoutes = () => {
   if (isSuperAdminRole(user?.rol)) return <Navigate to="/admin" replace />;
   if (isProfessorRole(user?.rol)) return <Navigate to="/profesor" replace />;
   if (isGuardianRole(user?.rol)) return <Navigate to="/apoderado" replace />;
-  return <Outlet />;
+  return <RealtimeRouteBoundary><Outlet /></RealtimeRouteBoundary>;
 };
 
 const SuperAdminRoutes = () => {
@@ -107,7 +117,7 @@ const SuperAdminRoutes = () => {
   if (!isSuperAdminRole(user?.rol)) return <Navigate to="/dashboard" replace />;
   return <SuperadminMfaGate><Outlet /></SuperadminMfaGate>;
 };
-const ProfessorRoute = () => { const { user } = useAuth(); return isProfessorRole(user?.rol) ? <ProfesorPortal /> : <Navigate to="/dashboard" replace />; };
+const ProfessorRoute = () => { const { user } = useAuth(); return isProfessorRole(user?.rol) ? <RealtimeRouteBoundary><ProfesorPortal /></RealtimeRouteBoundary> : <Navigate to="/dashboard" replace />; };
 const GuardianRoute = () => { const { user } = useAuth(); return isGuardianRole(user?.rol) ? <ApoderadoPortal /> : <Navigate to="/dashboard" replace />; };
 const GuardianChatRoute = () => { const { user } = useAuth(); return isGuardianRole(user?.rol) ? <ChatCenter /> : <Navigate to="/dashboard" replace />; };
 
@@ -116,53 +126,55 @@ const App = () => (
     <DialogProvider>
       <AdminThemeProvider>
         <AuthProvider>
-          <BrowserRouter>
-            <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">Cargando {BRAND.name}...</div>}>
-              <Routes>
-                <Route path="/prematricula/:token" element={<PreMatriculaPublica />} />
-                <Route path="/a/:slug" element={<PublicAcademy />} />
-                <Route path="/a/:slug/pagos" element={<CollectionPortal />} />
-                <Route path="/pagar/:token" element={<CollectionPortal />} />
-                <Route path="/auth/callback" element={<AuthCallback />} />
+          <LestraRealtimeProvider>
+            <BrowserRouter>
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">Cargando {BRAND.name}...</div>}>
+                <Routes>
+                  <Route path="/prematricula/:token" element={<PreMatriculaPublica />} />
+                  <Route path="/a/:slug" element={<PublicAcademy />} />
+                  <Route path="/a/:slug/pagos" element={<CollectionPortal />} />
+                  <Route path="/pagar/:token" element={<CollectionPortal />} />
+                  <Route path="/auth/callback" element={<AuthCallback />} />
 
-                {/* Marketing pages must remain visible even when the visitor already has an active session. */}
-                <Route path="/" element={<LandingHome />} />
-                <Route path="/deportivo" element={<ProductHome />} />
-                <Route path="/learn" element={<LestraProductPreview product="learn" />} />
-                <Route path="/profe" element={<LestraProductPreview product="profe" />} />
+                  {/* Marketing pages must remain visible even when the visitor already has an active session. */}
+                  <Route path="/" element={<LandingHome />} />
+                  <Route path="/deportivo" element={<ProductHome />} />
+                  <Route path="/learn" element={<LestraProductPreview product="learn" />} />
+                  <Route path="/profe" element={<LestraProductPreview product="profe" />} />
 
-                <Route element={<PublicRoutes />}>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/registro" element={<Registro />} />
-                </Route>
-                <Route path="/completar-perfil" element={<CompletarPerfil />} />
-                <Route path="/cambiar-password" element={<CambiarPassword />} />
-                <Route element={<ProtectedRoutes />}>
-                  <Route path="/profesor" element={<ProfessorRoute />} />
-                  <Route path="/apoderado" element={<GuardianRoute />} />
-                  <Route path="/apoderado/mensajes" element={<GuardianChatRoute />} />
-                  <Route element={<SuperAdminRoutes />}>
-                    <Route path="/admin" element={<AdminDashboard />} />
-                    <Route path="/admin/academias" element={<SaaSAdmin />} />
-                    <Route path="/admin/finanzas" element={<AdminFinance />} />
-                    <Route path="/admin/perfil" element={<AdminProfile />} />
-                    <Route path="/admin/monitor" element={<AdminMonitor />} />
+                  <Route element={<PublicRoutes />}>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/registro" element={<Registro />} />
                   </Route>
-                  <Route element={<DirectorRoutes />}>
-                    <Route path="/dashboard" element={<Dashboard />} /><Route path="/profesores" element={<Profesores />} /><Route path="/apoderados" element={<Apoderados />} /><Route path="/apoderados-pro" element={<ApoderadosPro />} />
-                    <Route path="/comunicaciones" element={<CommunicationsHub />} /><Route path="/comunicaciones/grupos" element={<WhatsAppGroups />} /><Route path="/alumnos" element={<Alumnos />} /><Route path="/jugadores" element={<Navigate to="/alumnos" replace />} />
-                    <Route path="/solicitudes" element={<AdmissionRequests />} /><Route path="/matricula" element={<Matricula />} /><Route path="/inscripciones" element={<InscripcionesDeportivas />} /><Route path="/importacion" element={<Importacion />} /><Route path="/asistencias" element={<Asistencias />} /><Route path="/uniformes" element={<Uniformes />} />
-                    <Route path="/amistosos" element={<Amistosos />} />
-                    <Route path="/torneos" element={<Torneos />} /><Route path="/torneos/almacen" element={<TorneosArchivados />} /><Route path="/nuevo-torneo" element={<NuevoTorneo />} /><Route path="/torneos/:id" element={<GestionarTorneo />} />
-                    <Route path="/partidos" element={<EventosRendimiento />} /><Route path="/rendimiento" element={<Navigate to="/partidos" replace />} /><Route path="/rendimiento/analitica" element={<RendimientoAnalytics />} /><Route path="/salud-deportiva" element={<SaludDisponibilidad />} />
-                    <Route path="/finanzas" element={<Finanzas />} /><Route path="/suscripcion" element={<Subscription />} /><Route path="/configuracion" element={<Configuracion />} /><Route path="/privacidad" element={<PrivacyRequests />} />
-                    <Route path="/configuracion/perfil" element={<PerfilAcademia />} /><Route path="/configuracion/estructura" element={<EstructuraAcademia />} /><Route path="/terminos" element={<Terminos />} /><Route path="/whatsapp" element={<WhatsApp />} /><Route path="/configuracion/finanzas" element={<FinanzasConfig />} />
+                  <Route path="/completar-perfil" element={<CompletarPerfil />} />
+                  <Route path="/cambiar-password" element={<CambiarPassword />} />
+                  <Route element={<ProtectedRoutes />}>
+                    <Route path="/profesor" element={<ProfessorRoute />} />
+                    <Route path="/apoderado" element={<GuardianRoute />} />
+                    <Route path="/apoderado/mensajes" element={<GuardianChatRoute />} />
+                    <Route element={<SuperAdminRoutes />}>
+                      <Route path="/admin" element={<AdminDashboard />} />
+                      <Route path="/admin/academias" element={<SaaSAdmin />} />
+                      <Route path="/admin/finanzas" element={<AdminFinance />} />
+                      <Route path="/admin/perfil" element={<AdminProfile />} />
+                      <Route path="/admin/monitor" element={<AdminMonitor />} />
+                    </Route>
+                    <Route element={<DirectorRoutes />}>
+                      <Route path="/dashboard" element={<Dashboard />} /><Route path="/profesores" element={<Profesores />} /><Route path="/apoderados" element={<Apoderados />} /><Route path="/apoderados-pro" element={<ApoderadosPro />} />
+                      <Route path="/comunicaciones" element={<CommunicationsHub />} /><Route path="/comunicaciones/grupos" element={<WhatsAppGroups />} /><Route path="/alumnos" element={<Alumnos />} /><Route path="/jugadores" element={<Navigate to="/alumnos" replace />} />
+                      <Route path="/solicitudes" element={<AdmissionRequests />} /><Route path="/matricula" element={<Matricula />} /><Route path="/inscripciones" element={<InscripcionesDeportivas />} /><Route path="/importacion" element={<Importacion />} /><Route path="/asistencias" element={<Asistencias />} /><Route path="/uniformes" element={<Uniformes />} />
+                      <Route path="/amistosos" element={<Amistosos />} />
+                      <Route path="/torneos" element={<Torneos />} /><Route path="/torneos/almacen" element={<TorneosArchivados />} /><Route path="/nuevo-torneo" element={<NuevoTorneo />} /><Route path="/torneos/:id" element={<GestionarTorneo />} />
+                      <Route path="/partidos" element={<EventosRendimiento />} /><Route path="/rendimiento" element={<Navigate to="/partidos" replace />} /><Route path="/rendimiento/analitica" element={<RendimientoAnalytics />} /><Route path="/salud-deportiva" element={<SaludDisponibilidad />} />
+                      <Route path="/finanzas" element={<Finanzas />} /><Route path="/suscripcion" element={<Subscription />} /><Route path="/configuracion" element={<Configuracion />} /><Route path="/privacidad" element={<PrivacyRequests />} />
+                      <Route path="/configuracion/perfil" element={<PerfilAcademia />} /><Route path="/configuracion/estructura" element={<EstructuraAcademia />} /><Route path="/terminos" element={<Terminos />} /><Route path="/whatsapp" element={<WhatsApp />} /><Route path="/configuracion/finanzas" element={<FinanzasConfig />} />
+                    </Route>
                   </Route>
-                </Route>
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Suspense>
-          </BrowserRouter>
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </Suspense>
+            </BrowserRouter>
+          </LestraRealtimeProvider>
         </AuthProvider>
       </AdminThemeProvider>
     </DialogProvider>
