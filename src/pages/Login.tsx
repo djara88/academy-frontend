@@ -5,6 +5,8 @@ import { supabase } from '../config/supabase';
 import { Logo } from '../components/Logo';
 import { BRAND } from '../config/brand';
 
+const GOOGLE_LOGIN_INTENT_KEY = 'lestra_google_login_intent';
+
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,6 +46,8 @@ const Login: React.FC = () => {
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError('');
+    sessionStorage.setItem(GOOGLE_LOGIN_INTENT_KEY, '1');
+
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -51,6 +55,7 @@ const Login: React.FC = () => {
       });
       if (error) throw error;
     } catch (err: any) {
+      sessionStorage.removeItem(GOOGLE_LOGIN_INTENT_KEY);
       console.error('Error con Google:', err);
       setError('No se pudo conectar con Google. Intenta de nuevo.');
       setLoading(false);

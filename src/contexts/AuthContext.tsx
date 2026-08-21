@@ -25,6 +25,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const MASTER_ADMIN_EMAIL = 'd.jarazerene@gmail.com';
+const GOOGLE_LOGIN_INTENT_KEY = 'lestra_google_login_intent';
 
 const isGoogleSession = (authUser: any) => {
   const provider = String(authUser?.app_metadata?.provider || '').toLowerCase();
@@ -130,6 +131,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       sessionStorage.setItem('user', JSON.stringify(newUser));
       sessionStorage.setItem('token', session.access_token);
       setLoading(false);
+
+      const shouldEnterApp =
+        (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') &&
+        sessionStorage.getItem(GOOGLE_LOGIN_INTENT_KEY) === '1';
+
+      if (shouldEnterApp) {
+        sessionStorage.removeItem(GOOGLE_LOGIN_INTENT_KEY);
+        window.location.replace('/dashboard');
+      }
     });
 
     return () => subscription.unsubscribe();
