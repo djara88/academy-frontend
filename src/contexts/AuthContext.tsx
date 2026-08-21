@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { supabase } from '../config/supabase';
 import { BRAND } from '../config/brand';
+import { getPostAuthDestination } from '../utils/authDestination';
 
 export interface User {
   id: string;
@@ -68,19 +69,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return;
       }
 
-      const { data: usuarioBD, error: profileError } = await supabase
-        .from('usuarios')
-        .select('*, academias(nombre, logo)')
-        .eq('id', session.user.id)
-        .maybeSingle();
+      const isMasterAdmin = session.user.email?.toLowerCase() === MASTER_ADMIN_EMAIL;
+      let usuarioBD: any = null;
 
-      if (profileError) {
-        clearLocalSession();
-        setLoading(false);
-        return;
+      if (!isMasterAdmin) {
+        const { data, error: profileError } = await supabase
+          .from('usuarios')
+          .select('*, academias(nombre, logo)')
+          .eq('id', session.user.id)
+          .maybeSingle();
+
+        if (profileError) {
+          clearLocalSession();
+          setLoading(false);
+          return;
+        }
+        usuarioBD = data;
       }
 
-      const isMasterAdmin = session.user.email?.toLowerCase() === MASTER_ADMIN_EMAIL;
       let newUser: User;
 
       if (isMasterAdmin) {
@@ -138,7 +144,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (shouldEnterApp) {
         sessionStorage.removeItem(GOOGLE_LOGIN_INTENT_KEY);
-        window.location.replace('/dashboard');
+        window.location.replace(getPostAuthDestination(newUser));
       }
     });
 
@@ -150,15 +156,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
       if (authError) throw authError;
 
-      const { data: usuarioBD, error: profileError } = await supabase
-        .from('usuarios')
-        .select('*, academias(nombre, logo)')
-        .eq('id', authData.user.id)
-        .maybeSingle();
-
-      if (profileError) throw profileError;
-
       const isMasterAdmin = authData.user.email?.toLowerCase() === MASTER_ADMIN_EMAIL;
+      let usuarioBD: any = null;
+
+      if (!isMasterAdmin) {
+        const { data, error: profileError } = await supabase
+          .from('usuarios')
+          .select('*, academias(nombre, logo)')
+          .eq('id', authData.user.id)
+          .maybeSingle();
+        if (profileError) throw profileError;
+        usuarioBD = data;
+      }
+
       let newUser: User;
 
       if (isMasterAdmin) {
