@@ -120,11 +120,14 @@ const App = () => (
                 <Route path="/a/:slug" element={<PublicAcademy />} />
                 <Route path="/a/:slug/pagos" element={<CollectionPortal />} />
                 <Route path="/pagar/:token" element={<CollectionPortal />} />
+
+                {/* Marketing pages must remain visible even when the visitor already has an active session. */}
+                <Route path="/" element={<LandingHome />} />
+                <Route path="/deportivo" element={<ProductHome />} />
+                <Route path="/learn" element={<LestraProductPreview product="learn" />} />
+                <Route path="/profe" element={<LestraProductPreview product="profe" />} />
+
                 <Route element={<PublicRoutes />}>
-                  <Route path="/" element={<LandingHome />} />
-                  <Route path="/deportivo" element={<ProductHome />} />
-                  <Route path="/learn" element={<LestraProductPreview product="learn" />} />
-                  <Route path="/profe" element={<LestraProductPreview product="profe" />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/registro" element={<Registro />} />
                 </Route>
