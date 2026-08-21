@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import api from '../api/axiosConfig';
 import { supabase } from '../config/supabase';
 import { Logo } from '../components/Logo';
 import PublicAdmissionForm from '../components/PublicAdmissionForm';
@@ -41,6 +40,8 @@ export default function PublicAcademy(){
         }
 
         // Fallback compatible para despliegues parciales o fallas temporales de Supabase RPC.
+        // Axios se descarga solo si realmente hace falta el fallback de Render.
+        const {default:api}=await import('../api/axiosConfig');
         const response=await api.get(`/api/public/academias/${encodeURIComponent(cleanSlug)}`);
         if(active)setData(response.data.data as Payload);
       }catch(e:any){
