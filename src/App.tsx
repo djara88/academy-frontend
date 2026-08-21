@@ -16,6 +16,7 @@ const ProductHome = lazy(() => import('./pages/HomeCommercial'));
 const LestraHub = lazy(() => import('./pages/LestraHub'));
 const LestraProductPreview = lazy(() => import('./pages/LestraProductPreview'));
 const Login = lazy(() => import('./pages/Login'));
+const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 const Registro = lazy(() => import('./pages/Registro'));
 const CompletarPerfil = lazy(() => import('./pages/CompletarPerfil'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -62,8 +63,10 @@ const CommunicationsHub = lazy(() => import('./pages/CommunicationsHub'));
 const WhatsAppGroups = lazy(() => import('./pages/WhatsAppGroups'));
 
 const queryClient = new QueryClient();
+const GOOGLE_LOGIN_INTENT_KEY = 'lestra_google_login_intent';
 
 const LandingHome = () => {
+  if (sessionStorage.getItem(GOOGLE_LOGIN_INTENT_KEY) === '1') return <AuthCallback />;
   const hostname = window.location.hostname.toLowerCase();
   const isLestraPlatformHost = hostname === 'lestra.app' || hostname === 'www.lestra.app';
   return isLestraPlatformHost ? <LestraHub /> : <ProductHome />;
@@ -120,6 +123,7 @@ const App = () => (
                 <Route path="/a/:slug" element={<PublicAcademy />} />
                 <Route path="/a/:slug/pagos" element={<CollectionPortal />} />
                 <Route path="/pagar/:token" element={<CollectionPortal />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
 
                 {/* Marketing pages must remain visible even when the visitor already has an active session. */}
                 <Route path="/" element={<LandingHome />} />

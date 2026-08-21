@@ -5,6 +5,7 @@ import api from '../api/axiosConfig';
 import { BRAND } from '../config/brand';
 import { useAdminTheme } from '../contexts/AdminThemeContext';
 import { useAppDialog } from '../contexts/DialogContext';
+import { fetchSaasAcademies, SAAS_ACADEMIES_QUERY_KEY } from '../queries/saasAcademies';
 
 type Academy = { id: string; nombre: string; plan: string; estado: string; subscription_status: string; jugadores_count?: number; subscription: { blocked: boolean; trial: boolean; remainingDays?: number | null; urgency?: string | null; reason?: string | null } };
 type Summary = { kpis: { academies: number; active: number; trials: number; blocked: number; mrrClpNet: number; mrrClpGross: number; income: number; expenses: number; net: number; receivable: number; conversionRate: number }; academies: Academy[]; alerts: { type: string; severity: string; academyId: string; academyName: string; message: string }[]; gateway: { provider: string; configured: boolean } };
@@ -22,6 +23,11 @@ const AdminDashboard = () => {
   const { data: activation, isLoading: activationLoading } = useQuery({
     queryKey: ['saas-activation-funnel', 30],
     queryFn: async () => (await api.get('/api/saas-admin/activation-funnel', { params: { days: 30 } })).data.data as ActivationFunnel,
+  });
+  const prefetchAcademies = () => queryClient.prefetchQuery({
+    queryKey: SAAS_ACADEMIES_QUERY_KEY,
+    queryFn: () => fetchSaasAcademies(),
+    staleTime: 60_000,
   });
   const panel = light ? 'border-slate-200 bg-white shadow-sm' : 'border-white/10 bg-[#1C212D]';
   const muted = light ? 'text-slate-500' : 'text-[#91a0b2]';
@@ -56,7 +62,7 @@ const AdminDashboard = () => {
 
     <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
       <div className={`rounded-2xl border p-6 ${panel}`}><div className="flex items-center justify-between"><div><p className="text-xs font-black uppercase tracking-wider text-amber-500">Atención ejecutiva</p><h2 className={`mt-1 text-2xl font-black ${text}`}>Alertas prioritarias</h2></div><BellAlertIcon className="h-8 w-8 text-amber-500" /></div><div className="mt-5 space-y-3">{data.alerts.length ? data.alerts.slice(0, 8).map((alert, index) => <article key={`${alert.type}-${alert.academyId}-${index}`} className={`flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between ${soft}`}><div><p className={`font-black ${text}`}>{alert.academyName}</p><p className={`mt-1 text-sm ${alert.severity === 'critical' ? 'text-red-500' : 'text-amber-500'}`}>{alert.message}</p></div>{alert.type === 'trial' ? <button onClick={() => void extend(alert.academyId)} className="rounded-lg border border-[#289E9D]/40 px-3 py-2 text-sm font-black text-[#289E9D]">+7 días</button> : null}</article>) : <div className={`py-10 text-center ${muted}`}><CheckCircleIcon className="mx-auto h-10 w-10 text-emerald-500" /><p className="mt-3 font-bold">No hay alertas críticas.</p></div>}</div></div>
-      <div className={`rounded-2xl border p-6 ${panel}`}><p className="text-xs font-black uppercase tracking-wider text-[#289E9D]">Resultado del mes</p><h2 className={`mt-1 text-2xl font-black ${text}`}>Caja de la plataforma</h2><div className="mt-6 space-y-4"><div className="flex justify-between"><span className={muted}>Ingresos recibidos</span><strong className="text-emerald-500">{money(data.kpis.income)}</strong></div><div className="flex justify-between"><span className={muted}>Egresos</span><strong className="text-red-500">{money(data.kpis.expenses)}</strong></div><div className={`border-t pt-4 ${light ? 'border-slate-200' : 'border-white/10'}`}><div className="flex justify-between"><span className={`font-black ${text}`}>Resultado neto</span><strong className={`text-xl ${data.kpis.net >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>{money(data.kpis.net)}</strong></div></div></div><div className="mt-7 grid gap-3"><Link to="/admin/finanzas" className="rounded-xl bg-[#289E9D] px-4 py-3 text-center font-black text-white">Abrir financiero</Link><Link to="/admin/academias" className={`rounded-xl border px-4 py-3 text-center font-black ${light ? 'border-slate-300 text-slate-700' : 'border-white/15 text-white'}`}>Gestionar academias</Link></div></div>
+      <div className={`rounded-2xl border p-6 ${panel}`}><p className="text-xs font-black uppercase tracking-wider text-[#289E9D]">Resultado del mes</p><h2 className={`mt-1 text-2xl font-black ${text}`}>Caja de la plataforma</h2><div className="mt-6 space-y-4"><div className="flex justify-between"><span className={muted}>Ingresos recibidos</span><strong className="text-emerald-500">{money(data.kpis.income)}</strong></div><div className="flex justify-between"><span className={muted}>Egresos</span><strong className="text-red-500">{money(data.kpis.expenses)}</strong></div><div className={`border-t pt-4 ${light ? 'border-slate-200' : 'border-white/10'}`}><div className="flex justify-between"><span className={`font-black ${text}`}>Resultado neto</span><strong className={`text-xl ${data.kpis.net >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>{money(data.kpis.net)}</strong></div></div></div><div className="mt-7 grid gap-3"><Link to="/admin/finanzas" className="rounded-xl bg-[#289E9D] px-4 py-3 text-center font-black text-white">Abrir financiero</Link><Link to="/admin/academias" onMouseEnter={() => void prefetchAcademies()} onFocus={() => void prefetchAcademies()} onTouchStart={() => void prefetchAcademies()} className={`rounded-xl border px-4 py-3 text-center font-black ${light ? 'border-slate-300 text-slate-700' : 'border-white/15 text-white'}`}>Gestionar academias</Link></div></div>
     </section>
   </div>;
 };

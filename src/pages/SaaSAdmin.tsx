@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../api/axiosConfig';
 import { BRAND } from '../config/brand';
 import { useAppDialog } from '../contexts/DialogContext';
 import { useAdminTheme } from '../contexts/AdminThemeContext';
 import SubscriptionChangeRequestsPanel from '../components/SubscriptionChangeRequestsPanel';
+import { fetchSaasAcademies, SAAS_ACADEMIES_QUERY_KEY } from '../queries/saasAcademies';
 
 interface Academia {
   id: string;
@@ -37,8 +39,12 @@ const SaaSAdmin = () => {
   const confirmAction = (message: string, tone: 'default' | 'danger' = 'default') => (
     dialog.confirmAction(message, { title: BRAND.name, tone })
   );
-  const [academias, setAcademias] = useState<Academia[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { data: academias = [], isLoading: loading } = useQuery<Academia[]>({
+    queryKey: SAAS_ACADEMIES_QUERY_KEY,
+    queryFn: () => fetchSaasAcademies<Academia[]>(),
+    staleTime: 60_000,
+  });
   const [showModal, setShowModal] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -56,20 +62,11 @@ const SaaSAdmin = () => {
   const [activateSubscription, setActivateSubscription] = useState(false);
   const [editingTrial, setEditingTrial] = useState(false);
 
-  useEffect(() => {
-    fetchAcademias();
-  }, []);
-
-  const fetchAcademias = async () => {
-    try {
-      setLoading(true);
-      const res = await api.get('/api/academias');
-      setAcademias(res.data);
-    } catch (err) {
-      console.error('Error cargando academias:', err);
-    } finally {
-      setLoading(false);
-    }
+  const refreshAcademias = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: SAAS_ACADEMIES_QUERY_KEY }),
+      queryClient.invalidateQueries({ queryKey: ['saas-resumen'] }),
+    ]);
   };
 
   const openCreateModal = () => {
@@ -130,7 +127,7 @@ const SaaSAdmin = () => {
       }
 
       setShowModal(false);
-      fetchAcademias();
+      await refreshAcademias();
     } catch (err: any) {
       notify(`Error al procesar: ${err.response?.data?.error || err.message}`);
     } finally {
@@ -143,7 +140,7 @@ const SaaSAdmin = () => {
       try {
         await api.delete(`/api/academias/${id}`);
         notify('Academia eliminada.');
-        fetchAcademias();
+        await refreshAcademias();
       } catch (err: any) {
         notify(`Error al eliminar: ${err.response?.data?.error || err.message}`);
       }
