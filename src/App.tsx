@@ -63,8 +63,10 @@ const CommunicationsHub = lazy(() => import('./pages/CommunicationsHub'));
 const WhatsAppGroups = lazy(() => import('./pages/WhatsAppGroups'));
 
 const queryClient = new QueryClient();
+const GOOGLE_LOGIN_INTENT_KEY = 'lestra_google_login_intent';
 
 const LandingHome = () => {
+  if (sessionStorage.getItem(GOOGLE_LOGIN_INTENT_KEY) === '1') return <AuthCallback />;
   const hostname = window.location.hostname.toLowerCase();
   const isLestraPlatformHost = hostname === 'lestra.app' || hostname === 'www.lestra.app';
   return isLestraPlatformHost ? <LestraHub /> : <ProductHome />;
