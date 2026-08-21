@@ -8,7 +8,7 @@ const products = [
     key: 'deportivo',
     eyebrow: 'Disponible',
     title: 'Lestra Deportivo',
-    description: 'Gestión integral para academias, clubes y organizaciones deportivas: administra, compite y optimiza.',
+    description: 'Gestión integral para academias, clubes y organizaciones deportivas: administra, compite, optimiza y publica tu propia página para inscripciones y pagos.',
     href: DEPORTIVO_URL,
     cta: 'Conocer Deportivo',
     accent: 'from-[#3157FF]/30 to-[#3157FF]/5',
@@ -117,7 +117,7 @@ const LestraHub = () => (
           <div className="mt-4 flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
             <div>
               <h2 className="text-3xl font-black sm:text-4xl">Lestra Deportivo</h2>
-              <p className="mt-3 max-w-2xl text-[#AAB5C5]">El sistema que ya construimos sigue funcionando completo. La diferencia es que ahora pasa a ser el primer producto de una plataforma mayor.</p>
+              <p className="mt-3 max-w-2xl text-[#AAB5C5]">Gestión deportiva, finanzas, competencia y rendimiento en una sola plataforma. Los tres planes incluyen la página pública propia de la academia para mostrar su oferta, recibir solicitudes de inscripción y conectar el acceso a pagos.</p>
             </div>
             <div className="flex flex-wrap gap-3">
               <a href={DEPORTIVO_URL} className="rounded-xl bg-[#3157FF] px-5 py-3 text-sm font-black shadow-[0_14px_35px_rgba(49,87,255,.28)]">Explorar Deportivo</a>
