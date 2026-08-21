@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api/axiosConfig';
+import { supabase } from '../config/supabase';
 import { Logo } from '../components/Logo';
 import PublicAdmissionForm from '../components/PublicAdmissionForm';
 
@@ -24,12 +25,38 @@ export default function PublicAcademy(){
   const {slug=''}=useParams();
   const [data,setData]=useState<Payload|null>(null);
   const [error,setError]=useState('');
-  useEffect(()=>{api.get(`/api/public/academias/${encodeURIComponent(slug)}`).then((r)=>setData(r.data.data)).catch((e)=>setError(e.response?.data?.error||'No fue posible cargar esta academia.'));},[slug]);
+
+  useEffect(()=>{
+    let active=true;
+    setData(null);
+    setError('');
+
+    const load=async()=>{
+      const cleanSlug=String(slug||'').trim().toLowerCase();
+      try{
+        const {data:fastData,error:fastError}=await supabase.rpc('get_public_academy_catalog',{p_slug:cleanSlug});
+        if(!fastError&&fastData){
+          if(active)setData(fastData as Payload);
+          return;
+        }
+
+        // Fallback compatible para despliegues parciales o fallas temporales de Supabase RPC.
+        const response=await api.get(`/api/public/academias/${encodeURIComponent(cleanSlug)}`);
+        if(active)setData(response.data.data as Payload);
+      }catch(e:any){
+        if(active)setError(e?.response?.data?.error||'No fue posible cargar esta academia.');
+      }
+    };
+
+    void load();
+    return()=>{active=false;};
+  },[slug]);
+
   const phone=String(data?.academia.telefono||'').replace(/\D/g,'');
   const whatsapp=phone?`https://wa.me/${phone.startsWith('56')?phone:`56${phone}`}`:'';
   const grouped=useMemo(()=>!data?[]:data.ramas.map((branch)=>({...branch,categorias:data.categorias.filter((cat)=>cat.rama_id===branch.id)})),[data]);
   if(error)return <div className="grid min-h-screen place-items-center bg-[#0d1117] p-6 text-center text-white"><div><Logo variant="mark" className="mx-auto h-16 w-16"/><h1 className="mt-5 text-2xl font-black">Academia no disponible</h1><p className="mt-2 text-[#8995a4]">{error}</p></div></div>;
-  if(!data)return <div className="grid min-h-screen place-items-center bg-[#0d1117] text-[#70e4df]">Cargando academia...</div>;
+  if(!data)return <div className="grid min-h-screen place-items-center bg-[#0d1117] text-[#70e4df]"><div className="text-center"><div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#289E9D]/25 border-t-[#70E4DF]"/><p className="mt-4 text-sm font-black">Cargando academia...</p></div></div>;
 
   const primary=data.academia.colores?.primario||'#289E9D';
   const secondary=data.academia.colores?.secundario||'#70E4DF';
@@ -47,10 +74,10 @@ export default function PublicAcademy(){
     <main className="mx-auto max-w-6xl px-5 py-10 sm:py-14">
       <section className="grid gap-8 rounded-[32px] border p-7 lg:grid-cols-[1fr_.55fr] lg:p-10" style={panelStyle}>
         <div><p className="text-xs font-black uppercase tracking-[.18em]" style={{color:secondary}}>Inscripciones y formación deportiva</p><h1 className="mt-3 text-4xl font-black sm:text-5xl">{data.academia.nombre}</h1><p className="mt-4 max-w-3xl text-base leading-7 opacity-75">{data.academia.descripcion||'Conoce nuestras disciplinas, categorías y horarios. Envíanos una solicitud para consultar disponibilidad e inscripción.'}</p><div className="mt-6 flex flex-wrap gap-3"><PublicAdmissionForm slug={data.academia.slug||slug} academyName={data.academia.nombre} branches={data.ramas} categories={data.categorias} sites={data.sedes} primary={primary} secondary={secondary} primaryText={primaryText}/><a href={`/a/${encodeURIComponent(data.academia.slug||slug)}/pagos`} className="rounded-xl px-5 py-3 text-sm font-black shadow-lg transition hover:-translate-y-0.5" style={{backgroundColor:secondary,color:contrastText(secondary)}}>💳 Consultar y pagar</a>{whatsapp?<a href={whatsapp} target="_blank" rel="noreferrer" className="rounded-xl border px-5 py-3 text-sm font-black transition hover:-translate-y-0.5" style={{borderColor:`${primary}70`,color:secondary}}>Hablar por WhatsApp</a>:null}<span className="rounded-xl border px-4 py-3 text-sm opacity-70" style={{borderColor:`${primary}45`}}>{data.academia.direccion||data.academia.ciudad||'Chile'}</span></div><p className="mt-3 max-w-2xl text-xs leading-5 opacity-55">Las solicitudes de inscripción no generan cobros. El portal de pagos exige verificación del contacto registrado antes de mostrar información financiera.</p>{socialEntries.length?<div className="mt-5 flex flex-wrap gap-2">{socialEntries.map(([key,url])=><a key={key} href={url} target="_blank" rel="noreferrer" className="rounded-full border px-3 py-1.5 text-xs font-black transition hover:-translate-y-0.5" style={{borderColor:`${secondary}70`,color:secondary}}>{socialLabels[key]}</a>)}</div>:null}</div>
-        <div className="grid place-items-center"><div className="grid h-44 w-44 place-items-center overflow-hidden rounded-[36px] border p-4 shadow-2xl" style={{borderColor:`${primary}70`,backgroundColor:pageText==='#FFFFFF'?'rgba(0,0,0,.14)':'rgba(255,255,255,.5)'}}>{data.academia.logo?<img src={data.academia.logo} alt={`Logo de ${data.academia.nombre}`} className="h-full w-full object-contain"/>:<Logo variant="mark" className="h-28 w-28"/>}</div></div>
+        <div className="grid place-items-center"><div className="grid h-44 w-44 place-items-center overflow-hidden rounded-[36px] border p-4 shadow-2xl" style={{borderColor:`${primary}70`,backgroundColor:pageText==='#FFFFFF'?'rgba(0,0,0,.14)':'rgba(255,255,255,.5)'}}>{data.academia.logo?<img src={data.academia.logo} alt={`Logo de ${data.academia.nombre}`} decoding="async" fetchPriority="high" className="h-full w-full object-contain"/>:<Logo variant="mark" className="h-28 w-28"/>}</div></div>
       </section>
 
-      {data.fotos?.length?<section className="mt-8"><div className="flex items-end justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-wider" style={{color:secondary}}>Nuestra academia</p><h2 className="mt-1 text-2xl font-black">Galería</h2></div><span className="text-xs font-bold opacity-50">{data.fotos.length} foto{data.fotos.length===1?'':'s'}</span></div><div className="mt-4 grid gap-3 grid-cols-2 md:grid-cols-3">{data.fotos.map((photo)=><div key={photo.id} className="overflow-hidden rounded-2xl border" style={{borderColor:`${primary}45`}}><img src={photo.url} alt={photo.alt_text||data.academia.nombre} className="aspect-[4/3] h-full w-full object-cover transition duration-300 hover:scale-[1.03]"/></div>)}</div></section>:null}
+      {data.fotos?.length?<section className="mt-8"><div className="flex items-end justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-wider" style={{color:secondary}}>Nuestra academia</p><h2 className="mt-1 text-2xl font-black">Galería</h2></div><span className="text-xs font-bold opacity-50">{data.fotos.length} foto{data.fotos.length===1?'':'s'}</span></div><div className="mt-4 grid gap-3 grid-cols-2 md:grid-cols-3">{data.fotos.map((photo)=><div key={photo.id} className="overflow-hidden rounded-2xl border" style={{borderColor:`${primary}45`}}><img src={photo.url} alt={photo.alt_text||data.academia.nombre} loading="lazy" decoding="async" className="aspect-[4/3] h-full w-full object-cover transition duration-300 hover:scale-[1.03]"/></div>)}</div></section>:null}
 
       <section className="mt-8 grid gap-5 md:grid-cols-2">{grouped.map((branch)=><article key={branch.id} className="rounded-3xl border p-6" style={panelStyle}><p className="text-[10px] font-black uppercase tracking-wider" style={{color:secondary}}>{branch.disciplina}</p><h2 className="mt-1 text-2xl font-black">{branch.nombre}</h2><div className="mt-4 flex flex-wrap gap-2">{branch.categorias.map((category)=><span key={category.id} className="rounded-full border px-3 py-1.5 text-xs font-bold" style={{borderColor:`${primary}45`,backgroundColor:`${primary}15`}}>{category.nombre}</span>)}{!branch.categorias.length?<span className="text-sm opacity-50">Categorías por confirmar</span>:null}</div></article>)}</section>
 
