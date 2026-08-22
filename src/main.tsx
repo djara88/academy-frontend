@@ -11,6 +11,7 @@ import './workspace-focus.css';
 import './wow-system.css';
 import './readability-contract.css';
 import './setup-polish.css';
+import './setup-action-fix.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
