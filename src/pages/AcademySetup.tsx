@@ -18,6 +18,7 @@ import {
 import api from '../api/axiosConfig';
 import { Logo } from '../components/Logo';
 import SetupTimePicker from '../components/SetupTimePicker';
+import SetupFinanceInline from '../components/SetupFinanceInline';
 
 type SetupStep = {
   key: 'identity' | 'structure' | 'operation' | 'finance' | 'rules' | 'team';
@@ -302,9 +303,9 @@ export default function AcademySetup() {
       </section>
 
       <section className="rounded-[30px] border border-[#d2d6cc] bg-[#f7f8f3] p-5 sm:p-7">
-        <SectionHeader icon={BanknotesIcon} eyebrow="04 · Cobros" title="Cómo recibirá pagos tu academia" description="Aquí solo decides si administrarás cobros con Lestra. Los valores de matrícula y mensualidad permanecen exactamente en la lógica actual y pueden variar." />
-        <div className="mt-6 grid gap-3 sm:grid-cols-2"><button onClick={() => preferenceMutation.mutate({ billing_choice: true })} className={`rounded-2xl border p-5 text-left transition ${choiceClass(status.setup.billing_choice === true)}`}><p className="font-black">Sí, gestionar cobros con Lestra</p><p className="mt-1 text-xs opacity-70">Configuraré al menos un medio de recaudación.</p></button><button onClick={() => preferenceMutation.mutate({ billing_choice: false })} className={`rounded-2xl border p-5 text-left transition ${choiceClass(status.setup.billing_choice === false)}`}><p className="font-black">No por ahora</p><p className="mt-1 text-xs opacity-70">Podré activarlo después sin afectar la operación deportiva.</p></button></div>
-        {status.setup.billing_choice === true ? <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-[#d9ddd3] bg-white p-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-sm font-black">Medio de pago</p><p className="mt-1 text-xs text-[#70796c]">{status.steps.find((step) => step.key === 'finance')?.checks.method ? 'Configuración de recaudación lista.' : 'Falta dejar al menos un método operativo.'}</p></div><Link to="/configuracion/finanzas?setup=1" className="rounded-xl bg-[#20261f] px-4 py-2.5 text-center text-xs font-black text-white">Configurar recaudación</Link></div> : null}
+        <SectionHeader icon={BanknotesIcon} eyebrow="04 · Cobros" title="Cómo recibirá pagos tu academia" description="Decide y configura los medios de pago sin salir de esta Puesta en Marcha. Los valores de matrícula y mensualidad permanecen exactamente en la lógica actual y pueden variar." />
+        <div className="mt-6 grid gap-3 sm:grid-cols-2"><button onClick={() => preferenceMutation.mutate({ billing_choice: true })} className={`rounded-2xl border p-5 text-left transition ${choiceClass(status.setup.billing_choice === true)}`}><p className="font-black">Sí, gestionar cobros con Lestra</p><p className="mt-1 text-xs opacity-70">Configuraré al menos un medio de recaudación aquí mismo.</p></button><button onClick={() => preferenceMutation.mutate({ billing_choice: false })} className={`rounded-2xl border p-5 text-left transition ${choiceClass(status.setup.billing_choice === false)}`}><p className="font-black">No por ahora</p><p className="mt-1 text-xs opacity-70">Podré activarlo después sin afectar la operación deportiva.</p></button></div>
+        {status.setup.billing_choice === true ? <SetupFinanceInline onSaved={refresh} /> : null}
       </section>
 
       <section className="rounded-[30px] border border-[#d2d6cc] bg-[#f7f8f3] p-5 sm:p-7">
