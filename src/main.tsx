@@ -5,6 +5,7 @@ import './index.css';
 import './revolution.css';
 import './new-era.css';
 import './new-era-bridge.css';
+import './new-era-type.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
