@@ -36,6 +36,19 @@ const actionFromQuestion = (message: string) => {
   return `Sí, ${match[1].toLowerCase()}`;
 };
 
+const confirmationTitle = (message: string, danger: boolean) => {
+  if (/^¿?\s*enviar\b/i.test(message)) return '¿Enviar ahora?';
+  if (/^¿?\s*validar\b/i.test(message)) return '¿Validar este pago?';
+  if (/^¿?\s*rechazar\b/i.test(message)) return '¿Rechazar este pago?';
+  if (/^¿?\s*reagendar\b/i.test(message)) return '¿Reagendar esta actividad?';
+  if (/^¿?\s*eliminar\b/i.test(message)) return '¿Eliminar este registro?';
+  if (/^¿?\s*anular\b/i.test(message)) return '¿Anular este registro?';
+  if (/^¿?\s*cancelar\b/i.test(message)) return '¿Cancelar este registro?';
+  if (/^¿?\s*guardar\b/i.test(message)) return '¿Guardar los cambios?';
+  if (/^¿?\s*registrar\b/i.test(message)) return '¿Registrar ahora?';
+  return danger ? 'Confirma esta acción' : 'Antes de continuar';
+};
+
 const successTitle = (message: string) => {
   if (/pago/i.test(message) && /registrad|pagado|validado/i.test(message)) return 'Pago registrado';
   if (/evaluaci[oó]n/i.test(message) && /guardad|registrad/i.test(message)) return 'Evaluación guardada';
@@ -81,7 +94,7 @@ export const humanizeMessage = (
     const danger = requestedTone === 'danger' || /\b(eliminar|anular|cancelar|rechazar|quitar|borrar|desvincular)\b/i.test(message);
     return {
       tone: danger ? 'danger' : 'confirm',
-      title: danger ? 'Confirma esta acción' : 'Antes de continuar',
+      title: confirmationTitle(message, danger),
       message,
       confirmLabel: actionFromQuestion(message),
       cancelLabel: 'Volver',
