@@ -18,6 +18,7 @@ const SuperadminMfaGate = lazy(() => import('./components/SuperadminMfaGate'));
 const ProductHome = lazy(() => import('./pages/HomeCommercial'));
 const LestraHub = lazy(() => import('./pages/LestraHub'));
 const LestraProductPreview = lazy(() => import('./pages/LestraProductPreview'));
+const LestraPrivacyPolicy = lazy(() => import('./pages/LestraPrivacyPolicy'));
 const Login = lazy(() => import('./pages/Login'));
 const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 const Registro = lazy(() => import('./pages/Registro'));
@@ -173,6 +174,7 @@ const App = () => (
                   <Route path="/a/:slug/pagos" element={<CollectionPortal />} />
                   <Route path="/pagar/:token" element={<CollectionPortal />} />
                   <Route path="/auth/callback" element={<AuthCallback />} />
+                  <Route path="/privacidad-lestra" element={<LestraPrivacyPolicy />} />
 
                   <Route path="/" element={<LandingHome />} />
                   <Route path="/deportivo" element={<ProductHome />} />
