@@ -1,0 +1,621 @@
+/* Lestra New Era
+ * Reversible visual layer. Import after revolution.css.
+ * Business logic, routes, permissions and API contracts remain untouched.
+ */
+
+:root {
+  --ne-bg: #f4f5f1;
+  --ne-surface: #ffffff;
+  --ne-surface-soft: #eef0e9;
+  --ne-ink: #111511;
+  --ne-muted: #6f756f;
+  --ne-line: #dde1d8;
+  --ne-lime: #c8ff00;
+  --ne-lime-strong: #b6ed00;
+  --ne-blue: #3e7bff;
+  --ne-danger: #ff4e57;
+  --ne-warning: #ffb020;
+  --ne-success: #16a36a;
+  --ne-radius: 22px;
+  --ne-shadow: 0 14px 38px rgba(17, 21, 17, .07);
+}
+
+body {
+  background: var(--ne-bg) !important;
+  color: var(--ne-ink) !important;
+}
+
+/* ---------- Director shell ---------- */
+.lestra-shell:not(:has(.lestra-court-shell)) {
+  background: var(--ne-bg) !important;
+  color: var(--ne-ink) !important;
+}
+
+.lestra-shell .lestra-sidebar {
+  background: #101310 !important;
+  border-color: rgba(255,255,255,.06) !important;
+  box-shadow: 16px 0 42px rgba(0,0,0,.09) !important;
+}
+
+.lestra-shell .lestra-sidebar-brand {
+  background: #101310 !important;
+  border-color: rgba(255,255,255,.07) !important;
+}
+
+.lestra-shell .lestra-sidebar-brand h1,
+.lestra-shell .lestra-sidebar-footer,
+.lestra-shell .lestra-sidebar-footer p {
+  color: #f7f8f4 !important;
+}
+
+.lestra-shell .lestra-sidebar-brand p:first-of-type {
+  color: var(--ne-lime) !important;
+}
+
+.lestra-shell .lestra-sidebar-brand p:last-of-type,
+.lestra-shell .lestra-nav-group-label {
+  color: #7d837b !important;
+}
+
+.lestra-shell .lestra-nav-link {
+  min-height: 46px;
+  border-radius: 14px !important;
+  color: #a8ada5 !important;
+  border-color: transparent !important;
+  transition: background .16s ease, color .16s ease, transform .16s ease !important;
+}
+
+.lestra-shell .lestra-nav-link:hover {
+  transform: none !important;
+  background: rgba(255,255,255,.055) !important;
+  color: #fff !important;
+}
+
+.lestra-shell .lestra-nav-link.is-active,
+.lestra-shell .lestra-nav-link[aria-current="page"] {
+  background: var(--ne-lime) !important;
+  color: #101310 !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+
+.lestra-shell .lestra-nav-link.is-active::before {
+  display: none !important;
+}
+
+.lestra-shell .lestra-nav-link.is-active svg,
+.lestra-shell .lestra-nav-link[aria-current="page"] svg {
+  color: #101310 !important;
+}
+
+.lestra-shell .lestra-plan-link {
+  color: #d9ff58 !important;
+  border-color: rgba(200,255,0,.24) !important;
+  background: rgba(200,255,0,.07) !important;
+  box-shadow: none !important;
+}
+
+.lestra-shell .lestra-director-main {
+  background:
+    radial-gradient(circle at 86% 0%, rgba(200,255,0,.10), transparent 26rem),
+    var(--ne-bg) !important;
+}
+
+.lestra-director-main .app-content {
+  max-width: 1660px !important;
+}
+
+/* ---------- Compatibility bridge for dark legacy modules ---------- */
+.lestra-director-main .app-content .card,
+.lestra-director-main .app-content .card-uniforme,
+.lestra-director-main .app-content [class*="bg-[#151b25]"],
+.lestra-director-main .app-content [class*="bg-[#161b22]"],
+.lestra-director-main .app-content [class*="bg-[#101620]"],
+.lestra-director-main .app-content [class*="bg-[#10141c]"],
+.lestra-director-main .app-content [class*="bg-[#0d1117]"],
+.lestra-director-main .app-content [class*="bg-[#111722]"],
+.lestra-director-main .app-content [class*="bg-[#172530]"],
+.lestra-director-main .app-content [class*="bg-[#21262d]"] {
+  background-color: var(--ne-surface) !important;
+  background-image: none !important;
+  border-color: var(--ne-line) !important;
+  color: var(--ne-ink) !important;
+  box-shadow: 0 8px 24px rgba(17,21,17,.045) !important;
+}
+
+.lestra-director-main .app-content .text-white,
+.lestra-director-main .app-content [class*="text-[#e6edf3]"],
+.lestra-director-main .app-content [class*="text-[#d0d7de]"] {
+  color: var(--ne-ink) !important;
+}
+
+.lestra-director-main .app-content [class*="text-[#8995a4]"],
+.lestra-director-main .app-content [class*="text-[#8b949e]"],
+.lestra-director-main .app-content [class*="text-[#9aa6b5]"],
+.lestra-director-main .app-content [class*="text-[#b1bac4]"],
+.lestra-director-main .app-content [class*="text-[#7d8999]"],
+.lestra-director-main .app-content [class*="text-slate-400"],
+.lestra-director-main .app-content [class*="text-slate-500"] {
+  color: var(--ne-muted) !important;
+}
+
+.lestra-director-main .app-content :is(input,select,textarea) {
+  min-height: 46px;
+  background: #fff !important;
+  color: var(--ne-ink) !important;
+  border: 1px solid var(--ne-line) !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main .app-content :is(input,select,textarea):focus {
+  border-color: #9bc900 !important;
+  box-shadow: 0 0 0 3px rgba(200,255,0,.22) !important;
+}
+
+.lestra-director-main .app-content .btn-primary,
+.lestra-director-main .app-content button[class*="bg-[#289E9D]"],
+.lestra-director-main .app-content a[class*="bg-[#289E9D]"] {
+  background: var(--ne-lime) !important;
+  color: #101310 !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main .app-content table {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.lestra-director-main .app-content thead th {
+  background: #f2f3ef !important;
+  color: #5f665e !important;
+  border-color: var(--ne-line) !important;
+}
+
+.lestra-director-main .app-content tbody td,
+.lestra-director-main .app-content tbody tr {
+  border-color: #eceee9 !important;
+}
+
+.lestra-director-main .app-content tbody tr:hover {
+  background: #f8f9f5 !important;
+}
+
+/* ---------- New Era Dashboard ---------- */
+.new-era-dashboard {
+  color: var(--ne-ink);
+}
+
+.new-era-hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #d8ddd2;
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 88% 18%, rgba(200,255,0,.64), transparent 18rem),
+    linear-gradient(135deg, #ffffff 0%, #f6f8ef 58%, #eef1e9 100%);
+  padding: clamp(22px, 3vw, 38px);
+  box-shadow: var(--ne-shadow);
+}
+
+.new-era-hero::after {
+  content: '';
+  position: absolute;
+  width: 210px;
+  height: 210px;
+  right: -72px;
+  bottom: -92px;
+  border: 42px solid rgba(17,21,17,.045);
+  border-radius: 50%;
+}
+
+.new-era-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: #4f574d;
+}
+
+.new-era-eyebrow::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--ne-lime-strong);
+  box-shadow: 0 0 0 5px rgba(200,255,0,.18);
+}
+
+.new-era-hero h1 {
+  margin-top: 12px;
+  color: #0f130f !important;
+  font-size: clamp(2rem, 4.3vw, 4.6rem) !important;
+  line-height: .98 !important;
+  letter-spacing: -.065em !important;
+  font-weight: 900 !important;
+}
+
+.new-era-hero p {
+  color: #626960 !important;
+}
+
+.new-era-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: #111511;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.new-era-status.is-clear::before,
+.new-era-status.is-alert::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.new-era-status.is-clear::before { background: var(--ne-lime); }
+.new-era-status.is-alert::before { background: #ffcf40; }
+
+.new-era-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.new-era-kpis {
+  grid-template-columns: repeat(4,minmax(0,1fr));
+}
+
+.new-era-card {
+  border: 1px solid var(--ne-line);
+  border-radius: 22px;
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 8px 22px rgba(17,21,17,.045);
+}
+
+.new-era-kpi {
+  min-height: 156px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.new-era-kpi-label {
+  color: #6f756f;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .13em;
+}
+
+.new-era-kpi-value {
+  margin-top: 12px;
+  color: #101310;
+  font-size: clamp(1.7rem, 3vw, 2.45rem);
+  line-height: 1;
+  letter-spacing: -.05em;
+  font-weight: 900;
+}
+
+.new-era-kpi-detail {
+  margin-top: 10px;
+  color: #737a71;
+  font-size: 12px;
+}
+
+.new-era-kpi-icon {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 13px;
+  background: #f0f2ec;
+  color: #1d221c;
+}
+
+.new-era-kpi.is-lime .new-era-kpi-icon { background: var(--ne-lime); }
+.new-era-kpi.is-blue .new-era-kpi-icon { background: #e8efff; color: #306bea; }
+.new-era-kpi.is-ink .new-era-kpi-icon { background: #111511; color: #fff; }
+
+.new-era-section-title {
+  color: #101310 !important;
+  font-size: clamp(1.2rem,2.2vw,1.55rem) !important;
+  font-weight: 900 !important;
+  letter-spacing: -.035em !important;
+}
+
+.new-era-section-kicker {
+  color: #757c73;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+}
+
+.new-era-chart-card {
+  padding: 20px;
+}
+
+.new-era-chart-layout {
+  grid-template-columns: 1.15fr .85fr .9fr;
+}
+
+.new-era-ring {
+  --ring-value: 0;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  background: conic-gradient(var(--ne-lime-strong) calc(var(--ring-value) * 1%), #e8ebe3 0);
+  position: relative;
+}
+
+.new-era-ring::after {
+  content: '';
+  position: absolute;
+  inset: 15px;
+  background: #fff;
+  border-radius: 50%;
+}
+
+.new-era-ring-center {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-content: center;
+  text-align: center;
+}
+
+.new-era-ring-center strong {
+  font-size: 27px;
+  letter-spacing: -.05em;
+}
+
+.new-era-bars {
+  display: flex;
+  align-items: end;
+  height: 138px;
+  gap: 14px;
+  padding-top: 16px;
+}
+
+.new-era-bar-col {
+  min-width: 0;
+  flex: 1;
+  text-align: center;
+}
+
+.new-era-bar-track {
+  height: 108px;
+  display: flex;
+  align-items: end;
+  border-radius: 12px;
+  background: #f1f3ed;
+  overflow: hidden;
+}
+
+.new-era-bar {
+  width: 100%;
+  min-height: 6px;
+  border-radius: 12px 12px 0 0;
+  background: #171b17;
+}
+
+.new-era-bar.is-lime { background: var(--ne-lime-strong); }
+.new-era-bar.is-blue { background: var(--ne-blue); }
+
+.new-era-bar-label {
+  margin-top: 8px;
+  color: #767d74;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.new-era-progress-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.new-era-progress-row {
+  display: grid;
+  grid-template-columns: minmax(90px,1fr) 2.1fr auto;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.new-era-progress-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #eaede6;
+}
+
+.new-era-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ne-lime-strong);
+}
+
+.new-era-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(5,minmax(0,1fr));
+  gap: 10px;
+}
+
+.new-era-quick {
+  min-height: 112px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid var(--ne-line);
+  border-radius: 18px;
+  padding: 15px;
+  background: #fff;
+  color: #171b17;
+  transition: transform .16s ease, border-color .16s ease, background .16s ease;
+}
+
+.new-era-quick:hover {
+  transform: translateY(-2px);
+  border-color: #b7c19e;
+}
+
+.new-era-quick.is-primary {
+  background: var(--ne-lime);
+  border-color: var(--ne-lime);
+}
+
+.new-era-quick-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 12px;
+  background: #f0f2ec;
+}
+
+.new-era-quick.is-primary .new-era-quick-icon {
+  background: #111511;
+  color: #fff;
+}
+
+.new-era-list-item {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #eceee9;
+}
+
+.new-era-list-item:last-child { border-bottom: 0; }
+
+.new-era-date {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 auto;
+  display: grid;
+  place-content: center;
+  border-radius: 15px;
+  background: #f0f2ec;
+  text-align: center;
+}
+
+.new-era-date strong { font-size: 17px; line-height: 1; }
+.new-era-date span { margin-top: 3px; color: #7e847b; font-size: 9px; font-weight: 900; text-transform: uppercase; }
+
+.new-era-alert {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 13px 0;
+  border-bottom: 1px solid #eceee9;
+}
+.new-era-alert:last-child { border-bottom: 0; }
+
+.new-era-alert-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  background: var(--ne-warning);
+}
+.new-era-alert-dot.is-danger { background: var(--ne-danger); }
+.new-era-alert-dot.is-blue { background: var(--ne-blue); }
+
+.new-era-empty {
+  padding: 26px;
+  border-radius: 18px;
+  background: #f6f7f3;
+  color: #6c746a;
+  text-align: center;
+  font-size: 13px;
+}
+
+/* ---------- Mobile director ---------- */
+.lestra-mobile-header {
+  background: rgba(244,245,241,.94) !important;
+  border-color: #dde1d8 !important;
+  color: var(--ne-ink) !important;
+}
+
+.lestra-mobile-header p:first-of-type { color: #6b7269 !important; }
+.lestra-mobile-header p:last-of-type { color: #111511 !important; }
+
+.lestra-mobile-dock {
+  border-color: #d7dcd2 !important;
+  background: rgba(255,255,255,.94) !important;
+  box-shadow: 0 14px 38px rgba(17,21,17,.15) !important;
+}
+
+.lestra-mobile-dock :is(a,button) { color: #777e74 !important; }
+.lestra-mobile-dock :is(a,button).is-active,
+.lestra-mobile-dock a[aria-current="page"] {
+  background: var(--ne-lime) !important;
+  color: #111511 !important;
+}
+.lestra-mobile-dock a[aria-current="page"] svg { color: #111511 !important; filter: none !important; }
+
+/* ---------- Keep field mode distinct but align brand ---------- */
+.court-bright {
+  background: #f4f5f1 !important;
+}
+.court-bright .lestra-portal-header {
+  border-bottom-color: #dce1d7 !important;
+  background: rgba(255,255,255,.97) !important;
+}
+.court-bright .lestra-visibility-toggle {
+  color: #111511 !important;
+  border-color: #cfd5c9 !important;
+  background: var(--ne-lime) !important;
+}
+.court-bright .lestra-portal-mark {
+  background: #111511 !important;
+  border-color: #111511 !important;
+}
+
+@media (max-width: 1180px) {
+  .new-era-kpis { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .new-era-chart-layout { grid-template-columns: 1fr 1fr; }
+  .new-era-chart-layout > :last-child { grid-column: 1 / -1; }
+  .new-era-quick-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+
+@media (max-width: 767px) {
+  .lestra-director-main { background: var(--ne-bg) !important; }
+  .lestra-director-main .app-content { padding-inline: 12px !important; }
+  .new-era-dashboard { padding-bottom: 14px; }
+  .new-era-hero { border-radius: 22px; padding: 20px; }
+  .new-era-hero h1 { font-size: clamp(2rem,11vw,3rem) !important; }
+  .new-era-kpis { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .new-era-kpi { min-height: 138px; padding: 16px; }
+  .new-era-kpi-value { font-size: clamp(1.45rem,7vw,2rem); }
+  .new-era-chart-layout { grid-template-columns: 1fr; }
+  .new-era-chart-layout > :last-child { grid-column: auto; }
+  .new-era-quick-grid { grid-template-columns: 1fr 1fr; }
+  .new-era-quick { min-height: 104px; }
+  .new-era-progress-row { grid-template-columns: 90px 1fr auto; }
+}
+
+@media (max-width: 420px) {
+  .new-era-kpis { grid-template-columns: 1fr; }
+  .new-era-kpi { min-height: 122px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .new-era-quick { transition: none; }
+}
