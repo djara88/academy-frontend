@@ -1,53 +1,141 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
-  ArrowTrendingUpIcon, BanknotesIcon, BuildingOffice2Icon, CalendarDaysIcon, CheckBadgeIcon,
-  CheckCircleIcon, ClockIcon, ExclamationTriangleIcon, RocketLaunchIcon, UserGroupIcon, UsersIcon,
+  AcademicCapIcon,
+  ArrowRightIcon,
+  BanknotesIcon,
+  BuildingOffice2Icon,
+  CalendarDaysIcon,
+  CheckBadgeIcon,
+  CheckCircleIcon,
+  ClipboardDocumentCheckIcon,
+  ClockIcon,
+  ExclamationTriangleIcon,
+  PlusIcon,
+  RocketLaunchIcon,
+  TrophyIcon,
+  UserGroupIcon,
+  UsersIcon,
 } from '@heroicons/react/24/outline';
 import api from '../api/axiosConfig';
 import { useAuth } from '../contexts/AuthContext';
 import { useAppDialog } from '../contexts/DialogContext';
 import { getAcademyName } from '../config/brand';
 
-type Alert = { id: string; racha: number; ultima_ausencia: string; jugadores?: { nombre: string } | null; categorias?: { nombre: string } | null };
-type Match = { id: string; rival: string; fecha: string; hora: string; hora_citacion?: string | null; ubicacion?: string | null; condicion?: string | null; categorias?: { nombre: string } | null };
+type Alert = {
+  id: string;
+  racha: number;
+  ultima_ausencia: string;
+  jugadores?: { nombre: string } | null;
+  categorias?: { nombre: string } | null;
+};
+
+type Match = {
+  id: string;
+  rival: string;
+  fecha: string;
+  hora: string;
+  hora_citacion?: string | null;
+  ubicacion?: string | null;
+  condicion?: string | null;
+  categorias?: { nombre: string } | null;
+};
+
 type StructureSite = { id: string; activa?: boolean; ramas?: { id: string; activa?: boolean }[] };
+
 type DashboardData = {
   academia: { nombre: string; estado?: string | null };
-  plan: { plan: { name: string; trial: boolean }; limits: { professors: number }; addOns: { guardians: boolean }; features: string[] };
-  kpis: {
-    jugadores: number; profesores: { activos: number; limite: number }; categorias: number; proximos_partidos: number;
-    asistencia_mes: number | null; ingresos_mes: number; egresos_mes: number; saldo_mes: number; por_cobrar: number;
-    cobros_vencidos: number; uniformes_pendientes: number;
+  plan: {
+    plan: { name: string; trial: boolean };
+    limits: { professors: number };
+    addOns: { guardians: boolean };
+    features: string[];
   };
-  prioridades: { alertas_asistencia: Alert[]; categorias_sin_profesor: { id: string; nombre: string }[] };
+  kpis: {
+    jugadores: number;
+    profesores: { activos: number; limite: number };
+    categorias: number;
+    proximos_partidos: number;
+    asistencia_mes: number | null;
+    ingresos_mes: number;
+    egresos_mes: number;
+    saldo_mes: number;
+    por_cobrar: number;
+    cobros_vencidos: number;
+    uniformes_pendientes: number;
+  };
+  prioridades: {
+    alertas_asistencia: Alert[];
+    categorias_sin_profesor: { id: string; nombre: string }[];
+  };
   proximos_partidos: Match[];
 };
 
-const money = (value: number) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(value || 0);
-const shortDate = (value: string) => new Intl.DateTimeFormat('es-CL', { weekday: 'short', day: '2-digit', month: 'short' }).format(new Date(`${value}T12:00:00`));
+const money = (value: number) => new Intl.NumberFormat('es-CL', {
+  style: 'currency',
+  currency: 'CLP',
+  maximumFractionDigits: 0,
+}).format(value || 0);
 
-const KpiCard = ({ label, value, detail, icon: Icon, tone = 'cyan' }: { label: string; value: string | number; detail: string; icon: typeof UsersIcon; tone?: 'cyan' | 'green' | 'amber' | 'violet' }) => {
-  const tones = {
-    cyan: 'border-cyan-500/20 bg-cyan-500/10 text-cyan-300',
-    green: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-300',
-    amber: 'border-amber-500/20 bg-amber-500/10 text-amber-300',
-    violet: 'border-violet-500/20 bg-violet-500/10 text-violet-300',
-  };
-  return <article className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#151b25] p-5 shadow-xl shadow-black/10 transition hover:-translate-y-0.5 hover:border-[#289E9D]/40">
-    <div className="flex items-start justify-between gap-3"><div><p className="text-xs font-black uppercase tracking-[0.15em] text-[#7d8999]">{label}</p><p className="mt-3 text-3xl font-black tracking-tight text-white">{value}</p></div><div className={`rounded-2xl border p-3 ${tones[tone]}`}><Icon className="h-6 w-6" /></div></div>
-    <p className="mt-3 text-xs text-[#8995a4]">{detail}</p>
-  </article>;
-};
+const shortDate = (value: string) => new Intl.DateTimeFormat('es-CL', {
+  weekday: 'short',
+  day: '2-digit',
+  month: 'short',
+}).format(new Date(`${value}T12:00:00`));
+
+const clampPercent = (value: number) => Math.min(100, Math.max(0, Math.round(value || 0)));
+
+const KpiCard = ({
+  label,
+  value,
+  detail,
+  icon: Icon,
+  tone = 'default',
+}: {
+  label: string;
+  value: string | number;
+  detail: string;
+  icon: typeof UsersIcon;
+  tone?: 'default' | 'lime' | 'blue' | 'ink';
+}) => (
+  <article className={`new-era-card new-era-kpi ${tone === 'lime' ? 'is-lime' : tone === 'blue' ? 'is-blue' : tone === 'ink' ? 'is-ink' : ''}`}>
+    <div className="new-era-kpi-icon"><Icon className="h-5 w-5" /></div>
+    <p className="new-era-kpi-label">{label}</p>
+    <p className="new-era-kpi-value">{value}</p>
+    <p className="new-era-kpi-detail">{detail}</p>
+  </article>
+);
+
+const QuickAction = ({
+  to,
+  label,
+  icon: Icon,
+  primary = false,
+}: {
+  to: string;
+  label: string;
+  icon: typeof PlusIcon;
+  primary?: boolean;
+}) => (
+  <Link to={to} className={`new-era-quick ${primary ? 'is-primary' : ''}`}>
+    <span className="new-era-quick-icon"><Icon className="h-5 w-5" /></span>
+    <span className="flex items-end justify-between gap-2">
+      <span className="text-sm font-black leading-tight">{label}</span>
+      <ArrowRightIcon className="h-4 w-4 shrink-0" />
+    </span>
+  </Link>
+);
 
 const Dashboard = () => {
   const { user } = useAuth();
   const { notify } = useAppDialog();
+
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['dashboard-resumen'],
     queryFn: async () => (await api.get('/api/dashboard/resumen')).data.data as DashboardData,
     refetchInterval: 120_000,
   });
+
   const { data: structure, isLoading: structureLoading, error: structureError } = useQuery({
     queryKey: ['dashboard-structure'],
     queryFn: async () => (await api.get('/api/estructura')).data.data as StructureSite[],
@@ -60,83 +148,216 @@ const Dashboard = () => {
       await api.patch(`/api/profesores/alertas/asistencia/${id}/revisada`);
       await refetch();
     } catch (reviewError: any) {
-      await notify(reviewError.response?.data?.error || 'No pudimos revisar esta alerta.', { title: getAcademyName(user?.nombre_academia) });
+      await notify(reviewError.response?.data?.error || 'No pudimos revisar esta alerta.', {
+        title: getAcademyName(user?.nombre_academia),
+      });
     }
   };
 
-  if (isLoading) return <div className="flex min-h-[70vh] items-center justify-center"><div className="text-center"><div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-[#289E9D]/20 border-t-[#48d8d0]" /><p className="mt-4 font-bold text-[#8995a4]">Organizando tu información...</p></div></div>;
-  if (error || !data) return <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-red-200"><span className="font-bold">No pudimos abrir tu resumen.</span> <button type="button" onClick={() => void refetch()} className="ml-2 font-black underline">Intentar de nuevo</button></div>;
+  if (isLoading) {
+    return (
+      <div className="grid min-h-[70vh] place-items-center">
+        <div className="text-center">
+          <div className="mx-auto h-11 w-11 animate-spin rounded-full border-4 border-[#d9ded4] border-t-[#b6ed00]" />
+          <p className="mt-4 font-black text-[#596057]">Organizando tu academia...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const priorities = data.prioridades.alertas_asistencia.length + data.prioridades.categorias_sin_profesor.length + data.kpis.cobros_vencidos;
-  const maxFinance = Math.max(data.kpis.ingresos_mes, data.kpis.egresos_mes, 1);
+  if (error || !data) {
+    return (
+      <div className="new-era-card mx-auto max-w-xl p-7 text-center">
+        <ExclamationTriangleIcon className="mx-auto h-9 w-9 text-[#ff4e57]" />
+        <h1 className="mt-3 text-xl font-black text-[#111511]">No pudimos abrir tu resumen</h1>
+        <p className="mt-2 text-sm text-[#6f756f]">Tus datos siguen seguros. Intenta cargar nuevamente.</p>
+        <button type="button" onClick={() => void refetch()} className="mt-5 min-h-11 rounded-xl bg-[#111511] px-5 text-sm font-black text-white">
+          Intentar de nuevo
+        </button>
+      </div>
+    );
+  }
+
+  const attendance = clampPercent(data.kpis.asistencia_mes ?? 0);
+  const priorities = data.prioridades.alertas_asistencia.length
+    + data.prioridades.categorias_sin_profesor.length
+    + data.kpis.cobros_vencidos;
+  const professorLimit = Math.max(data.kpis.profesores.limite, 1);
+  const professorUsage = clampPercent((data.kpis.profesores.activos / professorLimit) * 100);
+  const financeMax = Math.max(data.kpis.ingresos_mes, data.kpis.egresos_mes, data.kpis.por_cobrar, 1);
+  const financeBars = [
+    { label: 'Ingresos', value: data.kpis.ingresos_mes, className: 'is-lime' },
+    { label: 'Egresos', value: data.kpis.egresos_mes, className: '' },
+    { label: 'Por cobrar', value: data.kpis.por_cobrar, className: 'is-blue' },
+  ];
   const structureReady = Boolean(structure?.some((site) => site.activa !== false && site.ramas?.some((branch) => branch.activa !== false)));
   const onboardingSteps = [
     { code: 'structure', label: 'Configura tu academia', detail: 'Agrega una sede y el deporte que trabajas.', done: structureReady, to: '/configuracion/estructura', icon: BuildingOffice2Icon },
-    { code: 'category', label: 'Crea una categoría', detail: 'Por ejemplo: Sub-10, Adultos o Iniciación.', done: data.kpis.categorias > 0, to: '/jugadores', icon: UserGroupIcon },
-    { code: 'player', label: 'Agrega tu primer deportista', detail: 'Registra al alumno y deja su matrícula lista.', done: data.kpis.jugadores > 0, to: '/matricula', icon: UsersIcon },
-    { code: 'professor', label: 'Suma a tu primer profesor', detail: 'Así podrá trabajar con sus categorías.', done: data.kpis.profesores.activos > 0, to: '/profesores', icon: CheckBadgeIcon },
-    { code: 'attendance', label: 'Registra una asistencia', detail: 'Desde aquí comienza el historial del equipo.', done: data.kpis.asistencia_mes !== null, to: '/asistencias', icon: CalendarDaysIcon },
+    { code: 'category', label: 'Crea una categoría', detail: 'Organiza a tus deportistas.', done: data.kpis.categorias > 0, to: '/jugadores', icon: UserGroupIcon },
+    { code: 'player', label: 'Agrega un deportista', detail: 'Deja su matrícula lista.', done: data.kpis.jugadores > 0, to: '/matricula', icon: UsersIcon },
+    { code: 'professor', label: 'Suma a un profesor', detail: 'Así podrá trabajar con sus categorías.', done: data.kpis.profesores.activos > 0, to: '/profesores', icon: AcademicCapIcon },
+    { code: 'attendance', label: 'Registra asistencia', detail: 'Comienza el historial del equipo.', done: data.kpis.asistencia_mes !== null, to: '/asistencias', icon: ClipboardDocumentCheckIcon },
   ];
   const completedOnboarding = onboardingSteps.filter((step) => step.done).length;
   const showOnboarding = !structureLoading && !structureError && completedOnboarding < onboardingSteps.length;
 
-  return <div className="mx-auto max-w-[1500px] space-y-6 pb-12">
-    <section className="relative overflow-hidden rounded-[28px] border border-[#289E9D]/30 bg-[radial-gradient(circle_at_top_right,rgba(72,216,208,0.22),transparent_34%),linear-gradient(135deg,#172530_0%,#111722_50%,#0f141d_100%)] p-6 shadow-2xl shadow-black/25 sm:p-8">
-      <div className="absolute -right-14 -top-16 h-56 w-56 rounded-full border border-[#48d8d0]/20" /><div className="absolute -right-2 -top-4 h-32 w-32 rounded-full border border-[#48d8d0]/20" />
-      <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
-        <div><div className="flex flex-wrap items-center gap-2"><span className="rounded-full border border-[#48d8d0]/30 bg-[#289E9D]/15 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-[#70e4df]">Tu academia hoy</span><span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-[#b9c3cf]">{data.plan.plan.trial ? 'Prueba activa' : `Plan ${data.plan.plan.name}`}</span>{data.plan.addOns.guardians ? <span className="rounded-full border border-violet-400/25 bg-violet-500/10 px-3 py-1 text-xs font-bold text-violet-200">Familias activas</span> : null}</div>
-          <h1 className="mt-5 max-w-4xl text-3xl font-black tracking-tight text-white sm:text-5xl">{data.academia.nombre}</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#9aa6b5] sm:text-base">Aquí tienes lo importante para decidir y seguir trabajando.</p>
+  return (
+    <div className="new-era-dashboard mx-auto max-w-[1560px] space-y-4 pb-12 sm:space-y-5">
+      <section className="new-era-hero">
+        <div className="relative z-10 flex flex-col gap-7 xl:flex-row xl:items-end xl:justify-between">
+          <div>
+            <div className="new-era-eyebrow">Lestra · nueva era</div>
+            <h1>{data.academia.nombre}</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 sm:text-base">Todo lo importante de tu academia, claro y a mano.</p>
+            <div className="mt-5 flex flex-wrap gap-2 text-xs font-black">
+              <span className="rounded-full bg-[#111511] px-3 py-2 text-white">{data.plan.plan.trial ? 'Prueba activa' : `Plan ${data.plan.plan.name}`}</span>
+              <span className="rounded-full border border-[#cdd3c7] bg-white/70 px-3 py-2 text-[#4f574d]">{data.kpis.categorias} categorías</span>
+              {data.plan.addOns.guardians ? <span className="rounded-full border border-[#cdd3c7] bg-white/70 px-3 py-2 text-[#4f574d]">Familias activas</span> : null}
+            </div>
+          </div>
+          <div className={`new-era-status ${priorities ? 'is-alert' : 'is-clear'}`}>
+            {priorities ? `${priorities} cosas necesitan tu atención` : 'Todo está al día'}
+          </div>
         </div>
-        <div className={`flex items-center gap-3 self-start rounded-2xl border px-4 py-3 xl:self-auto ${priorities ? 'border-amber-400/30 bg-amber-500/10' : 'border-emerald-400/30 bg-emerald-500/10'}`}><CheckBadgeIcon className={`h-8 w-8 ${priorities ? 'text-amber-300' : 'text-emerald-300'}`} /><div><p className="text-xs font-bold uppercase tracking-wider text-[#8995a4]">Hoy</p><p className="font-black text-white">{priorities ? `${priorities} cosas necesitan tu atención` : 'Todo está al día'}</p></div></div>
-      </div>
-    </section>
+      </section>
 
-    {showOnboarding ? <section className="overflow-hidden rounded-3xl border border-[#289E9D]/30 bg-[linear-gradient(135deg,rgba(40,158,157,0.13),rgba(21,27,37,0.96)_42%)] p-5 shadow-xl shadow-black/10 sm:p-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div className="flex items-start gap-4">
-          <div className="rounded-2xl border border-[#48d8d0]/25 bg-[#289E9D]/15 p-3 text-[#70e4df]"><RocketLaunchIcon className="h-7 w-7" /></div>
-          <div><p className="text-xs font-black uppercase tracking-[0.16em] text-[#70e4df]">Primeros pasos</p><h2 className="mt-1 text-2xl font-black text-white">Deja Lestra listo para trabajar contigo.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-[#9aa6b5]">Haz estos pasos una sola vez. Cuando termines, esta guía desaparece.</p></div>
+      <section className="new-era-grid new-era-kpis" aria-label="Indicadores principales">
+        <KpiCard label="Deportistas" value={data.kpis.jugadores} detail={`${data.kpis.categorias} categorías activas`} icon={UsersIcon} tone="lime" />
+        <KpiCard label="Asistencia" value={data.kpis.asistencia_mes === null ? 'Sin datos' : `${attendance}%`} detail="Promedio del mes" icon={CheckBadgeIcon} tone="blue" />
+        <KpiCard label="Ingresos del mes" value={money(data.kpis.ingresos_mes)} detail={`${money(data.kpis.por_cobrar)} por cobrar`} icon={BanknotesIcon} tone="ink" />
+        <KpiCard label="Próximos encuentros" value={data.kpis.proximos_partidos} detail={`${data.kpis.profesores.activos} profesores activos`} icon={CalendarDaysIcon} />
+      </section>
+
+      <section className="new-era-grid new-era-chart-layout">
+        <article className="new-era-card new-era-chart-card">
+          <div className="flex items-center justify-between gap-3">
+            <div><p className="new-era-section-kicker">Rendimiento</p><h2 className="new-era-section-title mt-1">Asistencia del mes</h2></div>
+            <Link to="/asistencias" className="text-xs font-black text-[#495047]">Ver detalle →</Link>
+          </div>
+          <div className="mt-6 flex flex-wrap items-center gap-7">
+            <div className="new-era-ring" style={{ background: `conic-gradient(#b6ed00 ${attendance}%, #e8ebe3 0)` }}>
+              <div className="new-era-ring-center"><strong>{data.kpis.asistencia_mes === null ? '—' : `${attendance}%`}</strong><span className="mt-1 text-[10px] font-bold uppercase tracking-wider text-[#7a8178]">asistencia</span></div>
+            </div>
+            <div className="min-w-[180px] flex-1">
+              <p className="text-3xl font-black tracking-[-.05em] text-[#111511]">{data.kpis.jugadores}</p>
+              <p className="mt-1 text-sm font-bold text-[#6f756f]">deportistas registrados</p>
+              <div className="mt-5">
+                <div className="flex justify-between text-xs font-bold text-[#777e74]"><span>Equipo técnico activo</span><span>{data.kpis.profesores.activos}/{data.kpis.profesores.limite}</span></div>
+                <div className="new-era-progress-track mt-2"><div className="new-era-progress-fill" style={{ width: `${professorUsage}%` }} /></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article className="new-era-card new-era-chart-card">
+          <p className="new-era-section-kicker">Finanzas</p>
+          <h2 className="new-era-section-title mt-1">Movimiento del mes</h2>
+          <div className="new-era-bars" aria-label="Ingresos, egresos y montos por cobrar">
+            {financeBars.map((bar) => {
+              const height = Math.max(6, (bar.value / financeMax) * 100);
+              return (
+                <div key={bar.label} className="new-era-bar-col" title={`${bar.label}: ${money(bar.value)}`}>
+                  <div className="new-era-bar-track"><div className={`new-era-bar ${bar.className}`} style={{ height: `${height}%` }} /></div>
+                  <p className="new-era-bar-label">{bar.label}</p>
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-4 flex items-end justify-between gap-4 border-t border-[#eceee9] pt-4">
+            <div><p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7b8179]">Saldo</p><p className={`mt-1 text-xl font-black ${data.kpis.saldo_mes < 0 ? 'text-[#ff4e57]' : 'text-[#111511]'}`}>{money(data.kpis.saldo_mes)}</p></div>
+            <Link to="/finanzas" className="text-xs font-black text-[#111511]">Ver finanzas →</Link>
+          </div>
+        </article>
+
+        <article className="new-era-card new-era-chart-card">
+          <p className="new-era-section-kicker">Estado del equipo</p>
+          <h2 className="new-era-section-title mt-1">Lo que requiere atención</h2>
+          <div className="new-era-progress-list">
+            <div className="new-era-progress-row"><span>Pagos vencidos</span><div className="new-era-progress-track"><div className="h-full rounded-full bg-[#ff4e57]" style={{ width: `${Math.min(100, data.kpis.cobros_vencidos * 8)}%` }} /></div><strong>{data.kpis.cobros_vencidos}</strong></div>
+            <div className="new-era-progress-row"><span>Asistencia</span><div className="new-era-progress-track"><div className="h-full rounded-full bg-[#ffb020]" style={{ width: `${Math.min(100, data.prioridades.alertas_asistencia.length * 20)}%` }} /></div><strong>{data.prioridades.alertas_asistencia.length}</strong></div>
+            <div className="new-era-progress-row"><span>Sin profesor</span><div className="new-era-progress-track"><div className="h-full rounded-full bg-[#3e7bff]" style={{ width: `${Math.min(100, data.prioridades.categorias_sin_profesor.length * 25)}%` }} /></div><strong>{data.prioridades.categorias_sin_profesor.length}</strong></div>
+          </div>
+          {!priorities ? <div className="new-era-empty mt-5"><CheckCircleIcon className="mx-auto h-7 w-7 text-[#16a36a]" /><p className="mt-2 font-black text-[#111511]">Nada urgente por ahora</p></div> : null}
+        </article>
+      </section>
+
+      <section className="new-era-card p-5 sm:p-6">
+        <div className="flex items-center justify-between gap-4">
+          <div><p className="new-era-section-kicker">Hazlo rápido</p><h2 className="new-era-section-title mt-1">Accesos directos</h2></div>
+          <span className="hidden text-xs font-bold text-[#737a71] sm:inline">Menos clics. Más cancha.</span>
         </div>
-        <div className="min-w-52">
-          <div className="flex items-center justify-between text-xs font-bold text-[#9aa6b5]"><span>Tu avance</span><span>{completedOnboarding}/{onboardingSteps.length}</span></div>
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#48d8d0] transition-all" style={{ width: `${(completedOnboarding / onboardingSteps.length) * 100}%` }} /></div>
+        <div className="new-era-quick-grid mt-5">
+          <QuickAction to="/matricula" label="Nueva matrícula" icon={PlusIcon} primary />
+          <QuickAction to="/asistencias" label="Registrar asistencia" icon={ClipboardDocumentCheckIcon} />
+          <QuickAction to="/partidos" label="Programar encuentro" icon={TrophyIcon} />
+          <QuickAction to="/finanzas" label="Cobros y pagos" icon={BanknotesIcon} />
+          <QuickAction to="/profesores" label="Equipo técnico" icon={AcademicCapIcon} />
         </div>
-      </div>
-      <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-5">{onboardingSteps.map(({ code, label, detail, done, to, icon: Icon }) => <Link key={code} to={to} className={`group rounded-2xl border p-4 transition ${done ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-white/10 bg-[#101620] hover:-translate-y-0.5 hover:border-[#289E9D]/50'}`}><div className="flex items-center justify-between"><div className={`rounded-xl p-2 ${done ? 'bg-emerald-500/10 text-emerald-300' : 'bg-white/5 text-[#70e4df]'}`}><Icon className="h-5 w-5" /></div>{done ? <CheckCircleIcon className="h-5 w-5 text-emerald-300" /> : <span className="text-xs font-black text-[#70e4df]">Ir →</span>}</div><p className={`mt-4 text-sm font-black ${done ? 'text-emerald-100' : 'text-white'}`}>{label}</p><p className="mt-2 text-xs leading-5 text-[#8995a4]">{done ? 'Listo' : detail}</p></Link>)}</div>
-    </section> : null}
+      </section>
 
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <KpiCard label="Deportistas" value={data.kpis.jugadores} detail={`${data.kpis.categorias} categorías activas`} icon={UsersIcon} />
-      <KpiCard label="Asistencia este mes" value={data.kpis.asistencia_mes === null ? 'Sin datos' : `${data.kpis.asistencia_mes}%`} detail="Promedio de asistencia en entrenamientos" icon={CheckBadgeIcon} tone="green" />
-      <KpiCard label="Ingresos este mes" value={money(data.kpis.ingresos_mes)} detail={`${money(data.kpis.por_cobrar)} pendiente de cobro`} icon={BanknotesIcon} tone="violet" />
-      <KpiCard label="Próximos encuentros" value={data.kpis.proximos_partidos} detail={`${data.kpis.profesores.activos} profesores activos`} icon={CalendarDaysIcon} tone="amber" />
-    </section>
+      <section className="grid gap-4 xl:grid-cols-[1.08fr_.92fr]">
+        <article className="new-era-card p-5 sm:p-6">
+          <div className="flex items-center justify-between gap-3">
+            <div><p className="new-era-section-kicker">Agenda</p><h2 className="new-era-section-title mt-1">Lo próximo</h2></div>
+            <Link to="/partidos" className="text-xs font-black text-[#111511]">Ver agenda →</Link>
+          </div>
+          <div className="mt-3">
+            {data.proximos_partidos.length ? data.proximos_partidos.slice(0, 5).map((match) => {
+              const formatted = shortDate(match.fecha).split(' ');
+              return (
+                <article key={match.id} className="new-era-list-item">
+                  <div className="new-era-date"><strong>{formatted[1] || formatted[0]}</strong><span>{formatted[0]}</span></div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1"><p className="font-black text-[#111511]">vs {match.rival}</p><span className="rounded-full bg-[#f0f2ec] px-2 py-1 text-[9px] font-black uppercase text-[#6f756f]">{match.condicion || 'Encuentro'}</span></div>
+                    <p className="mt-1 truncate text-xs text-[#737a71]">{match.categorias?.nombre || 'Sin categoría'} · {match.ubicacion || 'Lugar por confirmar'}</p>
+                    <p className="mt-2 text-xs font-black text-[#4d554b]">{match.hora_citacion ? `Citación ${match.hora_citacion.slice(0, 5)} · ` : ''}Inicio {match.hora?.slice(0, 5)}</p>
+                  </div>
+                  <ArrowRightIcon className="h-4 w-4 shrink-0 text-[#90968e]" />
+                </article>
+              );
+            }) : <div className="new-era-empty mt-4"><ClockIcon className="mx-auto h-7 w-7" /><p className="mt-2 font-black text-[#111511]">No hay encuentros programados</p><Link to="/partidos" className="mt-3 inline-block font-black text-[#44503d]">Programar uno →</Link></div>}
+          </div>
+        </article>
 
-    <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-      <div className="rounded-3xl border border-white/10 bg-[#151b25] p-5 shadow-xl shadow-black/10 sm:p-6">
-        <div className="flex items-center justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[0.16em] text-amber-300">Necesita tu atención</p><h2 className="mt-1 text-2xl font-black text-white">Por revisar</h2></div><span className={`rounded-full px-3 py-1 text-sm font-black ${priorities ? 'bg-amber-500 text-[#1a1307]' : 'bg-emerald-500/15 text-emerald-300'}`}>{priorities}</span></div>
-        <div className="mt-5 space-y-3">
-          {data.kpis.cobros_vencidos > 0 ? <Link to="/finanzas" className="flex items-center gap-4 rounded-2xl border border-red-500/25 bg-red-500/10 p-4 hover:border-red-400/50"><ExclamationTriangleIcon className="h-7 w-7 shrink-0 text-red-300" /><div className="min-w-0 flex-1"><p className="font-black text-white">{data.kpis.cobros_vencidos} pagos vencidos</p><p className="text-sm text-[#9aa6b5]">Hay familias con pagos pendientes.</p></div><span className="text-red-200">→</span></Link> : null}
-          {data.prioridades.alertas_asistencia.map((alert) => <article key={alert.id} className="flex flex-col gap-3 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 sm:flex-row sm:items-center"><div className="flex min-w-0 flex-1 items-center gap-4"><ExclamationTriangleIcon className="h-7 w-7 shrink-0 text-amber-300" /><div><p className="font-black text-white">{alert.jugadores?.nombre || 'Deportista'} necesita seguimiento</p><p className="text-sm text-[#9aa6b5]">{alert.categorias?.nombre || 'Categoría'} · {alert.racha} ausencias seguidas</p></div></div><button type="button" onClick={() => void reviewAlert(alert.id)} className="min-h-11 rounded-xl border border-amber-400/30 px-4 text-sm font-black text-amber-200 hover:bg-amber-500/10">Ya lo revisé</button></article>)}
-          {data.prioridades.categorias_sin_profesor.length > 0 ? <Link to="/profesores" className="flex items-center gap-4 rounded-2xl border border-violet-500/20 bg-violet-500/5 p-4 hover:border-violet-400/40"><UserGroupIcon className="h-7 w-7 shrink-0 text-violet-300" /><div className="min-w-0 flex-1"><p className="font-black text-white">{data.prioridades.categorias_sin_profesor.length} categorías necesitan profesor</p><p className="truncate text-sm text-[#9aa6b5]">{data.prioridades.categorias_sin_profesor.map((item) => item.nombre).join(', ')}</p></div><span className="text-violet-200">→</span></Link> : null}
-          {!priorities ? <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-8 text-center"><CheckBadgeIcon className="mx-auto h-10 w-10 text-emerald-300" /><p className="mt-3 font-black text-white">Todo al día</p><p className="mt-1 text-sm text-[#8995a4]">No tienes pendientes importantes.</p></div> : null}
-        </div>
-      </div>
+        <article className="new-era-card p-5 sm:p-6">
+          <div className="flex items-center justify-between gap-3">
+            <div><p className="new-era-section-kicker">Prioridades</p><h2 className="new-era-section-title mt-1">Para revisar hoy</h2></div>
+            <span className={`rounded-full px-3 py-1 text-xs font-black ${priorities ? 'bg-[#fff0cb] text-[#7b5300]' : 'bg-[#e8f7ef] text-[#087346]'}`}>{priorities}</span>
+          </div>
+          <div className="mt-3">
+            {data.kpis.cobros_vencidos > 0 ? <Link to="/finanzas" className="new-era-alert"><span className="new-era-alert-dot is-danger" /><div className="min-w-0 flex-1"><p className="font-black text-[#111511]">{data.kpis.cobros_vencidos} pagos vencidos</p><p className="text-xs text-[#737a71]">Hay familias con pagos pendientes.</p></div><ArrowRightIcon className="h-4 w-4 text-[#949a92]" /></Link> : null}
+            {data.prioridades.alertas_asistencia.slice(0, 3).map((alert) => <div key={alert.id} className="new-era-alert"><span className="new-era-alert-dot" /><div className="min-w-0 flex-1"><p className="font-black text-[#111511]">{alert.jugadores?.nombre || 'Deportista'} · {alert.racha} ausencias</p><p className="text-xs text-[#737a71]">{alert.categorias?.nombre || 'Categoría'} necesita seguimiento</p></div><button type="button" onClick={() => void reviewAlert(alert.id)} className="shrink-0 rounded-xl border border-[#d9ddd5] px-3 py-2 text-xs font-black text-[#414840]">Revisado</button></div>)}
+            {data.prioridades.categorias_sin_profesor.length > 0 ? <Link to="/profesores" className="new-era-alert"><span className="new-era-alert-dot is-blue" /><div className="min-w-0 flex-1"><p className="font-black text-[#111511]">{data.prioridades.categorias_sin_profesor.length} categorías sin profesor</p><p className="truncate text-xs text-[#737a71]">{data.prioridades.categorias_sin_profesor.map((item) => item.nombre).join(', ')}</p></div><ArrowRightIcon className="h-4 w-4 text-[#949a92]" /></Link> : null}
+            {!priorities ? <div className="new-era-empty mt-4"><CheckCircleIcon className="mx-auto h-7 w-7 text-[#16a36a]" /><p className="mt-2 font-black text-[#111511]">Todo al día</p><p className="mt-1">No tienes pendientes importantes.</p></div> : null}
+          </div>
+        </article>
+      </section>
 
-      <div className="rounded-3xl border border-white/10 bg-[#151b25] p-5 shadow-xl shadow-black/10 sm:p-6">
-        <div className="flex items-center justify-between"><div><p className="text-xs font-black uppercase tracking-[0.16em] text-[#70e4df]">Lo que viene</p><h2 className="mt-1 text-2xl font-black text-white">Próximos encuentros</h2></div><Link to="/partidos" className="text-sm font-black text-[#70e4df]">Ver todos →</Link></div>
-        <div className="mt-5 space-y-3">{data.proximos_partidos.length ? data.proximos_partidos.slice(0, 5).map((match) => <article key={match.id} className="grid grid-cols-[72px_1fr] gap-4 rounded-2xl border border-white/10 bg-[#101620] p-4"><div className="rounded-xl bg-[#289E9D]/15 p-2 text-center"><p className="text-xs font-bold uppercase text-[#70e4df]">{shortDate(match.fecha).split(' ')[0]}</p><p className="text-lg font-black text-white">{shortDate(match.fecha).split(' ')[1]}</p></div><div className="min-w-0"><div className="flex items-start justify-between gap-3"><p className="truncate font-black text-white">vs {match.rival}</p><span className="shrink-0 text-xs font-bold text-[#8995a4]">{match.condicion || 'Encuentro'}</span></div><p className="mt-1 truncate text-xs text-[#8995a4]">{match.categorias?.nombre || 'Sin categoría'} · {match.ubicacion || 'Lugar por confirmar'}</p><div className="mt-3 flex gap-3 text-xs font-bold"><span className="text-[#70e4df]">Citación {match.hora_citacion?.slice(0, 5) || '—'}</span><span className="text-white">Inicio {match.hora?.slice(0, 5)}</span></div></div></article>) : <div className="rounded-2xl border border-dashed border-white/15 p-8 text-center"><ClockIcon className="mx-auto h-9 w-9 text-[#607080]" /><p className="mt-3 text-sm text-[#8995a4]">No tienes encuentros programados.</p><Link to="/partidos" className="mt-3 inline-block font-black text-[#70e4df]">Agregar encuentro</Link></div>}</div>
-      </div>
-    </section>
-
-    <section className="grid gap-6 lg:grid-cols-[1fr_0.8fr]">
-      <div className="rounded-3xl border border-white/10 bg-[#151b25] p-6"><div className="flex items-center justify-between"><div><p className="text-xs font-black uppercase tracking-[0.16em] text-violet-300">Finanzas del mes</p><h2 className="mt-1 text-xl font-black text-white">Cómo va el mes</h2></div><ArrowTrendingUpIcon className={`h-8 w-8 ${data.kpis.saldo_mes >= 0 ? 'text-emerald-300' : 'text-red-300'}`} /></div><div className="mt-6 grid gap-5 sm:grid-cols-3"><div><p className="text-xs text-[#8995a4]">Ingresos</p><p className="mt-1 text-xl font-black text-emerald-300">{money(data.kpis.ingresos_mes)}</p></div><div><p className="text-xs text-[#8995a4]">Egresos</p><p className="mt-1 text-xl font-black text-red-300">{money(data.kpis.egresos_mes)}</p></div><div><p className="text-xs text-[#8995a4]">Saldo</p><p className={`mt-1 text-xl font-black ${data.kpis.saldo_mes >= 0 ? 'text-white' : 'text-red-300'}`}>{money(data.kpis.saldo_mes)}</p></div></div><div className="mt-6 space-y-3"><div><div className="mb-1 flex justify-between text-xs text-[#8995a4]"><span>Ingresos</span><span>{Math.round((data.kpis.ingresos_mes / maxFinance) * 100)}%</span></div><div className="h-2 rounded-full bg-white/5"><div className="h-2 rounded-full bg-emerald-400" style={{ width: `${(data.kpis.ingresos_mes / maxFinance) * 100}%` }} /></div></div><div><div className="mb-1 flex justify-between text-xs text-[#8995a4]"><span>Egresos</span><span>{Math.round((data.kpis.egresos_mes / maxFinance) * 100)}%</span></div><div className="h-2 rounded-full bg-white/5"><div className="h-2 rounded-full bg-red-400" style={{ width: `${(data.kpis.egresos_mes / maxFinance) * 100}%` }} /></div></div></div><Link to="/finanzas" className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-violet-400/25 px-4 font-black text-violet-200 hover:bg-violet-500/10">Ver finanzas →</Link></div>
-      <div className="rounded-3xl border border-white/10 bg-[#151b25] p-6"><p className="text-xs font-black uppercase tracking-[0.16em] text-[#70e4df]">Atajos</p><h2 className="mt-1 text-xl font-black text-white">¿Qué quieres hacer?</h2><div className="mt-5 grid grid-cols-2 gap-3">{[
-        ['/matricula', 'Nueva matrícula', '📝'], ['/partidos', 'Nuevo encuentro', '🏅'], ['/profesores', 'Equipo técnico', '🧑‍🏫'], ['/uniformes', `${data.kpis.uniformes_pendientes} uniformes pendientes`, '👕'],
-      ].map(([to, label, emoji]) => <Link key={to} to={to} className="rounded-2xl border border-white/10 bg-[#101620] p-4 transition hover:border-[#289E9D]/40 hover:bg-[#16222c]"><span className="text-2xl">{emoji}</span><p className="mt-3 text-sm font-black text-white">{label}</p></Link>)}</div></div>
-    </section>
-  </div>;
+      {showOnboarding ? (
+        <section className="new-era-card p-5 sm:p-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="flex items-start gap-3">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#c8ff00]"><RocketLaunchIcon className="h-5 w-5" /></span>
+              <div><p className="new-era-section-kicker">Primeros pasos</p><h2 className="new-era-section-title mt-1">Deja Lestra listo para trabajar contigo</h2><p className="mt-1 text-sm text-[#737a71]">Esta guía desaparece cuando termines.</p></div>
+            </div>
+            <div className="min-w-52">
+              <div className="flex justify-between text-xs font-black text-[#6f756f]"><span>Avance</span><span>{completedOnboarding}/{onboardingSteps.length}</span></div>
+              <div className="new-era-progress-track mt-2"><div className="new-era-progress-fill" style={{ width: `${(completedOnboarding / onboardingSteps.length) * 100}%` }} /></div>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-2 md:grid-cols-2 xl:grid-cols-5">
+            {onboardingSteps.map(({ code, label, detail, done, to, icon: Icon }) => (
+              <Link key={code} to={to} className={`rounded-2xl border p-4 ${done ? 'border-[#dce8df] bg-[#f2faf5]' : 'border-[#e0e3dc] bg-[#fafbf8]'}`}>
+                <div className="flex items-center justify-between"><Icon className="h-5 w-5 text-[#4d554b]" />{done ? <CheckCircleIcon className="h-5 w-5 text-[#16a36a]" /> : <ArrowRightIcon className="h-4 w-4 text-[#7b8179]" />}</div>
+                <p className="mt-4 text-sm font-black text-[#111511]">{label}</p>
+                <p className="mt-1 text-xs leading-5 text-[#737a71]">{done ? 'Listo' : detail}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
+    </div>
+  );
 };
 
 export default Dashboard;
