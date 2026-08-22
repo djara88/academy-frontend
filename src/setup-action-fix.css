@@ -25,3 +25,82 @@
   -webkit-text-fill-color: #eef2ec !important;
   opacity: .62 !important;
 }
+
+/* Selector de hora propio de Lestra: evita el time-picker nativo del navegador. */
+.lestra-director-main[data-route="/puesta-en-marcha"] .setup-time-picker__label {
+  display: block;
+  margin-bottom: .25rem;
+  color: #697266 !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+  font-weight: 850;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .setup-time-picker__control {
+  min-height: 44px;
+  display: grid;
+  grid-template-columns: 18px minmax(42px, 1fr) 8px minmax(42px, 1fr) auto;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border: 1px solid #cdd2c8;
+  border-radius: 12px;
+  background: #f9faf6 !important;
+  transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .setup-time-picker__control:focus-within {
+  border-color: #7f8e77;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(185,233,55,.13);
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .setup-time-picker__icon {
+  width: 17px;
+  height: 17px;
+  color: #7e8978 !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .setup-time-picker__control select {
+  min-width: 0;
+  width: 100%;
+  height: 32px;
+  padding: 0 2px !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: transparent !important;
+  color: #172018 !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 850 !important;
+  text-align: center;
+  text-align-last: center;
+  outline: none !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .setup-time-picker__control select:focus {
+  background: #edf0e8 !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .setup-time-picker__colon {
+  color: #596356 !important;
+  font-size: 16px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .setup-time-picker__suffix {
+  color: #7d8679 !important;
+  font-size: 10px !important;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+@media (max-width: 639px) {
+  .lestra-director-main[data-route="/puesta-en-marcha"] .setup-time-picker__control {
+    grid-template-columns: 18px minmax(48px, 1fr) 8px minmax(48px, 1fr) auto;
+  }
+}
