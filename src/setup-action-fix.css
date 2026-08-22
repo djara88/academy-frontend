@@ -1,0 +1,27 @@
+/* Puesta en Marcha: acciones oscuras con contraste garantizado.
+ * Esta capa se importa al final para ganar sobre el contrato global de legibilidad.
+ */
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page button[class*="bg-[#172018]"] {
+  background: #172018 !important;
+  color: #ffffff !important;
+  border-color: #172018 !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page button[class*="bg-[#172018]"] svg {
+  color: #caff00 !important;
+  stroke: currentColor !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page button[class*="bg-[#172018]"]:hover:not(:disabled) {
+  background: #273329 !important;
+  color: #ffffff !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page button[class*="bg-[#172018]"]:disabled {
+  background: #30372f !important;
+  color: #eef2ec !important;
+  -webkit-text-fill-color: #eef2ec !important;
+  opacity: .62 !important;
+}
