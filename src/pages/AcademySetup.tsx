@@ -12,6 +12,7 @@ import {
   PlusIcon,
   ShieldCheckIcon,
   SparklesIcon,
+  TrashIcon,
   UserGroupIcon,
 } from '@heroicons/react/24/outline';
 import api from '../api/axiosConfig';
@@ -27,6 +28,7 @@ type SetupStep = {
 };
 type Category = { id: string; nombre: string; rama_id: string };
 type Branch = { id: string; nombre: string; disciplina: string; categorias: Category[] };
+type TrainingSchedule = { dias: string; inicio: string; fin: string };
 type Site = {
   id: string;
   nombre: string;
@@ -34,6 +36,7 @@ type Site = {
   ubicacion_entrenamiento?: string | null;
   dias_entrenamiento?: string | null;
   horarios_entrenamiento?: string | null;
+  horarios_config?: TrainingSchedule[] | null;
   operation_complete: boolean;
   ramas: Branch[];
 };
@@ -59,7 +62,31 @@ type SetupStatus = {
   steps: SetupStep[];
 };
 
-type OperationDraft = { ubicacion_entrenamiento: string; dias_entrenamiento: string; horarios_entrenamiento: string };
+type OperationDraft = { ubicacion_entrenamiento: string; horarios: TrainingSchedule[] };
+
+const emptySchedule = (): TrainingSchedule => ({ dias: '', inicio: '', fin: '' });
+const normalizeHour = (hour: string, minute: string) => `${hour.padStart(2, '0')}:${minute}`;
+const schedulesFromSite = (site: Site): TrainingSchedule[] => {
+  if (Array.isArray(site.horarios_config) && site.horarios_config.length) {
+    return site.horarios_config.map((item) => ({
+      dias: String(item?.dias || ''),
+      inicio: String(item?.inicio || ''),
+      fin: String(item?.fin || ''),
+    }));
+  }
+
+  const legacyDays = String(site.dias_entrenamiento || '').trim();
+  const legacyHours = String(site.horarios_entrenamiento || '').trim();
+  const match = legacyHours.match(/(\d{1,2}):(\d{2})\s*[-–—]\s*(\d{1,2}):(\d{2})/);
+  if (legacyDays || legacyHours) {
+    return [{
+      dias: legacyDays,
+      inicio: match ? normalizeHour(match[1], match[2]) : '',
+      fin: match ? normalizeHour(match[3], match[4]) : '',
+    }];
+  }
+  return [emptySchedule()];
+};
 
 const choiceClass = (active: boolean) => active
   ? 'border-[#b9e937] bg-[#b9e937] text-[#11170f] shadow-[0_12px_30px_rgba(185,233,55,.18)]'
@@ -112,8 +139,7 @@ export default function AcademySetup() {
     for (const site of status.structure.sites) {
       next[site.id] = {
         ubicacion_entrenamiento: site.ubicacion_entrenamiento || site.direccion || '',
-        dias_entrenamiento: site.dias_entrenamiento || '',
-        horarios_entrenamiento: site.horarios_entrenamiento || '',
+        horarios: schedulesFromSite(site),
       };
     }
     setOperationDrafts(next);
@@ -150,17 +176,58 @@ export default function AcademySetup() {
     } finally { setWorking(''); }
   };
 
+  const updateSchedule = (siteId: string, index: number, patch: Partial<TrainingSchedule>) => {
+    setOperationDrafts((current) => {
+      const currentDraft = current[siteId] || { ubicacion_entrenamiento: '', horarios: [emptySchedule()] };
+      return {
+        ...current,
+        [siteId]: {
+          ...currentDraft,
+          horarios: currentDraft.horarios.map((schedule, scheduleIndex) => scheduleIndex === index ? { ...schedule, ...patch } : schedule),
+        },
+      };
+    });
+  };
+
+  const addSchedule = (siteId: string) => {
+    setOperationDrafts((current) => {
+      const currentDraft = current[siteId] || { ubicacion_entrenamiento: '', horarios: [] };
+      return { ...current, [siteId]: { ...currentDraft, horarios: [...currentDraft.horarios, emptySchedule()] } };
+    });
+  };
+
+  const removeSchedule = (siteId: string, index: number) => {
+    setOperationDrafts((current) => {
+      const currentDraft = current[siteId] || { ubicacion_entrenamiento: '', horarios: [] };
+      const remaining = currentDraft.horarios.filter((_, scheduleIndex) => scheduleIndex !== index);
+      return { ...current, [siteId]: { ...currentDraft, horarios: remaining.length ? remaining : [emptySchedule()] } };
+    });
+  };
+
   const saveOperation = async (siteId: string) => {
     const draft = operationDrafts[siteId];
-    if (!draft?.ubicacion_entrenamiento.trim() || !draft?.dias_entrenamiento.trim() || !draft?.horarios_entrenamiento.trim()) {
-      return setMessage('Completa lugar, días y horarios de esta sede.');
+    const schedules = draft?.horarios || [];
+    if (!draft?.ubicacion_entrenamiento.trim()) return setMessage('Completa el lugar de entrenamiento de esta sede.');
+    if (!schedules.length || schedules.some((item) => !item.dias.trim() || !item.inicio || !item.fin)) {
+      return setMessage('Completa día, hora de inicio y hora de término de cada horario.');
     }
+    if (schedules.some((item) => item.inicio >= item.fin)) {
+      return setMessage('La hora de término debe ser posterior a la hora de inicio.');
+    }
+    const duplicateKeys = schedules.map((item) => `${item.dias.trim().toLowerCase()}|${item.inicio}|${item.fin}`);
+    if (new Set(duplicateKeys).size !== duplicateKeys.length) {
+      return setMessage('Hay dos horarios idénticos. Elimina el duplicado antes de guardar.');
+    }
+
     setWorking(`site:${siteId}`);
     setMessage('');
     try {
-      await api.patch(`/api/estructura/sedes/${siteId}`, draft);
+      await api.patch(`/api/estructura/sedes/${siteId}`, {
+        ubicacion_entrenamiento: draft.ubicacion_entrenamiento,
+        horarios_config: schedules.map((item) => ({ dias: item.dias.trim(), inicio: item.inicio, fin: item.fin })),
+      });
       await refresh();
-      setMessage('Operación de la sede guardada.');
+      setMessage('Horarios de la sede guardados correctamente.');
     } catch (error: any) {
       setMessage(error?.response?.data?.error || 'No fue posible guardar los horarios de la sede.');
     } finally { setWorking(''); }
@@ -214,8 +281,22 @@ export default function AcademySetup() {
       </section>
 
       <section className="rounded-[30px] border border-[#d2d6cc] bg-[#f7f8f3] p-5 sm:p-7">
-        <SectionHeader icon={ClockIcon} eyebrow="03 · Operación" title="Dónde y cuándo entrenan" description="Cada sede activa necesita lugar, días y horarios. Esto alimenta la operación diaria y evita agendas vacías o ambiguas." />
-        <div className="mt-6 grid gap-4 lg:grid-cols-2">{status.structure.sites.map((site) => { const draft = operationDrafts[site.id] || { ubicacion_entrenamiento:'', dias_entrenamiento:'', horarios_entrenamiento:'' }; return <article key={site.id} className={`rounded-[24px] border p-5 ${site.operation_complete ? 'border-emerald-200 bg-emerald-50/60' : 'border-[#d9ddd3] bg-white'}`}><div className="flex items-center justify-between"><h3 className="font-black">{site.nombre}</h3>{site.operation_complete ? <span className="text-xs font-black text-emerald-700">✓ Lista</span> : <span className="text-xs font-black text-amber-700">Pendiente</span>}</div><div className="mt-4 grid gap-3"><Field label="Lugar de entrenamiento" value={draft.ubicacion_entrenamiento} onChange={(value) => setOperationDrafts((current) => ({ ...current, [site.id]: { ...draft, ubicacion_entrenamiento:value } }))}/><div className="grid gap-3 sm:grid-cols-2"><Field label="Días" value={draft.dias_entrenamiento} placeholder="Ej.: Martes y jueves" onChange={(value) => setOperationDrafts((current) => ({ ...current, [site.id]: { ...draft, dias_entrenamiento:value } }))}/><Field label="Horarios" value={draft.horarios_entrenamiento} placeholder="Ej.: 18:00–20:00" onChange={(value) => setOperationDrafts((current) => ({ ...current, [site.id]: { ...draft, horarios_entrenamiento:value } }))}/></div></div><button disabled={working === `site:${site.id}`} onClick={() => void saveOperation(site.id)} className="mt-4 rounded-xl bg-[#20261f] px-4 py-2.5 text-xs font-black text-white disabled:opacity-40">{working === `site:${site.id}` ? 'Guardando…' : 'Guardar operación'}</button></article>; })}</div>
+        <SectionHeader icon={ClockIcon} eyebrow="03 · Operación" title="Dónde y cuándo entrenan" description="Configura uno o varios bloques por sede. Si entrenan en días u horarios distintos, agrega cada bloque por separado." />
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">{status.structure.sites.map((site) => {
+          const draft = operationDrafts[site.id] || { ubicacion_entrenamiento:'', horarios:[emptySchedule()] };
+          return <article key={site.id} className={`rounded-[24px] border p-5 ${site.operation_complete ? 'border-emerald-200 bg-emerald-50/60' : 'border-[#d9ddd3] bg-white'}`}>
+            <div className="flex items-center justify-between gap-3"><h3 className="font-black">{site.nombre}</h3>{site.operation_complete ? <span className="text-xs font-black text-emerald-700">✓ Lista</span> : <span className="text-xs font-black text-amber-700">Pendiente</span>}</div>
+            <div className="mt-4"><Field label="Lugar de entrenamiento" value={draft.ubicacion_entrenamiento} onChange={(value) => setOperationDrafts((current) => ({ ...current, [site.id]: { ...draft, ubicacion_entrenamiento:value } }))}/></div>
+            <div className="mt-5 flex items-center justify-between gap-3"><div><p className="text-sm font-black text-[#20261f]">Horarios semanales</p><p className="mt-0.5 text-[11px] font-semibold text-[#6f786b]">Puedes agregar días con horarios diferentes.</p></div><button type="button" onClick={() => addSchedule(site.id)} className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-[#b9e937] px-3 py-2 text-[11px] font-black text-[#11170f] transition hover:bg-[#c8f64b]"><PlusIcon className="h-4 w-4"/> Agregar horario</button></div>
+            <div className="mt-3 space-y-2">{draft.horarios.map((schedule, index) => <div key={`${site.id}-schedule-${index}`} className="grid gap-2 rounded-2xl border border-[#d9ddd3] bg-white/80 p-3 sm:grid-cols-[minmax(0,1fr)_120px_120px_auto] sm:items-end">
+              <label className="block"><span className="text-[11px] font-black text-[#697266]">Día(s)</span><input value={schedule.dias} onChange={(event) => updateSchedule(site.id, index, { dias:event.target.value })} placeholder="Ej.: Martes" className="mt-1 min-h-11 w-full rounded-xl border border-[#cdd2c8] bg-[#f9faf6] px-3 text-sm text-[#20261f] outline-none placeholder:text-[#98a093] focus:border-[#7f8e77]"/></label>
+              <label className="block"><span className="text-[11px] font-black text-[#697266]">Desde</span><input type="time" value={schedule.inicio} onChange={(event) => updateSchedule(site.id, index, { inicio:event.target.value })} className="mt-1 min-h-11 w-full rounded-xl border border-[#cdd2c8] bg-[#f9faf6] px-3 text-sm text-[#20261f] outline-none focus:border-[#7f8e77]"/></label>
+              <label className="block"><span className="text-[11px] font-black text-[#697266]">Hasta</span><input type="time" value={schedule.fin} onChange={(event) => updateSchedule(site.id, index, { fin:event.target.value })} className="mt-1 min-h-11 w-full rounded-xl border border-[#cdd2c8] bg-[#f9faf6] px-3 text-sm text-[#20261f] outline-none focus:border-[#7f8e77]"/></label>
+              <button type="button" title="Eliminar horario" aria-label={`Eliminar horario ${index + 1}`} disabled={draft.horarios.length === 1} onClick={() => removeSchedule(site.id, index)} className="grid h-11 w-11 place-items-center rounded-xl border border-[#d7dbd1] bg-white text-[#6f786b] transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30"><TrashIcon className="h-4 w-4"/></button>
+            </div>)}</div>
+            <button disabled={working === `site:${site.id}`} onClick={() => void saveOperation(site.id)} className="!mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl !bg-[#172018] px-5 py-2.5 text-xs font-black !text-white shadow-[0_8px_20px_rgba(23,32,24,.16)] transition hover:!bg-[#273329] disabled:opacity-40"><CheckCircleIcon className="h-4 w-4"/>{working === `site:${site.id}` ? 'Guardando…' : 'Guardar horarios'}</button>
+          </article>;
+        })}</div>
       </section>
 
       <section className="rounded-[30px] border border-[#d2d6cc] bg-[#f7f8f3] p-5 sm:p-7">
