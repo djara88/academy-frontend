@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './index.css';
 import './revolution.css';
+import './new-era.css';
+import './new-era-bridge.css';
+import './new-era-type.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
@@ -10,9 +13,9 @@ const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
 const isDirectPublicAcademyRoute = /^\/a\/[^/]+\/?$/.test(window.location.pathname);
 
 const LoadingScreen = ({ academy = false }: { academy?: boolean }) => (
-  <div className="grid min-h-screen place-items-center bg-[#0d1117] px-6 text-center text-[#70e4df]">
+  <div className="grid min-h-screen place-items-center bg-[#f4f5f1] px-6 text-center text-[#111511]">
     <div>
-      <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#289E9D]/25 border-t-[#70E4DF]" />
+      <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#dce1d7] border-t-[#b6ed00]" />
       <p className="mt-4 text-sm font-black">{academy ? 'Cargando academia...' : 'Cargando Lestra...'}</p>
     </div>
   </div>
