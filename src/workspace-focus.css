@@ -1,0 +1,445 @@
+/* Lestra Workspaces
+ * Segunda capa del nuevo foco: menos apariencia de formulario, más producto.
+ * No cambia lógica, rutas, permisos ni contratos de API.
+ */
+
+:root {
+  --ws-bg: #f7f8f5;
+  --ws-surface: #ffffff;
+  --ws-soft: #f1f3ee;
+  --ws-soft-2: #f6f7f4;
+  --ws-ink: #101310;
+  --ws-muted: #747a73;
+  --ws-line: #e4e7e0;
+  --ws-lime: #c8ff00;
+  --ws-lime-strong: #b8ef00;
+  --ws-blue: #3e7bff;
+  --ws-danger: #ef535d;
+  --ws-warning: #f2a61a;
+  --ws-success: #14a06a;
+  --ws-radius: 15px;
+  --ws-shadow: 0 8px 24px rgba(15,20,15,.045);
+}
+
+/* ---------- Director workspaces: shared visual grammar ---------- */
+.lestra-director-main:not([data-route="/dashboard"]) .app-content > div {
+  max-width: 1420px !important;
+  margin-inline: auto !important;
+}
+
+.lestra-director-main:not([data-route="/dashboard"]) .app-content > div > section:first-child[class*="rounded-[28px]"],
+.lestra-director-main:not([data-route="/dashboard"]) .app-content > div > section:first-child[class*="rounded-[30px]"] {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 5px 2px 8px !important;
+}
+
+.lestra-director-main:not([data-route="/dashboard"]) .app-content > div > section:first-child h1 {
+  color: var(--ws-ink) !important;
+  font-size: clamp(1.85rem, 3vw, 2.7rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -.045em !important;
+}
+
+.lestra-director-main:not([data-route="/dashboard"]) .app-content > div > section:first-child p[class*="uppercase"] {
+  color: #778075 !important;
+  font-size: 9px !important;
+  letter-spacing: .13em !important;
+}
+
+.lestra-director-main:not([data-route="/dashboard"]) .app-content > div > section:first-child p[class*="leading"] {
+  max-width: 58rem !important;
+  color: var(--ws-muted) !important;
+  font-size: 12.5px !important;
+  line-height: 1.65 !important;
+}
+
+/* Actions should look like actions, not form submit controls. */
+.lestra-director-main:not([data-route="/dashboard"]) .app-content button[class*="bg-[#289E9D]"],
+.lestra-director-main:not([data-route="/dashboard"]) .app-content a[class*="bg-[#289E9D]"] {
+  min-height: 42px !important;
+  border-radius: 11px !important;
+  background: var(--ws-lime) !important;
+  color: #0b0e0c !important;
+  font-weight: 900 !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main:not([data-route="/dashboard"]) .app-content button[class*="bg-[#289E9D]"]:hover,
+.lestra-director-main:not([data-route="/dashboard"]) .app-content a[class*="bg-[#289E9D]"]:hover {
+  background: var(--ws-lime-strong) !important;
+}
+
+/* Field controls become quiet tools instead of boxed forms. */
+.lestra-director-main:not([data-route="/dashboard"]) .app-content :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  min-height: 42px !important;
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
+  background: var(--ws-soft) !important;
+  color: var(--ws-ink) !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main:not([data-route="/dashboard"]) .app-content :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea):hover {
+  background: #ecefe9 !important;
+}
+
+.lestra-director-main:not([data-route="/dashboard"]) .app-content :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea):focus {
+  border-color: #9ec400 !important;
+  background: #fff !important;
+  box-shadow: 0 0 0 3px rgba(200,255,0,.16) !important;
+}
+
+.lestra-director-main:not([data-route="/dashboard"]) .app-content label > span[class*="block"][class*="text-xs"],
+.lestra-director-main:not([data-route="/dashboard"]) .app-content label > span[class*="uppercase"] {
+  color: #777e76 !important;
+  font-size: 9px !important;
+  letter-spacing: .08em !important;
+}
+
+/* Legacy dark panels are now lighter, flatter work surfaces. */
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="bg-[#151b25]"],
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="bg-[#161b22]"],
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="bg-[#111720]"],
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="bg-[#0d1117]"] {
+  background-color: var(--ws-surface) !important;
+  background-image: none !important;
+  color: var(--ws-ink) !important;
+  border-color: var(--ws-line) !important;
+}
+
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="text-white"] {
+  color: var(--ws-ink) !important;
+}
+
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="text-[#8b949e]"],
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="text-[#8995a4]"],
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="text-[#9aa6b5]"],
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="text-[#7f8c9c]"],
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="text-[#697586]"] {
+  color: var(--ws-muted) !important;
+}
+
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="text-[#70e4df]"] {
+  color: #586d00 !important;
+}
+
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="border-white/10"],
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="border-[#30363d]"] {
+  border-color: var(--ws-line) !important;
+}
+
+/* Filter/search blocks become toolbars. */
+.lestra-director-main:not([data-route="/dashboard"]) .app-content > div > section:nth-child(2)[class*="p-4"],
+.lestra-director-main:not([data-route="/dashboard"]) .app-content > div > section:nth-child(2)[class*="p-5"] {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* Dialogs remain forms, but read as focused tasks rather than admin pages. */
+.lestra-director-main .app-content .fixed[class*="inset-0"] > form,
+.lestra-director-main .app-content .fixed[class*="inset-0"] > div[class*="max-w-"] {
+  border: 1px solid #dfe3dc !important;
+  background: #fff !important;
+  color: var(--ws-ink) !important;
+  box-shadow: 0 28px 90px rgba(15,20,15,.22) !important;
+}
+
+.lestra-director-main .app-content .fixed[class*="inset-0"] h2,
+.lestra-director-main .app-content .fixed[class*="inset-0"] h3 {
+  color: var(--ws-ink) !important;
+}
+
+.lestra-director-main .app-content .fixed[class*="inset-0"] [class*="bg-[#0d1117]"],
+.lestra-director-main .app-content .fixed[class*="inset-0"] [class*="bg-[#111720]"] {
+  background: var(--ws-soft-2) !important;
+  border-color: var(--ws-line) !important;
+}
+
+/* ---------- Deportistas ---------- */
+.lestra-director-main[data-route="/alumnos"] .app-content > div > section:nth-child(2) {
+  margin-top: 6px !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div > section:nth-child(2) > div {
+  align-items: center !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div > section.grid > button {
+  border: 1px solid var(--ws-line) !important;
+  border-radius: 16px !important;
+  background: #fff !important;
+  box-shadow: var(--ws-shadow) !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div > section.grid > button:hover {
+  transform: translateY(-2px) !important;
+  border-color: #cdd7ad !important;
+  box-shadow: 0 14px 30px rgba(15,20,15,.07) !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div > section.grid > button h2 {
+  color: var(--ws-ink) !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div > section.grid > button > div:last-child {
+  border-color: #edf0ea !important;
+}
+
+/* Student profile header behaves like identity summary, not another card. */
+.lestra-director-main[data-route="/alumnos"] .app-content > div > section[class*="rounded-[30px]"] {
+  border-radius: 18px !important;
+  background: #fff !important;
+  border: 1px solid var(--ws-line) !important;
+  box-shadow: var(--ws-shadow) !important;
+}
+
+/* ---------- Asistencia: turn configuration into a session composer ---------- */
+.lestra-director-main[data-route="/asistencias"] .app-content > div > div[class*="flex"][class*="rounded-xl"] {
+  width: fit-content !important;
+  max-width: 100% !important;
+  border: 1px solid var(--ws-line) !important;
+  border-radius: 11px !important;
+  background: #fff !important;
+  box-shadow: var(--ws-shadow) !important;
+  padding: 3px !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div > div[class*="rounded-xl"] button {
+  min-width: 112px;
+  border-radius: 8px !important;
+  color: #737a72 !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div > div[class*="rounded-xl"] button[class*="bg-[#289E9D]"] {
+  background: #111511 !important;
+  color: #fff !important;
+}
+
+@media (min-width: 1024px) {
+  .lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid[class*="lg:grid-cols"] {
+    grid-template-columns: minmax(260px, .48fr) minmax(0, 1.52fr) !important;
+    gap: 12px !important;
+  }
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:first-child {
+  border-radius: 15px !important;
+  background: #fff !important;
+  border: 1px solid var(--ws-line) !important;
+  box-shadow: var(--ws-shadow) !important;
+  padding: 16px !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:first-child h2 {
+  font-size: 1rem !important;
+  letter-spacing: -.02em !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:first-child > div[class*="space-y-3"] {
+  margin-top: 12px !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:nth-child(2) {
+  border-radius: 15px !important;
+  background: #fff !important;
+  border: 1px solid var(--ws-line) !important;
+  box-shadow: var(--ws-shadow) !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:nth-child(2) > div:first-child {
+  border-color: #edf0ea !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:nth-child(2) [class*="rounded-2xl"][class*="bg-[#0d1117]"] {
+  border-radius: 12px !important;
+  background: #fafbf8 !important;
+  border-color: #edf0ea !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:nth-child(2) [class*="grid-cols-3"][class*="bg-[#151b25]"] {
+  background: #eef1eb !important;
+  border-color: transparent !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content button[class*="bg-emerald-500"] {
+  color: #073b27 !important;
+}
+
+/* ---------- Competencia / rendimiento ---------- */
+.lestra-director-main[data-route="/partidos"] .app-content > div > section:nth-child(2) {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .app-content > div > section:nth-child(2) select {
+  max-width: 360px !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .app-content > div > section.grid > article {
+  border-radius: 16px !important;
+  background: #fff !important;
+  border: 1px solid var(--ws-line) !important;
+  box-shadow: var(--ws-shadow) !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .app-content > div > section.grid > article > div:last-child {
+  border-color: #edf0ea !important;
+  background: #fbfcf9 !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .app-content > div > section.grid > article [class*="bg-[#0d1117]"] {
+  background: #f4f6f1 !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .app-content .fixed form,
+.lestra-director-main[data-route="/partidos"] .app-content .fixed > div {
+  border-radius: 20px !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .app-content .fixed section[class*="rounded-2xl"] {
+  background: #f7f8f5 !important;
+  border-color: var(--ws-line) !important;
+}
+
+/* ---------- Finanzas ---------- */
+.lestra-director-main[data-route="/finanzas"] .app-content > div > section:first-child {
+  margin-bottom: 4px !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .app-content nav,
+.lestra-director-main[data-route="/finanzas"] .app-content [role="tablist"] {
+  border-color: var(--ws-line) !important;
+  background: #fff !important;
+  box-shadow: var(--ws-shadow) !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .app-content table {
+  border: 1px solid var(--ws-line) !important;
+  box-shadow: var(--ws-shadow) !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .app-content thead th {
+  background: #f5f6f2 !important;
+  color: #697168 !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .app-content tbody tr:hover {
+  background: #fafbf8 !important;
+}
+
+/* ---------- Profesores ---------- */
+.lestra-director-main[data-route="/profesores"] .app-content > div > section:nth-child(2) {
+  gap: 10px !important;
+}
+
+.lestra-director-main[data-route="/profesores"] .app-content > div > section:nth-child(2) > div,
+.lestra-director-main[data-route="/profesores"] .app-content > div > section:nth-child(2) > label {
+  border-radius: 13px !important;
+  background: #fff !important;
+  border: 1px solid var(--ws-line) !important;
+  box-shadow: var(--ws-shadow) !important;
+}
+
+.lestra-director-main[data-route="/profesores"] .app-content > div > section.grid > article {
+  border-radius: 16px !important;
+  background: #fff !important;
+  border: 1px solid var(--ws-line) !important;
+  box-shadow: var(--ws-shadow) !important;
+}
+
+.lestra-director-main[data-route="/profesores"] .app-content > div > section.grid > article > div:nth-child(2) {
+  background: #fafbf8 !important;
+  border-color: #edf0ea !important;
+}
+
+.lestra-director-main[data-route="/profesores"] .app-content > div > section.grid > article > div:nth-child(2) > div > div {
+  background: #fff !important;
+  border-color: var(--ws-line) !important;
+}
+
+/* ---------- Settings and data-entry routes: make sections feel like choices ---------- */
+.lestra-director-main[data-route="/configuracion"] .app-content section,
+.lestra-director-main[data-route="/configuracion/perfil"] .app-content section,
+.lestra-director-main[data-route="/configuracion/estructura"] .app-content section,
+.lestra-director-main[data-route="/matricula"] .app-content section,
+.lestra-director-main[data-route="/inscripciones"] .app-content section,
+.lestra-director-main[data-route="/solicitudes"] .app-content section,
+.lestra-director-main[data-route="/uniformes"] .app-content section,
+.lestra-director-main[data-route="/comunicaciones"] .app-content section {
+  border-color: var(--ws-line) !important;
+}
+
+.lestra-director-main[data-route="/configuracion"] .app-content [class*="rounded-2xl"],
+.lestra-director-main[data-route="/configuracion/perfil"] .app-content [class*="rounded-2xl"],
+.lestra-director-main[data-route="/configuracion/estructura"] .app-content [class*="rounded-2xl"] {
+  box-shadow: none !important;
+}
+
+/* Small inline controls: chips, not mini forms. */
+.lestra-director-main .app-content input[type="checkbox"],
+.lestra-director-main .app-content input[type="radio"] {
+  accent-color: #9bc500;
+}
+
+/* ---------- Mobile: preserve information hierarchy ---------- */
+@media (max-width: 767px) {
+  .lestra-director-main:not([data-route="/dashboard"]) .app-content > div {
+    padding-bottom: 18px !important;
+  }
+
+  .lestra-director-main:not([data-route="/dashboard"]) .app-content > div > section:first-child[class*="rounded-[28px]"],
+  .lestra-director-main:not([data-route="/dashboard"]) .app-content > div > section:first-child[class*="rounded-[30px]"] {
+    padding: 3px 1px 8px !important;
+  }
+
+  .lestra-director-main:not([data-route="/dashboard"]) .app-content > div > section:first-child h1 {
+    font-size: 1.75rem !important;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .app-content > div > div[class*="rounded-xl"] {
+    width: 100% !important;
+    overflow-x: auto;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .app-content > div > div[class*="rounded-xl"] button {
+    min-width: 104px;
+    white-space: nowrap;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:first-child {
+    padding: 14px !important;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:first-child > div[class*="space-y-3"] {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px !important;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:first-child > div[class*="space-y-3"] > :first-child,
+  .lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:first-child > div[class*="space-y-3"] > button:last-child,
+  .lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:first-child > div[class*="space-y-3"] > textarea {
+    grid-column: 1 / -1;
+  }
+
+  .lestra-director-main[data-route="/partidos"] .app-content > div > section.grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lestra-director-main[data-route="/alumnos"] .app-content > div > section.grid {
+    gap: 10px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lestra-director-main .app-content * {
+    scroll-behavior: auto !important;
+  }
+}
