@@ -7,6 +7,7 @@ import './new-era.css';
 import './new-era-bridge.css';
 import './new-era-type.css';
 import './reference-focus.css';
+import './workspace-focus.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
