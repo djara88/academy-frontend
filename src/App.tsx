@@ -122,7 +122,7 @@ const DirectorRoutes = () => {
   const isProfessor = isProfessorRole(user?.rol);
   const isGuardian = isGuardianRole(user?.rol);
   const setupQuery = useQuery({
-    queryKey: ['academy-setup', user?.academia_id],
+    queryKey: ['academy-setup'],
     enabled: Boolean(user?.academia_id) && !isSuperAdmin && !isProfessor && !isGuardian,
     staleTime: 10_000,
     queryFn: async () => (await api.get('/api/consentimientos/setup')).data.data as SetupGateState,
