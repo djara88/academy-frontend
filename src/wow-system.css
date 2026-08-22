@@ -1,0 +1,819 @@
+/* Lestra WOW System
+ * Tercera capa visual: rebelde, analítica y legible.
+ * Presentación solamente. No altera lógica, rutas, permisos, datos ni contratos API.
+ */
+
+:root {
+  --wow-bg: #e9ece4;
+  --wow-bg-deep: #e3e7dd;
+  --wow-paper: #f7f8f3;
+  --wow-paper-2: #f1f3ec;
+  --wow-white: #fbfcf8;
+  --wow-ink: #0b100c;
+  --wow-muted: #5f685f;
+  --wow-muted-dark: #aeb8ae;
+  --wow-line: #d6ddd3;
+  --wow-line-dark: rgba(255,255,255,.11);
+  --wow-graphite: #0b110d;
+  --wow-graphite-2: #121a14;
+  --wow-lime: #caff00;
+  --wow-lime-2: #b8ea00;
+  --wow-blue: #4968ff;
+  --wow-orange: #ff6a32;
+  --wow-mint: #45e6a7;
+  --wow-violet: #8d6bff;
+  --wow-red: #ff5864;
+  --wow-gold: #d8aa51;
+  --wow-radius: 18px;
+  --wow-shadow: 0 12px 34px rgba(13,20,14,.065);
+  --wow-shadow-strong: 0 20px 60px rgba(11,17,13,.13);
+}
+
+html, body, #root { background: var(--wow-bg) !important; }
+body { color: var(--wow-ink) !important; }
+
+/* ---------- Global director canvas ---------- */
+.lestra-director-main {
+  background:
+    linear-gradient(rgba(10,16,11,.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10,16,11,.018) 1px, transparent 1px),
+    radial-gradient(circle at 84% -6%, rgba(202,255,0,.13), transparent 30rem),
+    radial-gradient(circle at 10% 112%, rgba(73,104,255,.07), transparent 34rem),
+    var(--wow-bg) !important;
+  background-size: 34px 34px, 34px 34px, auto, auto, auto !important;
+}
+
+.lestra-director-main .app-content {
+  max-width: 1580px !important;
+  margin-inline: auto !important;
+}
+
+.lestra-director-main .app-content > div {
+  max-width: 1480px !important;
+}
+
+.lestra-director-main .app-content :is(h1,h2,h3) {
+  text-wrap: balance;
+}
+
+.lestra-director-main .app-content p,
+.lestra-director-main .app-content li,
+.lestra-director-main .app-content td,
+.lestra-director-main .app-content label {
+  text-rendering: optimizeLegibility;
+}
+
+/* Readability floor. Previous light grays were too weak on pale surfaces. */
+.lestra-director-main .app-content [class*="text-[#8b949e]"],
+.lestra-director-main .app-content [class*="text-[#8995a4]"],
+.lestra-director-main .app-content [class*="text-[#9aa6b5]"],
+.lestra-director-main .app-content [class*="text-[#7f8c9c]"],
+.lestra-director-main .app-content [class*="text-[#697586]"],
+.lestra-director-main .app-content [class*="text-[#778393]"],
+.lestra-director-main .app-content [class*="text-slate-400"],
+.lestra-director-main .app-content [class*="text-slate-500"] {
+  color: var(--wow-muted) !important;
+}
+
+.lestra-director-main .app-content :is(input,select,textarea)::placeholder {
+  color: #788178 !important;
+  opacity: 1 !important;
+}
+
+/* ---------- Sidebar: dark, precise, a little aggressive ---------- */
+.lestra-shell .lestra-sidebar {
+  background:
+    linear-gradient(180deg, rgba(202,255,0,.04), transparent 18rem),
+    linear-gradient(180deg, #090e0b 0%, #0d130f 100%) !important;
+  border-color: rgba(255,255,255,.055) !important;
+  box-shadow: 16px 0 46px rgba(7,11,8,.11) !important;
+}
+
+.lestra-shell .lestra-sidebar::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 1px;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(202,255,0,.22), transparent);
+}
+
+.lestra-sidebar-brand { position: relative; }
+.lestra-sidebar-brand::after {
+  content: '';
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--wow-lime), rgba(202,255,0,0));
+  opacity: .42;
+}
+
+.lestra-shell .lestra-nav-link {
+  position: relative;
+  overflow: hidden;
+}
+
+.lestra-shell .lestra-nav-link.is-active,
+.lestra-shell .lestra-nav-link[aria-current="page"] {
+  background: var(--wow-lime) !important;
+  color: #071007 !important;
+  box-shadow: 0 7px 20px rgba(202,255,0,.12) !important;
+}
+
+.lestra-shell .lestra-nav-link.is-active::after,
+.lestra-shell .lestra-nav-link[aria-current="page"]::after {
+  content: '';
+  position: absolute;
+  top: -18px;
+  right: -18px;
+  width: 48px;
+  height: 48px;
+  transform: rotate(18deg);
+  border: 9px solid rgba(8,16,8,.08);
+  border-radius: 12px;
+}
+
+/* ---------- Route accents ---------- */
+.lestra-director-main[data-route="/dashboard"] { --route-accent: var(--wow-lime); }
+.lestra-director-main[data-route="/alumnos"] { --route-accent: var(--wow-blue); }
+.lestra-director-main[data-route="/asistencias"] { --route-accent: var(--wow-lime); }
+.lestra-director-main[data-route="/partidos"] { --route-accent: var(--wow-orange); }
+.lestra-director-main[data-route="/finanzas"] { --route-accent: var(--wow-mint); }
+.lestra-director-main[data-route="/profesores"] { --route-accent: var(--wow-violet); }
+.lestra-director-main[data-route="/rendimiento/analitica"] { --route-accent: var(--wow-blue); }
+.lestra-director-main[data-route="/salud-deportiva"] { --route-accent: var(--wow-red); }
+.lestra-director-main[data-route="/comunicaciones"] { --route-accent: #48baff; }
+.lestra-director-main[data-route="/uniformes"] { --route-accent: var(--wow-gold); }
+.lestra-director-main[data-route^="/torneos"] { --route-accent: var(--wow-orange); }
+.lestra-director-main[data-route="/amistosos"] { --route-accent: var(--wow-orange); }
+.lestra-director-main[data-route^="/configuracion"] { --route-accent: var(--wow-blue); }
+.lestra-director-main[data-route="/matricula"],
+.lestra-director-main[data-route="/inscripciones"],
+.lestra-director-main[data-route="/solicitudes"] { --route-accent: var(--wow-lime); }
+
+/* ---------- Key module hero / command strip ---------- */
+.lestra-director-main:is(
+  [data-route="/alumnos"],
+  [data-route="/asistencias"],
+  [data-route="/partidos"],
+  [data-route="/finanzas"],
+  [data-route="/profesores"],
+  [data-route="/rendimiento/analitica"],
+  [data-route="/salud-deportiva"]
+) .app-content > div > section:first-child {
+  position: relative !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(255,255,255,.08) !important;
+  border-radius: 22px !important;
+  background:
+    radial-gradient(circle at 88% 20%, color-mix(in srgb, var(--route-accent) 24%, transparent), transparent 17rem),
+    linear-gradient(132deg, #0a100c 0%, #111a13 72%, #0d140f 100%) !important;
+  padding: clamp(20px,2.7vw,32px) !important;
+  color: #f6f8f4 !important;
+  box-shadow: var(--wow-shadow-strong) !important;
+}
+
+.lestra-director-main:is(
+  [data-route="/alumnos"],
+  [data-route="/asistencias"],
+  [data-route="/partidos"],
+  [data-route="/finanzas"],
+  [data-route="/profesores"],
+  [data-route="/rendimiento/analitica"],
+  [data-route="/salud-deportiva"]
+) .app-content > div > section:first-child::before {
+  content: '';
+  position: absolute;
+  width: 180px;
+  height: 34px;
+  top: 20px;
+  right: -48px;
+  transform: rotate(35deg);
+  background: var(--route-accent);
+  opacity: .88;
+  box-shadow: 0 0 34px color-mix(in srgb, var(--route-accent) 32%, transparent);
+}
+
+.lestra-director-main:is(
+  [data-route="/alumnos"],
+  [data-route="/asistencias"],
+  [data-route="/partidos"],
+  [data-route="/finanzas"],
+  [data-route="/profesores"],
+  [data-route="/rendimiento/analitica"],
+  [data-route="/salud-deportiva"]
+) .app-content > div > section:first-child::after {
+  content: '';
+  position: absolute;
+  inset: auto 26px 0 26px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--route-accent), transparent 72%);
+}
+
+.lestra-director-main:is(
+  [data-route="/alumnos"],
+  [data-route="/asistencias"],
+  [data-route="/partidos"],
+  [data-route="/finanzas"],
+  [data-route="/profesores"],
+  [data-route="/rendimiento/analitica"],
+  [data-route="/salud-deportiva"]
+) .app-content > div > section:first-child h1 {
+  color: #f7f9f5 !important;
+  font-size: clamp(2rem,3.2vw,3.25rem) !important;
+  letter-spacing: -.055em !important;
+  line-height: .98 !important;
+}
+
+.lestra-director-main:is(
+  [data-route="/alumnos"],
+  [data-route="/asistencias"],
+  [data-route="/partidos"],
+  [data-route="/finanzas"],
+  [data-route="/profesores"],
+  [data-route="/rendimiento/analitica"],
+  [data-route="/salud-deportiva"]
+) .app-content > div > section:first-child p[class*="uppercase"] {
+  color: var(--route-accent) !important;
+}
+
+.lestra-director-main:is(
+  [data-route="/alumnos"],
+  [data-route="/asistencias"],
+  [data-route="/partidos"],
+  [data-route="/finanzas"],
+  [data-route="/profesores"],
+  [data-route="/rendimiento/analitica"],
+  [data-route="/salud-deportiva"]
+) .app-content > div > section:first-child p[class*="leading"],
+.lestra-director-main:is(
+  [data-route="/alumnos"],
+  [data-route="/asistencias"],
+  [data-route="/partidos"],
+  [data-route="/finanzas"],
+  [data-route="/profesores"],
+  [data-route="/rendimiento/analitica"],
+  [data-route="/salud-deportiva"]
+) .app-content > div > section:first-child p[class*="text-sm"] {
+  color: #b7c0b8 !important;
+}
+
+/* Hero controls must remain readable on graphite. */
+.lestra-director-main:is(
+  [data-route="/asistencias"],
+  [data-route="/partidos"],
+  [data-route="/finanzas"]
+) .app-content > div > section:first-child select {
+  border-color: rgba(255,255,255,.12) !important;
+  background: rgba(255,255,255,.08) !important;
+  color: #f7f9f5 !important;
+}
+.lestra-director-main:is([data-route="/asistencias"],[data-route="/partidos"],[data-route="/finanzas"]) .app-content > div > section:first-child select option {
+  color: #111711 !important;
+  background: #f7f8f3 !important;
+}
+
+/* ---------- Dashboard: deliberate asymmetry + data stage ---------- */
+.lestra-director-main[data-route="/dashboard"] .new-era-dashboard {
+  max-width: 1460px !important;
+}
+
+.lestra-director-main[data-route="/dashboard"] .new-era-hero {
+  position: relative !important;
+  overflow: hidden !important;
+  min-height: 190px;
+  border: 1px solid rgba(255,255,255,.08) !important;
+  border-radius: 24px !important;
+  background:
+    radial-gradient(circle at 88% 28%, rgba(202,255,0,.25), transparent 17rem),
+    linear-gradient(132deg, #08100b 0%, #101914 60%, #0b120e 100%) !important;
+  padding: clamp(24px,3.5vw,42px) !important;
+  color: #f7f9f5 !important;
+  box-shadow: var(--wow-shadow-strong) !important;
+}
+
+.lestra-director-main[data-route="/dashboard"] .new-era-hero::before {
+  content: 'CONTROL / LIVE';
+  position: absolute;
+  top: 22px;
+  right: 28px;
+  color: rgba(255,255,255,.18);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .22em;
+}
+
+.lestra-director-main[data-route="/dashboard"] .new-era-hero::after {
+  content: '' !important;
+  display: block !important;
+  position: absolute !important;
+  width: 210px !important;
+  height: 48px !important;
+  right: -54px !important;
+  bottom: 22px !important;
+  transform: rotate(-18deg);
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: var(--wow-lime) !important;
+  opacity: .92;
+}
+
+.lestra-director-main[data-route="/dashboard"] .new-era-eyebrow { color: var(--wow-lime) !important; }
+.lestra-director-main[data-route="/dashboard"] .new-era-eyebrow::before { background: var(--wow-lime) !important; }
+.lestra-director-main[data-route="/dashboard"] .new-era-hero h1 {
+  max-width: 980px;
+  color: #f8faf7 !important;
+  font-size: clamp(2.35rem,5vw,5.25rem) !important;
+  line-height: .9 !important;
+  letter-spacing: -.075em !important;
+}
+.lestra-director-main[data-route="/dashboard"] .new-era-hero p { color: #aeb9b0 !important; }
+.lestra-director-main[data-route="/dashboard"] .new-era-hero .rounded-full.bg-\[\#111511\] {
+  background: var(--wow-lime) !important;
+  color: #081008 !important;
+}
+.lestra-director-main[data-route="/dashboard"] .new-era-hero .rounded-full[class*="bg-white"] {
+  border-color: rgba(255,255,255,.12) !important;
+  background: rgba(255,255,255,.07) !important;
+  color: #e7ece7 !important;
+}
+.lestra-director-main[data-route="/dashboard"] .new-era-status {
+  border-color: rgba(255,255,255,.12) !important;
+  background: rgba(255,255,255,.08) !important;
+  color: #f4f7f3 !important;
+  backdrop-filter: blur(12px);
+}
+
+@media (min-width: 1180px) {
+  .lestra-director-main[data-route="/dashboard"] .new-era-kpis {
+    grid-template-columns: 1.16fr .92fr 1.08fr .84fr !important;
+  }
+}
+
+.lestra-director-main[data-route="/dashboard"] .new-era-card {
+  border-color: var(--wow-line) !important;
+  background: var(--wow-paper) !important;
+  box-shadow: var(--wow-shadow) !important;
+}
+
+.lestra-director-main[data-route="/dashboard"] .new-era-kpi {
+  min-height: 146px !important;
+  border-radius: 18px !important;
+}
+.lestra-director-main[data-route="/dashboard"] .new-era-kpi:nth-child(1) {
+  background: var(--wow-lime) !important;
+  border-color: #b7e900 !important;
+}
+.lestra-director-main[data-route="/dashboard"] .new-era-kpi:nth-child(1) .new-era-kpi-label,
+.lestra-director-main[data-route="/dashboard"] .new-era-kpi:nth-child(1) .new-era-kpi-detail { color: #384700 !important; }
+.lestra-director-main[data-route="/dashboard"] .new-era-kpi:nth-child(1) .new-era-kpi-icon { background: #0d130e !important; color: var(--wow-lime) !important; }
+.lestra-director-main[data-route="/dashboard"] .new-era-kpi:nth-child(2) {
+  background: var(--wow-graphite) !important;
+  border-color: #18231b !important;
+}
+.lestra-director-main[data-route="/dashboard"] .new-era-kpi:nth-child(2) :is(.new-era-kpi-value) { color: #f8faf6 !important; }
+.lestra-director-main[data-route="/dashboard"] .new-era-kpi:nth-child(2) :is(.new-era-kpi-label,.new-era-kpi-detail) { color: #aab5ab !important; }
+.lestra-director-main[data-route="/dashboard"] .new-era-kpi:nth-child(2) .new-era-kpi-icon { background: rgba(202,255,0,.12) !important; color: var(--wow-lime) !important; }
+.lestra-director-main[data-route="/dashboard"] .new-era-kpi:nth-child(3) { border-top: 3px solid var(--wow-blue) !important; }
+.lestra-director-main[data-route="/dashboard"] .new-era-kpi:nth-child(4) { border-top: 3px solid var(--wow-orange) !important; }
+
+.lestra-director-main[data-route="/dashboard"] .new-era-kpi-value {
+  font-size: clamp(1.8rem,3vw,2.6rem) !important;
+}
+
+@media (min-width: 1180px) {
+  .lestra-director-main[data-route="/dashboard"] .new-era-chart-layout {
+    grid-template-columns: 1.25fr .9fr .85fr !important;
+  }
+}
+
+.lestra-director-main[data-route="/dashboard"] .new-era-chart-layout > article:first-child {
+  background:
+    radial-gradient(circle at 90% 10%, rgba(202,255,0,.12), transparent 16rem),
+    var(--wow-graphite) !important;
+  border-color: #1a251c !important;
+  color: #f4f7f3 !important;
+}
+.lestra-director-main[data-route="/dashboard"] .new-era-chart-layout > article:first-child :is(.new-era-section-kicker) { color: var(--wow-lime) !important; }
+.lestra-director-main[data-route="/dashboard"] .new-era-chart-layout > article:first-child :is(.new-era-section-title,.text-3xl,.text-xs.font-black) { color: #f5f8f4 !important; }
+.lestra-director-main[data-route="/dashboard"] .new-era-chart-layout > article:first-child :is(.text-sm,.text-xs) { color: #aeb8af !important; }
+.lestra-director-main[data-route="/dashboard"] .new-era-chart-layout > article:first-child .new-era-progress-track { background: #263128 !important; }
+.lestra-director-main[data-route="/dashboard"] .new-era-chart-layout > article:first-child .new-era-ring::after { background: var(--wow-graphite) !important; }
+.lestra-director-main[data-route="/dashboard"] .new-era-chart-layout > article:first-child .new-era-ring-center strong { color: #f7faf6 !important; }
+
+.lestra-director-main[data-route="/dashboard"] .new-era-chart-layout > article:nth-child(3) {
+  background: #eff3e8 !important;
+}
+
+.lestra-director-main[data-route="/dashboard"] .new-era-bar-track { background: #e1e5dc !important; }
+.lestra-director-main[data-route="/dashboard"] .new-era-bar { border-radius: 8px 8px 2px 2px !important; }
+.lestra-director-main[data-route="/dashboard"] .new-era-bars { gap: 10px !important; }
+
+/* Quick actions: stronger rhythm, less corporate grid. */
+.lestra-director-main[data-route="/dashboard"] .new-era-quick {
+  position: relative;
+  min-height: 118px !important;
+  overflow: hidden;
+  border-color: var(--wow-line) !important;
+  background: var(--wow-paper) !important;
+}
+.lestra-director-main[data-route="/dashboard"] .new-era-quick:nth-child(even) { transform: translateY(6px); }
+.lestra-director-main[data-route="/dashboard"] .new-era-quick.is-primary {
+  background: var(--wow-lime) !important;
+  border-color: var(--wow-lime-2) !important;
+}
+.lestra-director-main[data-route="/dashboard"] .new-era-quick:hover {
+  transform: translateY(-3px) rotate(-.25deg) !important;
+  box-shadow: 0 16px 30px rgba(12,18,13,.09) !important;
+}
+
+/* ---------- Shared cards: paper, not white lightboxes ---------- */
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="bg-[#151b25]"],
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="bg-[#161b22]"],
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="bg-[#111720]"],
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="bg-[#0d1117]"] {
+  background-color: var(--wow-paper) !important;
+  border-color: var(--wow-line) !important;
+}
+
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="rounded-[24px]"],
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="rounded-[26px]"],
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="rounded-[28px]"],
+.lestra-director-main:not([data-route="/dashboard"]) .app-content [class*="rounded-[30px]"] {
+  box-shadow: 0 8px 26px rgba(12,18,13,.052);
+}
+
+/* ---------- Controls: calm until needed ---------- */
+.lestra-director-main .app-content :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea) {
+  border-color: transparent !important;
+  background: #edf0e8 !important;
+  color: var(--wow-ink) !important;
+}
+.lestra-director-main .app-content :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea):hover {
+  background: #e7ebe2 !important;
+}
+.lestra-director-main .app-content :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea):focus {
+  border-color: #7e9c00 !important;
+  background: var(--wow-white) !important;
+  box-shadow: 0 0 0 4px rgba(202,255,0,.18) !important;
+}
+
+.lestra-director-main .app-content button[class*="bg-[#289E9D]"],
+.lestra-director-main .app-content a[class*="bg-[#289E9D]"] {
+  background: var(--wow-lime) !important;
+  color: #071008 !important;
+  border-color: transparent !important;
+  box-shadow: 0 8px 20px rgba(160,202,0,.12) !important;
+}
+
+/* ---------- Tabs become control switches ---------- */
+.lestra-director-main .app-content > div > div[class*="rounded-xl"][class*="p-1"] {
+  border-color: var(--wow-line) !important;
+  background: rgba(247,248,243,.78) !important;
+  box-shadow: var(--wow-shadow) !important;
+  backdrop-filter: blur(14px);
+}
+.lestra-director-main .app-content > div > div[class*="rounded-xl"][class*="p-1"] button[class*="bg-[#289E9D]"] {
+  background: var(--wow-graphite) !important;
+  color: #f7faf6 !important;
+}
+
+/* ---------- Deportistas: profile cards feel collectible ---------- */
+.lestra-director-main[data-route="/alumnos"] .app-content > div > section.grid > button {
+  position: relative;
+  overflow: hidden;
+  background: var(--wow-paper) !important;
+  border-color: var(--wow-line) !important;
+}
+.lestra-director-main[data-route="/alumnos"] .app-content > div > section.grid > button::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--wow-blue);
+  opacity: .75;
+}
+.lestra-director-main[data-route="/alumnos"] .app-content > div > section.grid > button:hover {
+  transform: translateY(-4px) rotate(-.2deg) !important;
+  box-shadow: 0 18px 42px rgba(15,22,16,.1) !important;
+}
+.lestra-director-main[data-route="/alumnos"] .app-content .recharts-wrapper {
+  filter: drop-shadow(0 10px 26px rgba(73,104,255,.08));
+}
+.lestra-director-main[data-route="/alumnos"] .recharts-polar-grid-concentric-polygon,
+.lestra-director-main[data-route="/alumnos"] .recharts-polar-grid-angle line { stroke: #d0d7cc !important; }
+.lestra-director-main[data-route="/alumnos"] .recharts-polar-angle-axis-tick-value { fill: #5e675f !important; font-weight: 700; }
+
+/* ---------- Asistencia: operational blackboard + data dashboard ---------- */
+.lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:first-child {
+  background:
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
+    var(--wow-graphite) !important;
+  background-size: 22px 22px !important;
+  border-color: #1b271e !important;
+  color: #f6f8f5 !important;
+}
+.lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:first-child :is(h2,p) { color: #f4f7f3 !important; }
+.lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:first-child p[class*="uppercase"] { color: var(--wow-lime) !important; }
+.lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:first-child :is(input,select,textarea) {
+  background: rgba(255,255,255,.09) !important;
+  color: #f5f8f4 !important;
+  border-color: rgba(255,255,255,.08) !important;
+}
+.lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:first-child select option { color: #111711 !important; background: #f6f7f2 !important; }
+.lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:first-child label { color: #d9e0da !important; }
+.lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:first-child button[class*="bg-[#289E9D]"] {
+  background: var(--wow-lime) !important;
+  color: #071007 !important;
+}
+.lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:nth-child(2) {
+  background: var(--wow-paper) !important;
+}
+.lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:nth-child(2) [class*="rounded-2xl"] {
+  transition: transform .14s ease, border-color .14s ease, background .14s ease;
+}
+.lestra-director-main[data-route="/asistencias"] .app-content > div > section.grid > div:nth-child(2) [class*="rounded-2xl"]:hover {
+  transform: translateX(2px);
+}
+
+/* Attendance summary visually reads like a live chart. */
+.lestra-director-main[data-route="/asistencias"] .app-content [class*="grid-cols-3"] > div[class*="emerald"] { border-bottom: 4px solid #24c780 !important; }
+.lestra-director-main[data-route="/asistencias"] .app-content [class*="grid-cols-3"] > div[class*="red"] { border-bottom: 4px solid var(--wow-red) !important; }
+.lestra-director-main[data-route="/asistencias"] .app-content [class*="grid-cols-3"] > div[class*="amber"] { border-bottom: 4px solid #f4b73d !important; }
+
+/* ---------- Competition: event cards like match tickets ---------- */
+.lestra-director-main[data-route="/partidos"] .app-content > div > section.grid > article {
+  position: relative;
+  overflow: hidden;
+  border-color: var(--wow-line) !important;
+  background: var(--wow-paper) !important;
+}
+.lestra-director-main[data-route="/partidos"] .app-content > div > section.grid > article::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--wow-orange), var(--wow-lime), transparent 78%);
+}
+.lestra-director-main[data-route="/partidos"] .app-content > div > section.grid > article:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 42px rgba(15,22,16,.09) !important;
+}
+.lestra-director-main[data-route="/partidos"] .app-content > div > section.grid > article [class*="bg-[#0d1117]"] {
+  background: #edf0e8 !important;
+}
+
+/* ---------- Finance: keep its real charts dark and cinematic ---------- */
+.lestra-director-main[data-route="/finanzas"] .app-content .recharts-responsive-container,
+.lestra-director-main[data-route="/finanzas"] .app-content .recharts-wrapper {
+  font-family: inherit !important;
+}
+.lestra-director-main[data-route="/finanzas"] .app-content .recharts-line-curve {
+  filter: drop-shadow(0 5px 10px rgba(69,230,167,.18));
+}
+.lestra-director-main[data-route="/finanzas"] .app-content .recharts-sector {
+  filter: drop-shadow(0 6px 14px rgba(12,18,13,.08));
+}
+.lestra-director-main[data-route="/finanzas"] .app-content .recharts-cartesian-axis-tick-value { fill: #687268 !important; }
+.lestra-director-main[data-route="/finanzas"] .app-content .recharts-cartesian-grid line { stroke: #d9ded5 !important; }
+.lestra-director-main[data-route="/finanzas"] .app-content .recharts-default-tooltip {
+  border: 1px solid #263128 !important;
+  border-radius: 12px !important;
+  background: #0b110d !important;
+  color: #f7faf6 !important;
+}
+
+/* Make large finance analytics cards dark selectively: the chart stage, not the whole module. */
+.lestra-director-main[data-route="/finanzas"] .app-content section.space-y-5 > div.grid[class*="xl:grid-cols"] > article:first-child {
+  background:
+    radial-gradient(circle at 90% 0%, rgba(69,230,167,.12), transparent 15rem),
+    var(--wow-graphite) !important;
+  border-color: #1c2920 !important;
+}
+.lestra-director-main[data-route="/finanzas"] .app-content section.space-y-5 > div.grid[class*="xl:grid-cols"] > article:first-child :is(h3,p) { color: #eff4ef !important; }
+.lestra-director-main[data-route="/finanzas"] .app-content section.space-y-5 > div.grid[class*="xl:grid-cols"] > article:first-child p[class*="uppercase"] { color: var(--wow-mint) !important; }
+.lestra-director-main[data-route="/finanzas"] .app-content section.space-y-5 > div.grid[class*="xl:grid-cols"] > article:first-child .recharts-cartesian-axis-tick-value { fill: #a7b2a8 !important; }
+.lestra-director-main[data-route="/finanzas"] .app-content section.space-y-5 > div.grid[class*="xl:grid-cols"] > article:first-child .recharts-cartesian-grid line { stroke: #273329 !important; }
+
+/* ---------- Profesores: technical roster ---------- */
+.lestra-director-main[data-route="/profesores"] .app-content > div > section.grid > article {
+  position: relative;
+  overflow: hidden;
+  background: var(--wow-paper) !important;
+  border-color: var(--wow-line) !important;
+}
+.lestra-director-main[data-route="/profesores"] .app-content > div > section.grid > article::after {
+  content: '';
+  position: absolute;
+  width: 54px;
+  height: 54px;
+  right: -22px;
+  top: -22px;
+  transform: rotate(20deg);
+  border: 8px solid rgba(141,107,255,.12);
+  border-radius: 16px;
+}
+
+/* ---------- Analytics / health: preserve data prominence ---------- */
+.lestra-director-main:is([data-route="/rendimiento/analitica"],[data-route="/salud-deportiva"]) .app-content .recharts-wrapper {
+  filter: drop-shadow(0 12px 28px rgba(19,26,20,.08));
+}
+.lestra-director-main[data-route="/rendimiento/analitica"] .recharts-cartesian-grid line { stroke: #d4dad1 !important; }
+.lestra-director-main[data-route="/rendimiento/analitica"] .recharts-cartesian-axis-tick-value { fill: #626b62 !important; }
+
+/* ---------- Secondary routes: compact editorial headings ---------- */
+.lestra-director-main:is(
+  [data-route="/solicitudes"],
+  [data-route="/matricula"],
+  [data-route="/inscripciones"],
+  [data-route="/uniformes"],
+  [data-route="/comunicaciones"],
+  [data-route="/configuracion"],
+  [data-route="/privacidad"],
+  [data-route="/amistosos"],
+  [data-route="/torneos"]
+) .app-content > div > section:first-child {
+  position: relative !important;
+  border: 0 !important;
+  border-left: 5px solid var(--route-accent, var(--wow-lime)) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 10px 18px !important;
+  box-shadow: none !important;
+}
+.lestra-director-main:is(
+  [data-route="/solicitudes"],
+  [data-route="/matricula"],
+  [data-route="/inscripciones"],
+  [data-route="/uniformes"],
+  [data-route="/comunicaciones"],
+  [data-route="/configuracion"],
+  [data-route="/privacidad"],
+  [data-route="/amistosos"],
+  [data-route="/torneos"]
+) .app-content > div > section:first-child h1 { color: var(--wow-ink) !important; }
+
+/* ---------- Tables ---------- */
+.lestra-director-main .app-content table {
+  background: var(--wow-paper) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 5px 18px rgba(12,18,13,.035);
+}
+.lestra-director-main .app-content thead th {
+  background: #e5e9df !important;
+  color: #4d574e !important;
+  font-size: 10px !important;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.lestra-director-main .app-content tbody tr:hover { background: #eef1e9 !important; }
+
+/* ---------- Dialogs: focused, less sterile ---------- */
+.lestra-director-main .app-content .fixed[class*="inset-0"] > form,
+.lestra-director-main .app-content .fixed[class*="inset-0"] > div[class*="max-w-"] {
+  border-color: #ced6ca !important;
+  background: var(--wow-paper) !important;
+  box-shadow: 0 34px 110px rgba(7,12,8,.32) !important;
+}
+.lestra-director-main .app-content .fixed[class*="inset-0"]::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 0%, rgba(202,255,0,.05), transparent 32rem);
+}
+
+/* ---------- Accessible focus ---------- */
+.lestra-director-main .app-content :is(button,a,input,select,textarea):focus-visible {
+  outline: 3px solid rgba(110,137,0,.58) !important;
+  outline-offset: 2px !important;
+}
+
+/* ---------- Motion: restrained ---------- */
+@keyframes wowIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.lestra-director-main .app-content > div > section,
+.lestra-director-main .app-content > div > div {
+  animation: wowIn .26s ease both;
+}
+.lestra-director-main .app-content > div > :nth-child(2) { animation-delay: .025s; }
+.lestra-director-main .app-content > div > :nth-child(3) { animation-delay: .05s; }
+
+/* ---------- Mobile: strong hierarchy without brightness ---------- */
+.lestra-mobile-header {
+  border-color: #d0d7cc !important;
+  background: rgba(235,238,229,.92) !important;
+  color: var(--wow-ink) !important;
+  box-shadow: 0 8px 24px rgba(12,18,13,.055);
+}
+.lestra-mobile-dock {
+  border-color: #cfd7cb !important;
+  background: rgba(241,244,236,.94) !important;
+  box-shadow: 0 18px 44px rgba(10,16,11,.18) !important;
+}
+.lestra-mobile-dock :is(a,button) { color: #5f685f !important; }
+.lestra-mobile-dock :is(a,button).is-active,
+.lestra-mobile-dock a[aria-current="page"] {
+  background: var(--wow-graphite) !important;
+  color: var(--wow-lime) !important;
+}
+
+@media (max-width: 767px) {
+  .lestra-director-main {
+    background:
+      radial-gradient(circle at 88% -5%, rgba(202,255,0,.11), transparent 18rem),
+      var(--wow-bg) !important;
+  }
+  .lestra-director-main .app-content { padding-inline: 11px !important; }
+
+  .lestra-director-main[data-route="/dashboard"] .new-era-hero {
+    min-height: 178px;
+    border-radius: 20px !important;
+    padding: 22px 18px !important;
+  }
+  .lestra-director-main[data-route="/dashboard"] .new-era-hero h1 {
+    max-width: 92%;
+    font-size: clamp(2.15rem,12vw,3.6rem) !important;
+  }
+  .lestra-director-main[data-route="/dashboard"] .new-era-hero::before { display: none; }
+  .lestra-director-main[data-route="/dashboard"] .new-era-hero::after {
+    width: 120px !important;
+    height: 32px !important;
+    right: -42px !important;
+    bottom: 18px !important;
+  }
+
+  .lestra-director-main[data-route="/dashboard"] .new-era-kpis {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .lestra-director-main[data-route="/dashboard"] .new-era-kpi {
+    min-height: 132px !important;
+    padding: 15px !important;
+  }
+  .lestra-director-main[data-route="/dashboard"] .new-era-kpi-value { font-size: 1.65rem !important; }
+  .lestra-director-main[data-route="/dashboard"] .new-era-quick:nth-child(even) { transform: none; }
+
+  .lestra-director-main:is(
+    [data-route="/alumnos"],
+    [data-route="/asistencias"],
+    [data-route="/partidos"],
+    [data-route="/finanzas"],
+    [data-route="/profesores"],
+    [data-route="/rendimiento/analitica"],
+    [data-route="/salud-deportiva"]
+  ) .app-content > div > section:first-child {
+    border-radius: 18px !important;
+    padding: 19px 17px !important;
+  }
+  .lestra-director-main:is(
+    [data-route="/alumnos"],
+    [data-route="/asistencias"],
+    [data-route="/partidos"],
+    [data-route="/finanzas"],
+    [data-route="/profesores"],
+    [data-route="/rendimiento/analitica"],
+    [data-route="/salud-deportiva"]
+  ) .app-content > div > section:first-child h1 {
+    font-size: clamp(1.8rem,9.5vw,2.7rem) !important;
+  }
+  .lestra-director-main:is(
+    [data-route="/alumnos"],
+    [data-route="/asistencias"],
+    [data-route="/partidos"],
+    [data-route="/finanzas"],
+    [data-route="/profesores"],
+    [data-route="/rendimiento/analitica"],
+    [data-route="/salud-deportiva"]
+  ) .app-content > div > section:first-child::before {
+    width: 100px;
+    height: 25px;
+    right: -42px;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .app-content > div > div[class*="rounded-xl"] {
+    width: 100% !important;
+    overflow-x: auto;
+  }
+  .lestra-director-main[data-route="/asistencias"] .app-content > div > div[class*="rounded-xl"] button {
+    min-width: 104px !important;
+    font-size: 11px !important;
+  }
+
+  .lestra-director-main .app-content table { font-size: 12px; }
+}
+
+@media (max-width: 430px) {
+  .lestra-director-main[data-route="/dashboard"] .new-era-kpis { grid-template-columns: 1fr !important; }
+  .lestra-director-main[data-route="/dashboard"] .new-era-kpi { min-height: 118px !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lestra-director-main .app-content > div > section,
+  .lestra-director-main .app-content > div > div { animation: none !important; }
+  .lestra-director-main .app-content * { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
