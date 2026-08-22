@@ -17,6 +17,7 @@ import {
 } from '@heroicons/react/24/outline';
 import api from '../api/axiosConfig';
 import { Logo } from '../components/Logo';
+import SetupTimePicker from '../components/SetupTimePicker';
 
 type SetupStep = {
   key: 'identity' | 'structure' | 'operation' | 'finance' | 'rules' | 'team';
@@ -288,10 +289,11 @@ export default function AcademySetup() {
             <div className="flex items-center justify-between gap-3"><h3 className="font-black">{site.nombre}</h3>{site.operation_complete ? <span className="text-xs font-black text-emerald-700">✓ Lista</span> : <span className="text-xs font-black text-amber-700">Pendiente</span>}</div>
             <div className="mt-4"><Field label="Lugar de entrenamiento" value={draft.ubicacion_entrenamiento} onChange={(value) => setOperationDrafts((current) => ({ ...current, [site.id]: { ...draft, ubicacion_entrenamiento:value } }))}/></div>
             <div className="mt-5 flex items-center justify-between gap-3"><div><p className="text-sm font-black text-[#20261f]">Horarios semanales</p><p className="mt-0.5 text-[11px] font-semibold text-[#6f786b]">Puedes agregar días con horarios diferentes.</p></div><button type="button" onClick={() => addSchedule(site.id)} className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-[#b9e937] px-3 py-2 text-[11px] font-black text-[#11170f] transition hover:bg-[#c8f64b]"><PlusIcon className="h-4 w-4"/> Agregar horario</button></div>
-            <div className="mt-3 space-y-2">{draft.horarios.map((schedule, index) => <div key={`${site.id}-schedule-${index}`} className="grid gap-2 rounded-2xl border border-[#d9ddd3] bg-white/80 p-3 sm:grid-cols-[minmax(0,1fr)_120px_120px_auto] sm:items-end">
+            <div className="mt-3 space-y-2">{draft.horarios.map((schedule, index) => <div key={`${site.id}-schedule-${index}`} className="grid gap-3 rounded-2xl border border-[#d9ddd3] bg-white/80 p-3 sm:grid-cols-[minmax(0,1fr)_minmax(150px,auto)_20px_minmax(150px,auto)_auto] sm:items-end">
               <label className="block"><span className="text-[11px] font-black text-[#697266]">Día(s)</span><input value={schedule.dias} onChange={(event) => updateSchedule(site.id, index, { dias:event.target.value })} placeholder="Ej.: Martes" className="mt-1 min-h-11 w-full rounded-xl border border-[#cdd2c8] bg-[#f9faf6] px-3 text-sm text-[#20261f] outline-none placeholder:text-[#98a093] focus:border-[#7f8e77]"/></label>
-              <label className="block"><span className="text-[11px] font-black text-[#697266]">Desde</span><input type="time" value={schedule.inicio} onChange={(event) => updateSchedule(site.id, index, { inicio:event.target.value })} className="mt-1 min-h-11 w-full rounded-xl border border-[#cdd2c8] bg-[#f9faf6] px-3 text-sm text-[#20261f] outline-none focus:border-[#7f8e77]"/></label>
-              <label className="block"><span className="text-[11px] font-black text-[#697266]">Hasta</span><input type="time" value={schedule.fin} onChange={(event) => updateSchedule(site.id, index, { fin:event.target.value })} className="mt-1 min-h-11 w-full rounded-xl border border-[#cdd2c8] bg-[#f9faf6] px-3 text-sm text-[#20261f] outline-none focus:border-[#7f8e77]"/></label>
+              <SetupTimePicker label="Desde" value={schedule.inicio} onChange={(value) => updateSchedule(site.id, index, { inicio:value })}/>
+              <div className="hidden h-11 items-center justify-center pb-0.5 text-lg font-black text-[#8a9385] sm:flex">→</div>
+              <SetupTimePicker label="Hasta" value={schedule.fin} onChange={(value) => updateSchedule(site.id, index, { fin:value })}/>
               <button type="button" title="Eliminar horario" aria-label={`Eliminar horario ${index + 1}`} disabled={draft.horarios.length === 1} onClick={() => removeSchedule(site.id, index)} className="grid h-11 w-11 place-items-center rounded-xl border border-[#d7dbd1] bg-white text-[#6f786b] transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30"><TrashIcon className="h-4 w-4"/></button>
             </div>)}</div>
             <button disabled={working === `site:${site.id}`} onClick={() => void saveOperation(site.id)} className="!mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl !bg-[#172018] px-5 py-2.5 text-xs font-black !text-white shadow-[0_8px_20px_rgba(23,32,24,.16)] transition hover:!bg-[#273329] disabled:opacity-40"><CheckCircleIcon className="h-4 w-4"/>{working === `site:${site.id}` ? 'Guardando…' : 'Guardar horarios'}</button>
