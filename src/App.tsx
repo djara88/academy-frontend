@@ -1,7 +1,7 @@
 // src/App.tsx
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DialogProvider } from './contexts/DialogContext';
@@ -9,6 +9,7 @@ import { AdminThemeProvider } from './contexts/AdminThemeContext';
 import { usePresenceHeartbeat } from './hooks/usePresenceHeartbeat';
 import { isGuardianRole, isProfessorRole, isSuperAdminRole } from './utils/roles';
 import { BRAND } from './config/brand';
+import api from './api/axiosConfig';
 import LestraRealtimeProvider from './realtime/LestraRealtimeProvider';
 import RealtimeRouteBoundary from './realtime/RealtimeRouteBoundary';
 
@@ -21,6 +22,7 @@ const Login = lazy(() => import('./pages/Login'));
 const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 const Registro = lazy(() => import('./pages/Registro'));
 const CompletarPerfil = lazy(() => import('./pages/CompletarPerfil'));
+const AcademySetup = lazy(() => import('./pages/AcademySetup'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Alumnos = lazy(() => import('./pages/Alumnos'));
 const Matricula = lazy(() => import('./pages/MatriculaPreparacion'));
@@ -74,6 +76,15 @@ const queryClient = new QueryClient({
   },
 });
 const GOOGLE_LOGIN_INTENT_KEY = 'lestra_google_login_intent';
+const SETUP_SUPPORT_ROUTES = new Set(['/configuracion/estructura', '/configuracion/finanzas', '/terminos', '/profesores']);
+
+type SetupGateState = {
+  required: boolean;
+  locked: boolean;
+  operational: boolean;
+  completed_once: boolean;
+  progress: number;
+};
 
 const LandingHome = () => {
   if (sessionStorage.getItem(GOOGLE_LOGIN_INTENT_KEY) === '1') return <AuthCallback />;
@@ -106,9 +117,36 @@ const PublicRoutes = () => {
 
 const DirectorRoutes = () => {
   const { user } = useAuth();
-  if (isSuperAdminRole(user?.rol)) return <Navigate to="/admin" replace />;
-  if (isProfessorRole(user?.rol)) return <Navigate to="/profesor" replace />;
-  if (isGuardianRole(user?.rol)) return <Navigate to="/apoderado" replace />;
+  const location = useLocation();
+  const isSuperAdmin = isSuperAdminRole(user?.rol);
+  const isProfessor = isProfessorRole(user?.rol);
+  const isGuardian = isGuardianRole(user?.rol);
+  const setupQuery = useQuery({
+    queryKey: ['academy-setup', user?.academia_id],
+    enabled: Boolean(user?.academia_id) && !isSuperAdmin && !isProfessor && !isGuardian,
+    staleTime: 10_000,
+    queryFn: async () => (await api.get('/api/consentimientos/setup')).data.data as SetupGateState,
+  });
+
+  if (isSuperAdmin) return <Navigate to="/admin" replace />;
+  if (isProfessor) return <Navigate to="/profesor" replace />;
+  if (isGuardian) return <Navigate to="/apoderado" replace />;
+
+  if (setupQuery.isLoading) {
+    return <div className="grid min-h-[55vh] place-items-center bg-[#e9ece4] text-sm font-black text-[#20261f]">Preparando tu academia…</div>;
+  }
+
+  const setup = setupQuery.data;
+  const setupRoute = location.pathname === '/puesta-en-marcha';
+  const setupSupport = SETUP_SUPPORT_ROUTES.has(location.pathname) && new URLSearchParams(location.search).get('setup') === '1';
+
+  // Fall-open deliberado: una indisponibilidad puntual del endpoint de setup no debe
+  // bloquear academias ya operativas. Las academias nuevas vuelven a validarse al reconectar.
+  if (setup?.required && setup.locked && !setupRoute && !setupSupport) {
+    return <Navigate to="/puesta-en-marcha" replace />;
+  }
+  if (setup?.required === false && setupRoute) return <Navigate to="/dashboard" replace />;
+
   return <RealtimeRouteBoundary><Outlet /></RealtimeRouteBoundary>;
 };
 
@@ -136,7 +174,6 @@ const App = () => (
                   <Route path="/pagar/:token" element={<CollectionPortal />} />
                   <Route path="/auth/callback" element={<AuthCallback />} />
 
-                  {/* Marketing pages must remain visible even when the visitor already has an active session. */}
                   <Route path="/" element={<LandingHome />} />
                   <Route path="/deportivo" element={<ProductHome />} />
                   <Route path="/learn" element={<LestraProductPreview product="learn" />} />
@@ -160,6 +197,7 @@ const App = () => (
                       <Route path="/admin/monitor" element={<AdminMonitor />} />
                     </Route>
                     <Route element={<DirectorRoutes />}>
+                      <Route path="/puesta-en-marcha" element={<AcademySetup />} />
                       <Route path="/dashboard" element={<Dashboard />} /><Route path="/profesores" element={<Profesores />} /><Route path="/apoderados" element={<Apoderados />} /><Route path="/apoderados-pro" element={<ApoderadosPro />} />
                       <Route path="/comunicaciones" element={<CommunicationsHub />} /><Route path="/comunicaciones/grupos" element={<WhatsAppGroups />} /><Route path="/alumnos" element={<Alumnos />} /><Route path="/jugadores" element={<Navigate to="/alumnos" replace />} />
                       <Route path="/solicitudes" element={<AdmissionRequests />} /><Route path="/matricula" element={<Matricula />} /><Route path="/inscripciones" element={<InscripcionesDeportivas />} /><Route path="/importacion" element={<Importacion />} /><Route path="/asistencias" element={<Asistencias />} /><Route path="/uniformes" element={<Uniformes />} />
