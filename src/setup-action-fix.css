@@ -2,32 +2,47 @@
  * Esta capa se importa al final para ganar sobre el contrato global de legibilidad.
  */
 
-.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page button[class*="bg-[#172018]"] {
+/*
+ * No dependemos del wrapper de Director ni del data-route: Puesta en Marcha
+ * puede renderizarse dentro de distintos shells durante registro/setup.
+ */
+.lestra-setup-page button[class*="bg-[#172018]"],
+.lestra-setup-page a[class*="bg-[#172018]"],
+.lestra-setup-page button[class*="bg-[#20261f]"],
+.lestra-setup-page a[class*="bg-[#20261f]"] {
   background: #172018 !important;
   color: #ffffff !important;
   border-color: #172018 !important;
   -webkit-text-fill-color: #ffffff !important;
 }
 
-.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page button[class*="bg-[#172018]"] svg {
+.lestra-setup-page button[class*="bg-[#172018]"] svg,
+.lestra-setup-page a[class*="bg-[#172018]"] svg,
+.lestra-setup-page button[class*="bg-[#20261f]"] svg,
+.lestra-setup-page a[class*="bg-[#20261f]"] svg {
   color: #caff00 !important;
   stroke: currentColor !important;
 }
 
-.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page button[class*="bg-[#172018]"]:hover:not(:disabled) {
+.lestra-setup-page button[class*="bg-[#172018]"]:hover:not(:disabled),
+.lestra-setup-page a[class*="bg-[#172018]"]:hover,
+.lestra-setup-page button[class*="bg-[#20261f]"]:hover:not(:disabled),
+.lestra-setup-page a[class*="bg-[#20261f]"]:hover {
   background: #273329 !important;
   color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
-.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page button[class*="bg-[#172018]"]:disabled {
+.lestra-setup-page button[class*="bg-[#172018]"]:disabled,
+.lestra-setup-page button[class*="bg-[#20261f]"]:disabled {
   background: #30372f !important;
   color: #eef2ec !important;
   -webkit-text-fill-color: #eef2ec !important;
   opacity: .62 !important;
 }
 
-/* Acción primaria semántica del onboarding. No depende de clases utilitarias. */
-.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page .lestra-setup-primary-action {
+/* Acción primaria semántica del onboarding. Funciona en button y anchor. */
+.lestra-setup-page .lestra-setup-primary-action {
   border: 1px solid #172018 !important;
   background: #172018 !important;
   color: #ffffff !important;
@@ -36,12 +51,12 @@
   transition: transform .16s ease, background .16s ease, box-shadow .16s ease !important;
 }
 
-.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page .lestra-setup-primary-action svg {
+.lestra-setup-page .lestra-setup-primary-action svg {
   color: #caff00 !important;
   stroke: currentColor !important;
 }
 
-.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page .lestra-setup-primary-action:hover:not(:disabled) {
+.lestra-setup-page .lestra-setup-primary-action:hover:not(:disabled) {
   transform: translateY(-1px);
   background: #273329 !important;
   color: #ffffff !important;
@@ -49,7 +64,7 @@
   box-shadow: 0 14px 28px rgba(23,32,24,.20) !important;
 }
 
-.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page .lestra-setup-primary-action:disabled {
+.lestra-setup-page .lestra-setup-primary-action:disabled {
   border-color: #3b433a !important;
   background: #3b433a !important;
   color: #edf1eb !important;
