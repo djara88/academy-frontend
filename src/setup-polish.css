@@ -1,0 +1,202 @@
+/* Lestra Setup — capa final de contraste y pulido.
+ * Se importa DESPUÉS del contrato global de legibilidad para que las
+ * superficies oscuras del onboarding conserven texto claro de forma explícita.
+ */
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page {
+  --setup-ink: #f7faf5;
+  --setup-body: #d8e0d6;
+  --setup-muted: #aeb9ad;
+  --setup-lime: #caff00;
+  --setup-dark: #101611;
+  --setup-dark-2: #171f18;
+}
+
+/* HERO */
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:first-child {
+  color: var(--setup-ink) !important;
+  border: 1px solid rgba(255,255,255,.09) !important;
+  background:
+    radial-gradient(circle at 88% 18%, rgba(202,255,0,.13), transparent 28%),
+    radial-gradient(circle at 55% 115%, rgba(202,255,0,.055), transparent 35%),
+    linear-gradient(135deg, #0c120e 0%, #141b15 58%, #101611 100%) !important;
+  box-shadow: 0 30px 80px rgba(13,20,14,.22), inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:first-child :is(h1,h2,h3,h4,strong) {
+  color: var(--setup-ink) !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:first-child h1 {
+  max-width: 880px !important;
+  line-height: .99 !important;
+  letter-spacing: -.045em !important;
+  text-wrap: balance;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:first-child h1 span {
+  color: var(--setup-lime) !important;
+  text-shadow: 0 0 28px rgba(202,255,0,.08);
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:first-child p {
+  color: var(--setup-body) !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:first-child p[class*="uppercase"] {
+  color: var(--setup-lime) !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:first-child > .relative.grid {
+  gap: clamp(2rem, 5vw, 5.5rem) !important;
+}
+
+/* Tarjeta de progreso */
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:first-child > .relative.grid > div:last-child {
+  min-width: min(100%, 330px);
+  padding: 1.45rem !important;
+  border-color: rgba(255,255,255,.20) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.075), rgba(255,255,255,.028)) !important;
+  box-shadow: 0 22px 55px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.06);
+  backdrop-filter: blur(18px);
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:first-child > .relative.grid > div:last-child :is(p,span) {
+  color: var(--setup-body) !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:first-child > .relative.grid > div:last-child p.text-3xl,
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:first-child > .relative.grid > div:last-child p.text-xl {
+  color: #ffffff !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:first-child > .relative.grid > div:last-child p[class*="uppercase"] {
+  color: var(--setup-lime) !important;
+}
+
+/* Pasos: el paso activo también es superficie oscura. */
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > div.grid > div[class*="bg-[#20261f]"] {
+  color: #fff !important;
+  border-color: #20261f !important;
+  box-shadow: 0 10px 26px rgba(18,25,18,.12);
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > div.grid > div[class*="bg-[#20261f]"] p:first-child {
+  color: #fff !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > div.grid > div[class*="bg-[#20261f]"] p:last-child {
+  color: #c9d2c9 !important;
+}
+
+/* DESPUÉS DE ABRIR */
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:last-child {
+  position: relative;
+  overflow: hidden;
+  color: var(--setup-ink) !important;
+  border: 1px solid rgba(255,255,255,.09) !important;
+  background:
+    radial-gradient(circle at 92% 0%, rgba(202,255,0,.08), transparent 25%),
+    linear-gradient(135deg, #121813 0%, #1a211b 100%) !important;
+  box-shadow: 0 24px 64px rgba(18,25,18,.14), inset 0 1px 0 rgba(255,255,255,.035);
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:last-child::after {
+  content: '';
+  position: absolute;
+  right: -80px;
+  top: -120px;
+  width: 260px;
+  height: 260px;
+  border: 34px solid rgba(202,255,0,.055);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:last-child :is(h1,h2,h3,h4,strong) {
+  color: #ffffff !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:last-child p {
+  color: var(--setup-body) !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:last-child p[class*="uppercase"] {
+  color: var(--setup-lime) !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:last-child > div:first-child {
+  position: relative;
+  z-index: 1;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:last-child > .mt-6.grid {
+  position: relative;
+  z-index: 1;
+  gap: .85rem !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:last-child > .mt-6.grid > div {
+  min-height: 104px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-color: rgba(255,255,255,.15) !important;
+  background: rgba(255,255,255,.045) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+  transition: transform .18s ease, border-color .18s ease, background .18s ease;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:last-child > .mt-6.grid > div:hover {
+  transform: translateY(-2px);
+  border-color: rgba(202,255,0,.35) !important;
+  background: rgba(255,255,255,.065) !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:last-child > .mt-6.grid > div p:first-child {
+  color: #ffffff !important;
+  font-size: .92rem !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:last-child > .mt-6.grid > div p:last-child {
+  color: #bdc7bd !important;
+  font-size: .78rem !important;
+  line-height: 1.5 !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:last-child > .mt-6.grid > div span {
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:last-child > .mt-6.grid > div span.text-emerald-300 {
+  color: #73f0a7 !important;
+  text-shadow: 0 0 16px rgba(115,240,167,.25);
+}
+
+/* Responsive: la tarjeta de estado no debe competir con el titular. */
+@media (max-width: 1023px) {
+  .lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:first-child > .relative.grid > div:last-child {
+    width: 100%;
+    max-width: 520px;
+  }
+}
+
+@media (max-width: 639px) {
+  .lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:first-child {
+    border-radius: 26px !important;
+  }
+
+  .lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:first-child h1 {
+    line-height: 1.03 !important;
+  }
+
+  .lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:first-child > .relative.grid > div:last-child {
+    min-width: 0;
+    gap: 1rem !important;
+  }
+
+  .lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page > div > section:last-child {
+    border-radius: 26px !important;
+  }
+}
