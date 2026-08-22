@@ -1,10 +1,16 @@
-import { CheckBadgeIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { ArrowTopRightOnSquareIcon, CheckBadgeIcon, CloudIcon, LockClosedIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 
 const EVIDENCE = [
   'Finalidades separadas',
   'Texto y versión registrados',
   'Representante y fecha trazables',
   'Autorizaciones revocables',
+];
+
+const HOW_LESTRA_WORKS = [
+  { icon: ShieldCheckIcon, title: 'Uso limitado al servicio', text: 'Procesamos los datos para operar las funciones que la academia decide utilizar.' },
+  { icon: LockClosedIcon, title: 'Acceso por identidad y rol', text: 'El acceso privado pasa por autenticación y controles asociados a academia y perfil.' },
+  { icon: CloudIcon, title: 'Infraestructura cloud informada', text: 'La plataforma usa proveedores especializados y puede implicar tratamiento fuera de Chile.' },
 ];
 
 export default function SetupPrivacyLawNotice() {
@@ -40,6 +46,34 @@ export default function SetupPrivacyLawNotice() {
               <span>{item}</span>
             </div>
           ))}
+        </div>
+      </div>
+
+      <div className="border-t border-white/10 bg-black/10 px-5 py-4 sm:px-6">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+          <div className="grid flex-1 gap-3 md:grid-cols-3">
+            {HOW_LESTRA_WORKS.map(({ icon: Icon, title, text }) => (
+              <div key={title} className="flex gap-3">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white/[.07] text-[#b9e937]">
+                  <Icon className="h-4 w-4" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-xs font-black text-white">{title}</p>
+                  <p className="mt-0.5 text-[11px] leading-4 text-white/55">{text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <a
+            href="/privacidad-lestra"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex shrink-0 items-center gap-2 self-start rounded-xl border border-white/15 bg-white/[.06] px-4 py-2.5 text-xs font-black text-white transition hover:border-[#b9e937]/50 hover:bg-white/[.1] xl:self-center"
+          >
+            Cómo trata Lestra los datos
+            <ArrowTopRightOnSquareIcon className="h-4 w-4 text-[#b9e937]" />
+          </a>
         </div>
       </div>
     </aside>
