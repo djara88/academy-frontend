@@ -9,6 +9,7 @@ import './new-era-type.css';
 import './reference-focus.css';
 import './workspace-focus.css';
 import './wow-system.css';
+import './readability-contract.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
