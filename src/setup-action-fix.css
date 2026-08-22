@@ -26,6 +26,37 @@
   opacity: .62 !important;
 }
 
+/* Acción primaria semántica del onboarding. No depende de clases utilitarias. */
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page .lestra-setup-primary-action {
+  border: 1px solid #172018 !important;
+  background: #172018 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(23,32,24,.16) !important;
+  transition: transform .16s ease, background .16s ease, box-shadow .16s ease !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page .lestra-setup-primary-action svg {
+  color: #caff00 !important;
+  stroke: currentColor !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page .lestra-setup-primary-action:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: #273329 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  box-shadow: 0 14px 28px rgba(23,32,24,.20) !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page .lestra-setup-primary-action:disabled {
+  border-color: #3b433a !important;
+  background: #3b433a !important;
+  color: #edf1eb !important;
+  -webkit-text-fill-color: #edf1eb !important;
+  opacity: .58 !important;
+}
+
 /* Selector de hora propio de Lestra: evita el time-picker nativo del navegador. */
 .lestra-director-main[data-route="/puesta-en-marcha"] .setup-time-picker__label {
   display: block;
