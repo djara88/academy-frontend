@@ -15,6 +15,8 @@ type PlanSnapshot = {
   onboarding:Array<{key:string;label:string;done:boolean}>;
 };
 
+type ConfigModule = { titulo:string; desc:string; icono:string; ruta:string };
+
 const usageLabel:Record<string,string>={players:'Alumnos',professors:'Profesores',sites:'Sedes',branches:'Ramas'};
 const percent=(item:UsageItem)=>item.limit?Math.min(100,Math.round((item.used/item.limit)*100)):0;
 
@@ -57,19 +59,19 @@ const Configuracion: React.FC = () => {
   };
 
   const completed=useMemo(()=>plan?.onboarding.filter((item)=>item.done).length||0,[plan]);
-  const modulos = [
-    { titulo: 'Amistosos', desc: 'Programa partidos, controles, exhibiciones o competencias amistosas', icono: '🤝', ruta: '/amistosos', bg: 'bg-emerald-900/20', border: 'border-emerald-500/30' },
-    { titulo: 'Profesores y accesos', desc: 'Administra cupos, accesos y categorías asignadas', icono: '🧑‍🏫', ruta: '/profesores', bg: 'bg-cyan-900/20', border: 'border-cyan-500/30' },
-    { titulo: 'Perfil y horarios', desc: `Datos generales y horarios de ${academyName}`, icono: '🏟️', ruta: '/configuracion/perfil', bg: 'bg-blue-900/20', border: 'border-blue-500/30' },
-    { titulo: 'Sedes y ramas', desc: 'Administra ubicaciones y disciplinas deportivas', icono: '🏢', ruta: '/configuracion/estructura', bg: 'bg-teal-900/20', border: 'border-teal-500/30' },
-    { titulo: 'Categorías', desc: 'Crea y organiza categorías dentro de cada rama', icono: '🧩', ruta: '/configuracion/estructura?modo=categorias', bg: 'bg-lime-900/20', border: 'border-lime-500/30' },
-    { titulo: 'Inscripciones multideporte', desc: 'Inscribe al mismo alumno en otra disciplina sin duplicar su ficha', icono: '🔄', ruta: '/inscripciones', bg: 'bg-violet-900/20', border: 'border-violet-500/30' },
-    { titulo: 'Apoderados PRO', desc: 'Portal familiar, chat, pagos, privacidad y solicitudes deportivas', icono: '👨‍👩‍👧', ruta: '/apoderados-pro', bg: 'bg-fuchsia-900/20', border: 'border-fuchsia-500/30' },
-    { titulo: 'Uniformes e inventario', desc: 'Catálogo, tallas, pedidos y entregas', icono: '👕', ruta: '/uniformes', bg: 'bg-purple-900/20', border: 'border-purple-500/30' },
-    { titulo: 'Finanzas y recaudación', desc: 'Configura los medios de pago de la academia', icono: '💳', ruta: '/configuracion/finanzas', bg: 'bg-green-900/20', border: 'border-green-500/30' },
-    { titulo: 'Términos de matrícula', desc: 'Reglamento y condiciones que aceptarán los apoderados', icono: '⚖️', ruta: '/terminos', bg: 'bg-orange-900/20', border: 'border-orange-500/30' },
-    { titulo: 'WhatsApp', desc: 'Vincula y revisa el estado de la conexión', icono: '📱', ruta: '/whatsapp', bg: 'bg-emerald-900/20', border: 'border-emerald-500/30' },
-    { titulo: 'Importar alumnos', desc: 'Carga Excel o CSV y revisa duplicados antes de importar', icono: '📥', ruta: '/importacion', bg: 'bg-sky-900/20', border: 'border-sky-500/30' },
+  const modulos:ConfigModule[] = [
+    { titulo: 'Amistosos', desc: 'Programa partidos, controles, exhibiciones o competencias amistosas', icono: '🤝', ruta: '/amistosos' },
+    { titulo: 'Profesores y accesos', desc: 'Administra cupos, accesos y categorías asignadas', icono: '🧑‍🏫', ruta: '/profesores' },
+    { titulo: 'Perfil y horarios', desc: `Datos generales y horarios de ${academyName}`, icono: '🏟️', ruta: '/configuracion/perfil' },
+    { titulo: 'Sedes y ramas', desc: 'Administra ubicaciones y disciplinas deportivas', icono: '🏢', ruta: '/configuracion/estructura' },
+    { titulo: 'Categorías', desc: 'Crea y organiza categorías dentro de cada rama', icono: '🧩', ruta: '/configuracion/estructura?modo=categorias' },
+    { titulo: 'Inscripciones multideporte', desc: 'Inscribe al mismo alumno en otra disciplina sin duplicar su ficha', icono: '🔄', ruta: '/inscripciones' },
+    { titulo: 'Apoderados PRO', desc: 'Portal familiar, chat, pagos, privacidad y solicitudes deportivas', icono: '👨‍👩‍👧', ruta: '/apoderados-pro' },
+    { titulo: 'Uniformes e inventario', desc: 'Catálogo, tallas, pedidos y entregas', icono: '👕', ruta: '/uniformes' },
+    { titulo: 'Finanzas y recaudación', desc: 'Configura los medios de pago de la academia', icono: '💳', ruta: '/configuracion/finanzas' },
+    { titulo: 'Términos de matrícula', desc: 'Reglamento y condiciones que aceptarán los apoderados', icono: '⚖️', ruta: '/terminos' },
+    { titulo: 'WhatsApp', desc: 'Vincula y revisa el estado de la conexión', icono: '📱', ruta: '/whatsapp' },
+    { titulo: 'Importar alumnos', desc: 'Carga Excel o CSV y revisa duplicados antes de importar', icono: '📥', ruta: '/importacion' },
   ];
 
   return <div className="mx-auto max-w-6xl space-y-6 pb-12">
@@ -102,7 +104,37 @@ const Configuracion: React.FC = () => {
 
     <PublicPageEditor academyName={academyName}/>
 
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{modulos.map((m) => <div key={m.titulo} onClick={() => navigate(m.ruta)} className={`cursor-pointer rounded-2xl border p-7 transition-all hover:-translate-y-1 hover:shadow-2xl ${m.bg} ${m.border}`}><span className="text-4xl drop-shadow-md">{m.icono}</span><h3 className="mt-4 text-lg font-black text-white">{m.titulo}</h3><p className="mt-2 text-xs leading-relaxed text-gray-400">{m.desc}</p></div>)}</div>
+    <section className="space-y-4">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[.16em] text-[#789600]">Administración</p>
+          <h2 className="mt-1 text-2xl font-black text-[#11170f]">Accesos de configuración</h2>
+        </div>
+        <p className="max-w-xl text-sm text-[#687168]">Todos los ajustes de la academia, organizados bajo el mismo sistema visual de Lestra.</p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {modulos.map((m) => (
+          <button
+            key={m.titulo}
+            type="button"
+            onClick={() => navigate(m.ruta)}
+            className="group relative min-h-[178px] overflow-hidden rounded-[24px] border border-[#d2d9cf] bg-[#f8f9f5] p-5 text-left shadow-[0_14px_34px_rgba(20,29,21,.045)] transition duration-200 hover:-translate-y-1 hover:border-[#a9c72f] hover:shadow-[0_22px_48px_rgba(20,29,21,.10)] focus:outline-none focus:ring-4 focus:ring-[#caff00]/20"
+          >
+            <span className="pointer-events-none absolute -right-10 -top-12 h-28 w-28 rounded-full border-[18px] border-[#caff00]/10 transition-transform duration-300 group-hover:scale-110" />
+            <div className="relative flex h-full flex-col">
+              <div className="flex items-start justify-between gap-4">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[15px] bg-[#caff00] text-[24px] shadow-[0_8px_20px_rgba(202,255,0,.16)]">{m.icono}</span>
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[#d6dcd2] bg-white text-lg font-black text-[#172018] transition group-hover:border-[#caff00] group-hover:bg-[#caff00]">→</span>
+              </div>
+              <h3 className="mt-5 text-[17px] font-black tracking-[-.02em] text-[#11170f]">{m.titulo}</h3>
+              <p className="mt-2 max-w-[95%] text-sm leading-5 text-[#6e786f]">{m.desc}</p>
+              <div className="mt-auto pt-4"><div className="h-[3px] w-10 rounded-full bg-[#caff00] transition-all duration-200 group-hover:w-20" /></div>
+            </div>
+          </button>
+        ))}
+      </div>
+    </section>
   </div>;
 };
 
