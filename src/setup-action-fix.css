@@ -145,8 +145,147 @@
   letter-spacing: .04em;
 }
 
+/* Protección y reglas: superficie oscura aislada del contrato global de legibilidad. */
+.lestra-setup-page .setup-privacy-notice {
+  background:
+    radial-gradient(circle at 86% 8%, rgba(202,255,0,.10), transparent 24%),
+    linear-gradient(135deg, #111912 0%, #172019 58%, #121914 100%) !important;
+  border-color: rgba(202,255,0,.30) !important;
+  color: #f6f9f4 !important;
+  box-shadow: 0 24px 64px rgba(16,24,17,.16), inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-heading {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-wrap: balance;
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-lead {
+  color: #dce4da !important;
+  -webkit-text-fill-color: #dce4da !important;
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-disclaimer {
+  color: #aeb9ad !important;
+  -webkit-text-fill-color: #aeb9ad !important;
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-law-badge {
+  background: #caff00 !important;
+  color: #11170f !important;
+  -webkit-text-fill-color: #11170f !important;
+  box-shadow: 0 8px 20px rgba(202,255,0,.12);
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-law-badge svg {
+  color: #11170f !important;
+  stroke: currentColor !important;
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-date-badge {
+  border-color: rgba(255,255,255,.17) !important;
+  background: rgba(255,255,255,.055) !important;
+  color: #d7ded4 !important;
+  -webkit-text-fill-color: #d7ded4 !important;
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-evidence {
+  border-color: rgba(255,255,255,.17) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.075), rgba(255,255,255,.035)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 14px 34px rgba(0,0,0,.11);
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-evidence-title {
+  color: #caff00 !important;
+  -webkit-text-fill-color: #caff00 !important;
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-evidence-item,
+.lestra-setup-page .setup-privacy-notice .setup-privacy-evidence-item span {
+  color: #eef3ec !important;
+  -webkit-text-fill-color: #eef3ec !important;
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-evidence-icon {
+  color: #caff00 !important;
+  stroke: currentColor !important;
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-bottom {
+  border-color: rgba(255,255,255,.10) !important;
+  background: rgba(0,0,0,.10) !important;
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-feature {
+  border-color: rgba(255,255,255,.08) !important;
+  background: rgba(255,255,255,.035) !important;
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-feature-icon {
+  background: rgba(255,255,255,.065) !important;
+  color: #caff00 !important;
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-feature-icon svg {
+  color: #caff00 !important;
+  stroke: currentColor !important;
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-feature-title {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-feature-text {
+  color: #b9c3b7 !important;
+  -webkit-text-fill-color: #b9c3b7 !important;
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-link {
+  border-color: rgba(202,255,0,.28) !important;
+  background: rgba(255,255,255,.055) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-link svg {
+  color: #caff00 !important;
+  stroke: currentColor !important;
+}
+
+.lestra-setup-page .setup-privacy-notice .setup-privacy-link:hover {
+  border-color: rgba(202,255,0,.55) !important;
+  background: rgba(202,255,0,.08) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 1023px) {
+  .lestra-setup-page .setup-privacy-notice .setup-privacy-evidence {
+    max-width: 620px;
+  }
+}
+
 @media (max-width: 639px) {
   .lestra-director-main[data-route="/puesta-en-marcha"] .setup-time-picker__control {
     grid-template-columns: 18px minmax(48px, 1fr) 8px minmax(48px, 1fr) auto;
+  }
+
+  .lestra-setup-page .setup-privacy-notice {
+    border-radius: 22px !important;
+  }
+
+  .lestra-setup-page .setup-privacy-notice .setup-privacy-main,
+  .lestra-setup-page .setup-privacy-notice .setup-privacy-bottom {
+    padding-left: 1.15rem !important;
+    padding-right: 1.15rem !important;
+  }
+
+  .lestra-setup-page .setup-privacy-notice .setup-privacy-heading {
+    font-size: 1.55rem !important;
+    line-height: 1.12 !important;
   }
 }
