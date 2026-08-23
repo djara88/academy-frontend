@@ -19,6 +19,7 @@ import './setup-optional-actions.css';
 import './director-reference-system.css';
 import './director-uniformity.css';
 import './director-brand-normalize.css';
+import './director-accent-cleanup.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
