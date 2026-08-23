@@ -116,9 +116,9 @@ const Terminos: React.FC = () => {
         </div>
       </div>
 
-      <section className="rounded-2xl border border-[#289E9D]/30 bg-[#289E9D]/[.07] p-5 text-sm leading-6 text-[#b8dedd]">
-        <p className="font-black text-[#70e4df]">Uso en matrículas</p>
-        <p className="mt-1">Al enviar una pre-matrícula, {BRAND.name} guarda una <b>copia exacta de estos términos</b>. El apoderado ve esa copia, la acepta y firma. La misma versión queda incorporada en la matrícula final firmada; cambios posteriores no modifican documentos ya enviados o firmados.</p>
+      <section className="rounded-2xl !border !border-[#c8d98a] !bg-[#f1f7dc] p-5 text-sm leading-6 shadow-[0_8px_24px_rgba(55,73,36,.05)]">
+        <p className="!text-[#4d6319] font-black">Uso en matrículas</p>
+        <p className="mt-1 !text-[#44503f]">Al enviar una pre-matrícula, {BRAND.name} guarda una <b className="!text-[#20291d]">copia exacta de estos términos</b>. El apoderado ve esa copia, la acepta y firma. La misma versión queda incorporada en la matrícula final firmada; cambios posteriores no modifican documentos ya enviados o firmados.</p>
       </section>
 
       <div className="rounded-xl border border-[#30363d] bg-[#0d1117] p-6 shadow-lg">
