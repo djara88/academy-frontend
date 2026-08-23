@@ -14,6 +14,7 @@ import './setup-polish.css';
 import './setup-action-fix.css';
 import './professors-polish.css';
 import './setup-schedule-fix.css';
+import './setup-optional-fix.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
