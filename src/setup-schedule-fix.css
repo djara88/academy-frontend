@@ -1,0 +1,62 @@
+/* Puesta en Marcha — horarios sin solapamientos.
+ * Capa final: adapta la fila de horarios al ancho real de la tarjeta,
+ * no al ancho total del viewport.
+ */
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page div.grid:has(> .setup-time-picker) {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px !important;
+  align-items: end !important;
+  column-gap: 12px !important;
+  row-gap: 10px !important;
+}
+
+/* Día ocupa una fila completa; Desde y Hasta quedan debajo, con aire real. */
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page div.grid:has(> .setup-time-picker) > label:first-child {
+  grid-column: 1 / -1 !important;
+  min-width: 0 !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page div.grid:has(> .setup-time-picker) > .setup-time-picker {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+/* La flecha intermedia no aporta cuando los selectores ya están claramente rotulados. */
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page div.grid:has(> .setup-time-picker) > div[class*="items-center"][class*="justify-center"] {
+  display: none !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page div.grid:has(> .setup-time-picker) > button[aria-label^="Eliminar horario"] {
+  grid-column: 3 !important;
+  align-self: end !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .setup-time-picker__label {
+  position: static !important;
+  display: block !important;
+  margin: 0 0 6px !important;
+  min-height: 17px !important;
+  white-space: nowrap !important;
+  line-height: 1.25 !important;
+}
+
+.lestra-director-main[data-route="/puesta-en-marcha"] .setup-time-picker__control {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+@media (max-width: 560px) {
+  .lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page div.grid:has(> .setup-time-picker) {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page div.grid:has(> .setup-time-picker) > label:first-child,
+  .lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page div.grid:has(> .setup-time-picker) > .setup-time-picker,
+  .lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page div.grid:has(> .setup-time-picker) > button[aria-label^="Eliminar horario"] {
+    grid-column: 1 !important;
+  }
+
+  .lestra-director-main[data-route="/puesta-en-marcha"] .lestra-setup-page div.grid:has(> .setup-time-picker) > button[aria-label^="Eliminar horario"] {
+    justify-self: end !important;
+  }
+}
