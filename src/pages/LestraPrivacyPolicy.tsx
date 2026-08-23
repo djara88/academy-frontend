@@ -48,7 +48,7 @@ export default function LestraPrivacyPolicy() {
           {[
             { icon: LockClosedIcon, title: 'Finalidad limitada', text: 'Los datos se tratan para prestar, asegurar y soportar las funciones contratadas.' },
             { icon: ShieldCheckIcon, title: 'Acceso controlado', text: 'El acceso privado requiere autenticación y permisos asociados a cada organización y perfil.' },
-            { icon: CloudIcon, title: 'Infraestructura protegida', text: 'Lestra opera sobre servicios tecnológicos especializados y aplica controles de seguridad acordes al servicio.' },
+            { icon: CloudIcon, title: 'Protección continua', text: 'Aplicamos medidas técnicas y organizativas para proteger la información durante la prestación del servicio.' },
           ].map(({ icon: Icon, title, text }) => (
             <div key={title} className="rounded-[22px] border border-[#d9ddd3] bg-white p-5">
               <Icon className="h-6 w-6 text-[#79a800]" />
@@ -90,19 +90,17 @@ export default function LestraPrivacyPolicy() {
           <Section title="5. Cómo protegemos la información">
             <p>El acceso privado a Lestra requiere autenticación y se limita según la organización y el perfil del usuario. Aplicamos controles destinados a reducir accesos indebidos, limitar privilegios y separar lógicamente la información administrada por distintas academias.</p>
             <p>Lestra utiliza medidas técnicas y organizativas orientadas a proteger la confidencialidad, integridad y disponibilidad de la información, incluyendo comunicaciones protegidas, controles de acceso, supervisión operativa y mecanismos de continuidad y recuperación.</p>
-            <p>Por seguridad, esta política no publica configuraciones internas, topologías, ubicaciones exactas, credenciales, nombres técnicos ni detalles que puedan facilitar intentos de acceso no autorizado. La transparencia sobre el tratamiento de datos no exige exponer la arquitectura interna de la plataforma.</p>
           </Section>
 
           <Section title="6. Almacenamiento y transferencias internacionales">
-            <p>Lestra utiliza infraestructura tecnológica especializada para almacenar y procesar información de forma necesaria para prestar el servicio. Algunos de estos tratamientos pueden realizarse fuera de Chile, dependiendo de la infraestructura y de las funciones que la academia decida utilizar.</p>
+            <p>Lestra utiliza servicios tecnológicos especializados para almacenar y procesar información necesaria para prestar el servicio. Algunos tratamientos pueden realizarse fuera de Chile, dependiendo de las funciones utilizadas y de los servicios involucrados.</p>
             <p>Cuando corresponda una transferencia o tratamiento internacional, Lestra procurará aplicar las salvaguardas contractuales, técnicas y organizativas exigibles y mantener disponible la información necesaria para efectos de transparencia y cumplimiento.</p>
-            <p>Las ubicaciones exactas de infraestructura y otros detalles operativos sensibles no se publican en esta política por razones de seguridad.</p>
           </Section>
 
           <Section title="7. Proveedores tecnológicos y subencargados">
-            <p>Para operar la plataforma pueden intervenir proveedores especializados en categorías como alojamiento y procesamiento de datos, autenticación, comunicaciones, distribución de contenido, continuidad operativa y, cuando la academia los habilita, pagos o mensajería.</p>
+            <p>Para operar la plataforma pueden intervenir proveedores especializados en categorías como alojamiento y procesamiento de datos, autenticación, comunicaciones, continuidad operativa y, cuando la academia los habilita, pagos o mensajería.</p>
             <p>Estos terceros deben intervenir únicamente en la medida necesaria para prestar las funciones correspondientes y bajo condiciones destinadas a proteger la información tratada.</p>
-            <p>La composición de proveedores puede evolucionar para mejorar seguridad, continuidad o funcionalidad. Cuando un cambio sea material para el tratamiento de datos, deberá reflejarse en la documentación contractual o de privacidad aplicable. La información adicional sobre categorías de subencargados podrá entregarse por los canales contractuales o de privacidad de Lestra cuando corresponda.</p>
+            <p>Cuando un cambio de proveedor sea material para el tratamiento de datos, deberá reflejarse en la documentación contractual o de privacidad aplicable.</p>
           </Section>
 
           <Section title="8. Conservación y eliminación">
@@ -115,16 +113,11 @@ export default function LestraPrivacyPolicy() {
             <p>Cuando la solicitud se relaciona directamente con datos tratados por Lestra como responsable —por ejemplo cuenta, contratación o soporte— el usuario puede utilizar los canales oficiales disponibles en la plataforma o los datos de contacto informados en la relación contractual.</p>
           </Section>
 
-          <Section title="10. Ley 21.719 y evolución de esta política">
+          <Section title="10. Ley 21.719 y vigencia de esta política">
             <p>La Ley chilena N.º 21.719 entra en vigencia el 1 de diciembre de 2026. Lestra continúa adaptando producto, documentación y prácticas para fortalecer transparencia, trazabilidad, ejercicio de derechos y tratamiento de información especialmente protegida.</p>
             <p>Esta política describe los principios y compromisos aplicables al servicio. No constituye una certificación automática de cumplimiento para cada academia ni reemplaza el asesoramiento jurídico que una organización pueda requerir por sus actividades particulares.</p>
+            <p>Si cambia materialmente la forma en que Lestra trata información personal, esta política será actualizada y la versión vigente permanecerá disponible en la plataforma.</p>
           </Section>
-
-          <section className="rounded-[24px] border border-[#b9e937]/55 bg-[#f5fbdf] p-5 sm:p-7">
-            <p className="text-[10px] font-black uppercase tracking-[.16em] text-[#6d8500]">Transparencia sin exponer la seguridad</p>
-            <h2 className="mt-2 text-xl font-black tracking-tight text-[#172018]">Explicamos qué hacemos con los datos sin publicar información que pueda debilitar la protección de la plataforma.</h2>
-            <p className="mt-3 text-sm leading-6 text-[#5f685e]">Si una característica futura cambia materialmente la forma en que Lestra procesa información, esta política deberá actualizarse y la versión vigente permanecerá accesible desde la plataforma.</p>
-          </section>
         </div>
 
         <footer className="py-8 text-center text-xs leading-5 text-[#7b8379]">
