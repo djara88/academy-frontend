@@ -1,0 +1,197 @@
+/* Lestra Director — cabecera única y definitiva
+ * Esta capa se carga al final. Neutraliza los antiguos acentos por módulo del
+ * WOW system y obliga a todas las cabeceras del director a compartir exactamente
+ * la misma familia visual de Puesta en Marcha: grafito, blanco y lima.
+ */
+
+:root {
+  --lestra-hero-lime: #caff00;
+  --lestra-hero-ink: #0b110d;
+  --lestra-hero-body: #c9d1c9;
+}
+
+/* No existen colores de módulo. Toda ruta del director usa el mismo acento. */
+.lestra-director-main:not([data-route^="/admin"]) {
+  --route-accent: var(--lestra-hero-lime) !important;
+}
+
+/* Cabecera raíz de cada módulo. Dashboard y Puesta en Marcha ya son la referencia. */
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(section,article,div):not([class*="absolute"]):has(h1) {
+  position: relative !important;
+  isolation: isolate !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(255,255,255,.08) !important;
+  border-radius: 34px !important;
+  padding: clamp(1.75rem, 3vw, 3rem) !important;
+  color: #fff !important;
+  background:
+    radial-gradient(circle at 91% 14%, rgba(202,255,0,.12), transparent 19rem),
+    linear-gradient(132deg, #09100c 0%, #111a13 63%, #10170f 100%) !important;
+  box-shadow: 0 24px 64px rgba(14,22,15,.16), inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+
+/* Oculta decoraciones JSX heredadas de cada módulo. La ornamentación la controla
+   exclusivamente esta capa para que una pantalla no tenga círculo violeta, otra azul, etc. */
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(section,article,div):not([class*="absolute"]):has(h1)
+> :is(div,span)[class*="absolute"][class*="pointer-events-none"] {
+  display: none !important;
+}
+
+/* Anillo superior derecho, igual para todos los módulos. */
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(section,article,div):not([class*="absolute"]):has(h1)::before {
+  content: '' !important;
+  display: block !important;
+  position: absolute !important;
+  z-index: -1 !important;
+  width: 270px !important;
+  height: 270px !important;
+  right: -82px !important;
+  top: -116px !important;
+  left: auto !important;
+  bottom: auto !important;
+  border: 38px solid rgba(202,255,0,.11) !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+  pointer-events: none !important;
+}
+
+/* Línea inferior sutil de Puesta en Marcha; elimina diagonales azules/moradas/rojas. */
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(section,article,div):not([class*="absolute"]):has(h1)::after {
+  content: '' !important;
+  display: block !important;
+  position: absolute !important;
+  z-index: -1 !important;
+  left: 58% !important;
+  right: auto !important;
+  bottom: 14px !important;
+  top: auto !important;
+  width: 300px !important;
+  height: 1px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: linear-gradient(90deg, rgba(202,255,0,.42), rgba(202,255,0,0)) !important;
+  opacity: 1 !important;
+  transform: rotate(-10deg) !important;
+  pointer-events: none !important;
+}
+
+/* Tipografía y jerarquía únicas. */
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(section,article,div):not([class*="absolute"]):has(h1) h1 {
+  max-width: 1050px !important;
+  margin-top: .55rem !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  font-size: clamp(2.35rem, 4.4vw, 4.65rem) !important;
+  line-height: .98 !important;
+  letter-spacing: -.055em !important;
+  font-weight: 900 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(section,article,div):not([class*="absolute"]):has(h1) :is(p,span,label,div)[class*="uppercase"] {
+  color: var(--lestra-hero-lime) !important;
+  -webkit-text-fill-color: var(--lestra-hero-lime) !important;
+  border-color: rgba(202,255,0,.22);
+}
+
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(section,article,div):not([class*="absolute"]):has(h1) p:not([class*="uppercase"]) {
+  color: var(--lestra-hero-body) !important;
+  -webkit-text-fill-color: var(--lestra-hero-body) !important;
+}
+
+/* Acciones primarias dentro del hero. */
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(section,article,div):not([class*="absolute"]):has(h1)
+:is(button,a):is([class~="bg-[#289E9D]"],[class~="bg-[#C8A96B]"],[class~="bg-[#c8a96b]"],[class~="bg-[#b9e937]"],[class~="bg-[#caff00]"]) {
+  background: var(--lestra-hero-lime) !important;
+  border-color: var(--lestra-hero-lime) !important;
+  color: var(--lestra-hero-ink) !important;
+  -webkit-text-fill-color: var(--lestra-hero-ink) !important;
+  box-shadow: 0 12px 28px rgba(202,255,0,.14) !important;
+}
+
+/* Acciones secundarias: evita el rectángulo lima sin texto que se producía al
+   tratar un tintado /10 como si fuese un CTA sólido. */
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(section,article,div):not([class*="absolute"]):has(h1)
+:is(button,a):is([class~="bg-[#289E9D]/10"],[class~="bg-[#C8A96B]/10"],[class~="bg-[#c8a96b]/10"],[class~="bg-white/5"]) {
+  background: rgba(255,255,255,.055) !important;
+  border-color: rgba(255,255,255,.22) !important;
+  color: #f7faf6 !important;
+  -webkit-text-fill-color: #f7faf6 !important;
+  box-shadow: none !important;
+}
+
+/* Filtros y selects que viven en el hero usan el mismo cristal oscuro del panel
+   de estado de Puesta en Marcha, no un rectángulo blanco independiente. */
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(section,article,div):not([class*="absolute"]):has(h1) select {
+  min-height: 52px !important;
+  border: 1px solid rgba(255,255,255,.20) !important;
+  background: rgba(255,255,255,.065) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(section,article,div):not([class*="absolute"]):has(h1) select option {
+  background: #fff !important;
+  color: #111711 !important;
+}
+
+/* KPI del hero: misma superficie, sin verde/ámbar/rojo decorativo por tarjeta.
+   Los estados semánticos permanecen disponibles dentro del contenido del módulo. */
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(section,article,div):not([class*="absolute"]):has(h1)
+:is([class~="bg-black/15"],[class~="bg-emerald-500/10"],[class~="bg-amber-500/10"],[class~="bg-red-500/10"],[class~="bg-violet-500/10"],[class~="bg-blue-500/10"],[class~="bg-sky-500/10"]) {
+  background: rgba(255,255,255,.045) !important;
+  border-color: rgba(255,255,255,.30) !important;
+  color: #fff !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(section,article,div):not([class*="absolute"]):has(h1)
+:is([class~="bg-black/15"],[class~="bg-emerald-500/10"],[class~="bg-amber-500/10"],[class~="bg-red-500/10"],[class~="bg-violet-500/10"],[class~="bg-blue-500/10"],[class~="bg-sky-500/10"]) :is(p,span) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(section,article,div):not([class*="absolute"]):has(h1)
+:is([class~="bg-black/15"],[class~="bg-emerald-500/10"],[class~="bg-amber-500/10"],[class~="bg-red-500/10"])
+p[class*="uppercase"] {
+  color: var(--lestra-hero-lime) !important;
+  -webkit-text-fill-color: var(--lestra-hero-lime) !important;
+}
+
+@media (max-width: 639px) {
+  .lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+  .app-content > div > :is(section,article,div):not([class*="absolute"]):has(h1) {
+    border-radius: 28px !important;
+    padding: 1.45rem !important;
+  }
+
+  .lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+  .app-content > div > :is(section,article,div):not([class*="absolute"]):has(h1) h1 {
+    font-size: clamp(2.25rem, 12vw, 3.25rem) !important;
+  }
+
+  .lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+  .app-content > div > :is(section,article,div):not([class*="absolute"]):has(h1)::before {
+    width: 190px !important;
+    height: 190px !important;
+    right: -72px !important;
+    top: -92px !important;
+    border-width: 28px !important;
+  }
+}
