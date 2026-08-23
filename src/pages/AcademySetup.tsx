@@ -120,6 +120,19 @@ const SectionHeader = ({ icon: Icon, eyebrow, title, description }: { icon: type
   </div>
 );
 
+const SetupCompleteBanner = ({ onEnter }: { onEnter: () => void }) => (
+  <section className="overflow-hidden rounded-[32px] border border-emerald-300 bg-[linear-gradient(135deg,#eaffc8,#f7f8f3)] p-6 shadow-[0_18px_45px_rgba(46,83,32,.06)] sm:p-8">
+    <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <p className="text-xs font-black uppercase tracking-[.2em] text-emerald-700">Configuración completa</p>
+        <h2 className="mt-2 text-3xl font-black tracking-tight text-[#11170f]">Tu academia está lista. 🚀</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-[#53604f]">La configuración esencial está completa. Puedes activar funciones adicionales cuando las necesites.</p>
+      </div>
+      <button onClick={onEnter} className="lestra-setup-primary-action inline-flex min-h-14 items-center justify-center gap-3 rounded-2xl px-7 font-black">Entrar a Lestra <ArrowRightIcon className="h-5 w-5" /></button>
+    </div>
+  </section>
+);
+
 export default function AcademySetup() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -269,9 +282,7 @@ export default function AcademySetup() {
 
       {message ? <div className="rounded-2xl border border-[#cbd1c5] bg-[#f7f8f3] px-4 py-3 text-sm font-bold text-[#3c4639] shadow-sm">{message}</div> : null}
 
-      {status.operational ? <section className="overflow-hidden rounded-[32px] border border-emerald-300 bg-[linear-gradient(135deg,#eaffc8,#f7f8f3)] p-6 sm:p-8">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between"><div><p className="text-xs font-black uppercase tracking-[.2em] text-emerald-700">Configuración completa</p><h2 className="mt-2 text-3xl font-black tracking-tight">Tu academia está lista. 🚀</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-[#53604f]">La configuración esencial está completa. Puedes activar funciones adicionales cuando las necesites.</p></div><button onClick={() => navigate('/dashboard')} className="lestra-setup-primary-action inline-flex min-h-14 items-center justify-center gap-3 rounded-2xl px-7 font-black">Entrar a Lestra <ArrowRightIcon className="h-5 w-5" /></button></div>
-      </section> : null}
+      {status.operational ? <SetupCompleteBanner onEnter={() => navigate('/dashboard')} /> : null}
 
       <section className="rounded-[30px] border border-[#d2d6cc] bg-[#f7f8f3] p-5 sm:p-7">
         <SectionHeader icon={BuildingOffice2Icon} eyebrow="01 · Identidad" title="Quién eres" description="Revisa los datos principales de tu academia." />
@@ -327,6 +338,8 @@ export default function AcademySetup() {
         <div className="flex items-start gap-4"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#b9e937] text-[#11170f]"><SparklesIcon className="h-6 w-6"/></div><div><p className="text-[10px] font-black uppercase tracking-[.2em] text-[#b9e937]">Funciones adicionales</p><h2 className="mt-1 text-2xl font-black">Activa más funciones cuando las necesites</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">Estas opciones son complementarias y puedes configurarlas más adelante.</p></div></div>
         <div className="mt-6 grid gap-3 sm:grid-cols-3">{Object.entries(status.optional).map(([key,item]) => <div key={key} className="rounded-2xl border border-white/10 bg-white/[.04] p-4"><div className="flex items-center justify-between"><p className="text-sm font-black">{item.label}</p><span className={item.complete ? 'text-emerald-300' : 'text-white/35'}>{item.complete ? '✓' : '○'}</span></div><p className="mt-2 text-xs text-white/45">{item.complete ? 'Activo' : 'Disponible para configurar.'}</p></div>)}</div>
       </section>
+
+      {status.operational ? <SetupCompleteBanner onEnter={() => navigate('/dashboard')} /> : null}
     </div>
   </div>;
 }
