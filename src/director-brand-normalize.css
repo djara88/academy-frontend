@@ -1,0 +1,80 @@
+/* Última normalización de marca del director: elimina acentos históricos
+ * turquesa/dorado/morado en controles no semánticos y los lleva a Lestra.
+ */
+
+:root {
+  --lbn-lime: #caff00;
+  --lbn-lime-deep: #789600;
+  --lbn-ink: #0b110d;
+}
+
+/* Fondos sólidos de marca heredados. */
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(div,span,button,a)[class~="bg-[#289E9D]"],
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class~="bg-violet-500"],
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class~="bg-purple-500"],
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class~="bg-fuchsia-500"],
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class~="bg-sky-500"],
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class~="bg-blue-500"],
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class~="bg-emerald-500"],
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class~="bg-green-500"] {
+  background: var(--lbn-lime) !important;
+  border-color: var(--lbn-lime) !important;
+  color: var(--lbn-ink) !important;
+  -webkit-text-fill-color: var(--lbn-ink) !important;
+}
+
+/* Tintes de selección de la marca antigua. */
+.lestra-director-main:not([data-route^="/admin"]) .app-content [class~="bg-[#289E9D]/5"] { background: rgba(202,255,0,.055) !important; }
+.lestra-director-main:not([data-route^="/admin"]) .app-content [class~="bg-[#289E9D]/10"] { background: rgba(202,255,0,.10) !important; }
+.lestra-director-main:not([data-route^="/admin"]) .app-content [class~="bg-[#289E9D]/15"] { background: rgba(202,255,0,.14) !important; }
+.lestra-director-main:not([data-route^="/admin"]) .app-content [class~="bg-[#289E9D]/20"] { background: rgba(202,255,0,.18) !important; }
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content [class~="bg-[#C8A96B]/10"],
+.lestra-director-main:not([data-route^="/admin"]) .app-content [class~="bg-[#c8a96b]/10"] {
+  background: rgba(202,255,0,.10) !important;
+}
+
+/* Bordes de marca. */
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(
+  [class~="border-[#289E9D]"],
+  [class~="border-[#289E9D]/25"],
+  [class~="border-[#289E9D]/30"],
+  [class~="border-[#289E9D]/40"],
+  [class~="border-[#289E9D]/50"],
+  [class~="border-[#C8A96B]"],
+  [class~="border-[#C8A96B]/25"],
+  [class~="border-[#C8A96B]/30"]
+) {
+  border-color: rgba(139,174,0,.42) !important;
+}
+
+/* Texto de marca histórica. */
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(
+  [class~="text-[#70e4df]"],
+  [class~="text-[#48d8d0]"],
+  [class~="text-[#289E9D]"],
+  [class~="text-[#C8A96B]"],
+  [class~="text-[#D8BE87]"]
+) {
+  color: var(--lbn-lime-deep) !important;
+  -webkit-text-fill-color: var(--lbn-lime-deep) !important;
+}
+
+/* Dentro de heroes, los acentos se vuelven lima luminoso, no verde oscuro. */
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(div,section,article):not([class*="absolute"]):has(h1) :is(
+  [class~="text-[#70e4df]"],
+  [class~="text-[#48d8d0]"],
+  [class~="text-[#289E9D]"],
+  [class~="text-[#C8A96B]"],
+  [class~="text-[#D8BE87]"]
+) {
+  color: var(--lbn-lime) !important;
+  -webkit-text-fill-color: var(--lbn-lime) !important;
+}
+
+/* Botones de peligro/advertencia conservan semántica. */
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class*="bg-red-"] {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
