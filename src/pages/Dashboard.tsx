@@ -159,7 +159,7 @@ const Dashboard = () => {
       <div className="grid min-h-[70vh] place-items-center">
         <div className="text-center">
           <div className="mx-auto h-11 w-11 animate-spin rounded-full border-4 border-[#d9ded4] border-t-[#b6ed00]" />
-          <p className="mt-4 font-black text-[#596057]">Organizando tu academia...</p>
+          <p className="mt-4 font-black text-[#596057]">Cargando resumen...</p>
         </div>
       </div>
     );
@@ -170,7 +170,7 @@ const Dashboard = () => {
       <div className="new-era-card mx-auto max-w-xl p-7 text-center">
         <ExclamationTriangleIcon className="mx-auto h-9 w-9 text-[#ff4e57]" />
         <h1 className="mt-3 text-xl font-black text-[#111511]">No pudimos abrir tu resumen</h1>
-        <p className="mt-2 text-sm text-[#6f756f]">Tus datos siguen seguros. Intenta cargar nuevamente.</p>
+        <p className="mt-2 text-sm text-[#6f756f]">No fue posible cargar la información. Intenta nuevamente.</p>
         <button type="button" onClick={() => void refetch()} className="mt-5 min-h-11 rounded-xl bg-[#111511] px-5 text-sm font-black text-white">
           Intentar de nuevo
         </button>
@@ -206,7 +206,7 @@ const Dashboard = () => {
       <section className="new-era-hero">
         <div className="relative z-10 flex flex-col gap-7 xl:flex-row xl:items-end xl:justify-between">
           <div>
-            <div className="new-era-eyebrow">Lestra · nueva era</div>
+            <div className="new-era-eyebrow">Resumen de hoy</div>
             <h1>{data.academia.nombre}</h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 sm:text-base">Todo lo importante de tu academia, claro y a mano.</p>
             <div className="mt-5 flex flex-wrap gap-2 text-xs font-black">
@@ -216,7 +216,7 @@ const Dashboard = () => {
             </div>
           </div>
           <div className={`new-era-status ${priorities ? 'is-alert' : 'is-clear'}`}>
-            {priorities ? `${priorities} cosas necesitan tu atención` : 'Todo está al día'}
+            {priorities ? `${priorities} pendientes por revisar` : 'Todo está al día'}
           </div>
         </div>
       </section>
@@ -283,8 +283,7 @@ const Dashboard = () => {
 
       <section className="new-era-card p-5 sm:p-6">
         <div className="flex items-center justify-between gap-4">
-          <div><p className="new-era-section-kicker">Hazlo rápido</p><h2 className="new-era-section-title mt-1">Accesos directos</h2></div>
-          <span className="hidden text-xs font-bold text-[#737a71] sm:inline">Menos clics. Más cancha.</span>
+          <div><p className="new-era-section-kicker">Acciones</p><h2 className="new-era-section-title mt-1">Accesos directos</h2></div>
         </div>
         <div className="new-era-quick-grid mt-5">
           <QuickAction to="/matricula" label="Nueva matrícula" icon={PlusIcon} primary />
@@ -338,7 +337,7 @@ const Dashboard = () => {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="flex items-start gap-3">
               <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#c8ff00]"><RocketLaunchIcon className="h-5 w-5" /></span>
-              <div><p className="new-era-section-kicker">Primeros pasos</p><h2 className="new-era-section-title mt-1">Deja Lestra listo para trabajar contigo</h2><p className="mt-1 text-sm text-[#737a71]">Esta guía desaparece cuando termines.</p></div>
+              <div><p className="new-era-section-kicker">Configuración</p><h2 className="new-era-section-title mt-1">Completa la configuración inicial</h2><p className="mt-1 text-sm text-[#737a71]">Revisa las acciones pendientes para comenzar a operar.</p></div>
             </div>
             <div className="min-w-52">
               <div className="flex justify-between text-xs font-black text-[#6f756f]"><span>Avance</span><span>{completedOnboarding}/{onboardingSteps.length}</span></div>
