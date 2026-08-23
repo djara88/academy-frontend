@@ -1,5 +1,4 @@
-import { ArrowLeftIcon, CheckCircleIcon, CloudIcon, LockClosedIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
-import { Link } from 'react-router-dom';
+import { CheckCircleIcon, CloudIcon, LockClosedIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 
 const UPDATED_AT = '23 de agosto de 2026';
 
@@ -21,11 +20,7 @@ export default function LestraPrivacyPolicy() {
   return (
     <main className="min-h-screen bg-[#eef0e9] text-[#172018]">
       <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm font-black text-[#4e584d] transition hover:text-[#172018]">
-          <ArrowLeftIcon className="h-4 w-4" /> Volver a Lestra
-        </Link>
-
-        <header className="relative mt-5 overflow-hidden rounded-[30px] bg-[#172018] px-6 py-8 text-white shadow-[0_24px_70px_rgba(23,32,24,.18)] sm:px-9 sm:py-10">
+        <header className="relative overflow-hidden rounded-[30px] bg-[#172018] px-6 py-8 text-white shadow-[0_24px_70px_rgba(23,32,24,.18)] sm:px-9 sm:py-10">
           <div className="absolute -right-16 -top-20 h-64 w-64 rounded-full border-[36px] border-[#b9e937]/10" aria-hidden="true" />
           <div className="relative max-w-3xl">
             <div className="flex flex-wrap items-center gap-2">
