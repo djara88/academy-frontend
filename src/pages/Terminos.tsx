@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import { useAuth } from '../contexts/AuthContext';
 import { useAcademyMessages } from '../hooks/useAcademyMessages';
@@ -16,6 +17,9 @@ const normalizeTerms = (value: unknown) => {
 const Terminos: React.FC = () => {
   const { notify } = useAcademyMessages();
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const fromSetup = new URLSearchParams(location.search).get('setup') === '1';
   const [terminos, setTerminos] = useState('');
   const [savedTerms, setSavedTerms] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -91,7 +95,7 @@ const Terminos: React.FC = () => {
     }
   };
 
-  if (loading) return <div className="mt-10 text-center font-bold text-[#289E9D]">Cargando documento...</div>;
+  if (loading) return <div className="mt-10 text-center font-bold text-[#4f641b]">Cargando documento...</div>;
 
   const visibleTerms = terminos.trim();
   const termsForPdf = visibleTerms || 'La academia no ha configurado condiciones adicionales de matrícula.';
@@ -109,10 +113,21 @@ const Terminos: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div><h1 className="text-3xl font-bold text-[#e6edf3]">📄 Términos de matrícula</h1><p className="mt-1 text-sm text-gray-400">Define las condiciones que verá y aceptará el apoderado antes de firmar.</p></div>
+      {fromSetup ? (
+        <button
+          type="button"
+          onClick={() => navigate('/puesta-en-marcha')}
+          className="inline-flex min-h-10 items-center gap-2 rounded-full !border !border-[#cfd5c7] !bg-white px-4 py-2 text-sm font-black !text-[#35402f] shadow-sm transition hover:!border-[#9bab85] hover:!bg-[#f6f8f1]"
+        >
+          <span aria-hidden="true">←</span>
+          Volver a Puesta en Marcha
+        </button>
+      ) : null}
+
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div><h1 className="text-3xl font-black !text-[#172018]">📄 Términos de matrícula</h1><p className="mt-1 text-sm !text-[#7a8375]">Define las condiciones que verá y aceptará el apoderado antes de firmar.</p></div>
         <div className="flex flex-wrap gap-3">
-          {!isEditing ? <><button onClick={() => setIsEditing(true)} className="rounded-lg border border-[#30363d] bg-[#21262d] px-4 py-2 font-bold text-white hover:bg-[#30363d]">✏️ Editar texto</button><button onClick={handleGenerarPDF} disabled={generandoPDF} className="rounded-lg bg-[#C8A96B] px-4 py-2 font-bold text-[#111827] disabled:opacity-50">{generandoPDF ? 'Generando...' : '📄 Descargar PDF'}</button></> : <><button onClick={cancelEdit} className="px-4 py-2 text-gray-400 hover:text-white">Cancelar</button><button onClick={handleGuardar} disabled={saving} className="rounded-lg bg-[#289E9D] px-6 py-2 font-bold text-white hover:bg-[#207f7e] disabled:opacity-50">{saving ? 'Guardando...' : '💾 Guardar términos'}</button></>}
+          {!isEditing ? <><button onClick={() => setIsEditing(true)} className="min-h-11 rounded-xl !border !border-[#d3d8ce] !bg-white px-5 py-2.5 font-black !text-[#172018] shadow-sm transition hover:!border-[#aeb8a4] hover:!bg-[#f8faf5]">✏️ Editar texto</button><button onClick={handleGenerarPDF} disabled={generandoPDF} className="min-h-11 rounded-xl !border !border-[#20261f] !bg-[#20261f] px-5 py-2.5 font-black !text-white shadow-sm transition hover:!bg-[#2b3429] disabled:opacity-50">{generandoPDF ? 'Generando...' : '📄 Descargar PDF'}</button></> : <><button onClick={cancelEdit} className="min-h-11 rounded-xl px-4 py-2 !text-[#687166] hover:!bg-[#eef1e9] hover:!text-[#172018]">Cancelar</button><button onClick={handleGuardar} disabled={saving} className="min-h-11 rounded-xl !border !border-[#b9e937] !bg-[#b9e937] px-6 py-2.5 font-black !text-[#11170f] shadow-[0_10px_24px_rgba(185,233,55,.18)] transition hover:!bg-[#c5f143] disabled:opacity-50">{saving ? 'Guardando...' : '💾 Guardar términos'}</button></>}
         </div>
       </div>
 
@@ -121,8 +136,8 @@ const Terminos: React.FC = () => {
         <p className="mt-1 !text-[#44503f]">Al enviar una pre-matrícula, {BRAND.name} guarda una <b className="!text-[#20291d]">copia exacta de estos términos</b>. El apoderado ve esa copia, la acepta y firma. La misma versión queda incorporada en la matrícula final firmada; cambios posteriores no modifican documentos ya enviados o firmados.</p>
       </section>
 
-      <div className="rounded-xl border border-[#30363d] bg-[#0d1117] p-6 shadow-lg">
-        {isEditing ? <div className="space-y-4"><p className="text-sm text-gray-400">Escribe únicamente las condiciones que aplican a tu academia.</p><textarea value={terminos} onChange={(e) => setTerminos(e.target.value)} className="h-[60vh] w-full resize-none rounded-lg border border-[#30363d] bg-[#161b22] p-4 leading-relaxed text-gray-200 outline-none focus:border-[#289E9D]" placeholder={'Ejemplo:\n1. La matrícula corresponde a...\n2. Las mensualidades vencen...\n3. El alumno y apoderado se comprometen a...'} /></div> : <div className="h-[60vh] overflow-y-auto rounded-lg bg-white p-8"><div className="mx-auto max-w-3xl text-black"><h2 className="mb-6 text-center text-xl font-bold underline">REGLAMENTO Y TÉRMINOS DE MATRÍCULA</h2>{visibleTerms ? <div className="whitespace-pre-wrap text-justify text-sm leading-relaxed text-gray-800">{visibleTerms}</div> : <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-8 text-center text-sm text-gray-500">Aún no hay términos personalizados. Pulsa <b>Editar texto</b> para configurar las condiciones que se incluirán en las nuevas matrículas.</div>}</div></div>}
+      <div className="rounded-2xl !border !border-[#d7dcd2] !bg-[#f8f9f5] p-6 shadow-[0_18px_45px_rgba(31,39,30,.06)]">
+        {isEditing ? <div className="space-y-4"><p className="text-sm !text-[#6f796b]">Escribe únicamente las condiciones que aplican a tu academia.</p><textarea value={terminos} onChange={(e) => setTerminos(e.target.value)} className="h-[60vh] w-full resize-none rounded-xl !border !border-[#cdd4c8] !bg-white p-4 leading-relaxed !text-[#20261f] outline-none placeholder:!text-[#9aa395] focus:!border-[#91a774]" placeholder={'Ejemplo:\n1. La matrícula corresponde a...\n2. Las mensualidades vencen...\n3. El alumno y apoderado se comprometen a...'} /></div> : <div className="h-[60vh] overflow-y-auto rounded-xl bg-white p-8"><div className="mx-auto max-w-3xl text-black"><h2 className="mb-6 text-center text-xl font-bold underline">REGLAMENTO Y TÉRMINOS DE MATRÍCULA</h2>{visibleTerms ? <div className="whitespace-pre-wrap text-justify text-sm leading-relaxed text-gray-800">{visibleTerms}</div> : <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-8 text-center text-sm text-gray-500">Aún no hay términos personalizados. Pulsa <b>Editar texto</b> para configurar las condiciones que se incluirán en las nuevas matrículas.</div>}</div></div>}
       </div>
     </div>
   );
