@@ -1,0 +1,448 @@
+/* Lestra — uniformidad visual de módulos y ventanas
+ * Capa final del frontend del director. Mantiene intacta la lógica y normaliza
+ * superficies, controles, tablas, acciones y modales al lenguaje de Puesta en Marcha:
+ * grafito + blanco + lima, alto contraste y jerarquía consistente.
+ */
+
+:root {
+  --lu-lime: #caff00;
+  --lu-lime-hover: #b9e937;
+  --lu-lime-deep: #789600;
+  --lu-ink: #0b110d;
+  --lu-ink-2: #172018;
+  --lu-dark: #0d140f;
+  --lu-dark-2: #171f18;
+  --lu-page: #e9ece4;
+  --lu-surface: #f8f9f5;
+  --lu-surface-2: #eef2eb;
+  --lu-field: #edf1e9;
+  --lu-line: #d3dad0;
+  --lu-line-strong: #bec8bb;
+  --lu-body: #4e5a50;
+  --lu-muted: #747f75;
+  --lu-on-dark: #f8faf7;
+  --lu-on-dark-body: #c7d0c8;
+}
+
+/* ========================================================================== */
+/* LIENZO Y RITMO GENERAL                                                     */
+/* ========================================================================== */
+
+.lestra-director-main:not([data-route^="/admin"]) {
+  background:
+    radial-gradient(circle at 88% 0%, rgba(202,255,0,.055), transparent 24rem),
+    var(--lu-page) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content {
+  color: var(--lu-ink-2) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content > div {
+  width: 100%;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(h2,h3,h4,h5,h6) {
+  letter-spacing: -.022em;
+}
+
+/* ========================================================================== */
+/* SUPERFICIES HISTÓRICAS OSCURAS -> TARJETAS CLARAS                          */
+/* Se excluyen dashboard/setup porque ya son la referencia visual.            */
+/* ========================================================================== */
+
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content :is(section,article,div)[class*="bg-[#151b25]"],
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content :is(section,article,div)[class*="bg-[#0d1117]"],
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content :is(section,article,div)[class*="bg-[#101720]"],
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content :is(section,article,div)[class*="bg-[#121b25]"] {
+  background: var(--lu-surface) !important;
+  border-color: var(--lu-line) !important;
+  color: var(--lu-ink-2) !important;
+  box-shadow: 0 16px 40px rgba(25,35,25,.055);
+}
+
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content :is(section,article,div)[class*="bg-[#151b25]"] :is(h2,h3,h4,h5,strong),
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content :is(section,article,div)[class*="bg-[#0d1117]"] :is(h2,h3,h4,h5,strong),
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content :is(section,article,div)[class*="bg-[#101720]"] :is(h2,h3,h4,h5,strong),
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content :is(section,article,div)[class*="bg-[#121b25]"] :is(h2,h3,h4,h5,strong) {
+  color: var(--lu-ink) !important;
+  -webkit-text-fill-color: var(--lu-ink) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content :is(section,article,div)[class*="bg-[#151b25]"] :is(p,label,span):not([class*="text-red-"]):not([class*="text-emerald-"]):not([class*="text-amber-"]),
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content :is(section,article,div)[class*="bg-[#0d1117]"] :is(p,label,span):not([class*="text-red-"]):not([class*="text-emerald-"]):not([class*="text-amber-"]) {
+  color: var(--lu-body) !important;
+  -webkit-text-fill-color: var(--lu-body) !important;
+}
+
+/* ========================================================================== */
+/* HERO DE MÓDULO                                                             */
+/* Cualquier bloque raíz que contenga H1 adopta el escenario de referencia.   */
+/* ========================================================================== */
+
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(div,section,article):not([class*="absolute"]):has(h1) {
+  position: relative !important;
+  isolation: isolate;
+  overflow: hidden !important;
+  border: 1px solid rgba(255,255,255,.08) !important;
+  border-radius: 34px !important;
+  padding: clamp(1.55rem, 3.15vw, 2.75rem) !important;
+  color: var(--lu-on-dark) !important;
+  background:
+    radial-gradient(circle at 88% 8%, rgba(202,255,0,.14), transparent 29%),
+    radial-gradient(circle at 52% 128%, rgba(202,255,0,.05), transparent 38%),
+    linear-gradient(135deg, #0a100c 0%, #151d16 58%, #101711 100%) !important;
+  box-shadow: 0 28px 70px rgba(18,27,19,.17), inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(div,section,article):not([class*="absolute"]):has(h1)::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  right: -78px;
+  top: -112px;
+  width: 252px;
+  height: 252px;
+  border: 34px solid rgba(202,255,0,.105);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(div,section,article):not([class*="absolute"]):has(h1) h1 {
+  max-width: 1000px;
+  margin-top: .5rem !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  font-size: clamp(2rem, 4.1vw, 4rem) !important;
+  line-height: 1.01 !important;
+  letter-spacing: -.047em !important;
+  font-weight: 900 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(div,section,article):not([class*="absolute"]):has(h1) :is(h2,h3,h4,strong) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(div,section,article):not([class*="absolute"]):has(h1) :is(p,span,label) {
+  color: var(--lu-on-dark-body) !important;
+  -webkit-text-fill-color: var(--lu-on-dark-body) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(div,section,article):not([class*="absolute"]):has(h1) :is(p,span)[class*="uppercase"] {
+  color: var(--lu-lime) !important;
+  -webkit-text-fill-color: var(--lu-lime) !important;
+  font-weight: 900 !important;
+  letter-spacing: .13em !important;
+}
+
+/* ========================================================================== */
+/* TARJETAS / KPI / BARRAS DE FILTRO                                          */
+/* ========================================================================== */
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(
+  [class*="rounded-2xl"],
+  [class*="rounded-3xl"],
+  [class*="rounded-[24px]"],
+  [class*="rounded-[26px]"],
+  [class*="rounded-[28px]"]
+)[class*="border"] {
+  border-color: var(--lu-line);
+}
+
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/puesta-en-marcha"])
+.app-content :is(section,article,div)[class*="border-white/10"][class*="bg-white/5"] {
+  background: rgba(248,249,245,.82) !important;
+  border-color: var(--lu-line) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content [class*="border-dashed"] {
+  border-color: #cbd3c8 !important;
+  background: rgba(248,249,245,.58);
+}
+
+/* ========================================================================== */
+/* CAMPOS                                                                     */
+/* ========================================================================== */
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+  select,
+  textarea
+) {
+  min-height: 44px;
+  border: 1px solid transparent !important;
+  border-radius: 14px !important;
+  background: var(--lu-field) !important;
+  color: var(--lu-ink) !important;
+  -webkit-text-fill-color: var(--lu-ink) !important;
+  box-shadow: inset 0 0 0 1px rgba(37,48,37,.02);
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(input,textarea)::placeholder {
+  color: #778179 !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(input,select,textarea):focus {
+  border-color: #98b522 !important;
+  box-shadow: 0 0 0 3px rgba(202,255,0,.13) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content select option {
+  background: #fff !important;
+  color: var(--lu-ink) !important;
+}
+
+/* ========================================================================== */
+/* BOTONES Y ACCIONES                                                         */
+/* ========================================================================== */
+
+/* Todos los antiguos CTA de marca pasan a lima. */
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a):is(
+  [class*="bg-[#289E9D]"],
+  [class*="bg-[#48d8d0]"],
+  [class*="bg-[#70e4df]"],
+  [class*="bg-[#C8A96B]"],
+  [class*="bg-[#c8a96b]"],
+  [class*="bg-violet-600"],
+  [class*="bg-indigo-600"],
+  [class*="bg-sky-600"],
+  [class*="bg-cyan-600"]
+) {
+  background: var(--lu-lime) !important;
+  border-color: var(--lu-lime) !important;
+  color: var(--lu-ink) !important;
+  -webkit-text-fill-color: var(--lu-ink) !important;
+  box-shadow: 0 10px 24px rgba(202,255,0,.14);
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class*="bg-[#b9e937]"],
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class*="bg-[#caff00]"] {
+  background: var(--lu-lime) !important;
+  border-color: var(--lu-lime) !important;
+  color: var(--lu-ink) !important;
+  -webkit-text-fill-color: var(--lu-ink) !important;
+}
+
+/* Botones neutros oscuros: grafito + blanco. */
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a):is(
+  [class*="bg-[#0d1117]"],
+  [class*="bg-[#151b25]"],
+  [class*="bg-[#172018]"],
+  [class*="bg-[#20261f]"]
+) {
+  background: var(--lu-dark-2) !important;
+  border-color: var(--lu-dark-2) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class*="bg-white"] {
+  border-color: var(--lu-line) !important;
+  color: var(--lu-ink-2) !important;
+  -webkit-text-fill-color: var(--lu-ink-2) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a):disabled {
+  filter: saturate(.55);
+}
+
+/* Microetiquetas históricas de producto pasan a verde Lestra. */
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(p,span)[class*="uppercase"]:is(
+  [class*="text-[#70e4df]"],
+  [class*="text-[#48d8d0]"],
+  [class*="text-violet-300"],
+  [class*="text-sky-300"],
+  [class*="text-cyan-300"]
+) {
+  color: var(--lu-lime-deep) !important;
+  -webkit-text-fill-color: var(--lu-lime-deep) !important;
+}
+
+/* ========================================================================== */
+/* TABS                                                                       */
+/* ========================================================================== */
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content nav :is(button,a)[aria-current="page"],
+.lestra-director-main:not([data-route^="/admin"]) .app-content [role="tab"][aria-selected="true"] {
+  background: var(--lu-lime) !important;
+  color: var(--lu-ink) !important;
+  -webkit-text-fill-color: var(--lu-ink) !important;
+  border-color: var(--lu-lime) !important;
+}
+
+/* ========================================================================== */
+/* TABLAS                                                                     */
+/* ========================================================================== */
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content table {
+  background: #fff !important;
+  color: var(--lu-ink-2) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content thead {
+  background: #eef2eb !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content thead th {
+  color: #59655b !important;
+  -webkit-text-fill-color: #59655b !important;
+  font-weight: 900 !important;
+  letter-spacing: .06em;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content tbody {
+  color: var(--lu-ink-2) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content tbody tr {
+  border-color: #e0e5dd !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content tbody td:not([class*="text-red-"]):not([class*="text-emerald-"]):not([class*="text-amber-"]) {
+  color: #3f4a41 !important;
+  -webkit-text-fill-color: #3f4a41 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content tbody td[class*="font-bold"],
+.lestra-director-main:not([data-route^="/admin"]) .app-content tbody td[class*="font-black"] {
+  color: var(--lu-ink) !important;
+  -webkit-text-fill-color: var(--lu-ink) !important;
+}
+
+/* ========================================================================== */
+/* MODALES DE MÓDULOS                                                         */
+/* ========================================================================== */
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content div.fixed.inset-0 {
+  background: rgba(5,10,6,.72) !important;
+  backdrop-filter: blur(5px);
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content div.fixed.inset-0 > :is(form,section,div)[class*="rounded"] {
+  border: 1px solid var(--lu-line) !important;
+  background: var(--lu-surface) !important;
+  color: var(--lu-ink-2) !important;
+  box-shadow: 0 34px 100px rgba(4,10,5,.32) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content div.fixed.inset-0 > :is(form,section,div)[class*="rounded"] :is(h1,h2,h3,h4,strong) {
+  color: var(--lu-ink) !important;
+  -webkit-text-fill-color: var(--lu-ink) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content div.fixed.inset-0 > :is(form,section,div)[class*="rounded"] :is(p,label,span):not([class*="text-red-"]):not([class*="text-emerald-"]):not([class*="text-amber-"]) {
+  color: var(--lu-body) !important;
+  -webkit-text-fill-color: var(--lu-body) !important;
+}
+
+/* ========================================================================== */
+/* DIÁLOGOS / TOASTS GLOBALES                                                 */
+/* ========================================================================== */
+
+[role="dialog"][aria-modal="true"],
+[role="alertdialog"][aria-modal="true"] {
+  border: 1px solid var(--lu-line) !important;
+  background: var(--lu-surface) !important;
+  color: var(--lu-ink-2) !important;
+  box-shadow: 0 34px 100px rgba(4,10,5,.36) !important;
+}
+
+[role="dialog"][aria-modal="true"] :is(h1,h2,h3,strong),
+[role="alertdialog"][aria-modal="true"] :is(h1,h2,h3,strong) {
+  color: var(--lu-ink) !important;
+  -webkit-text-fill-color: var(--lu-ink) !important;
+}
+
+[role="dialog"][aria-modal="true"] p:not([class*="text-red-"]):not([class*="text-amber-"]):not([class*="text-emerald-"]),
+[role="alertdialog"][aria-modal="true"] p:not([class*="text-red-"]):not([class*="text-amber-"]):not([class*="text-emerald-"]) {
+  color: var(--lu-body) !important;
+  -webkit-text-fill-color: var(--lu-body) !important;
+}
+
+[role="dialog"][aria-modal="true"] button[class*="bg-[#289E9D]"],
+[role="alertdialog"][aria-modal="true"] button[class*="bg-[#289E9D]"] {
+  background: var(--lu-lime) !important;
+  color: var(--lu-ink) !important;
+  -webkit-text-fill-color: var(--lu-ink) !important;
+}
+
+[role="status"][class*="bg-[#101922]"] {
+  border-color: rgba(202,255,0,.22) !important;
+  background: #101711 !important;
+}
+
+/* ========================================================================== */
+/* SIDEBAR / MOBILE                                                           */
+/* ========================================================================== */
+
+.lestra-shell .lestra-sidebar {
+  background: #0e1510 !important;
+  border-color: rgba(255,255,255,.06) !important;
+}
+
+.lestra-shell .lestra-sidebar .lestra-nav-link.is-active,
+.lestra-shell .lestra-sidebar .lestra-nav-link[aria-current="page"]:not(.is-active-admin) {
+  background: var(--lu-lime) !important;
+  color: var(--lu-ink) !important;
+  -webkit-text-fill-color: var(--lu-ink) !important;
+  box-shadow: 0 12px 30px rgba(202,255,0,.14);
+}
+
+.lestra-shell .lestra-sidebar .lestra-nav-link.is-active svg,
+.lestra-shell .lestra-sidebar .lestra-nav-link[aria-current="page"]:not(.is-active-admin) svg {
+  color: var(--lu-ink) !important;
+}
+
+.lestra-shell .lestra-plan-link {
+  border-color: rgba(202,255,0,.25) !important;
+  background: rgba(202,255,0,.08) !important;
+  color: var(--lu-lime) !important;
+  -webkit-text-fill-color: var(--lu-lime) !important;
+}
+
+.lestra-mobile-dock a.is-active,
+.lestra-mobile-dock a[aria-current="page"] {
+  background: var(--lu-lime) !important;
+  color: var(--lu-ink) !important;
+  -webkit-text-fill-color: var(--lu-ink) !important;
+}
+
+/* ========================================================================== */
+/* RESPONSIVE                                                                 */
+/* ========================================================================== */
+
+@media (max-width: 639px) {
+  .lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+  .app-content > div > :is(div,section,article):not([class*="absolute"]):has(h1) {
+    border-radius: 26px !important;
+    padding: 1.35rem !important;
+  }
+
+  .lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+  .app-content > div > :is(div,section,article):not([class*="absolute"]):has(h1) h1 {
+    font-size: clamp(2rem, 10.6vw, 3.05rem) !important;
+  }
+
+  .lestra-director-main:not([data-route^="/admin"]) .app-content div.fixed.inset-0 > :is(form,section,div)[class*="rounded"] {
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+  }
+}
