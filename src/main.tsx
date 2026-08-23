@@ -17,6 +17,7 @@ import './setup-schedule-fix.css';
 import './setup-optional-fix.css';
 import './setup-optional-actions.css';
 import './setup-optional-actions';
+import './director-reference-system.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
