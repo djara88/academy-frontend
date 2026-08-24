@@ -1,0 +1,444 @@
+/* Asistencia · corrección final de alineación y contraste.
+   Cargado al final para neutralizar estilos históricos/globales. */
+
+.lestra-director-main .lestra-attendance-page,
+.lestra-director-main .lestra-attendance-page * {
+  box-sizing: border-box !important;
+}
+
+.lestra-director-main .lestra-attendance-page {
+  width: 100% !important;
+  max-width: 1280px !important;
+  margin-inline: auto !important;
+}
+
+/* ---------- Cabecera / navegación ---------- */
+.lestra-director-main .lestra-attendance-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(390px, 440px) !important;
+  gap: 24px !important;
+  align-items: end !important;
+}
+
+.lestra-director-main .lestra-attendance-tabs {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 5px !important;
+  overflow: visible !important;
+}
+
+.lestra-director-main .lestra-attendance-tabs > .lestra-attendance-tab {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 44px !important;
+  height: 44px !important;
+  padding: 0 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  border-radius: 10px !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  transform: none !important;
+  text-shadow: none !important;
+}
+
+.lestra-director-main .lestra-attendance-tabs > .lestra-attendance-tab[data-active="true"] {
+  border: 1px solid #b7ff00 !important;
+  background: #b7ff00 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+}
+
+.lestra-director-main .lestra-attendance-tabs > .lestra-attendance-tab[data-active="false"] {
+  border: 1px solid rgba(255,255,255,.08) !important;
+  background: rgba(255,255,255,.055) !important;
+  color: #eef3ed !important;
+  -webkit-text-fill-color: #eef3ed !important;
+}
+
+/* ---------- Paneles y texto ---------- */
+.lestra-director-main :is(
+  .lestra-attendance-session,
+  .lestra-attendance-roster,
+  .lestra-attendance-suspended,
+  .lestra-attendance-reschedule,
+  .lestra-attendance-dashboard-panel,
+  .lestra-attendance-dashboard-filters
+) {
+  color: #111711 !important;
+}
+
+.lestra-director-main :is(
+  .lestra-attendance-session,
+  .lestra-attendance-roster,
+  .lestra-attendance-suspended,
+  .lestra-attendance-reschedule,
+  .lestra-attendance-dashboard-panel,
+  .lestra-attendance-dashboard-filters
+) :is(h2,h3,h4,strong) {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main :is(
+  .lestra-attendance-session,
+  .lestra-attendance-roster,
+  .lestra-attendance-suspended,
+  .lestra-attendance-reschedule,
+  .lestra-attendance-dashboard-panel,
+  .lestra-attendance-dashboard-filters
+) :is(p,label) {
+  color: #5b675a !important;
+  -webkit-text-fill-color: #5b675a !important;
+  opacity: 1 !important;
+}
+
+/* ---------- Campos ---------- */
+.lestra-director-main .lestra-attendance-page :is(input,select) {
+  min-height: 46px !important;
+  height: 46px !important;
+  padding: 0 13px !important;
+  border-radius: 12px !important;
+  border: 1px solid #d5ddd2 !important;
+  background: #f4f6f2 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  font-size: 13px !important;
+  line-height: 1.2 !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main .lestra-attendance-page select option {
+  color: #111711 !important;
+  background: #ffffff !important;
+}
+
+/* ---------- Botones base del módulo ---------- */
+.lestra-director-main .lestra-attendance-page button {
+  box-sizing: border-box !important;
+  line-height: 1.15 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+
+.lestra-director-main .lestra-attendance-state-button {
+  min-width: 0 !important;
+  width: 100% !important;
+  min-height: 42px !important;
+  height: 42px !important;
+  padding: 0 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 10px !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  white-space: nowrap !important;
+}
+
+.lestra-director-main .lestra-attendance-primary-button {
+  min-height: 48px !important;
+  height: auto !important;
+  padding: 12px 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  border: 1px solid #99c600 !important;
+  border-radius: 12px !important;
+  background: #b7ff00 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  white-space: normal !important;
+  text-align: center !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main .lestra-attendance-primary-button:hover:not(:disabled) {
+  background: #c4ff28 !important;
+  color: #0b100c !important;
+  -webkit-text-fill-color: #0b100c !important;
+}
+
+.lestra-director-main .lestra-attendance-primary-button:disabled {
+  border-color: #d7ded4 !important;
+  background: #e9ede6 !important;
+  color: #758074 !important;
+  -webkit-text-fill-color: #758074 !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main .lestra-attendance-secondary-button {
+  min-height: 42px !important;
+  height: 42px !important;
+  padding: 0 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  border: 1px solid #111711 !important;
+  border-radius: 10px !important;
+  background: #111711 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+}
+
+/* ---------- Panel Configurar sesión ---------- */
+.lestra-director-main .lestra-attendance-session {
+  overflow: hidden !important;
+}
+
+.lestra-director-main .lestra-attendance-session > div[class*="grid-cols-2"] {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.lestra-director-main .lestra-attendance-session > div[class*="bg-[#161b22]"] > div[class*="flex"] {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
+/* ---------- Lista de alumnos ---------- */
+.lestra-director-main .lestra-attendance-roster > div[class*="grid"] {
+  gap: 10px !important;
+}
+
+.lestra-director-main .lestra-attendance-roster div[class*="justify-between"][class*="items-center"] {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 16px !important;
+  min-height: 68px !important;
+  padding: 10px 12px !important;
+}
+
+.lestra-director-main .lestra-attendance-roster div[class*="justify-between"][class*="items-center"] > div:first-child {
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 11px !important;
+}
+
+.lestra-director-main .lestra-attendance-roster div[class*="justify-between"][class*="items-center"] > div:first-child span {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+}
+
+.lestra-director-main .lestra-attendance-roster div[class*="bg-[#0d1117]"][class*="rounded-lg"] {
+  display: grid !important;
+  grid-template-columns: repeat(3, 40px) !important;
+  gap: 5px !important;
+  padding: 5px !important;
+  flex: 0 0 auto !important;
+  border: 1px solid #d6ddd3 !important;
+  border-radius: 12px !important;
+  background: #ffffff !important;
+}
+
+.lestra-director-main :is(
+  .lestra-attendance-presence-button,
+  .lestra-attendance-absence-button,
+  .lestra-attendance-justified-button
+) {
+  width: 40px !important;
+  min-width: 40px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 9px !important;
+  font-size: 15px !important;
+  line-height: 1 !important;
+}
+
+.lestra-director-main .lestra-attendance-presence-button[class*="bg-green-600"] {
+  border: 1px solid #99c600 !important;
+  background: #b7ff00 !important;
+  color: #111711 !important;
+}
+
+.lestra-director-main .lestra-attendance-absence-button[class*="bg-red-600"] {
+  border: 1px solid #111711 !important;
+  background: #111711 !important;
+  color: #ffffff !important;
+}
+
+.lestra-director-main .lestra-attendance-justified-button[class*="bg-blue-600"] {
+  border: 1px solid #728071 !important;
+  background: #eef1ec !important;
+  color: #111711 !important;
+}
+
+/* ---------- Reagendar ---------- */
+.lestra-director-main .lestra-attendance-page > div[class*="lg:grid-cols-2"] {
+  align-items: stretch !important;
+  gap: 18px !important;
+}
+
+.lestra-director-main :is(.lestra-attendance-suspended,.lestra-attendance-reschedule) {
+  min-height: 100% !important;
+}
+
+.lestra-director-main .lestra-attendance-reschedule div[class*="grid-cols-2"] {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+/* ---------- Dashboard ---------- */
+.lestra-director-main .lestra-attendance-dashboard-filters {
+  display: grid !important;
+  grid-template-columns: 150px 120px minmax(0, 1fr) !important;
+  gap: 12px !important;
+  align-items: end !important;
+  overflow: hidden !important;
+}
+
+.lestra-director-main .lestra-attendance-dashboard-filters > div:last-child {
+  display: grid !important;
+  grid-template-columns: minmax(190px, 1fr) minmax(210px, auto) !important;
+  gap: 10px !important;
+  align-items: end !important;
+  min-width: 0 !important;
+}
+
+.lestra-director-main .lestra-attendance-dashboard-filters .lestra-attendance-primary-button {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 46px !important;
+}
+
+.lestra-director-main .lestra-attendance-stat {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 6px !important;
+  min-height: 120px !important;
+  text-align: center !important;
+}
+
+.lestra-director-main .lestra-attendance-stat :is(span,p) {
+  opacity: 1 !important;
+}
+
+.lestra-director-main .lestra-attendance-stat[data-stat="attendance"] :is(span,p) {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+}
+
+.lestra-director-main .lestra-attendance-stat[data-stat="classes"] :is(span,p) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.lestra-director-main .lestra-attendance-stat[data-stat="recovery"],
+.lestra-director-main .lestra-attendance-stat[data-stat="cancelled"] {
+  border-color: #d7ded4 !important;
+  background: #ffffff !important;
+}
+
+.lestra-director-main .lestra-attendance-stat[data-stat="recovery"] :is(span,p),
+.lestra-director-main .lestra-attendance-stat[data-stat="cancelled"] :is(span,p) {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+}
+
+.lestra-director-main .lestra-attendance-ranking > div:first-child {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+  .lestra-director-main .lestra-attendance-header {
+    grid-template-columns: 1fr !important;
+    align-items: start !important;
+  }
+
+  .lestra-director-main .lestra-attendance-tabs {
+    max-width: 520px !important;
+  }
+
+  .lestra-director-main .lestra-attendance-dashboard-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .lestra-director-main .lestra-attendance-dashboard-filters > div:last-child {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .lestra-director-main .lestra-attendance-tabs {
+    grid-template-columns: 1fr !important;
+    max-width: none !important;
+  }
+
+  .lestra-director-main .lestra-attendance-tabs > .lestra-attendance-tab {
+    height: 42px !important;
+    min-height: 42px !important;
+  }
+
+  .lestra-director-main .lestra-attendance-session > div[class*="grid-cols-2"],
+  .lestra-director-main .lestra-attendance-reschedule div[class*="grid-cols-2"],
+  .lestra-director-main .lestra-attendance-dashboard-filters,
+  .lestra-director-main .lestra-attendance-dashboard-filters > div:last-child {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lestra-director-main .lestra-attendance-roster div[class*="justify-between"][class*="items-center"] {
+    grid-template-columns: 1fr !important;
+    align-items: stretch !important;
+  }
+
+  .lestra-director-main .lestra-attendance-roster div[class*="bg-[#0d1117]"][class*="rounded-lg"] {
+    width: 100% !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .lestra-director-main :is(
+    .lestra-attendance-presence-button,
+    .lestra-attendance-absence-button,
+    .lestra-attendance-justified-button
+  ) {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .lestra-director-main .lestra-attendance-primary-button,
+  .lestra-director-main .lestra-attendance-secondary-button {
+    width: 100% !important;
+  }
+}
