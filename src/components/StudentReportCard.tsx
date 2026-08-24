@@ -87,69 +87,69 @@ export default function StudentReportCard({ studentId, branchId, branchLabel, st
 
   return (
     <>
-      <div className="mt-5 rounded-2xl border border-[#C8A96B]/20 bg-[#C8A96B]/[.06] p-4">
+      <div className="student-report-card mt-5 rounded-2xl border border-[#dce3d8] bg-[#f5f7f3] p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-3">
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#C8A96B]/25 bg-[#C8A96B]/10 text-[#D8BE87]">
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#263126] bg-[#111711] text-[#b7ff00]">
               <DocumentChartBarIcon className="h-6 w-6" />
             </div>
             <div>
-              <p className="font-black text-white">Informe de evolución del alumno</p>
-              <p className="mt-1 max-w-2xl text-xs leading-5 text-[#8995a4]">
-                Genera un PDF específico de <strong className="text-[#D8BE87]">{branchLabel}</strong> con asistencia, evaluación, rendimiento competitivo, categorías y reconocimientos. No mezcla otras ramas.
+              <p className="font-black text-[#111711]">Informe de evolución del alumno</p>
+              <p className="mt-1 max-w-2xl text-xs leading-5 text-[#657064]">
+                Genera un PDF específico de <strong className="text-[#4f6900]">{branchLabel}</strong> con asistencia, evaluación, rendimiento competitivo, categorías y reconocimientos. No mezcla otras ramas.
               </p>
             </div>
           </div>
           {planQuery.isLoading ? (
-            <div className="min-h-11 rounded-xl border border-white/10 px-4 py-3 text-xs font-bold text-[#8995a4]">Validando plan...</div>
+            <div className="min-h-11 rounded-xl border border-[#dce3d8] bg-white px-4 py-3 text-xs font-bold text-[#657064]">Validando plan...</div>
           ) : canExport ? (
             <button
               type="button"
               disabled={disabled}
               onClick={() => setOpen(true)}
-              className="min-h-11 shrink-0 rounded-xl bg-[#C8A96B] px-4 text-sm font-black text-[#17130c] hover:bg-[#d8be87] disabled:opacity-50"
+              className="min-h-11 shrink-0 rounded-xl bg-[#111711] px-4 text-sm font-black text-[#b7ff00] transition hover:bg-[#1c251c] disabled:opacity-50"
             >
               Generar informe
             </button>
           ) : (
-            <div className="max-w-52 rounded-xl border border-white/10 bg-[#0d1117] px-4 py-2 text-center text-[11px] leading-5 text-[#7f8c9c]">
-              Disponible desde <strong className="text-[#b9c3cf]">Competencia</strong>.
+            <div className="max-w-52 rounded-xl border border-[#dce3d8] bg-white px-4 py-2 text-center text-[11px] leading-5 text-[#657064]">
+              Disponible desde <strong className="text-[#111711]">Competencia</strong>.
             </div>
           )}
         </div>
       </div>
 
       {open ? (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-xl rounded-[28px] border border-white/10 bg-[#151b25] shadow-2xl shadow-black/50">
-            <div className="flex items-start justify-between gap-4 border-b border-white/10 p-5 sm:p-6">
+        <div className="student-report-modal fixed inset-0 z-[90] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-xl overflow-hidden rounded-[28px] border border-[#334033] bg-[#111711] shadow-2xl shadow-black/50">
+            <div className="flex items-start justify-between gap-4 border-b border-[#334033] p-5 sm:p-6">
               <div>
-                <p className="text-xs font-black uppercase tracking-[.16em] text-[#D8BE87]">Informe familiar · {branchLabel}</p>
+                <p className="text-xs font-black uppercase tracking-[.16em] text-[#b7ff00]">Informe familiar · {branchLabel}</p>
                 <h2 className="mt-1 text-2xl font-black text-white">{studentName || 'Alumno'}</h2>
-                <p className="mt-2 text-sm leading-6 text-[#8995a4]">El PDF se descarga siempre. También puedes enviarlo al correo registrado del apoderado.</p>
+                <p className="mt-2 text-sm leading-6 text-[#c4cdc3]">El PDF se descarga siempre. También puedes enviarlo al correo registrado del apoderado.</p>
               </div>
-              <button type="button" onClick={() => setOpen(false)} className="rounded-xl border border-white/10 p-2 text-[#9aa6b5] hover:bg-white/5 hover:text-white" aria-label="Cerrar">
+              <button type="button" onClick={() => setOpen(false)} className="rounded-xl border border-[#4a574a] bg-[#182018] p-2 text-white transition hover:border-[#b7ff00] hover:text-[#b7ff00]" aria-label="Cerrar">
                 <XMarkIcon className="h-5 w-5" />
               </button>
             </div>
 
             <div className="p-5 sm:p-6">
-              <label className="block text-xs font-black uppercase tracking-wide text-[#9aa6b5]">Comentario final para la familia</label>
+              <label className="block text-xs font-black uppercase tracking-wide text-[#dce4da]">Comentario final para la familia</label>
               <textarea
                 value={comments}
                 onChange={(event) => setComments(event.target.value)}
                 maxLength={2500}
                 placeholder="Ej.: Ha mostrado avances importantes en constancia y toma de decisiones. Recomendamos continuar reforzando..."
-                className="mt-2 min-h-36 w-full resize-y rounded-xl border border-white/10 bg-[#0d1117] p-3 text-sm leading-6 text-white outline-none focus:border-[#C8A96B]/60"
+                className="mt-2 min-h-36 w-full resize-y rounded-xl border border-[#4a574a] bg-[#090d09] p-4 text-sm leading-6 text-white outline-none placeholder:text-[#7f8b7e] focus:border-[#b7ff00] focus:ring-2 focus:ring-[#b7ff00]/15"
               />
-              <p className="mt-2 text-[11px] leading-5 text-[#697586]">El informe excluye información financiera y antecedentes médicos sensibles.</p>
+              <p className="mt-2 text-[11px] leading-5 text-[#aeb8ad]">El informe excluye información financiera y antecedentes médicos sensibles.</p>
 
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 <button
                   type="button"
                   disabled={Boolean(processing)}
                   onClick={() => void generate(false)}
-                  className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#0d1117] px-4 text-sm font-black text-white hover:border-[#289E9D]/35 disabled:opacity-50"
+                  className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#b7ff00] bg-transparent px-4 text-sm font-black text-[#b7ff00] transition hover:bg-[#b7ff00]/10 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <ArrowDownTrayIcon className="h-5 w-5" />
                   {processing === 'download' ? 'Generando...' : 'Solo descargar PDF'}
@@ -158,7 +158,7 @@ export default function StudentReportCard({ studentId, branchId, branchLabel, st
                   type="button"
                   disabled={Boolean(processing)}
                   onClick={() => void generate(true)}
-                  className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#C8A96B] px-4 text-sm font-black text-[#17130c] hover:bg-[#d8be87] disabled:opacity-50"
+                  className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#b7ff00] bg-[#b7ff00] px-4 text-sm font-black text-[#111711] transition hover:bg-[#caff32] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <EnvelopeIcon className="h-5 w-5" />
                   {processing === 'email' ? 'Enviando...' : 'Descargar y enviar'}
