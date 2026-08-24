@@ -21,18 +21,26 @@
   opacity: 1 !important;
 }
 
+/* Sin adorno lineal: el detalle de marca lo aporta el escudo/logo de cada academia. */
 .lestra-director-main .new-era-dashboard .new-era-hero::after {
-  content: '' !important;
+  display: none !important;
+  content: none !important;
+}
+
+.lestra-director-main .new-era-dashboard .new-era-school-watermark {
   position: absolute !important;
-  width: 82px !important;
-  height: 8px !important;
-  right: 24px !important;
-  bottom: 22px !important;
-  border: 0 !important;
-  border-radius: 999px !important;
-  background: #caff00 !important;
-  transform: rotate(-16deg) !important;
-  opacity: .95 !important;
+  z-index: 1 !important;
+  right: clamp(24px, 4vw, 64px) !important;
+  bottom: -30px !important;
+  width: clamp(155px, 17vw, 255px) !important;
+  height: clamp(155px, 17vw, 255px) !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  opacity: .075 !important;
+  filter: grayscale(1) brightness(2.65) contrast(.92) !important;
+  transform: rotate(-4deg) !important;
 }
 
 .lestra-director-main .new-era-dashboard .new-era-eyebrow {
@@ -74,6 +82,8 @@
 .lestra-director-main .new-era-dashboard .new-era-status,
 .lestra-director-main .new-era-dashboard .new-era-status.is-alert,
 .lestra-director-main .new-era-dashboard .new-era-status.is-clear {
+  position: relative !important;
+  z-index: 2 !important;
   border: 1px solid rgba(255,255,255,.16) !important;
   background: rgba(255,255,255,.055) !important;
   color: #ffffff !important;
@@ -97,10 +107,23 @@
   background: #0b0f0c !important;
 }
 
+@media (max-width: 900px) {
+  .lestra-director-main .new-era-dashboard .new-era-school-watermark {
+    right: 20px !important;
+    bottom: -24px !important;
+    width: 170px !important;
+    height: 170px !important;
+    opacity: .055 !important;
+  }
+}
+
 @media (max-width: 640px) {
-  .lestra-director-main .new-era-dashboard .new-era-hero::after {
-    width: 58px !important;
-    right: 18px !important;
-    bottom: 16px !important;
+  .lestra-director-main .new-era-dashboard .new-era-school-watermark {
+    right: -8px !important;
+    bottom: -22px !important;
+    width: 132px !important;
+    height: 132px !important;
+    opacity: .045 !important;
+    transform: rotate(-4deg) !important;
   }
 }
