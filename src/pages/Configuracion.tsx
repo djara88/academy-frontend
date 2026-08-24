@@ -59,8 +59,14 @@ const Configuracion: React.FC = () => {
   };
 
   const completed=useMemo(()=>plan?.onboarding.filter((item)=>item.done).length||0,[plan]);
+  const showFriendlies = Boolean(
+    plan
+      && !plan.entitlements.plan.trial
+      && plan.entitlements.plan.code === 'formacion'
+      && plan.entitlements.features.includes('amistosos')
+  );
   const modulos:ConfigModule[] = [
-    { titulo: 'Amistosos', desc: 'Programa partidos, controles, exhibiciones o competencias amistosas', icono: '🤝', ruta: '/amistosos' },
+    ...(showFriendlies ? [{ titulo: 'Amistosos', desc: 'Programa partidos, controles, exhibiciones o competencias amistosas', icono: '🤝', ruta: '/amistosos' }] : []),
     { titulo: 'Profesores y accesos', desc: 'Administra cupos, accesos y categorías asignadas', icono: '🧑‍🏫', ruta: '/profesores' },
     { titulo: 'Perfil y horarios', desc: `Datos generales y horarios de ${academyName}`, icono: '🏟️', ruta: '/configuracion/perfil' },
     { titulo: 'Sedes y ramas', desc: 'Administra ubicaciones y disciplinas deportivas', icono: '🏢', ruta: '/configuracion/estructura' },
