@@ -21,7 +21,7 @@
   opacity: 1 !important;
 }
 
-/* Sin adorno lineal: el detalle de marca lo aporta el escudo/logo de cada academia. */
+/* Sin adorno lineal: la firma visual es únicamente el contorno real del escudo/logo. */
 .lestra-director-main .new-era-dashboard .new-era-hero::after {
   display: none !important;
   content: none !important;
@@ -30,17 +30,18 @@
 .lestra-director-main .new-era-dashboard .new-era-school-watermark {
   position: absolute !important;
   z-index: 1 !important;
-  right: clamp(24px, 4vw, 64px) !important;
-  bottom: -30px !important;
-  width: clamp(155px, 17vw, 255px) !important;
-  height: clamp(155px, 17vw, 255px) !important;
+  right: clamp(18px, 3.4vw, 54px) !important;
+  bottom: -34px !important;
+  width: clamp(175px, 19vw, 285px) !important;
+  height: clamp(175px, 19vw, 285px) !important;
   object-fit: contain !important;
   object-position: center !important;
   pointer-events: none !important;
   user-select: none !important;
-  opacity: .075 !important;
-  filter: grayscale(1) brightness(2.65) contrast(.92) !important;
-  transform: rotate(-4deg) !important;
+  opacity: .13 !important;
+  filter: drop-shadow(0 0 14px rgba(202,255,0,.055)) !important;
+  transform: rotate(-3deg) !important;
+  mix-blend-mode: screen !important;
 }
 
 .lestra-director-main .new-era-dashboard .new-era-eyebrow {
@@ -109,21 +110,21 @@
 
 @media (max-width: 900px) {
   .lestra-director-main .new-era-dashboard .new-era-school-watermark {
-    right: 20px !important;
-    bottom: -24px !important;
-    width: 170px !important;
-    height: 170px !important;
-    opacity: .055 !important;
+    right: 12px !important;
+    bottom: -28px !important;
+    width: 190px !important;
+    height: 190px !important;
+    opacity: .105 !important;
   }
 }
 
 @media (max-width: 640px) {
   .lestra-director-main .new-era-dashboard .new-era-school-watermark {
-    right: -8px !important;
-    bottom: -22px !important;
-    width: 132px !important;
-    height: 132px !important;
-    opacity: .045 !important;
-    transform: rotate(-4deg) !important;
+    right: -10px !important;
+    bottom: -24px !important;
+    width: 145px !important;
+    height: 145px !important;
+    opacity: .085 !important;
+    transform: rotate(-3deg) !important;
   }
 }
