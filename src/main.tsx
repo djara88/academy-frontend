@@ -34,6 +34,7 @@ import './confirmations-readability.css';
 import './chat-composer-lestra.css';
 import './prematriculas-recientes-lestra.css';
 import './prematricula-hide-finalidades.css';
+import './alumnos-list-modern.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
