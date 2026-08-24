@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowPathIcon, CheckCircleIcon, DocumentCheckIcon, HeartIcon, ShieldCheckIcon, UserIcon } from '@heroicons/react/24/outline';
 import api from '../api/axiosConfig';
 import { useAppDialog } from '../contexts/DialogContext';
-import { DIRECTOR_BUTTON, DIRECTOR_BUTTON_DARK, DIRECTOR_BUTTON_GHOST, DIRECTOR_FIELD, DIRECTOR_TEXTAREA, DirectorHero, DirectorPage, DirectorPanel, DirectorStat } from '../components/director/DirectorModule';
+import { DIRECTOR_BUTTON, DIRECTOR_BUTTON_GHOST, DIRECTOR_FIELD, DIRECTOR_TEXTAREA, DirectorHero, DirectorPage, DirectorPanel } from '../components/director/DirectorModule';
 
 type Availability='Sin evaluar'|'Disponible'|'Disponible con restricción'|'En recuperación'|'No disponible';
 type SummaryItem={id:string;nombre:string;foto?:string|null;estado_disponibilidad:Availability;restriccion?:string|null;lesiones_activas:number;retorno_estimado?:string|null;certificados_vencidos:number;certificados_por_vencer:number};
