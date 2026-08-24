@@ -32,6 +32,7 @@ import './formation-friendlies.css';
 import './tournament-filter-polish.css';
 import './confirmations-readability.css';
 import './chat-composer-lestra.css';
+import './prematriculas-recientes-lestra.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
