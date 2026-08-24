@@ -21,6 +21,15 @@ div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(1) span {
   opacity: 1 !important;
 }
 
+/* Badge central del hero: PLAN FORMACIÓN debe ser blanco con texto negro. */
+div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(1) span[class*="bg-white/5"][class*="text-[#9aa6b5]"] {
+  background: #ffffff !important;
+  border-color: #dbe3d8 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  text-shadow: none !important;
+}
+
 div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(1) button[class*="border-violet"] {
   border-color: #b7ff00 !important;
   background: #b7ff00 !important;
