@@ -1,36 +1,39 @@
 /* Acción de estado de profesor: visible, consistente y alineada con Lestra. */
+
+/* Selector estructural de la tarjeta actual de ProfesoresMultirama. */
+.lestra-director-main article > div.flex.flex-wrap.gap-2.p-4 > button.ml-auto.rounded-xl.px-3.py-2.text-xs.font-black,
 .lestra-director-main .lestra-professor-toggle {
   position: relative !important;
   z-index: 2 !important;
   min-height: 38px !important;
   padding: 8px 14px !important;
+  border: 1px solid #0b0f0c !important;
   border-radius: 12px !important;
+  background: #0b0f0c !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
   font-size: 12px !important;
   font-weight: 850 !important;
   line-height: 1 !important;
   opacity: 1 !important;
   visibility: visible !important;
   filter: none !important;
+  mix-blend-mode: normal !important;
   text-shadow: none !important;
   box-shadow: none !important;
   transition: background .16s ease, border-color .16s ease, color .16s ease, transform .16s ease !important;
 }
 
+.lestra-director-main article > div.flex.flex-wrap.gap-2.p-4 > button.ml-auto.rounded-xl.px-3.py-2.text-xs.font-black::before,
+.lestra-director-main article > div.flex.flex-wrap.gap-2.p-4 > button.ml-auto.rounded-xl.px-3.py-2.text-xs.font-black::after,
 .lestra-director-main .lestra-professor-toggle::before,
 .lestra-director-main .lestra-professor-toggle::after {
   content: none !important;
   display: none !important;
 }
 
-/* Desactivar: acción seria, negra y perfectamente legible. */
-.lestra-director-main .lestra-professor-toggle[data-professor-action="deactivate"] {
-  border: 1px solid #0b0f0c !important;
-  background: #0b0f0c !important;
-  background-image: none !important;
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-}
-
+.lestra-director-main article > div.flex.flex-wrap.gap-2.p-4 > button.ml-auto.rounded-xl.px-3.py-2.text-xs.font-black:hover,
 .lestra-director-main .lestra-professor-toggle[data-professor-action="deactivate"]:hover {
   border-color: #caff00 !important;
   background: #151b16 !important;
@@ -39,23 +42,16 @@
   transform: translateY(-1px) !important;
 }
 
-/* Reactivar: lima Lestra como acción positiva. */
+/* Si el botón representa Reactivar, las clases actuales incluyen fondo oscuro; mantenemos lectura clara.
+   Cuando se marque explícitamente como reactivar, toma el lima Lestra. */
 .lestra-director-main .lestra-professor-toggle[data-professor-action="reactivate"] {
-  border: 1px solid #caff00 !important;
+  border-color: #caff00 !important;
   background: #caff00 !important;
-  background-image: none !important;
   color: #0b0f0c !important;
   -webkit-text-fill-color: #0b0f0c !important;
 }
 
-.lestra-director-main .lestra-professor-toggle[data-professor-action="reactivate"]:hover {
-  background: #b9e937 !important;
-  border-color: #b9e937 !important;
-  color: #0b0f0c !important;
-  -webkit-text-fill-color: #0b0f0c !important;
-  transform: translateY(-1px) !important;
-}
-
+.lestra-director-main article > div.flex.flex-wrap.gap-2.p-4 > button.ml-auto.rounded-xl.px-3.py-2.text-xs.font-black:focus-visible,
 .lestra-director-main .lestra-professor-toggle:focus-visible {
   outline: 3px solid rgba(202,255,0,.28) !important;
   outline-offset: 2px !important;
