@@ -27,6 +27,12 @@ const markMetric = (root: HTMLElement, label: string, key: string) => {
   panel.dataset.stat = key;
 };
 
+const markButtonByText = (root: HTMLElement, text: string, className: string) => {
+  Array.from(root.querySelectorAll<HTMLButtonElement>('button')).forEach((button) => {
+    if (normalize(button.textContent).includes(text)) button.classList.add(className);
+  });
+};
+
 const markAttendancePage = () => {
   scheduled = false;
 
@@ -63,15 +69,38 @@ const markAttendancePage = () => {
 
   const sessionPanel = closestPanel(findTextNode(root, '⚙️ Configurar Sesión')) || closestPanel(findTextNode(root, 'Configurar Sesión'));
   sessionPanel?.classList.add('lestra-attendance-session');
+  if (sessionPanel) {
+    markButtonByText(sessionPanel, 'Realizado', 'lestra-attendance-state-button');
+    markButtonByText(sessionPanel, 'Suspendido', 'lestra-attendance-state-button');
+    markButtonByText(sessionPanel, 'Guardar Registro de Clase', 'lestra-attendance-primary-button');
+  }
 
   const listPanel = closestPanel(findTextNode(root, '📝 Pasar Lista de Alumnos')) || closestPanel(findTextNode(root, 'Pasar Lista de Alumnos'));
   listPanel?.classList.add('lestra-attendance-roster');
+  if (listPanel) {
+    Array.from(listPanel.querySelectorAll<HTMLButtonElement>('button')).forEach((button) => {
+      const label = normalize(button.textContent);
+      if (label === '✔️' || label === '✔') {
+        button.classList.add('lestra-attendance-presence-button');
+        button.setAttribute('aria-label', 'Presente');
+      }
+      if (label === '❌' || label === '✖' || label === '×') {
+        button.classList.add('lestra-attendance-absence-button');
+        button.setAttribute('aria-label', 'Ausente');
+      }
+      if (label === '📝' || label === '✎') {
+        button.classList.add('lestra-attendance-justified-button');
+        button.setAttribute('aria-label', 'Justificado');
+      }
+    });
+  }
 
   const suspendedPanel = closestPanel(findTextNode(root, 'Clases Suspendidas Pendientes'));
   suspendedPanel?.classList.add('lestra-attendance-suspended');
 
   const reschedulePanel = closestPanel(findTextNode(root, 'Programar Recuperación y Avisar'));
   reschedulePanel?.classList.add('lestra-attendance-reschedule');
+  if (reschedulePanel) markButtonByText(reschedulePanel, 'Programar y Avisar por WhatsApp', 'lestra-attendance-primary-button');
 
   const monthLabel = findTextNode(root, 'Mes de Análisis', 'label');
   if (monthLabel?.parentElement?.parentElement) {
@@ -83,6 +112,9 @@ const markAttendancePage = () => {
 
   const rankingPanel = closestPanel(findTextNode(root, '🏃‍♂️ Ranking Individual')) || closestPanel(findTextNode(root, 'Ranking Individual'));
   rankingPanel?.classList.add('lestra-attendance-dashboard-panel', 'lestra-attendance-ranking');
+
+  markButtonByText(root, 'Enviar Reportes', 'lestra-attendance-primary-button');
+  markButtonByText(root, 'Descargar Excel', 'lestra-attendance-secondary-button');
 
   markMetric(root, 'Asistencia Global', 'attendance');
   markMetric(root, 'Clases Realizadas', 'classes');
