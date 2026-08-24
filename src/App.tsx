@@ -87,6 +87,11 @@ type SetupGateState = {
   progress: number;
 };
 
+type DirectorPlanAccess = {
+  plan: { code: string; name: string; trial: boolean };
+  features: string[];
+};
+
 const LandingHome = () => {
   if (sessionStorage.getItem(GOOGLE_LOGIN_INTENT_KEY) === '1') return <AuthCallback />;
   const hostname = window.location.hostname.toLowerCase();
@@ -122,11 +127,18 @@ const DirectorRoutes = () => {
   const isSuperAdmin = isSuperAdminRole(user?.rol);
   const isProfessor = isProfessorRole(user?.rol);
   const isGuardian = isGuardianRole(user?.rol);
+  const directorEnabled = Boolean(user?.academia_id) && !isSuperAdmin && !isProfessor && !isGuardian;
   const setupQuery = useQuery({
     queryKey: ['academy-setup'],
-    enabled: Boolean(user?.academia_id) && !isSuperAdmin && !isProfessor && !isGuardian,
+    enabled: directorEnabled,
     staleTime: 10_000,
     queryFn: async () => (await api.get('/api/consentimientos/setup')).data.data as SetupGateState,
+  });
+  const planQuery = useQuery({
+    queryKey: ['mi-plan', user?.academia_id],
+    enabled: directorEnabled,
+    staleTime: 10_000,
+    queryFn: async () => (await api.get('/api/academias/mi-plan')).data.data as DirectorPlanAccess,
   });
 
   if (isSuperAdmin) return <Navigate to="/admin" replace />;
@@ -140,6 +152,24 @@ const DirectorRoutes = () => {
   const setup = setupQuery.data;
   const setupRoute = location.pathname === '/puesta-en-marcha';
   const setupSupport = SETUP_SUPPORT_ROUTES.has(location.pathname) && new URLSearchParams(location.search).get('setup') === '1';
+  const friendliesRoute = location.pathname === '/amistosos';
+
+  if (friendliesRoute && planQuery.isLoading) {
+    return <div className="grid min-h-[55vh] place-items-center bg-[#e9ece4] text-sm font-black text-[#20261f]">Validando tu plan…</div>;
+  }
+
+  if (friendliesRoute) {
+    const planAccess = planQuery.data;
+    const canUseFriendlies = Boolean(
+      planAccess
+      && !planAccess.plan.trial
+      && planAccess.plan.code === 'formacion'
+      && planAccess.features.includes('amistosos')
+    );
+    if (!canUseFriendlies) {
+      return <Navigate to={planAccess && !planAccess.plan.trial ? '/partidos' : '/dashboard'} replace />;
+    }
+  }
 
   // Fall-open deliberado: una indisponibilidad puntual del endpoint de setup no debe
   // bloquear academias ya operativas. Las academias nuevas vuelven a validarse al reconectar.
