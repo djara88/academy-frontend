@@ -27,6 +27,7 @@ import './attendance-polish.css';
 import './dashboard-watermark';
 import './attendance-polish';
 import './attendance-tabs-final.css';
+import './professors-actions-fix.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
