@@ -23,7 +23,9 @@ import './director-accent-cleanup.css';
 import './director-hero-unified.css';
 import './config-access-dark.css';
 import './dashboard-minimal.css';
+import './attendance-polish.css';
 import './dashboard-watermark';
+import './attendance-polish';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
