@@ -1,0 +1,6 @@
+/* Amistosos es exclusivo de Formación. Si el plan no lo habilita, el Layout lo
+   renderiza como acceso bloqueado; se oculta por completo en vez de mostrarlo
+   como upsell porque Competencia y Alto Rendimiento usan Eventos/Torneos. */
+.lestra-nav-link.is-locked[title^="Amistosos"] {
+  display: none !important;
+}
