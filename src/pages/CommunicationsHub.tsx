@@ -2,16 +2,18 @@ import { useState } from 'react';
 import { ChatBubbleLeftRightIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import ChatCenter from './ChatCenter';
 import WhatsAppGroups from './WhatsAppGroups';
+import { DirectorHero, DirectorPage, DirectorTabButton, DirectorTabs } from '../components/director/DirectorModule';
 
 const CommunicationsHub = () => {
   const [tab, setTab] = useState<'conversaciones' | 'grupos'>('conversaciones');
-  return <div className="space-y-5">
-    <div className="inline-flex w-full gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-[#111720] p-2 sm:w-auto">
-      <button type="button" onClick={() => setTab('conversaciones')} className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black transition ${tab === 'conversaciones' ? 'bg-[#289E9D] text-white' : 'text-[#8f9baa] hover:bg-white/[0.04] hover:text-white'}`}><ChatBubbleLeftRightIcon className="h-5 w-5" /> Conversaciones</button>
-      <button type="button" onClick={() => setTab('grupos')} className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black transition ${tab === 'grupos' ? 'bg-emerald-500 text-white' : 'text-[#8f9baa] hover:bg-white/[0.04] hover:text-white'}`}><UserGroupIcon className="h-5 w-5" /> Grupos WhatsApp</button>
-    </div>
-    {tab === 'conversaciones' ? <ChatCenter /> : <WhatsAppGroups />}
-  </div>;
+  return <DirectorPage className="max-w-[1500px]">
+    <DirectorHero eyebrow="Comunicaciones" title="Centro de contacto" description="Concentra las conversaciones individuales y los grupos operativos de WhatsApp sin salir de la gestión de la academia." aside={<div className="grid grid-cols-2 gap-2"><div className="rounded-[18px] border border-white/10 bg-white/5 p-4"><ChatBubbleLeftRightIcon className="h-6 w-6 text-[#b7ff00]"/><p className="mt-3 text-sm font-black text-white">Conversaciones</p><p className="mt-1 text-[11px] leading-4 text-[#b9c4ba]">Atención directa y seguimiento.</p></div><div className="rounded-[18px] border border-white/10 bg-white/5 p-4"><UserGroupIcon className="h-6 w-6 text-[#b7ff00]"/><p className="mt-3 text-sm font-black text-white">Grupos</p><p className="mt-1 text-[11px] leading-4 text-[#b9c4ba]">Coordinación por equipos y categorías.</p></div></div>}/>
+    <DirectorTabs className="grid-cols-2">
+      <DirectorTabButton active={tab === 'conversaciones'} onClick={() => setTab('conversaciones')}><span className="inline-flex items-center gap-2"><ChatBubbleLeftRightIcon className="h-5 w-5" />Conversaciones</span></DirectorTabButton>
+      <DirectorTabButton active={tab === 'grupos'} onClick={() => setTab('grupos')}><span className="inline-flex items-center gap-2"><UserGroupIcon className="h-5 w-5" />Grupos WhatsApp</span></DirectorTabButton>
+    </DirectorTabs>
+    <div className="min-w-0">{tab === 'conversaciones' ? <ChatCenter /> : <WhatsAppGroups />}</div>
+  </DirectorPage>;
 };
 
 export default CommunicationsHub;
