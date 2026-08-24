@@ -3,6 +3,17 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowDownTrayIcon, CheckBadgeIcon, ClockIcon, ExclamationTriangleIcon, ShieldCheckIcon, TrashIcon } from '@heroicons/react/24/outline';
 import api from '../api/axiosConfig';
 import { useAppDialog } from '../contexts/DialogContext';
+import {
+  DIRECTOR_BUTTON,
+  DIRECTOR_BUTTON_DARK,
+  DIRECTOR_BUTTON_GHOST,
+  DIRECTOR_FIELD,
+  DIRECTOR_TEXTAREA,
+  DirectorHero,
+  DirectorPage,
+  DirectorPanel,
+  DirectorStat,
+} from '../components/director/DirectorModule';
 
 type Player = { id: string; nombre: string; rut?: string | null; tutor_id?: string | null; apoderado_id?: string | null; tutor_principal_id?: string | null; privacy_anonymized_at?: string | null };
 type PrivacyRequest = {
@@ -20,6 +31,7 @@ const labels: Record<string, string> = {
 };
 const terminal = new Set(['ejecutada', 'cerrada', 'rechazada']);
 const formatDate = (value?: string | null) => value ? new Date(value).toLocaleDateString('es-CL') : '—';
+const labelClass='mb-1.5 block text-[11px] font-black uppercase tracking-[.09em] text-[#697468]';
 
 const PrivacyRequests = () => {
   const queryClient = useQueryClient();
@@ -92,26 +104,87 @@ const PrivacyRequests = () => {
   };
 
   const cards = useMemo(() => [
-    ['Abiertas', summary?.abiertas || 0, 'text-sky-300'], ['Vencen ≤ 5 días', summary?.proximas_vencer || 0, 'text-amber-300'],
-    ['Vencidas', summary?.vencidas || 0, 'text-red-300'], ['Identidad pendiente', summary?.pendientes_identidad || 0, 'text-violet-300'],
+    {label:'Abiertas',value:summary?.abiertas||0,tone:'lime' as const},
+    {label:'Vencen ≤ 5 días',value:summary?.proximas_vencer||0,tone:'default' as const},
+    {label:'Vencidas',value:summary?.vencidas||0,tone:'dark' as const},
+    {label:'Identidad pendiente',value:summary?.pendientes_identidad||0,tone:'default' as const},
   ], [summary]);
 
-  if (requestsQuery.isLoading) return <div className="py-20 text-center font-bold text-[#8b949e]">Cargando centro de privacidad...</div>;
-  return <div className="space-y-6 pb-16">
-    <section className="rounded-[30px] border border-[#289E9D]/25 bg-[radial-gradient(circle_at_top_right,rgba(40,158,157,0.18),transparent_38%),#151b25] p-6 sm:p-8"><div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-[#70e4df]">Gestión de privacidad</p><h1 className="mt-2 text-3xl font-black text-white sm:text-4xl">Solicitudes de titulares</h1><p className="mt-3 max-w-3xl text-sm leading-6 text-[#9aa6b5]">Registra y gestiona solicitudes de acceso, rectificación, supresión, oposición, portabilidad, bloqueo o revocación de imagen.</p></div><ShieldCheckIcon className="h-14 w-14 text-[#70e4df]" /></div></section>
+  if (requestsQuery.isLoading) return <DirectorPanel className="mx-auto max-w-5xl p-12 text-center text-sm font-bold text-[#697468]">Cargando centro de privacidad...</DirectorPanel>;
 
-    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{cards.map(([label, value, color]) => <article key={String(label)} className="rounded-2xl border border-white/10 bg-[#151b25] p-5"><p className="text-xs font-black uppercase tracking-wider text-[#8995a4]">{label}</p><p className={`mt-2 text-3xl font-black ${color}`}>{value}</p></article>)}</section>
+  return <DirectorPage>
+    <DirectorHero
+      eyebrow="Protección y trazabilidad"
+      title="Solicitudes de titulares"
+      description="Registra, verifica y resuelve solicitudes de acceso, rectificación, supresión, oposición, portabilidad, bloqueo o revocación de imagen con trazabilidad operacional."
+      aside={<div className="rounded-[20px] border border-white/15 bg-white/[.055] p-5"><ShieldCheckIcon className="h-7 w-7 text-[#b7ff00]"/><p className="mt-3 text-xl font-black text-white">Centro de privacidad</p><p className="mt-1 text-xs font-semibold text-[#c7d0c8]">{summary?.total||0} expedientes registrados</p></div>}
+    />
 
-    <section className="rounded-3xl border border-white/10 bg-[#151b25] p-5 sm:p-6"><h2 className="text-xl font-black text-white">Registrar una solicitud</h2><div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3"><label className="text-sm text-[#9aa6b5]">Alumno<select className="mt-2 w-full rounded-xl border border-white/10 bg-[#0d1117] px-3 py-3 text-white" value={form.jugador_id} onChange={(e) => setForm({ ...form, jugador_id: e.target.value })}><option value="">Seleccionar</option>{(playersQuery.data || []).filter((p) => !p.privacy_anonymized_at).map((player) => <option key={player.id} value={player.id}>{player.nombre}{player.rut ? ` · ${player.rut}` : ''}</option>)}</select></label><label className="text-sm text-[#9aa6b5]">Derecho ejercido<select className="mt-2 w-full rounded-xl border border-white/10 bg-[#0d1117] px-3 py-3 text-white" value={form.tipo} onChange={(e) => setForm({ ...form, tipo: e.target.value })}>{Object.entries(labels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><label className="text-sm text-[#9aa6b5]">Nombre solicitante<input className="mt-2 w-full rounded-xl border border-white/10 bg-[#0d1117] px-3 py-3 text-white" value={form.solicitante_nombre} onChange={(e) => setForm({ ...form, solicitante_nombre: e.target.value })} /></label><label className="text-sm text-[#9aa6b5]">Correo<input type="email" className="mt-2 w-full rounded-xl border border-white/10 bg-[#0d1117] px-3 py-3 text-white" value={form.solicitante_email} onChange={(e) => setForm({ ...form, solicitante_email: e.target.value })} /></label><label className="text-sm text-[#9aa6b5]">Documento / RUT<input className="mt-2 w-full rounded-xl border border-white/10 bg-[#0d1117] px-3 py-3 text-white" value={form.solicitante_documento} onChange={(e) => setForm({ ...form, solicitante_documento: e.target.value })} /></label><label className="flex items-end gap-3 rounded-xl border border-white/10 bg-[#0d1117] p-3 text-sm text-[#b6c0cc]"><input type="checkbox" checked={form.bloqueo_solicitado} onChange={(e) => setForm({ ...form, bloqueo_solicitado: e.target.checked })} /> Solicita bloqueo temporal mientras se resuelve</label></div><label className="mt-4 block text-sm text-[#9aa6b5]">Detalle<textarea className="mt-2 min-h-24 w-full rounded-xl border border-white/10 bg-[#0d1117] px-3 py-3 text-white" value={form.detalle} onChange={(e) => setForm({ ...form, detalle: e.target.value })} /></label><button disabled={loadingAction} onClick={() => void create()} className="mt-4 rounded-xl bg-[#289E9D] px-5 py-3 font-black text-white disabled:opacity-50">Registrar solicitud</button></section>
+    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{cards.map(card=><DirectorStat key={card.label} label={card.label} value={card.value} tone={card.tone}/>)}</section>
 
-    <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]"><div className="rounded-3xl border border-white/10 bg-[#151b25] p-4"><h2 className="px-2 text-lg font-black text-white">Expedientes</h2><div className="mt-3 max-h-[650px] space-y-2 overflow-y-auto">{requests.length ? requests.map((row) => { const late = Number(row.dias_restantes) < 0; const soon = Number(row.dias_restantes) >= 0 && Number(row.dias_restantes) <= 5; return <button key={row.id} onClick={() => { setSelectedId(row.id); setDecision({ respuesta: row.respuesta || '', fundamento: row.fundamento_decision || '', confirmacion: '' }); }} className={`w-full rounded-2xl border p-4 text-left ${selected?.id === row.id ? 'border-[#289E9D]/60 bg-[#289E9D]/10' : 'border-white/10 bg-[#0d1117]'}`}><div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="truncate font-black text-white">{row.jugadores?.nombre || 'Alumno no disponible'}</p><p className="mt-1 text-xs text-[#8995a4]">{labels[row.tipo] || row.tipo} · {formatDate(row.fecha_recepcion)}</p></div><span className={`rounded-full px-2 py-1 text-[10px] font-black uppercase ${late ? 'bg-red-500/15 text-red-300' : soon ? 'bg-amber-500/15 text-amber-300' : terminal.has(row.estado) ? 'bg-emerald-500/15 text-emerald-300' : 'bg-sky-500/15 text-sky-300'}`}>{row.estado}</span></div><p className={`mt-3 text-xs ${late ? 'text-red-300' : soon ? 'text-amber-300' : 'text-[#6f7c8d]'}`}>{late ? `Vencida hace ${Math.abs(Number(row.dias_restantes))} día(s)` : `${row.dias_restantes ?? '—'} día(s) para responder`}</p></button>; }) : <p className="p-8 text-center text-sm text-[#6f7c8d]">No hay solicitudes registradas.</p>}</div></div>
+    <DirectorPanel className="p-5 sm:p-6">
+      <div><p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">Nuevo expediente</p><h2 className="mt-1 text-2xl font-black tracking-[-.03em] text-[#111711]">Registrar una solicitud</h2><p className="mt-1 text-sm text-[#697468]">Deja identificado al titular, el derecho ejercido y el alumno relacionado antes de iniciar la gestión.</p></div>
+      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <label><span className={labelClass}>Alumno</span><select className={DIRECTOR_FIELD} value={form.jugador_id} onChange={(e)=>setForm({...form,jugador_id:e.target.value})}><option value="">Seleccionar</option>{(playersQuery.data||[]).filter(p=>!p.privacy_anonymized_at).map(player=><option key={player.id} value={player.id}>{player.nombre}{player.rut?` · ${player.rut}`:''}</option>)}</select></label>
+        <label><span className={labelClass}>Derecho ejercido</span><select className={DIRECTOR_FIELD} value={form.tipo} onChange={(e)=>setForm({...form,tipo:e.target.value})}>{Object.entries(labels).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
+        <label><span className={labelClass}>Nombre solicitante</span><input className={DIRECTOR_FIELD} value={form.solicitante_nombre} onChange={(e)=>setForm({...form,solicitante_nombre:e.target.value})}/></label>
+        <label><span className={labelClass}>Correo</span><input type="email" className={DIRECTOR_FIELD} value={form.solicitante_email} onChange={(e)=>setForm({...form,solicitante_email:e.target.value})}/></label>
+        <label><span className={labelClass}>Documento / RUT</span><input className={DIRECTOR_FIELD} value={form.solicitante_documento} onChange={(e)=>setForm({...form,solicitante_documento:e.target.value})}/></label>
+        <label className="flex min-h-12 items-center gap-3 rounded-[14px] border border-[#d9e0d6] bg-[#f5f7f3] px-4 text-sm font-bold text-[#111711]"><input type="checkbox" checked={form.bloqueo_solicitado} onChange={(e)=>setForm({...form,bloqueo_solicitado:e.target.checked})} className="h-4 w-4 accent-[#9fcf00]"/>Solicita bloqueo temporal</label>
+      </div>
+      <label className="mt-4 block"><span className={labelClass}>Detalle</span><textarea className={DIRECTOR_TEXTAREA} value={form.detalle} onChange={(e)=>setForm({...form,detalle:e.target.value})}/></label>
+      <div className="mt-4 flex justify-end"><button disabled={loadingAction} onClick={()=>void create()} className={DIRECTOR_BUTTON}>Registrar solicitud</button></div>
+    </DirectorPanel>
 
-      <div className="rounded-3xl border border-white/10 bg-[#151b25] p-5 sm:p-6">{selected ? <div><div className="flex flex-col gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-start sm:justify-between"><div><p className="text-xs font-black uppercase tracking-wider text-[#70e4df]">{labels[selected.tipo] || selected.tipo}</p><h2 className="mt-1 text-2xl font-black text-white">{selected.jugadores?.nombre || 'Alumno anonimizado'}</h2><p className="mt-2 text-sm text-[#9aa6b5]">Solicitante: {selected.solicitante_nombre} · {selected.solicitante_email}</p></div><div className="flex gap-2">{selected.identidad_verificada ? <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-3 py-2 text-xs font-black text-emerald-300"><CheckBadgeIcon className="h-4 w-4" /> Identidad verificada</span> : <button disabled={loadingAction} onClick={() => void verify(selected.id)} className="rounded-xl bg-violet-500 px-3 py-2 text-xs font-black text-white">Verificar identidad</button>}</div></div><div className="mt-5 grid gap-3 sm:grid-cols-2"><div className="rounded-xl border border-white/10 bg-[#0d1117] p-4"><p className="text-xs text-[#8995a4]">Fecha límite</p><p className="mt-1 font-black text-white">{formatDate(selected.fecha_limite_prorrogada || selected.fecha_limite)}</p></div><div className="rounded-xl border border-white/10 bg-[#0d1117] p-4"><p className="text-xs text-[#8995a4]">Canal</p><p className="mt-1 font-black text-white">{selected.canal}</p></div></div>{selected.detalle ? <div className="mt-4 rounded-xl border border-white/10 bg-[#0d1117] p-4 text-sm leading-6 text-[#b6c0cc]">{selected.detalle}</div> : null}
-        <div className="mt-5 flex flex-wrap gap-2">{!terminal.has(selected.estado) && !selected.fecha_limite_prorrogada ? <button disabled={loadingAction} onClick={() => void extend(selected.id)} className="inline-flex items-center gap-2 rounded-xl border border-amber-500/30 px-3 py-2 text-xs font-black text-amber-300"><ClockIcon className="h-4 w-4" /> Prorrogar 30 días</button> : null}{selected.identidad_verificada ? <button disabled={loadingAction} onClick={() => void downloadExport(selected)} className="inline-flex items-center gap-2 rounded-xl border border-sky-500/30 px-3 py-2 text-xs font-black text-sky-300"><ArrowDownTrayIcon className="h-4 w-4" /> Exportar datos</button> : null}</div>
-        {!terminal.has(selected.estado) && selected.estado !== 'aprobada' ? <div className="mt-6 space-y-3"><textarea placeholder="Respuesta al titular" className="min-h-24 w-full rounded-xl border border-white/10 bg-[#0d1117] p-3 text-sm text-white" value={decision.respuesta} onChange={(e) => setDecision({ ...decision, respuesta: e.target.value })} /><textarea placeholder="Fundamento (obligatorio si rechazas)" className="min-h-20 w-full rounded-xl border border-white/10 bg-[#0d1117] p-3 text-sm text-white" value={decision.fundamento} onChange={(e) => setDecision({ ...decision, fundamento: e.target.value })} /><div className="flex flex-wrap gap-2"><button disabled={loadingAction || !selected.identidad_verificada} onClick={() => void decide(selected.id, 'aprobada')} className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-black text-emerald-950 disabled:opacity-40">Aprobar</button><button disabled={loadingAction || !selected.identidad_verificada} onClick={() => void decide(selected.id, 'rechazada')} className="rounded-xl bg-red-500 px-4 py-2 text-sm font-black text-white disabled:opacity-40">Rechazar</button></div></div> : null}
-        {selected.estado === 'aprobada' ? <div className="mt-6 rounded-2xl border border-amber-500/25 bg-amber-500/5 p-4"><div className="flex items-start gap-3"><ExclamationTriangleIcon className="mt-0.5 h-6 w-6 shrink-0 text-amber-300" /><div><p className="font-black text-white">Solicitud aprobada</p><p className="mt-1 text-sm leading-6 text-[#b6c0cc]">Completa la acción aprobada para cerrar este expediente.</p></div></div>{selected.tipo === 'supresion' ? <input placeholder="Escribe SUPRIMIR DATOS" className="mt-4 w-full rounded-xl border border-red-500/30 bg-[#0d1117] p-3 text-sm text-white" value={decision.confirmacion} onChange={(e) => setDecision({ ...decision, confirmacion: e.target.value })} /> : null}<button disabled={loadingAction} onClick={() => void execute(selected)} className={`mt-4 inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-black ${selected.tipo === 'supresion' ? 'bg-red-500 text-white' : 'bg-[#289E9D] text-white'}`}>{selected.tipo === 'supresion' ? <TrashIcon className="h-5 w-5" /> : <ShieldCheckIcon className="h-5 w-5" />} Ejecutar solicitud</button></div> : null}
-      </div> : <div className="grid min-h-72 place-items-center text-center text-[#6f7c8d]">Selecciona un expediente.</div>}</div></section>
-  </div>;
+    <section className="grid gap-5 xl:grid-cols-[.85fr_1.15fr]">
+      <DirectorPanel className="p-4">
+        <div className="px-1"><p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">Historial</p><h2 className="mt-1 text-xl font-black text-[#111711]">Expedientes</h2></div>
+        <div className="mt-3 max-h-[680px] space-y-2 overflow-y-auto pr-1">
+          {requests.length?requests.map(row=>{
+            const late=Number(row.dias_restantes)<0; const soon=Number(row.dias_restantes)>=0&&Number(row.dias_restantes)<=5;
+            return <button key={row.id} onClick={()=>{setSelectedId(row.id);setDecision({respuesta:row.respuesta||'',fundamento:row.fundamento_decision||'',confirmacion:''});}} className={`w-full rounded-[18px] border p-4 text-left transition ${selected?.id===row.id?'border-[#9fcf00] bg-[#f3fadf]':'border-[#dfe5dc] bg-[#f7f9f5] hover:border-[#aebaa9]'}`}>
+              <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="truncate font-black text-[#111711]">{row.jugadores?.nombre||'Alumno no disponible'}</p><p className="mt-1 text-xs text-[#697468]">{labels[row.tipo]||row.tipo} · {formatDate(row.fecha_recepcion)}</p></div><span className={`rounded-full px-2 py-1 text-[10px] font-black uppercase ${late?'bg-red-50 text-red-700':soon?'bg-amber-50 text-amber-700':terminal.has(row.estado)?'bg-[#e8f6d0] text-[#416400]':'bg-white text-[#596458]'}`}>{row.estado}</span></div>
+              <p className={`mt-3 text-xs font-semibold ${late?'text-red-700':soon?'text-amber-700':'text-[#758074]'}`}>{late?`Vencida hace ${Math.abs(Number(row.dias_restantes))} día(s)`:`${row.dias_restantes??'—'} día(s) para responder`}</p>
+            </button>;
+          }):<p className="p-8 text-center text-sm text-[#697468]">No hay solicitudes registradas.</p>}
+        </div>
+      </DirectorPanel>
+
+      <DirectorPanel className="p-5 sm:p-6">
+        {selected?<>
+          <div className="flex flex-col gap-4 border-b border-[#e2e7df] pb-5 sm:flex-row sm:items-start sm:justify-between">
+            <div><p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">{labels[selected.tipo]||selected.tipo}</p><h2 className="mt-1 text-2xl font-black tracking-[-.03em] text-[#111711]">{selected.jugadores?.nombre||'Alumno anonimizado'}</h2><p className="mt-2 text-sm text-[#697468]">Solicitante: {selected.solicitante_nombre} · {selected.solicitante_email}</p></div>
+            {selected.identidad_verificada?<span className="inline-flex items-center gap-1 rounded-full border border-[#cde995] bg-[#f3fadf] px-3 py-2 text-xs font-black text-[#4f6900]"><CheckBadgeIcon className="h-4 w-4"/>Identidad verificada</span>:<button disabled={loadingAction} onClick={()=>void verify(selected.id)} className={DIRECTOR_BUTTON}>Verificar identidad</button>}
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-[16px] border border-[#dfe5dc] bg-[#f6f8f4] p-4"><p className="text-[10px] font-black uppercase tracking-[.1em] text-[#758074]">Fecha recepción</p><p className="mt-1 font-black text-[#111711]">{formatDate(selected.fecha_recepcion)}</p></div>
+            <div className="rounded-[16px] border border-[#dfe5dc] bg-[#f6f8f4] p-4"><p className="text-[10px] font-black uppercase tracking-[.1em] text-[#758074]">Fecha límite</p><p className="mt-1 font-black text-[#111711]">{formatDate(selected.fecha_limite_prorrogada||selected.fecha_limite)}</p></div>
+          </div>
+
+          {selected.detalle?<div className="mt-4 rounded-[16px] border border-[#dfe5dc] bg-[#f7f9f5] p-4 text-sm leading-6 text-[#596458]">{selected.detalle}</div>:null}
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            <button disabled={loadingAction} onClick={()=>void downloadExport(selected)} className={DIRECTOR_BUTTON_GHOST}><ArrowDownTrayIcon className="h-4 w-4"/>Exportar</button>
+            {!terminal.has(selected.estado)?<button disabled={loadingAction} onClick={()=>void extend(selected.id)} className={DIRECTOR_BUTTON_GHOST}><ClockIcon className="h-4 w-4"/>Prorrogar 30 días</button>:null}
+          </div>
+
+          {!terminal.has(selected.estado)?<div className="mt-6 border-t border-[#e2e7df] pt-5">
+            <p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">Decisión y respuesta</p>
+            <label className="mt-3 block"><span className={labelClass}>Respuesta al titular</span><textarea className={DIRECTOR_TEXTAREA} value={decision.respuesta} onChange={(e)=>setDecision({...decision,respuesta:e.target.value})}/></label>
+            <label className="mt-3 block"><span className={labelClass}>Fundamento si se rechaza</span><textarea className={DIRECTOR_TEXTAREA} value={decision.fundamento} onChange={(e)=>setDecision({...decision,fundamento:e.target.value})}/></label>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2"><button disabled={loadingAction} onClick={()=>void decide(selected.id,'aprobada')} className={DIRECTOR_BUTTON}>Aprobar solicitud</button><button disabled={loadingAction} onClick={()=>void decide(selected.id,'rechazada')} className={DIRECTOR_BUTTON_DARK}>Rechazar con fundamento</button></div>
+          </div>:null}
+
+          {selected.estado==='aprobada'?<div className="mt-6 rounded-[18px] border border-[#dfe5dc] bg-[#f7f9f5] p-4">
+            <div className="flex items-start gap-3"><ExclamationTriangleIcon className="mt-0.5 h-5 w-5 shrink-0 text-[#789600]"/><div><p className="font-black text-[#111711]">Ejecutar decisión aprobada</p><p className="mt-1 text-xs leading-5 text-[#697468]">Para supresión, confirma escribiendo exactamente <strong>SUPRIMIR DATOS</strong>.</p></div></div>
+            {selected.tipo==='supresion'?<input value={decision.confirmacion} onChange={(e)=>setDecision({...decision,confirmacion:e.target.value})} className={`${DIRECTOR_FIELD} mt-3`} placeholder="SUPRIMIR DATOS"/>:null}
+            <button disabled={loadingAction} onClick={()=>void execute(selected)} className={`${selected.tipo==='supresion'?DIRECTOR_BUTTON_DARK:DIRECTOR_BUTTON} mt-3`}><TrashIcon className="h-4 w-4"/>Ejecutar solicitud</button>
+          </div>:null}
+        </>:<div className="grid min-h-[380px] place-items-center text-sm text-[#697468]">Selecciona un expediente.</div>}
+      </DirectorPanel>
+    </section>
+  </DirectorPage>;
 };
 
 export default PrivacyRequests;
