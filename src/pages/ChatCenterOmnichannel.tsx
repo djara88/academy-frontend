@@ -6,7 +6,7 @@ import { supabase } from '../config/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useAppDialog } from '../contexts/DialogContext';
 import { isGuardianRole } from '../utils/roles';
-import { DIRECTOR_BUTTON, DIRECTOR_BUTTON_GHOST, DIRECTOR_FIELD, DIRECTOR_TEXTAREA, DirectorPanel, DirectorStat } from '../components/director/DirectorModule';
+import { DIRECTOR_BUTTON, DIRECTOR_FIELD, DIRECTOR_TEXTAREA, DirectorPanel, DirectorStat } from '../components/director/DirectorModule';
 
 type Player = { id: string; nombre: string };
 type Contact = {
