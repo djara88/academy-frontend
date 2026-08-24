@@ -1,0 +1,168 @@
+/* Lestra Deportivo — contrato final de legibilidad visual.
+ * Esta hoja DEBE cargarse al final de la cascada.
+ * Su objetivo es resolver herencias de color entre el legado oscuro y el
+ * sistema visual claro del director, además de evitar solapamientos móviles.
+ */
+
+:root {
+  --lvf-ink: #111711;
+  --lvf-body: #364137;
+  --lvf-muted: #697468;
+  --lvf-surface: #ffffff;
+  --lvf-surface-soft: #f6f8f4;
+  --lvf-field: #f3f6f0;
+  --lvf-line: #d9e0d6;
+  --lvf-dark: #111711;
+  --lvf-lime: #b7ff00;
+}
+
+/* --------------------------------------------------------------------------
+   DIRECTOR: el lienzo nuevo es claro. Evita que sobreviva el color claro que
+   todavía define index.css para el body histórico.
+   -------------------------------------------------------------------------- */
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content {
+  color: var(--lvf-body) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(
+  .director-module-page,
+  .director-module-panel,
+  [class~="bg-white"],
+  [class~="bg-[#f8faf6]"],
+  [class~="bg-[#f6f8f4]"],
+  [class~="bg-[#f5f7f3]"],
+  [class~="bg-[#f3f6f0]"],
+  [class~="bg-[#f3fadf]"]
+) {
+  color: var(--lvf-ink);
+}
+
+/* Paneles del sistema DirectorModule siempre parten de un color de texto
+   legible aunque una pantalla olvide declarar text-* en un descendiente. */
+.lestra-director-main:not([data-route^="/admin"]) .director-module-panel {
+  color: var(--lvf-ink) !important;
+}
+
+/* Controles claros del nuevo director. Esta regla queda al final para ganar a
+   los estilos globales oscuros de input/select/textarea definidos en index.css. */
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+  select,
+  textarea
+) {
+  color: var(--lvf-ink) !important;
+  -webkit-text-fill-color: var(--lvf-ink) !important;
+  background-color: var(--lvf-field) !important;
+  border-color: var(--lvf-line) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(input, textarea)::placeholder {
+  color: var(--lvf-muted) !important;
+  -webkit-text-fill-color: var(--lvf-muted) !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .app-content select option {
+  color: var(--lvf-ink) !important;
+  background: #fff !important;
+}
+
+/* Los controles situados dentro de la cabecera oscura conservan el contrato
+   inverso. Esto evita que la normalización clara deje texto oscuro sobre cristal. */
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(section, article, div):not([class*="absolute"]):has(h1) :is(input, select, textarea) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  background: rgba(255,255,255,.07) !important;
+  border-color: rgba(255,255,255,.22) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
+.app-content > div > :is(section, article, div):not([class*="absolute"]):has(h1) :is(input, textarea)::placeholder {
+  color: #c7d0c8 !important;
+  -webkit-text-fill-color: #c7d0c8 !important;
+}
+
+/* --------------------------------------------------------------------------
+   CHAT: chat-composer-lestra.css es global y se carga tarde. En el director
+   nuevo el compositor vive en una superficie clara, por lo que debe respetar
+   el diseño del DirectorModule en lugar de volver a negro/verde.
+   -------------------------------------------------------------------------- */
+
+.lestra-director-main:not([data-route^="/admin"]) textarea[placeholder^="Escribe un mensaje"] {
+  min-height: 48px !important;
+  padding: 12px 16px !important;
+  border: 1px solid var(--lvf-line) !important;
+  border-radius: 14px !important;
+  background: var(--lvf-field) !important;
+  color: var(--lvf-ink) !important;
+  -webkit-text-fill-color: var(--lvf-ink) !important;
+  caret-color: var(--lvf-ink) !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) textarea[placeholder^="Escribe un mensaje"]::placeholder {
+  color: var(--lvf-muted) !important;
+  -webkit-text-fill-color: var(--lvf-muted) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) textarea[placeholder^="Escribe un mensaje"]:focus {
+  border-color: #8eb700 !important;
+  background: var(--lvf-field) !important;
+  box-shadow: 0 0 0 4px rgba(183,255,0,.10) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) textarea[placeholder^="Escribe un mensaje"] + button {
+  width: 48px !important;
+  min-width: 48px !important;
+  height: 48px !important;
+  padding: 0 !important;
+  border: 1px solid var(--lvf-dark) !important;
+  border-radius: 14px !important;
+  background: var(--lvf-dark) !important;
+  color: var(--lvf-lime) !important;
+  -webkit-text-fill-color: var(--lvf-lime) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) textarea[placeholder^="Escribe un mensaje"] + button::after {
+  display: none !important;
+  content: none !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) textarea[placeholder^="Escribe un mensaje"] + button:not(:disabled):hover {
+  background: #1a211b !important;
+  color: var(--lvf-lime) !important;
+  transform: translateY(-1px);
+}
+
+/* --------------------------------------------------------------------------
+   CAPAS: diálogos y overlays nunca deben quedar bajo el dock o headers sticky.
+   -------------------------------------------------------------------------- */
+
+.lestra-director-main .app-content .fixed.inset-0,
+[role="dialog"][aria-modal="true"],
+[role="alertdialog"][aria-modal="true"] {
+  z-index: 1000 !important;
+}
+
+/* Evita que el dock móvil tape las últimas líneas, campos o acciones de una
+   pantalla larga. */
+@media (max-width: 1023px) {
+  .lestra-director-main:not([data-route^="/admin"]) .app-content {
+    padding-bottom: calc(7.5rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .lestra-director-main .app-content .fixed.inset-0 {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* Texto muy largo nunca debe quedar visualmente debajo de una columna vecina. */
+.lestra-director-main .app-content :is(p, span, label, td, th, h1, h2, h3, h4) {
+  min-width: 0;
+}
+
+.lestra-director-main .app-content :is(p, td, th) {
+  overflow-wrap: anywhere;
+}
