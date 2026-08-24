@@ -1,6 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import api from '../api/axiosConfig';
 import { useAppDialog } from '../contexts/DialogContext';
+import {
+  DIRECTOR_BUTTON,
+  DIRECTOR_BUTTON_DARK,
+  DIRECTOR_BUTTON_GHOST,
+  DIRECTOR_FIELD,
+  DirectorHero,
+  DirectorPage,
+  DirectorPanel,
+  DirectorStat,
+} from '../components/director/DirectorModule';
 
 type Lead={
   id:string;estado:string;apoderado_nombre:string;telefono:string;email?:string|null;alumno_nombre:string;fecha_nacimiento?:string|null;mensaje?:string|null;created_at:string;prematricula_id?:string|null;sede_id?:string|null;rama_id?:string|null;categoria_id?:string|null;
@@ -8,14 +18,15 @@ type Lead={
 };
 type Branch={id:string;sede_id:string;nombre:string;disciplina:string;principal?:boolean;activa?:boolean};
 type Site={id:string;nombre:string;principal?:boolean;activa?:boolean;ramas:Branch[]};
-
 type Draft={email:string;rut_apoderado:string;rut_alumno:string;fecha_nacimiento:string;sexo:string;sede_id:string;rama_id:string;monto_matricula:string;abono_matricula:string;monto_mensualidad:string};
+
 const emptyDraft:Draft={email:'',rut_apoderado:'',rut_alumno:'',fecha_nacimiento:'',sexo:'',sede_id:'',rama_id:'',monto_matricula:'',abono_matricula:'',monto_mensualidad:''};
-const money=(value:string)=>value?`$${Math.round(Number(value)||0).toLocaleString('es-CL')}`:'$0';
-const date=(value?:string|null)=>value?new Date(value).toLocaleDateString('es-CL'):'-';
+const money=(value:string|number)=>`$${Math.round(Number(value)||0).toLocaleString('es-CL')}`;
+const date=(value?:string|null)=>value?new Date(value).toLocaleDateString('es-CL'):'—';
 const phoneHref=(value:string)=>{const digits=String(value||'').replace(/\D/g,'');if(!digits)return '';return `https://wa.me/${digits.startsWith('56')?digits:`56${digits}`}`;};
 const statusLabel:Record<string,string>={nueva:'Nueva',contactada:'Contactada',en_revision:'En revisión',prematricula:'Pre-matrícula',archivada:'Archivada'};
-const statusClass:Record<string,string>={nueva:'border-amber-400/25 bg-amber-500/10 text-amber-200',contactada:'border-sky-400/25 bg-sky-500/10 text-sky-200',en_revision:'border-violet-400/25 bg-violet-500/10 text-violet-200',prematricula:'border-emerald-400/25 bg-emerald-500/10 text-emerald-200',archivada:'border-white/10 bg-white/5 text-slate-400'};
+const statusClass:Record<string,string>={nueva:'border-amber-200 bg-amber-50 text-amber-700',contactada:'border-sky-200 bg-sky-50 text-sky-700',en_revision:'border-violet-200 bg-violet-50 text-violet-700',prematricula:'border-[#cde995] bg-[#f3fadf] text-[#4f6900]',archivada:'border-[#dfe5dc] bg-[#f4f6f2] text-[#697468]'};
+const labelClass='mb-1.5 block text-[11px] font-black uppercase tracking-[.09em] text-[#697468]';
 
 export default function AdmissionRequests(){
   const {notify}=useAppDialog();
@@ -32,14 +43,16 @@ export default function AdmissionRequests(){
     setLoading(true);
     try{
       const [leadResponse,structureResponse]=await Promise.all([api.get('/api/solicitudes-admision'),api.get('/api/estructura')]);
-      setItems(leadResponse.data?.data||[]);setStructure(structureResponse.data?.data||[]);
-    }catch(error:any){await notify(error?.response?.data?.error||'No fue posible cargar las solicitudes.',{title:'Solicitudes'});}
-    finally{setLoading(false);}
+      setItems(leadResponse.data?.data||[]);
+      setStructure(structureResponse.data?.data||[]);
+    }catch(error:any){
+      await notify(error?.response?.data?.error||'No fue posible cargar las solicitudes.',{title:'Solicitudes'});
+    }finally{setLoading(false);}
   };
   useEffect(()=>{void load();},[]);
 
   const visible=useMemo(()=>items.filter((item)=>showArchived?item.estado==='archivada':item.estado!=='archivada'),[items,showArchived]);
-  const counts=useMemo(()=>({new:items.filter((i)=>i.estado==='nueva').length,active:items.filter((i)=>['nueva','contactada','en_revision'].includes(i.estado)).length,pre:items.filter((i)=>i.estado==='prematricula').length}),[items]);
+  const counts=useMemo(()=>({new:items.filter((item)=>item.estado==='nueva').length,active:items.filter((item)=>['nueva','contactada','en_revision'].includes(item.estado)).length,pre:items.filter((item)=>item.estado==='prematricula').length}),[items]);
   const activeSites=useMemo(()=>structure.filter((site)=>site.activa!==false),[structure]);
   const activeBranches=useMemo(()=>activeSites.flatMap((site)=>site.ramas.filter((branch)=>branch.activa!==false)),[activeSites]);
   const branchOptions=draft.sede_id?activeBranches.filter((branch)=>branch.sede_id===draft.sede_id):activeBranches;
@@ -53,48 +66,61 @@ export default function AdmissionRequests(){
     const preferredBranch=activeBranches.find((branch)=>branch.id===lead.rama_id)||activeBranches[0]||null;
     const preferredSite=activeSites.find((site)=>site.id===(lead.sede_id||preferredBranch?.sede_id))||activeSites[0]||null;
     const branch=preferredBranch?.sede_id===preferredSite?.id?preferredBranch:preferredSite?.ramas.find((item)=>item.activa!==false)||null;
-    setSelected(lead);setResult(null);setDraft({...emptyDraft,email:lead.email||'',fecha_nacimiento:lead.fecha_nacimiento||'',sede_id:preferredSite?.id||'',rama_id:branch?.id||''});
+    setSelected(lead);
+    setResult(null);
+    setDraft({...emptyDraft,email:lead.email||'',fecha_nacimiento:lead.fecha_nacimiento||'',sede_id:preferredSite?.id||'',rama_id:branch?.id||''});
   };
   const closePre=()=>{if(submitting)return;setSelected(null);setDraft(emptyDraft);setResult(null);};
   const submitPre=async()=>{
     if(!selected)return;
+    if(!draft.email.trim()||!draft.rut_apoderado.trim()||!draft.sede_id||!draft.rama_id){
+      await notify('Completa correo, RUT del apoderado, sede y rama antes de preparar la pre-matrícula.',{title:selected.alumno_nombre});
+      return;
+    }
     setSubmitting(true);
     try{
       const response=await api.post(`/api/solicitudes-admision/${selected.id}/prematricula`,{
         ...draft,
-        monto_matricula:Number(draft.monto_matricula||0),abono_matricula:Number(draft.abono_matricula||0),monto_mensualidad:Number(draft.monto_mensualidad||0),
+        monto_matricula:Number(draft.monto_matricula||0),
+        abono_matricula:Number(draft.abono_matricula||0),
+        monto_mensualidad:Number(draft.monto_mensualidad||0),
       });
-      setResult({link:response.data?.link||'',email_sent:Boolean(response.data?.email_sent)});await load();
-    }catch(error:any){await notify(error?.response?.data?.error||'No fue posible preparar la pre-matrícula.',{title:selected.alumno_nombre});}
-    finally{setSubmitting(false);}
+      setResult({link:response.data?.link||'',email_sent:Boolean(response.data?.email_sent)});
+      await load();
+    }catch(error:any){
+      await notify(error?.response?.data?.error||'No fue posible preparar la pre-matrícula.',{title:selected.alumno_nombre});
+    }finally{setSubmitting(false);}
   };
 
-  if(loading)return <div className="grid min-h-[50vh] place-items-center text-sm font-bold text-[#70e4df]">Cargando solicitudes...</div>;
-  return <div className="mx-auto max-w-7xl space-y-6 pb-16">
-    <section className="overflow-hidden rounded-[30px] border border-[#289E9D]/25 bg-[radial-gradient(circle_at_top_right,rgba(40,158,157,.19),transparent_38%),linear-gradient(135deg,#172530,#101620)] p-6 sm:p-8">
-      <p className="text-xs font-black uppercase tracking-[.18em] text-[#70e4df]">Página pública → Lestra</p><h1 className="mt-2 text-3xl font-black text-white sm:text-4xl">Solicitudes de inscripción</h1><p className="mt-3 max-w-3xl text-sm leading-6 text-[#9aa6b5]">Gestiona interesados sin sacarlos de la página de la academia. Contacta a la familia y, cuando esté lista, transforma la solicitud en una pre-matrícula formal sin volver a escribir sus datos básicos.</p>
-    </section>
+  if(loading)return <DirectorPanel className="mx-auto max-w-6xl p-12 text-center text-sm font-bold text-[#697468]">Cargando solicitudes...</DirectorPanel>;
 
-    <section className="grid gap-3 sm:grid-cols-3">{[['Nuevas',counts.new],['Por gestionar',counts.active],['Pre-matrículas',counts.pre]].map(([label,value])=><div key={String(label)} className="rounded-2xl border border-white/10 bg-[#151b25] p-5"><p className="text-xs font-black uppercase tracking-wider text-[#697586]">{label}</p><p className="mt-1 text-3xl font-black text-white">{value}</p></div>)}</section>
+  return <DirectorPage className="max-w-[1450px]">
+    <DirectorHero eyebrow="Página pública → admisión" title="Solicitudes de inscripción" description="Recibe interesados desde la página de la academia, contacta a la familia y conviértelos en una pre-matrícula formal sin volver a escribir sus datos básicos." aside={<div className="grid grid-cols-2 gap-2"><div className="rounded-[18px] border border-white/10 bg-white/5 p-4"><p className="text-[10px] font-black uppercase text-[#b7ff00]">Por gestionar</p><p className="mt-2 text-2xl font-black text-white">{counts.active}</p><p className="mt-1 text-[11px] text-[#c7d0c8]">Interesados activos</p></div><div className="rounded-[18px] border border-[#b7ff00]/25 bg-[#b7ff00]/10 p-4"><p className="text-[10px] font-black uppercase text-[#b7ff00]">Convertidas</p><p className="mt-2 text-2xl font-black text-white">{counts.pre}</p><p className="mt-1 text-[11px] text-[#c7d0c8]">Pre-matrículas</p></div></div>}/>
 
-    <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#151b25] p-4"><div><p className="font-black text-white">Bandeja de admisión</p><p className="mt-1 text-xs text-[#7f8c9c]">Las solicitudes no consumen cupos del plan hasta convertirse y formalizarse como alumnos.</p></div><button onClick={()=>setShowArchived((value)=>!value)} className="rounded-xl border border-white/10 bg-[#0d1117] px-4 py-2.5 text-sm font-black text-[#c8d1dc]">{showArchived?'Ver activas':'Ver archivadas'}</button></section>
+    <section className="grid gap-3 sm:grid-cols-3"><DirectorStat label="Nuevas" value={counts.new} detail="Sin primera gestión"/><DirectorStat label="Por gestionar" value={counts.active} detail="Nuevas, contactadas o en revisión" tone="lime"/><DirectorStat label="Pre-matrículas" value={counts.pre} detail="Ya convertidas" tone="dark"/></section>
+
+    <DirectorPanel className="p-4 sm:p-5"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">Bandeja de admisión</p><p className="mt-1 text-sm text-[#697468]">Las solicitudes no consumen cupos del plan hasta formalizarse como alumnos.</p></div><button type="button" onClick={()=>setShowArchived((value)=>!value)} className={DIRECTOR_BUTTON_GHOST}>{showArchived?'Ver activas':'Ver archivadas'}</button></div></DirectorPanel>
 
     <section className="grid gap-4 xl:grid-cols-2">{visible.map((lead)=>{
-      const wa=phoneHref(lead.telefono);return <article key={lead.id} className="rounded-3xl border border-white/10 bg-[#151b25] p-5 sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-black uppercase tracking-wider text-[#70e4df]">{lead.ramas?.disciplina||lead.ramas?.nombre||'Disciplina por definir'}{lead.categorias?.nombre?` · ${lead.categorias.nombre}`:''}</p><h2 className="mt-1 text-xl font-black text-white">{lead.alumno_nombre}</h2><p className="mt-1 text-xs text-[#697586]">Recibida {date(lead.created_at)} · {lead.sedes?.nombre||'Sede por definir'}</p></div><span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase ${statusClass[lead.estado]||statusClass.archivada}`}>{statusLabel[lead.estado]||lead.estado}</span></div>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2"><div className="rounded-xl border border-white/10 bg-[#0d1117] p-3"><p className="text-[10px] font-black uppercase text-[#697586]">Apoderado</p><p className="mt-1 font-bold text-white">{lead.apoderado_nombre}</p><p className="mt-1 text-xs text-[#9aa6b5]">{lead.telefono}</p><p className="text-xs text-[#9aa6b5]">{lead.email||'Sin correo todavía'}</p></div><div className="rounded-xl border border-white/10 bg-[#0d1117] p-3"><p className="text-[10px] font-black uppercase text-[#697586]">Alumno</p><p className="mt-1 text-sm font-bold text-white">Nacimiento: {date(lead.fecha_nacimiento)}</p><p className="mt-1 text-xs text-[#9aa6b5]">{lead.mensaje||'Sin mensaje adicional.'}</p></div></div>
-        {lead.prematricula_id?<div className="mt-4 rounded-xl border border-emerald-400/20 bg-emerald-500/10 p-3 text-sm text-emerald-100"><b>Pre-matrícula creada.</b> Estado: {lead.prematriculas?.estado||'enviada'}{lead.prematriculas?.signed_at?' · firmada por el apoderado':''}.</div>:null}
-        <div className="mt-5 flex flex-wrap gap-2">{wa&&lead.estado!=='archivada'?<a href={wa} target="_blank" rel="noreferrer" onClick={()=>{if(lead.estado==='nueva')void changeState(lead,'contactada');}} className="rounded-xl border border-emerald-400/25 bg-emerald-500/10 px-3 py-2.5 text-xs font-black text-emerald-200">Contactar por WhatsApp</a>:null}{!lead.prematricula_id&&lead.estado!=='archivada'?<button onClick={()=>openPre(lead)} className="rounded-xl bg-[#289E9D] px-3 py-2.5 text-xs font-black text-white">Preparar pre-matrícula</button>:null}{lead.estado!=='archivada'&&!lead.prematricula_id?<button onClick={()=>void changeState(lead,'en_revision')} className="rounded-xl border border-violet-400/20 bg-violet-500/10 px-3 py-2.5 text-xs font-black text-violet-200">En revisión</button>:null}{lead.estado!=='archivada'?<button onClick={()=>void changeState(lead,'archivada')} className="rounded-xl border border-white/10 px-3 py-2.5 text-xs font-black text-[#8995a4]">Archivar</button>:<button onClick={()=>void changeState(lead,'en_revision')} className="rounded-xl border border-white/10 px-3 py-2.5 text-xs font-black text-[#c8d1dc]">Restaurar</button>}</div>
-      </article>;})}</section>
-    {!visible.length?<div className="rounded-3xl border border-dashed border-white/10 bg-[#151b25] p-10 text-center text-sm text-[#697586]">{showArchived?'No hay solicitudes archivadas.':'Todavía no hay solicitudes. Cuando una familia complete el formulario de la página pública aparecerá aquí.'}</div>:null}
+      const wa=phoneHref(lead.telefono);
+      return <DirectorPanel key={lead.id} className="p-5 sm:p-6"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-[11px] font-black uppercase tracking-[.12em] text-[#789600]">{lead.ramas?.disciplina||lead.ramas?.nombre||'Disciplina por definir'}{lead.categorias?.nombre?` · ${lead.categorias.nombre}`:''}</p><h2 className="mt-1 text-xl font-black text-[#111711]">{lead.alumno_nombre}</h2><p className="mt-1 text-xs font-semibold text-[#697468]">Recibida {date(lead.created_at)} · {lead.sedes?.nombre||'Sede por definir'}</p></div><span className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase ${statusClass[lead.estado]||statusClass.archivada}`}>{statusLabel[lead.estado]||lead.estado}</span></div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2"><div className="rounded-[15px] border border-[#e1e6df] bg-[#f8faf6] p-4"><p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7c867b]">Apoderado</p><p className="mt-1 font-black text-[#111711]">{lead.apoderado_nombre}</p><p className="mt-1 text-xs font-semibold text-[#697468]">{lead.telefono}</p><p className="text-xs font-semibold text-[#697468]">{lead.email||'Sin correo todavía'}</p></div><div className="rounded-[15px] border border-[#e1e6df] bg-[#f8faf6] p-4"><p className="text-[10px] font-black uppercase tracking-[.12em] text-[#7c867b]">Alumno</p><p className="mt-1 text-sm font-black text-[#111711]">Nacimiento: {date(lead.fecha_nacimiento)}</p><p className="mt-1 text-xs leading-5 text-[#697468]">{lead.mensaje||'Sin mensaje adicional.'}</p></div></div>
+        {lead.prematricula_id?<div className="mt-4 rounded-[14px] border border-[#cde995] bg-[#f3fadf] p-3 text-sm text-[#4f6900]"><strong>Pre-matrícula creada.</strong> Estado: {lead.prematriculas?.estado||'enviada'}{lead.prematriculas?.signed_at?' · firmada por el apoderado':''}.</div>:null}
+        <div className="mt-5 flex flex-wrap gap-2">{wa&&lead.estado!=='archivada'?<a href={wa} target="_blank" rel="noreferrer" onClick={()=>{if(lead.estado==='nueva')void changeState(lead,'contactada');}} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#cde995] bg-[#f3fadf] px-4 text-sm font-black text-[#4f6900]">Contactar por WhatsApp</a>:null}{!lead.prematricula_id&&lead.estado!=='archivada'?<button type="button" onClick={()=>openPre(lead)} className={DIRECTOR_BUTTON_DARK}>Preparar pre-matrícula</button>:null}{lead.estado!=='archivada'&&!lead.prematricula_id?<button type="button" onClick={()=>void changeState(lead,'en_revision')} className={DIRECTOR_BUTTON_GHOST}>En revisión</button>:null}{lead.estado!=='archivada'?<button type="button" onClick={()=>void changeState(lead,'archivada')} className="inline-flex min-h-11 items-center rounded-xl border border-[#dfe5dc] bg-white px-4 text-sm font-black text-[#697468]">Archivar</button>:<button type="button" onClick={()=>void changeState(lead,'en_revision')} className={DIRECTOR_BUTTON}>Restaurar</button>}</div>
+      </DirectorPanel>;
+    })}</section>
 
-    {selected?<div className="fixed inset-0 z-[100] grid place-items-center bg-black/75 p-4 backdrop-blur-sm" onMouseDown={(e)=>{if(e.target===e.currentTarget)closePre();}}><div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[28px] border border-white/15 bg-[#101620] p-5 text-white shadow-2xl sm:p-7">
-      {result?<div className="py-7 text-center"><div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-emerald-400 text-3xl font-black text-emerald-950">✓</div><h2 className="mt-5 text-2xl font-black">Pre-matrícula preparada</h2><p className="mt-2 text-sm text-slate-300">{result.email_sent?'El enlace fue enviado al correo del apoderado.':'El registro fue creado, pero no pudimos confirmar el envío del correo. Copia el enlace y compártelo por otro canal.'}</p><div className="mx-auto mt-5 flex max-w-xl gap-2"><input readOnly value={result.link} className="min-w-0 flex-1 rounded-xl border border-white/10 bg-[#0d1117] px-3 py-3 text-xs text-slate-300"/><button onClick={()=>void navigator.clipboard.writeText(result.link)} className="rounded-xl bg-emerald-400 px-4 text-xs font-black text-emerald-950">Copiar</button></div><button onClick={closePre} className="mt-6 rounded-xl border border-white/10 px-5 py-3 font-black">Cerrar</button></div>:<>
-        <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-wider text-[#70e4df]">Convertir solicitud</p><h2 className="mt-1 text-2xl font-black">Pre-matrícula de {selected.alumno_nombre}</h2><p className="mt-2 text-sm text-[#8995a4]">Lestra ya reutilizó nombre, teléfono y preferencia deportiva. Completa únicamente los datos formales que faltan.</p></div><button onClick={closePre} className="rounded-lg border border-white/10 px-3 py-2 text-slate-400">✕</button></div>
-        <div className="mt-5 grid gap-4 sm:grid-cols-2"><label><span className="text-xs font-black text-slate-300">Correo apoderado *</span><input type="email" value={draft.email} onChange={(e)=>setDraft({...draft,email:e.target.value})} className="mt-1 w-full rounded-xl border border-white/10 bg-[#0d1117] px-3 py-3 text-sm"/></label><label><span className="text-xs font-black text-slate-300">RUT / documento apoderado *</span><input value={draft.rut_apoderado} onChange={(e)=>setDraft({...draft,rut_apoderado:e.target.value})} className="mt-1 w-full rounded-xl border border-white/10 bg-[#0d1117] px-3 py-3 text-sm"/></label><label><span className="text-xs font-black text-slate-300">RUT alumno</span><input value={draft.rut_alumno} onChange={(e)=>setDraft({...draft,rut_alumno:e.target.value})} className="mt-1 w-full rounded-xl border border-white/10 bg-[#0d1117] px-3 py-3 text-sm" placeholder="Opcional si aún no lo tienes"/></label><label><span className="text-xs font-black text-slate-300">Fecha nacimiento *</span><input type="date" value={draft.fecha_nacimiento} onChange={(e)=>setDraft({...draft,fecha_nacimiento:e.target.value})} className="mt-1 w-full rounded-xl border border-white/10 bg-[#0d1117] px-3 py-3 text-sm"/></label><label><span className="text-xs font-black text-slate-300">Sexo *</span><select value={draft.sexo} onChange={(e)=>setDraft({...draft,sexo:e.target.value})} className="mt-1 w-full rounded-xl border border-white/10 bg-[#0d1117] px-3 py-3 text-sm"><option value="">Seleccionar</option><option>Masculino</option><option>Femenino</option><option>Otro</option><option>Prefiere no indicar</option></select></label><label><span className="text-xs font-black text-slate-300">Sede *</span><select value={draft.sede_id} onChange={(e)=>{const siteId=e.target.value;const first=activeBranches.find((branch)=>branch.sede_id===siteId);setDraft({...draft,sede_id:siteId,rama_id:first?.id||''});}} className="mt-1 w-full rounded-xl border border-white/10 bg-[#0d1117] px-3 py-3 text-sm"><option value="">Seleccionar</option>{activeSites.map((site)=><option key={site.id} value={site.id}>{site.nombre}</option>)}</select></label><label><span className="text-xs font-black text-slate-300">Disciplina *</span><select value={draft.rama_id} onChange={(e)=>setDraft({...draft,rama_id:e.target.value})} className="mt-1 w-full rounded-xl border border-white/10 bg-[#0d1117] px-3 py-3 text-sm"><option value="">Seleccionar</option>{branchOptions.map((branch)=><option key={branch.id} value={branch.id}>{branch.disciplina||branch.nombre}</option>)}</select></label></div>
-        <div className="mt-5 rounded-2xl border border-white/10 bg-[#0d1117] p-4"><p className="text-xs font-black uppercase tracking-wider text-[#C8A96B]">Valores de la matrícula</p><div className="mt-3 grid gap-3 sm:grid-cols-3">{[['monto_matricula','Matrícula'],['abono_matricula','Abono inicial'],['monto_mensualidad','Mensualidad']].map(([key,label])=><label key={key}><span className="text-xs font-bold text-slate-400">{label}</span><input type="number" min="0" value={draft[key as keyof Draft]} onChange={(e)=>setDraft({...draft,[key]:e.target.value})} className="mt-1 w-full rounded-xl border border-white/10 bg-[#151b25] px-3 py-3 text-sm"/></label>)}</div><p className="mt-3 text-xs text-[#697586]">Resumen: matrícula {money(draft.monto_matricula)} · abono {money(draft.abono_matricula)} · mensualidad {money(draft.monto_mensualidad)}.</p></div>
-        <div className="mt-5 flex justify-end gap-2"><button onClick={closePre} className="rounded-xl border border-white/10 px-5 py-3 text-sm font-black text-slate-300">Cancelar</button><button disabled={submitting} onClick={()=>void submitPre()} className="rounded-xl bg-[#289E9D] px-5 py-3 text-sm font-black text-white disabled:opacity-50">{submitting?'Preparando...':'Crear y enviar pre-matrícula'}</button></div>
+    {!visible.length?<DirectorPanel className="p-12 text-center text-sm text-[#697468]">{showArchived?'No hay solicitudes archivadas.':'Todavía no hay solicitudes. Cuando una familia complete el formulario de la página pública aparecerá aquí.'}</DirectorPanel>:null}
+
+    {selected?<div className="fixed inset-0 z-[110] grid place-items-center overflow-y-auto bg-[#0b100c]/70 p-4 backdrop-blur-sm" onMouseDown={(event)=>{if(event.target===event.currentTarget)closePre();}}><div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[28px] border border-[#d9e0d6] bg-white p-5 shadow-[0_32px_90px_rgba(13,20,14,.28)] sm:p-7">
+      {result?<div className="py-6 text-center"><div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#b7ff00] text-3xl font-black text-[#111711]">✓</div><h2 className="mt-5 text-2xl font-black text-[#111711]">Pre-matrícula preparada</h2><p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#697468]">{result.email_sent?'El enlace fue enviado al correo del apoderado.':'El registro fue creado, pero no pudimos confirmar el envío del correo. Copia el enlace y compártelo por otro canal.'}</p><div className="mx-auto mt-5 flex max-w-xl flex-col gap-2 sm:flex-row"><input readOnly value={result.link} className={`${DIRECTOR_FIELD} min-w-0 flex-1 bg-[#f8faf6] text-xs`}/><button type="button" onClick={()=>void navigator.clipboard.writeText(result.link)} className={DIRECTOR_BUTTON_DARK}>Copiar</button></div><button type="button" onClick={closePre} className={`${DIRECTOR_BUTTON_GHOST} mt-6`}>Cerrar</button></div>:<>
+        <div className="flex items-start justify-between gap-4"><div><p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">Convertir solicitud</p><h2 className="mt-1 text-2xl font-black text-[#111711]">Pre-matrícula de {selected.alumno_nombre}</h2><p className="mt-2 text-sm leading-6 text-[#697468]">Lestra reutilizó nombre, teléfono y preferencia deportiva. Completa los datos formales que faltan.</p></div><button type="button" onClick={closePre} className="grid h-10 w-10 place-items-center rounded-xl border border-[#dfe5dc] text-[#697468]">✕</button></div>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2"><Field label="Correo apoderado *"><input type="email" value={draft.email} onChange={(event)=>setDraft({...draft,email:event.target.value})} className={DIRECTOR_FIELD}/></Field><Field label="RUT / documento apoderado *"><input value={draft.rut_apoderado} onChange={(event)=>setDraft({...draft,rut_apoderado:event.target.value})} className={DIRECTOR_FIELD}/></Field><Field label="RUT / documento alumno"><input value={draft.rut_alumno} onChange={(event)=>setDraft({...draft,rut_alumno:event.target.value})} className={DIRECTOR_FIELD}/></Field><Field label="Fecha de nacimiento"><input type="date" value={draft.fecha_nacimiento} onChange={(event)=>setDraft({...draft,fecha_nacimiento:event.target.value})} className={DIRECTOR_FIELD}/></Field><Field label="Sexo"><select value={draft.sexo} onChange={(event)=>setDraft({...draft,sexo:event.target.value})} className={DIRECTOR_FIELD}><option value="">Seleccionar</option><option>Masculino</option><option>Femenino</option><option>Otro</option><option>Prefiere no indicar</option></select></Field><Field label="Sede *"><select value={draft.sede_id} onChange={(event)=>{const site=activeSites.find((item)=>item.id===event.target.value);const branch=site?.ramas.find((item)=>item.principal&&item.activa!==false)||site?.ramas.find((item)=>item.activa!==false);setDraft({...draft,sede_id:event.target.value,rama_id:branch?.id||''});}} className={DIRECTOR_FIELD}><option value="">Seleccionar sede</option>{activeSites.map((site)=><option key={site.id} value={site.id}>{site.nombre}</option>)}</select></Field><Field label="Rama deportiva *"><select value={draft.rama_id} onChange={(event)=>setDraft({...draft,rama_id:event.target.value})} className={DIRECTOR_FIELD}><option value="">Seleccionar rama</option>{branchOptions.map((branch)=><option key={branch.id} value={branch.id}>{branch.disciplina} · {branch.nombre}</option>)}</select></Field></div>
+        <div className="mt-6 rounded-[18px] border border-[#dfe5dc] bg-[#f8faf6] p-4"><p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">Valores iniciales</p><div className="mt-4 grid gap-4 sm:grid-cols-3"><Field label="Matrícula"><input type="number" min="0" value={draft.monto_matricula} onChange={(event)=>setDraft({...draft,monto_matricula:event.target.value})} className={DIRECTOR_FIELD}/></Field><Field label="Abono"><input type="number" min="0" value={draft.abono_matricula} onChange={(event)=>setDraft({...draft,abono_matricula:event.target.value})} className={DIRECTOR_FIELD}/></Field><Field label="Mensualidad"><input type="number" min="0" value={draft.monto_mensualidad} onChange={(event)=>setDraft({...draft,monto_mensualidad:event.target.value})} className={DIRECTOR_FIELD}/></Field></div><div className="mt-4 flex flex-wrap gap-2 text-xs font-black text-[#566056]"><span className="rounded-full border border-[#dfe5dc] bg-white px-3 py-1.5">Matrícula {money(draft.monto_matricula)}</span><span className="rounded-full border border-[#cde995] bg-[#f3fadf] px-3 py-1.5 text-[#4f6900]">Abono {money(draft.abono_matricula)}</span><span className="rounded-full border border-[#dfe5dc] bg-white px-3 py-1.5">Mensualidad {money(draft.monto_mensualidad)}</span></div></div>
+        <div className="mt-6 grid gap-3 sm:grid-cols-2"><button type="button" disabled={submitting} onClick={closePre} className={DIRECTOR_BUTTON_GHOST}>Cancelar</button><button type="button" disabled={submitting} onClick={()=>void submitPre()} className={DIRECTOR_BUTTON_DARK}>{submitting?'Preparando…':'Crear y enviar pre-matrícula'}</button></div>
       </>}
     </div></div>:null}
-  </div>;
+  </DirectorPage>;
 }
+
+function Field({label,children}:{label:string;children:React.ReactNode}){return <label className="block"><span className={labelClass}>{label}</span>{children}</label>;}
