@@ -99,26 +99,26 @@ export default function EnrollmentCategoryManager({
   const failed = categoriesQuery.isError || membershipsQuery.isError;
 
   return (
-    <div className="mt-5 border-t border-white/10 pt-5">
+    <div className="student-category-manager mt-5 border-t border-[#dce3d8] pt-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="font-black text-white">Categorías en esta rama</p>
-          <p className="mt-1 max-w-2xl text-xs leading-5 text-[#7f8c9c]">
-            Un alumno puede pertenecer a <strong className="text-[#b9c3cf]">una o varias categorías</strong> dentro de {branchLabel}. Las categorías de otras ramas permanecen totalmente separadas.
+          <p className="font-black text-[#111711]">Categorías en esta rama</p>
+          <p className="mt-1 max-w-2xl text-xs leading-5 text-[#657064]">
+            Un alumno puede pertenecer a <strong className="text-[#111711]">una o varias categorías</strong> dentro de {branchLabel}. Las categorías de otras ramas permanecen totalmente separadas.
           </p>
         </div>
-        <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase ${assigned.length ? 'border-emerald-400/20 bg-emerald-500/10 text-emerald-300' : 'border-amber-400/20 bg-amber-500/10 text-amber-300'}`}>
+        <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase ${assigned.length ? 'border-[#b7ff00] bg-[#efffc2] text-[#304200]' : 'border-[#d8dfd5] bg-[#f5f7f3] text-[#596359]'}`}>
           {assigned.length ? `${assigned.length} ${assigned.length === 1 ? 'categoría' : 'categorías'}` : currentCategoryName || 'Sin categoría'}
         </span>
       </div>
 
       {loading ? (
-        <div className="mt-3 rounded-xl border border-white/10 bg-[#0d1117] px-4 py-3 text-sm text-[#8995a4]">Cargando categorías...</div>
+        <div className="mt-3 rounded-xl border border-[#dce3d8] bg-[#f5f7f3] px-4 py-3 text-sm font-semibold text-[#5e695e]">Cargando categorías...</div>
       ) : failed ? (
-        <div className="mt-3 rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">No fue posible cargar las categorías de esta rama.</div>
+        <div className="mt-3 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">No fue posible cargar las categorías de esta rama.</div>
       ) : categories.length === 0 ? (
-        <div className="mt-3 rounded-xl border border-dashed border-amber-400/25 bg-amber-500/[.06] p-4 text-sm leading-6 text-[#b9a98d]">
-          Esta rama todavía no tiene categorías. Créala en <Link to="/configuracion/estructura" className="font-black text-[#D8BE87] underline underline-offset-2">Configuración → Estructura</Link> y vuelve a la ficha.
+        <div className="mt-3 rounded-xl border border-dashed border-[#a9b4a4] bg-[#f5f7f3] p-4 text-sm leading-6 text-[#596359]">
+          Esta rama todavía no tiene categorías. Créala en <Link to="/configuracion/estructura" className="font-black text-[#536f00] underline underline-offset-2">Configuración → Estructura</Link> y vuelve a la ficha.
         </div>
       ) : (
         <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -132,18 +132,18 @@ export default function EnrollmentCategoryManager({
                 type="button"
                 disabled={disabled || membershipMutation.isPending}
                 onClick={() => membershipMutation.mutate({ categoryId: category.id, assignedNow: isAssigned })}
-                className={`group flex min-h-16 items-center gap-3 rounded-2xl border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${isAssigned ? 'border-emerald-400/30 bg-emerald-500/10 hover:bg-emerald-500/15' : 'border-white/10 bg-[#0d1117] hover:border-violet-400/30 hover:bg-violet-500/[.06]'}`}
+                className={`group flex min-h-[72px] items-center gap-3 rounded-2xl border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${isAssigned ? 'border-[#9bd000] bg-[#b7ff00] hover:bg-[#c7ff38]' : 'border-[#263126] bg-[#111711] hover:border-[#b7ff00] hover:bg-[#182018]'}`}
               >
-                <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl border ${isAssigned ? 'border-emerald-400/30 bg-emerald-500/15 text-emerald-300' : 'border-white/10 bg-white/5 text-[#7f8c9c]'}`}>
+                <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl border ${isAssigned ? 'border-[#111711]/15 bg-[#111711] text-[#b7ff00]' : 'border-[#dce3d8] bg-[#f4f7f1] text-[#111711]'}`}>
                   {busy ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" /> : isAssigned ? <CheckIcon className="h-5 w-5" /> : <PlusIcon className="h-5 w-5" />}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className={`block truncate text-sm font-black ${isAssigned ? 'text-emerald-100' : 'text-white'}`}>{category.nombre}</span>
-                  <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-wide text-[#697586]">
+                  <span className={`block truncate text-sm font-black ${isAssigned ? 'text-[#111711]' : 'text-white'}`}>{category.nombre}</span>
+                  <span className={`mt-0.5 block text-[10px] font-bold uppercase tracking-wide ${isAssigned ? 'text-[#344700]' : 'text-[#b9c4b8]'}`}>
                     {isReference ? 'Referencia de la rama' : isAssigned ? 'Asignada · clic para quitar' : 'Clic para agregar'}
                   </span>
                 </span>
-                {isAssigned ? <XMarkIcon className="h-4 w-4 shrink-0 text-emerald-300/60 opacity-0 transition group-hover:opacity-100" /> : null}
+                {isAssigned ? <XMarkIcon className="h-4 w-4 shrink-0 text-[#111711]/60 opacity-0 transition group-hover:opacity-100" /> : null}
               </button>
             );
           })}
@@ -151,8 +151,8 @@ export default function EnrollmentCategoryManager({
       )}
 
       {assigned.length > 1 ? (
-        <p className="mt-3 text-[11px] leading-5 text-[#697586]">
-          La etiqueta “Referencia de la rama” mantiene compatibilidad con funciones antiguas que esperan una sola categoría; <strong className="text-[#8995a4]">no limita</strong> la pertenencia del alumno a las demás categorías seleccionadas.
+        <p className="mt-3 text-[11px] leading-5 text-[#657064]">
+          La etiqueta “Referencia de la rama” mantiene compatibilidad con funciones antiguas que esperan una sola categoría; <strong className="text-[#111711]">no limita</strong> la pertenencia del alumno a las demás categorías seleccionadas.
         </p>
       ) : null}
 
