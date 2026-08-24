@@ -1,0 +1,106 @@
+/* Dashboard Lestra — minimal negro / verde / blanco.
+ * Se carga al final de la cascada para neutralizar estilos heredados azules.
+ */
+
+.lestra-director-main .new-era-dashboard .new-era-hero {
+  position: relative !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(202,255,0,.18) !important;
+  border-radius: 30px !important;
+  background: #0b0f0c !important;
+  background-image: none !important;
+  box-shadow: 0 18px 44px rgba(11,15,12,.12) !important;
+}
+
+.lestra-director-main .new-era-dashboard .new-era-hero::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  background: linear-gradient(90deg, rgba(202,255,0,.035), transparent 24%, transparent 100%) !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main .new-era-dashboard .new-era-hero::after {
+  content: '' !important;
+  position: absolute !important;
+  width: 82px !important;
+  height: 8px !important;
+  right: 24px !important;
+  bottom: 22px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: #caff00 !important;
+  transform: rotate(-16deg) !important;
+  opacity: .95 !important;
+}
+
+.lestra-director-main .new-era-dashboard .new-era-eyebrow {
+  color: #caff00 !important;
+  letter-spacing: .14em !important;
+}
+
+.lestra-director-main .new-era-dashboard .new-era-eyebrow::before {
+  width: 6px !important;
+  height: 6px !important;
+  background: #caff00 !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main .new-era-dashboard .new-era-hero h1 {
+  color: #ffffff !important;
+  text-shadow: none !important;
+}
+
+.lestra-director-main .new-era-dashboard .new-era-hero p {
+  color: #c3cbc3 !important;
+}
+
+/* Chips del hero: solo lima, negro y blanco. */
+.lestra-director-main .new-era-dashboard .new-era-hero div.mt-5 > span:first-child {
+  border: 1px solid #caff00 !important;
+  background: #caff00 !important;
+  color: #0b0f0c !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main .new-era-dashboard .new-era-hero div.mt-5 > span:not(:first-child) {
+  border: 1px solid rgba(255,255,255,.16) !important;
+  background: rgba(255,255,255,.055) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main .new-era-dashboard .new-era-status,
+.lestra-director-main .new-era-dashboard .new-era-status.is-alert,
+.lestra-director-main .new-era-dashboard .new-era-status.is-clear {
+  border: 1px solid rgba(255,255,255,.16) !important;
+  background: rgba(255,255,255,.055) !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main .new-era-dashboard .new-era-status.is-alert::before,
+.lestra-director-main .new-era-dashboard .new-era-status.is-clear::before {
+  background: #caff00 !important;
+  box-shadow: none !important;
+}
+
+/* Elimina los últimos acentos azules del propio dashboard. */
+.lestra-director-main .new-era-dashboard .new-era-kpi.is-blue .new-era-kpi-icon {
+  border: 1px solid rgba(202,255,0,.45) !important;
+  background: #caff00 !important;
+  color: #0b0f0c !important;
+}
+
+.lestra-director-main .new-era-dashboard .new-era-bar.is-blue {
+  background: #0b0f0c !important;
+}
+
+@media (max-width: 640px) {
+  .lestra-director-main .new-era-dashboard .new-era-hero::after {
+    width: 58px !important;
+    right: 18px !important;
+    bottom: 16px !important;
+  }
+}
