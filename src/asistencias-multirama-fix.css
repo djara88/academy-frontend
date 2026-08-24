@@ -1,324 +1,900 @@
-/* Asistencia multirrama — layout definitivo, aislado por ruta.
-   Evita que reglas históricas del módulo antiguo deformen la vista actual. */
-
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl {
-  width: 100% !important;
-  max-width: 1280px !important;
-  margin-inline: auto !important;
-  color: #111711 !important;
+.attendance-page {
+  --att-ink: #0b110d;
+  --att-panel: #ffffff;
+  --att-soft: #f3f6f0;
+  --att-border: #d9e0d6;
+  --att-muted: #657064;
+  --att-lime: #b7ff00;
+  --att-lime-deep: #8eb700;
+  width: min(100%, 1320px);
+  margin: 0 auto;
+  padding-bottom: 4rem;
+  display: grid;
+  gap: 1.4rem;
+  color: var(--att-ink);
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl *,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl * {
-  box-sizing: border-box !important;
+.attendance-page,
+.attendance-page * {
+  box-sizing: border-box;
 }
 
-/* ---------- Navegación de tres pestañas ---------- */
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div {
-  display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  width: min(100%, 430px) !important;
-  min-height: 58px !important;
-  gap: 6px !important;
-  padding: 5px !important;
-  border: 1px solid #d7ded4 !important;
-  border-radius: 15px !important;
-  background: #ffffff !important;
-  box-shadow: 0 8px 24px rgba(15, 23, 16, .05) !important;
-  overflow: hidden !important;
+.attendance-hero {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  min-height: 290px;
+  padding: clamp(2rem, 4vw, 3.35rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+  align-items: end;
+  gap: 2rem;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 34px;
+  background: linear-gradient(132deg, #09100c 0%, #111a13 65%, #11190f 100%);
+  color: #fff;
+  box-shadow: 0 26px 66px rgba(14,22,15,.16);
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div > button,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div > button {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  min-height: 46px !important;
-  height: 46px !important;
-  margin: 0 !important;
-  padding: 0 12px !important;
-  border: 1px solid transparent !important;
-  border-radius: 10px !important;
-  background: #ffffff !important;
-  color: #5f695e !important;
-  -webkit-text-fill-color: #5f695e !important;
-  font-size: 13px !important;
-  font-weight: 900 !important;
-  line-height: 1.05 !important;
-  text-align: center !important;
-  white-space: normal !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  filter: none !important;
-  text-shadow: none !important;
-  box-shadow: none !important;
-  overflow: hidden !important;
+.attendance-hero::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  width: 280px;
+  height: 280px;
+  right: -80px;
+  top: -116px;
+  border: 38px solid rgba(183,255,0,.12);
+  border-radius: 999px;
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div > button[class*="bg-[#289E9D]"],
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div > button[class*="bg-orange-600"],
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div > button[class*="bg-[#289E9D]"],
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div > button[class*="bg-orange-600"] {
-  border-color: #9bc600 !important;
-  background: #b7ff00 !important;
-  color: #111711 !important;
-  -webkit-text-fill-color: #111711 !important;
+.attendance-hero::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 58%;
+  bottom: 18px;
+  width: 320px;
+  height: 1px;
+  transform: rotate(-10deg);
+  background: linear-gradient(90deg, rgba(183,255,0,.45), transparent);
 }
 
-/* ---------- Paneles del contenido ---------- */
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) > div,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) > div {
-  min-width: 0 !important;
-  border-color: #d9e0d6 !important;
-  background: #ffffff !important;
-  color: #111711 !important;
-  box-shadow: 0 12px 30px rgba(15, 23, 16, .045) !important;
+.attendance-eyebrow,
+.attendance-section-label,
+.attendance-section-heading > p {
+  margin: 0;
+  color: var(--att-lime);
+  font-size: .72rem;
+  line-height: 1.2;
+  font-weight: 900;
+  letter-spacing: .14em;
+  text-transform: uppercase;
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) h2,
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) h3,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) h2,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) h3 {
-  color: #111711 !important;
-  -webkit-text-fill-color: #111711 !important;
-  opacity: 1 !important;
+.attendance-hero h1 {
+  margin: .65rem 0 0;
+  max-width: 760px;
+  color: #fff;
+  font-size: clamp(3rem, 5vw, 5.3rem);
+  line-height: .94;
+  letter-spacing: -.055em;
+  font-weight: 900;
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) p,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) p {
-  opacity: 1 !important;
+.attendance-hero-description {
+  margin: 1.15rem 0 0;
+  max-width: 720px;
+  color: #c9d1c9;
+  font-size: 1rem;
+  line-height: 1.65;
 }
 
-/* ---------- Formulario Configurar sesión ---------- */
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child > .mt-4.space-y-3,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child > .mt-4.space-y-3 {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 12px !important;
-  width: 100% !important;
+.attendance-branch-control {
+  align-self: end;
+  display: grid;
+  gap: .55rem;
+  padding: 1.15rem;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 18px;
+  background: rgba(255,255,255,.055);
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child > .mt-4.space-y-3 > *,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child > .mt-4.space-y-3 > * {
-  width: 100% !important;
-  min-width: 0 !important;
-  margin-top: 0 !important;
+.attendance-branch-control > span {
+  color: var(--att-lime);
+  font-size: .7rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child > .mt-4.space-y-3 > div.grid,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child > .mt-4.space-y-3 > div.grid {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 10px !important;
+.attendance-branch-control select,
+.attendance-field-block :is(input, select, textarea),
+.attendance-search-box input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--att-border);
+  border-radius: 14px;
+  background: var(--att-soft);
+  color: var(--att-ink);
+  font: inherit;
+  font-size: .94rem;
+  font-weight: 750;
+  outline: none;
+  transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) :is(input:not([type="checkbox"]), select, textarea),
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) :is(input:not([type="checkbox"]), select, textarea) {
-  display: block !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
-  min-height: 48px !important;
-  height: 48px !important;
-  margin: 0 !important;
-  padding: 0 14px !important;
-  border: 1px solid #d4ddd0 !important;
-  border-radius: 13px !important;
-  background: #f3f6f0 !important;
-  color: #111711 !important;
-  -webkit-text-fill-color: #111711 !important;
-  font-size: 14px !important;
-  font-weight: 750 !important;
-  line-height: 1.2 !important;
-  outline: none !important;
-  opacity: 1 !important;
-  box-shadow: none !important;
+.attendance-branch-control select {
+  min-height: 52px;
+  padding: 0 2.8rem 0 .95rem;
+  border-color: rgba(255,255,255,.18);
+  background: rgba(255,255,255,.07);
+  color: #fff;
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) textarea,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) textarea {
-  min-height: 92px !important;
-  height: auto !important;
-  padding-block: 12px !important;
-  resize: vertical !important;
+.attendance-branch-control select option {
+  background: #fff;
+  color: var(--att-ink);
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) :is(input:not([type="checkbox"]), select, textarea):focus,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) :is(input:not([type="checkbox"]), select, textarea):focus {
-  border-color: #8eb700 !important;
-  box-shadow: 0 0 0 3px rgba(183,255,0,.13) !important;
+.attendance-tabs {
+  width: min(100%, 460px);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .4rem;
+  padding: .35rem;
+  border: 1px solid var(--att-border);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(15,23,16,.05);
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl input[type="checkbox"],
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl input[type="checkbox"] {
-  width: 18px !important;
-  min-width: 18px !important;
-  height: 18px !important;
-  min-height: 18px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  accent-color: #9fcf00 !important;
+.attendance-tabs button {
+  min-width: 0;
+  min-height: 48px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: transparent;
+  color: #687367;
+  font-size: .86rem;
+  font-weight: 900;
+  line-height: 1.1;
+  cursor: pointer;
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child label,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child label {
-  color: #566255 !important;
-  -webkit-text-fill-color: #566255 !important;
-  font-weight: 800 !important;
-  opacity: 1 !important;
+.attendance-tabs button[data-active='true'] {
+  border-color: #263026;
+  background: var(--att-ink);
+  color: var(--att-lime);
+  box-shadow: inset 0 0 0 1px rgba(183,255,0,.15);
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child button,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child button {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  min-height: 48px !important;
-  height: 48px !important;
-  margin: 0 !important;
-  padding: 0 16px !important;
-  border: 1px solid #9bc600 !important;
-  border-radius: 13px !important;
-  background: #b7ff00 !important;
-  color: #111711 !important;
-  -webkit-text-fill-color: #111711 !important;
-  font-size: 14px !important;
-  font-weight: 900 !important;
-  line-height: 1 !important;
-  box-shadow: none !important;
-  opacity: 1 !important;
+.attendance-workspace {
+  display: grid;
+  grid-template-columns: minmax(350px, .78fr) minmax(0, 2fr);
+  gap: 1rem;
+  align-items: stretch;
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child button:disabled,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child button:disabled {
-  border-color: #d9e0d6 !important;
-  background: #e9eee6 !important;
-  color: #778176 !important;
-  -webkit-text-fill-color: #778176 !important;
+.attendance-session-card,
+.attendance-roster-card,
+.attendance-panel {
+  min-width: 0;
+  border: 1px solid var(--att-border);
+  border-radius: 24px;
+  background: var(--att-panel);
+  box-shadow: 0 14px 36px rgba(15,23,16,.045);
 }
 
-/* ---------- Lista de alumnos ---------- */
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:nth-child(2) > div:first-child,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:nth-child(2) > div:first-child {
-  border-color: #dce3d9 !important;
-  background: #ffffff !important;
+.attendance-session-card {
+  padding: 1.15rem;
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:nth-child(2) > div:first-child h2,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:nth-child(2) > div:first-child h2 {
-  color: #111711 !important;
-  -webkit-text-fill-color: #111711 !important;
+.attendance-section-heading {
+  display: grid;
+  gap: .28rem;
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:nth-child(2) > div:first-child p,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:nth-child(2) > div:first-child p {
-  color: #657064 !important;
-  -webkit-text-fill-color: #657064 !important;
+.attendance-section-heading > p {
+  color: #75806f;
 }
 
-/* El contenedor vacío de la lista no debe parecer un botón negro gigante. */
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl [class*="max-h-[620px]"],
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl [class*="max-h-[620px]"] {
-  min-height: 280px !important;
-  padding: 18px !important;
-  background: #ffffff !important;
-  color: #5f6b5e !important;
+.attendance-section-heading h2,
+.attendance-roster-title-row h2 {
+  margin: 0;
+  color: var(--att-ink);
+  font-size: 1.4rem;
+  line-height: 1.12;
+  letter-spacing: -.025em;
+  font-weight: 900;
 }
 
-/* Tarjeta individual: negra, compacta y legible. */
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl [class*="max-h-[620px]"] > div[class*="bg-[#0d1117]"],
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl [class*="max-h-[620px]"] > div[class*="bg-[#0d1117]"] {
-  border-color: #283228 !important;
-  background: #111711 !important;
-  color: #ffffff !important;
+.attendance-section-heading > span {
+  color: var(--att-muted);
+  font-size: .88rem;
+  line-height: 1.45;
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl [class*="max-h-[620px]"] > div[class*="bg-[#0d1117]"] p[class*="text-white"],
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl [class*="max-h-[620px]"] > div[class*="bg-[#0d1117]"] p[class*="text-white"] {
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
+.attendance-session-form {
+  margin-top: 1rem;
+  padding: 1rem;
+  display: grid;
+  gap: .8rem;
+  border-radius: 18px;
+  background: var(--att-ink);
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl [class*="max-h-[620px]"] button,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl [class*="max-h-[620px]"] button {
-  min-width: 0 !important;
-  min-height: 40px !important;
-  margin: 0 !important;
-  border-radius: 9px !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  filter: none !important;
+.attendance-field-block {
+  min-width: 0;
+  display: grid;
+  gap: .38rem;
 }
 
-/* ---------- Reportes ---------- */
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.space-y-5 > div:first-child > div:first-child,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.space-y-5 > div:first-child > div:first-child {
-  gap: 16px !important;
+.attendance-field-block > span {
+  color: #697468;
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .04em;
+  text-transform: uppercase;
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.space-y-5 button,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.space-y-5 button {
-  min-height: 44px !important;
-  padding-inline: 14px !important;
-  border: 1px solid #111711 !important;
-  border-radius: 11px !important;
-  background: #111711 !important;
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-  font-weight: 900 !important;
-  opacity: 1 !important;
+.attendance-session-form .attendance-field-block > span {
+  color: #b9c2b8;
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.space-y-5 button[class*="bg-[#289E9D]"],
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.space-y-5 button[class*="bg-[#289E9D]"] {
-  border-color: #9bc600 !important;
-  background: #b7ff00 !important;
-  color: #111711 !important;
-  -webkit-text-fill-color: #111711 !important;
+.attendance-field-block :is(input, select) {
+  min-height: 50px;
+  height: 50px;
+  padding: 0 .95rem;
 }
 
-/* ---------- Hero select: mantenerlo oscuro y legible ---------- */
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:first-child select,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:first-child select {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-height: 54px !important;
-  border: 1px solid rgba(255,255,255,.22) !important;
-  border-radius: 14px !important;
-  background: rgba(255,255,255,.065) !important;
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-  opacity: 1 !important;
+.attendance-field-block textarea {
+  min-height: 94px;
+  padding: .85rem .95rem;
+  resize: vertical;
 }
 
-.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:first-child select option,
-.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:first-child select option {
-  background: #ffffff !important;
-  color: #111711 !important;
+.attendance-field-block :is(input, select, textarea):focus,
+.attendance-search-box input:focus {
+  border-color: var(--att-lime-deep);
+  box-shadow: 0 0 0 3px rgba(183,255,0,.14);
+  background: #fff;
 }
 
-@media (max-width: 900px) {
-  .lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid,
-  .lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid {
-    grid-template-columns: 1fr !important;
+.attendance-date-time-grid {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(168px, 1.2fr) minmax(124px, .8fr);
+  gap: .65rem;
+}
+
+.attendance-date-field input[type='date'] {
+  min-width: 168px;
+  padding-right: .55rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.attendance-time-field input[type='time'] {
+  min-width: 124px;
+  font-variant-numeric: tabular-nums;
+}
+
+.attendance-recovery-toggle {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  color: #dce3db;
+  font-size: .9rem;
+  font-weight: 750;
+}
+
+.attendance-recovery-toggle input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--att-lime);
+}
+
+.attendance-primary-button,
+.attendance-secondary-button,
+.attendance-dark-button {
+  min-height: 48px;
+  border-radius: 13px;
+  font-size: .9rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform .14s ease, background .14s ease, border-color .14s ease;
+}
+
+.attendance-primary-button {
+  width: 100%;
+  border: 1px solid #97c500;
+  background: var(--att-lime);
+  color: var(--att-ink);
+}
+
+.attendance-primary-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: #c5ff2b;
+}
+
+.attendance-primary-button:disabled {
+  border-color: #485248;
+  background: #323b32;
+  color: #899388;
+  cursor: not-allowed;
+}
+
+.attendance-roster-card {
+  overflow: hidden;
+}
+
+.attendance-roster-header {
+  padding: 1.25rem 1.35rem;
+  border-bottom: 1px solid var(--att-border);
+}
+
+.attendance-roster-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.attendance-section-label {
+  color: #75806f;
+}
+
+.attendance-roster-title-row h2 {
+  margin-top: .3rem;
+}
+
+.attendance-roster-description {
+  margin: .35rem 0 0;
+  color: var(--att-muted);
+  font-size: .9rem;
+  line-height: 1.5;
+}
+
+.attendance-count-pill {
+  flex: 0 0 auto;
+  padding: .42rem .75rem;
+  border: 1px solid var(--att-border);
+  border-radius: 999px;
+  background: var(--att-soft);
+  color: #5c675b;
+  font-size: .78rem;
+  font-weight: 900;
+}
+
+.attendance-summary-grid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .65rem;
+}
+
+.attendance-summary-card {
+  min-height: 86px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: .2rem;
+  border: 1px solid var(--att-border);
+  border-bottom-width: 3px;
+  border-radius: 15px;
+  background: #fff;
+  text-align: center;
+}
+
+.attendance-summary-card > span {
+  color: #677267;
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.attendance-summary-card > strong {
+  color: var(--att-ink);
+  font-size: 1.35rem;
+  font-weight: 900;
+}
+
+.attendance-summary-card[data-tone='present'] { border-bottom-color: #34c77b; background: #f0fbf5; }
+.attendance-summary-card[data-tone='absent'] { border-bottom-color: #f05a61; background: #fff3f4; }
+.attendance-summary-card[data-tone='justified'] { border-bottom-color: #e8a825; background: #fff9ed; }
+
+.attendance-search-row {
+  margin-top: .75rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: .55rem;
+}
+
+.attendance-search-box {
+  position: relative;
+  min-width: 0;
+}
+
+.attendance-search-box input {
+  min-height: 50px;
+  height: 50px;
+  padding: 0 3.2rem 0 1rem;
+}
+
+.attendance-search-box svg {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  width: 19px;
+  height: 19px;
+  transform: translateY(-50%);
+  color: #687468;
+  pointer-events: none;
+}
+
+.attendance-secondary-button {
+  padding: 0 1.1rem;
+  border: 1px solid #bee7d1;
+  background: #effaf4;
+  color: #16452f;
+}
+
+.attendance-dark-button {
+  padding: 0 1rem;
+  border: 1px solid #263026;
+  background: var(--att-ink);
+  color: #fff;
+}
+
+.attendance-roster-list {
+  min-height: 300px;
+  max-height: 620px;
+  overflow-y: auto;
+  padding: 1rem;
+  display: grid;
+  align-content: start;
+  gap: .65rem;
+  background: #f8faf7;
+}
+
+.attendance-student-row {
+  min-width: 0;
+  padding: .8rem .9rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid var(--att-border);
+  border-radius: 16px;
+  background: #fff;
+  transition: border-color .16s ease, box-shadow .16s ease;
+}
+
+.attendance-student-row:hover {
+  border-color: #b8c7b6;
+  box-shadow: 0 8px 22px rgba(15,23,16,.045);
+}
+
+.attendance-student-identity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+}
+
+.attendance-student-index {
+  width: 1.8rem;
+  flex: 0 0 auto;
+  color: #707b6f;
+  font-size: .68rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.attendance-student-identity img,
+.attendance-student-avatar {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  border: 1px solid var(--att-border);
+  border-radius: 14px;
+  object-fit: cover;
+}
+
+.attendance-student-avatar {
+  display: grid;
+  place-items: center;
+  background: #eef5dc;
+  color: #647d00;
+  font-size: .82rem;
+  font-weight: 900;
+}
+
+.attendance-student-copy {
+  min-width: 0;
+}
+
+.attendance-student-name-line {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  flex-wrap: wrap;
+}
+
+.attendance-student-name-line > strong {
+  min-width: 0;
+  color: #263127;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.attendance-medical-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  padding: .2rem .45rem;
+  border: 1px solid #ead59a;
+  border-radius: 999px;
+  background: #fff9e8;
+  color: #7e5c00;
+  font-size: .62rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.attendance-medical-badge svg {
+  width: 13px;
+  height: 13px;
+}
+
+.attendance-student-meta {
+  margin-top: .25rem;
+  display: flex;
+  gap: .35rem .75rem;
+  flex-wrap: wrap;
+  color: #687468;
+  font-size: .76rem;
+  font-weight: 700;
+}
+
+.attendance-status-control {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(78px, 1fr));
+  gap: .25rem;
+  padding: .3rem;
+  border: 1px solid var(--att-border);
+  border-radius: 13px;
+  background: var(--att-soft);
+}
+
+.attendance-status-control button {
+  min-height: 40px;
+  padding: 0 .65rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .35rem;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: #445044;
+  font-size: .75rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.attendance-status-control button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.attendance-status-control button[data-selected='true'][data-status='present'] {
+  border-color: #98c600;
+  background: var(--att-lime);
+  color: var(--att-ink);
+}
+
+.attendance-status-control button[data-selected='true'][data-status='absent'] {
+  border-color: #202820;
+  background: var(--att-ink);
+  color: #fff;
+}
+
+.attendance-status-control button[data-selected='true'][data-status='justified'] {
+  border-color: #e1b341;
+  background: #fff2c6;
+  color: #624900;
+}
+
+.attendance-empty-state,
+.attendance-info-state {
+  min-height: 130px;
+  padding: 1rem;
+  display: grid;
+  place-items: center;
+  border: 1px dashed #ced7cb;
+  border-radius: 16px;
+  color: #6a7569;
+  font-size: .9rem;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.attendance-info-state {
+  min-height: auto;
+  border-style: solid;
+  background: #f7faed;
+  color: #4d594d;
+}
+
+.attendance-two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.attendance-panel {
+  padding: 1.25rem;
+}
+
+.attendance-suspended-list,
+.attendance-reschedule-form,
+.attendance-report-form,
+.attendance-category-metrics {
+  margin-top: 1rem;
+  display: grid;
+  gap: .7rem;
+}
+
+.attendance-suspended-list > button {
+  padding: .9rem 1rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: .25rem .7rem;
+  border: 1px solid var(--att-border);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--att-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.attendance-suspended-list > button > strong {
+  font-size: .92rem;
+  font-weight: 900;
+}
+
+.attendance-suspended-list > button > span {
+  color: #667166;
+  font-size: .8rem;
+  font-weight: 800;
+}
+
+.attendance-suspended-list > button > small {
+  grid-column: 1 / -1;
+  color: #778277;
+  font-size: .78rem;
+}
+
+.attendance-suspended-list > button[data-selected='true'] {
+  border-color: #283228;
+  background: var(--att-ink);
+  color: #fff;
+}
+
+.attendance-suspended-list > button[data-selected='true'] :is(span, small) {
+  color: #c9d1c9;
+}
+
+.attendance-selected-class {
+  padding: .9rem 1rem;
+  display: grid;
+  gap: .2rem;
+  border: 1px solid #cfe497;
+  border-radius: 14px;
+  background: #f5fbdf;
+}
+
+.attendance-selected-class strong {
+  color: var(--att-ink);
+  font-weight: 900;
+}
+
+.attendance-selected-class span {
+  color: #697469;
+  font-size: .8rem;
+}
+
+.attendance-dashboard {
+  display: grid;
+  gap: 1rem;
+}
+
+.attendance-dashboard-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.attendance-dashboard-period {
+  display: grid;
+  grid-template-columns: 105px 118px auto;
+  gap: .55rem;
+  align-items: end;
+}
+
+.attendance-kpi-grid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .7rem;
+}
+
+.attendance-kpi {
+  min-height: 108px;
+  padding: .9rem;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: .25rem;
+  border: 1px solid var(--att-border);
+  border-radius: 16px;
+  background: #fff;
+  text-align: center;
+}
+
+.attendance-kpi span {
+  color: #6a7569;
+  font-size: .72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.attendance-kpi strong {
+  color: var(--att-ink);
+  font-size: 1.8rem;
+  font-weight: 900;
+}
+
+.attendance-kpi[data-accent='lime'] {
+  border-color: #c8e57a;
+  background: #f5fbdf;
+}
+
+.attendance-category-metrics > div:not(.attendance-empty-state) {
+  min-height: 48px;
+  padding: 0 .9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .8rem;
+  border: 1px solid var(--att-border);
+  border-radius: 13px;
+  background: #fff;
+}
+
+.attendance-category-metrics span {
+  color: #566256;
+  font-size: .88rem;
+  font-weight: 750;
+}
+
+.attendance-category-metrics strong {
+  color: #607900;
+  font-weight: 900;
+}
+
+@media (max-width: 1080px) {
+  .attendance-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .attendance-branch-control {
+    width: min(100%, 620px);
+  }
+
+  .attendance-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .attendance-session-card {
+    display: grid;
+    grid-template-columns: minmax(220px, .65fr) minmax(0, 1.35fr);
+    gap: 1rem;
+  }
+
+  .attendance-session-form {
+    margin-top: 0;
   }
 }
 
-@media (max-width: 640px) {
-  .lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div,
-  .lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div {
-    grid-template-columns: 1fr !important;
-    width: 100% !important;
+@media (max-width: 820px) {
+  .attendance-two-column,
+  .attendance-kpi-grid {
+    grid-template-columns: 1fr 1fr;
   }
 
-  .lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child > .mt-4.space-y-3 > div.grid,
-  .lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child > .mt-4.space-y-3 > div.grid {
-    grid-template-columns: 1fr !important;
+  .attendance-student-row {
+    grid-template-columns: 1fr;
+  }
+
+  .attendance-status-control {
+    width: 100%;
+  }
+
+  .attendance-dashboard-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 680px) {
+  .attendance-page {
+    gap: 1rem;
+  }
+
+  .attendance-hero {
+    min-height: 0;
+    padding: 1.45rem;
+    border-radius: 26px;
+  }
+
+  .attendance-hero h1 {
+    font-size: clamp(2.6rem, 13vw, 4rem);
+  }
+
+  .attendance-tabs {
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
+
+  .attendance-session-card {
+    display: block;
+  }
+
+  .attendance-session-form {
+    margin-top: 1rem;
+  }
+
+  .attendance-date-time-grid,
+  .attendance-summary-grid,
+  .attendance-two-column,
+  .attendance-kpi-grid,
+  .attendance-dashboard-period {
+    grid-template-columns: 1fr;
+  }
+
+  .attendance-date-field input[type='date'],
+  .attendance-time-field input[type='time'] {
+    min-width: 0;
+  }
+
+  .attendance-search-row {
+    grid-template-columns: 1fr;
+  }
+
+  .attendance-secondary-button {
+    width: 100%;
+  }
+
+  .attendance-roster-title-row {
+    flex-direction: column;
+  }
+
+  .attendance-student-identity {
+    align-items: flex-start;
+  }
+
+  .attendance-status-control {
+    grid-template-columns: 1fr;
+  }
+
+  .attendance-status-control button {
+    justify-content: flex-start;
+    padding-left: .85rem;
   }
 }
