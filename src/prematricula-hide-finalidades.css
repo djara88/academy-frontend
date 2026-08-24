@@ -1,0 +1,6 @@
+/* Pre-matrícula pública · simplificación de autorizaciones
+   Las finalidades ya no se muestran al apoderado; se conserva el contenido y la decisión individual. */
+
+div.min-h-screen.text-slate-100 > main.mx-auto.max-w-4xl p.mt-2.text-xs.font-semibold.text-slate-400 {
+  display: none !important;
+}
