@@ -1,0 +1,185 @@
+/* Alumnos · listado minimalista Lestra
+   Scope estricto al listado principal para no alterar la ficha individual. */
+
+/* Barra de búsqueda y filtros */
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(2) {
+  border: 1px solid #d9dfd5 !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  border-radius: 20px !important;
+  padding: 14px !important;
+  box-shadow: 0 10px 30px rgba(16, 21, 15, 0.06) !important;
+}
+
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(2) input,
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(2) select {
+  min-height: 46px !important;
+  border: 1px solid #e0e5dd !important;
+  background: #f3f5f1 !important;
+  color: #10150f !important;
+  border-radius: 14px !important;
+  font-weight: 650 !important;
+  box-shadow: none !important;
+}
+
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(2) input::placeholder {
+  color: #7d877b !important;
+  opacity: 1 !important;
+}
+
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(2) input:focus,
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(2) select:focus {
+  border-color: #aee900 !important;
+  box-shadow: 0 0 0 3px rgba(183, 255, 0, 0.14) !important;
+  outline: none !important;
+}
+
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(2) svg {
+  color: #667063 !important;
+}
+
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(2) > div > div:last-child {
+  min-height: 46px !important;
+  border: 1px solid #111711 !important;
+  background: #111711 !important;
+  color: #ffffff !important;
+  border-radius: 14px !important;
+  padding-inline: 18px !important;
+  font-weight: 800 !important;
+  white-space: nowrap !important;
+}
+
+/* Grid de alumnos: tarjetas de ancho controlado y lectura rápida */
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 360px)) !important;
+  gap: 16px !important;
+  justify-content: start !important;
+  align-items: stretch !important;
+}
+
+/* Card */
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button {
+  position: relative !important;
+  min-height: 220px !important;
+  overflow: hidden !important;
+  border: 1px solid #dce2d9 !important;
+  border-left: 3px solid #b7ff00 !important;
+  background: #ffffff !important;
+  border-radius: 22px !important;
+  padding: 18px !important;
+  color: #111711 !important;
+  box-shadow: 0 12px 32px rgba(15, 23, 16, 0.07) !important;
+  transform: none !important;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease !important;
+}
+
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button:hover {
+  border-color: #b7ff00 !important;
+  border-left-color: #b7ff00 !important;
+  box-shadow: 0 18px 40px rgba(15, 23, 16, 0.11) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Foto / avatar */
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button img {
+  width: 64px !important;
+  height: 64px !important;
+  border: 1px solid #dfe5dc !important;
+  border-radius: 18px !important;
+  background: #f3f5f1 !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 16, 0.08) !important;
+}
+
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button > div:first-child > div:first-child:not(:has(img)) {
+  border-color: rgba(183, 255, 0, 0.45) !important;
+  background: #eef9c8 !important;
+  color: #4d6700 !important;
+}
+
+/* Nombre, documento y flecha */
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) h2 {
+  color: #111711 !important;
+  font-size: 17px !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.015em !important;
+}
+
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) h2 + p {
+  color: #747f72 !important;
+  font-size: 11px !important;
+  font-weight: 650 !important;
+}
+
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) h2 ~ svg,
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) .group svg {
+  color: #789700 !important;
+}
+
+/* Disciplina + categoría: sin violeta */
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) span {
+  border: 1px solid #d5e6a8 !important;
+  background: #f2f8de !important;
+  color: #536d00 !important;
+  border-radius: 999px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+}
+
+/* Métricas inferiores */
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button > div:last-child {
+  margin-top: 18px !important;
+  padding-top: 15px !important;
+  border-color: #e4e9e1 !important;
+  gap: 0 !important;
+}
+
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button > div:last-child > div {
+  min-width: 0 !important;
+  padding: 0 10px !important;
+}
+
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button > div:last-child > div + div {
+  border-left: 1px solid #e6ebe3 !important;
+}
+
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button > div:last-child p:first-child {
+  color: #838c80 !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+}
+
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button > div:last-child p:last-child {
+  color: #111711 !important;
+  font-weight: 900 !important;
+}
+
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button > div:last-child > div:nth-child(2) p:last-child {
+  color: #789700 !important;
+}
+
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button > div:last-child > div:nth-child(3) p:last-child {
+  color: #527000 !important;
+}
+
+/* Estado vacío */
+div.mx-auto.max-w-7xl.space-y-6.pb-16 > div:last-child {
+  border: 1px dashed #cfd7cc !important;
+  background: #ffffff !important;
+  color: #6e796c !important;
+  border-radius: 22px !important;
+}
+
+@media (max-width: 767px) {
+  div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(2) {
+    padding: 12px !important;
+  }
+
+  div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) {
+    grid-template-columns: 1fr !important;
+  }
+
+  div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button {
+    min-height: 0 !important;
+  }
+}
