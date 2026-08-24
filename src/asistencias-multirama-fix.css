@@ -1,0 +1,324 @@
+/* Asistencia multirrama — layout definitivo, aislado por ruta.
+   Evita que reglas históricas del módulo antiguo deformen la vista actual. */
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl {
+  width: 100% !important;
+  max-width: 1280px !important;
+  margin-inline: auto !important;
+  color: #111711 !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl *,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl * {
+  box-sizing: border-box !important;
+}
+
+/* ---------- Navegación de tres pestañas ---------- */
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  width: min(100%, 430px) !important;
+  min-height: 58px !important;
+  gap: 6px !important;
+  padding: 5px !important;
+  border: 1px solid #d7ded4 !important;
+  border-radius: 15px !important;
+  background: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 16, .05) !important;
+  overflow: hidden !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div > button,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div > button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 46px !important;
+  height: 46px !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  color: #5f695e !important;
+  -webkit-text-fill-color: #5f695e !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  line-height: 1.05 !important;
+  text-align: center !important;
+  white-space: normal !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div > button[class*="bg-[#289E9D]"],
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div > button[class*="bg-orange-600"],
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div > button[class*="bg-[#289E9D]"],
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div > button[class*="bg-orange-600"] {
+  border-color: #9bc600 !important;
+  background: #b7ff00 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+}
+
+/* ---------- Paneles del contenido ---------- */
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) > div,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) > div {
+  min-width: 0 !important;
+  border-color: #d9e0d6 !important;
+  background: #ffffff !important;
+  color: #111711 !important;
+  box-shadow: 0 12px 30px rgba(15, 23, 16, .045) !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) h2,
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) h3,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) h2,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) h3 {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) p,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) p {
+  opacity: 1 !important;
+}
+
+/* ---------- Formulario Configurar sesión ---------- */
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child > .mt-4.space-y-3,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child > .mt-4.space-y-3 {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  width: 100% !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child > .mt-4.space-y-3 > *,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child > .mt-4.space-y-3 > * {
+  width: 100% !important;
+  min-width: 0 !important;
+  margin-top: 0 !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child > .mt-4.space-y-3 > div.grid,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child > .mt-4.space-y-3 > div.grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) :is(input:not([type="checkbox"]), select, textarea),
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) :is(input:not([type="checkbox"]), select, textarea) {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  min-height: 48px !important;
+  height: 48px !important;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  border: 1px solid #d4ddd0 !important;
+  border-radius: 13px !important;
+  background: #f3f6f0 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  font-size: 14px !important;
+  font-weight: 750 !important;
+  line-height: 1.2 !important;
+  outline: none !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) textarea,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) textarea {
+  min-height: 92px !important;
+  height: auto !important;
+  padding-block: 12px !important;
+  resize: vertical !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) :is(input:not([type="checkbox"]), select, textarea):focus,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:not(:first-child) :is(input:not([type="checkbox"]), select, textarea):focus {
+  border-color: #8eb700 !important;
+  box-shadow: 0 0 0 3px rgba(183,255,0,.13) !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl input[type="checkbox"],
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl input[type="checkbox"] {
+  width: 18px !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  min-height: 18px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  accent-color: #9fcf00 !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child label,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child label {
+  color: #566255 !important;
+  -webkit-text-fill-color: #566255 !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child button,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 48px !important;
+  height: 48px !important;
+  margin: 0 !important;
+  padding: 0 16px !important;
+  border: 1px solid #9bc600 !important;
+  border-radius: 13px !important;
+  background: #b7ff00 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child button:disabled,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child button:disabled {
+  border-color: #d9e0d6 !important;
+  background: #e9eee6 !important;
+  color: #778176 !important;
+  -webkit-text-fill-color: #778176 !important;
+}
+
+/* ---------- Lista de alumnos ---------- */
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:nth-child(2) > div:first-child,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:nth-child(2) > div:first-child {
+  border-color: #dce3d9 !important;
+  background: #ffffff !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:nth-child(2) > div:first-child h2,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:nth-child(2) > div:first-child h2 {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:nth-child(2) > div:first-child p,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:nth-child(2) > div:first-child p {
+  color: #657064 !important;
+  -webkit-text-fill-color: #657064 !important;
+}
+
+/* El contenedor vacío de la lista no debe parecer un botón negro gigante. */
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl [class*="max-h-[620px]"],
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl [class*="max-h-[620px]"] {
+  min-height: 280px !important;
+  padding: 18px !important;
+  background: #ffffff !important;
+  color: #5f6b5e !important;
+}
+
+/* Tarjeta individual: negra, compacta y legible. */
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl [class*="max-h-[620px]"] > div[class*="bg-[#0d1117]"],
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl [class*="max-h-[620px]"] > div[class*="bg-[#0d1117]"] {
+  border-color: #283228 !important;
+  background: #111711 !important;
+  color: #ffffff !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl [class*="max-h-[620px]"] > div[class*="bg-[#0d1117]"] p[class*="text-white"],
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl [class*="max-h-[620px]"] > div[class*="bg-[#0d1117]"] p[class*="text-white"] {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl [class*="max-h-[620px]"] button,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl [class*="max-h-[620px]"] button {
+  min-width: 0 !important;
+  min-height: 40px !important;
+  margin: 0 !important;
+  border-radius: 9px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+}
+
+/* ---------- Reportes ---------- */
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.space-y-5 > div:first-child > div:first-child,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.space-y-5 > div:first-child > div:first-child {
+  gap: 16px !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.space-y-5 button,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.space-y-5 button {
+  min-height: 44px !important;
+  padding-inline: 14px !important;
+  border: 1px solid #111711 !important;
+  border-radius: 11px !important;
+  background: #111711 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.space-y-5 button[class*="bg-[#289E9D]"],
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.space-y-5 button[class*="bg-[#289E9D]"] {
+  border-color: #9bc600 !important;
+  background: #b7ff00 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+}
+
+/* ---------- Hero select: mantenerlo oscuro y legible ---------- */
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:first-child select,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:first-child select {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 54px !important;
+  border: 1px solid rgba(255,255,255,.22) !important;
+  border-radius: 14px !important;
+  background: rgba(255,255,255,.065) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:first-child select option,
+.lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:first-child select option {
+  background: #ffffff !important;
+  color: #111711 !important;
+}
+
+@media (max-width: 900px) {
+  .lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid,
+  .lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div,
+  .lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section:first-child + div {
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child > .mt-4.space-y-3 > div.grid,
+  .lestra-director-main[data-route^="/asistencias?"] .app-content > div.mx-auto.max-w-7xl > section.grid > div:first-child > .mt-4.space-y-3 > div.grid {
+    grid-template-columns: 1fr !important;
+  }
+}
