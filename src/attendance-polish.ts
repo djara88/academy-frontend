@@ -21,6 +21,7 @@ const markAttendancePage = () => {
     tabs.classList.add('lestra-attendance-tabs');
     [passList, reschedule, dashboard].forEach((button) => {
       button.classList.add('lestra-attendance-tab');
+      button.dataset.label = normalize(button.textContent);
       const active = button.className.includes('bg-[#289E9D]') || button.className.includes('bg-orange-600');
       button.dataset.active = active ? 'true' : 'false';
     });
