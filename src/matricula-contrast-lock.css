@@ -1,0 +1,159 @@
+/* Lestra Deportivo — contraste determinista para /matricula.
+ * Solo presentación: no modifica lógica ni layout funcional.
+ * Se carga al final de la cascada para neutralizar estilos históricos.
+ */
+
+/* --------------------------------------------------------------------------
+   HERO — tarjeta clara PROCESO
+   -------------------------------------------------------------------------- */
+
+#root .lestra-director-main[data-route="/matricula"] .director-module-hero .director-module-hero-aside > .grid > :first-child,
+#root .lestra-director-main[data-route="/matricula"] .director-module-hero .director-module-hero-aside > .grid > :first-child * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+  -webkit-text-stroke: 0 transparent !important;
+  clip: auto !important;
+  clip-path: none !important;
+  -webkit-mask: none !important;
+  mask: none !important;
+}
+
+#root .lestra-director-main[data-route="/matricula"] .director-module-hero .director-module-hero-aside > .grid > :first-child {
+  position: relative !important;
+  z-index: 30 !important;
+  min-height: 118px !important;
+  background: #eef1eb !important;
+  background-image: none !important;
+  border-color: #cfd7cc !important;
+  color: #0b110d !important;
+  -webkit-text-fill-color: #0b110d !important;
+}
+
+#root .lestra-director-main[data-route="/matricula"] .director-module-hero .director-module-hero-aside > .grid > :first-child > :first-child {
+  color: #526b00 !important;
+  -webkit-text-fill-color: #526b00 !important;
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+  font-weight: 900 !important;
+}
+
+#root .lestra-director-main[data-route="/matricula"] .director-module-hero .director-module-hero-aside > .grid > :first-child > :nth-child(2) {
+  display: block !important;
+  margin-top: 8px !important;
+  min-height: 34px !important;
+  color: #050805 !important;
+  -webkit-text-fill-color: #050805 !important;
+  font-size: 30px !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.035em !important;
+  text-indent: 0 !important;
+  transform: none !important;
+}
+
+#root .lestra-director-main[data-route="/matricula"] .director-module-hero .director-module-hero-aside > .grid > :first-child > :nth-child(3) {
+  margin-top: 6px !important;
+  color: #344034 !important;
+  -webkit-text-fill-color: #344034 !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  font-weight: 700 !important;
+}
+
+/* --------------------------------------------------------------------------
+   HERO — tarjeta PENDIENTES
+   -------------------------------------------------------------------------- */
+
+#root .lestra-director-main[data-route="/matricula"] .director-module-hero .director-module-hero-aside > .grid > :nth-child(2) {
+  background: #263b12 !important;
+  border-color: #567b16 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#root .lestra-director-main[data-route="/matricula"] .director-module-hero .director-module-hero-aside > .grid > :nth-child(2) > :first-child {
+  color: #c7ff35 !important;
+  -webkit-text-fill-color: #c7ff35 !important;
+  opacity: 1 !important;
+}
+
+#root .lestra-director-main[data-route="/matricula"] .director-module-hero .director-module-hero-aside > .grid > :nth-child(2) > :nth-child(2) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#root .lestra-director-main[data-route="/matricula"] .director-module-hero .director-module-hero-aside > .grid > :nth-child(2) > :nth-child(3) {
+  color: #d8dfd6 !important;
+  -webkit-text-fill-color: #d8dfd6 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* --------------------------------------------------------------------------
+   WIZARD — los cuatro pasos siempre legibles
+   -------------------------------------------------------------------------- */
+
+#root .lestra-director-main[data-route="/matricula"] .director-module-panel > :first-child .grid > button,
+#root .lestra-director-main[data-route="/matricula"] .director-module-panel > :first-child .grid > button * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+  -webkit-text-stroke: 0 transparent !important;
+}
+
+/* Paso activo */
+#root .lestra-director-main[data-route="/matricula"] .director-module-panel > :first-child .grid > button[class*="bg-[#111711]"] {
+  background: #0b110d !important;
+  border-color: #263026 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+#root .lestra-director-main[data-route="/matricula"] .director-module-panel > :first-child .grid > button[class*="bg-[#111711]"] > span {
+  color: #b7ff00 !important;
+  -webkit-text-fill-color: #b7ff00 !important;
+}
+
+#root .lestra-director-main[data-route="/matricula"] .director-module-panel > :first-child .grid > button[class*="bg-[#111711]"] > p {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Pasos ya completados */
+#root .lestra-director-main[data-route="/matricula"] .director-module-panel > :first-child .grid > button[class*="bg-[#f3fadf]"] {
+  background: #f3fadf !important;
+  border-color: #cde995 !important;
+  color: #405800 !important;
+  -webkit-text-fill-color: #405800 !important;
+}
+
+#root .lestra-director-main[data-route="/matricula"] .director-module-panel > :first-child .grid > button[class*="bg-[#f3fadf]"] * {
+  color: #405800 !important;
+  -webkit-text-fill-color: #405800 !important;
+}
+
+/* Pasos pendientes */
+#root .lestra-director-main[data-route="/matricula"] .director-module-panel > :first-child .grid > button[class*="bg-[#f8faf6]"] {
+  background: #f8faf6 !important;
+  border-color: #d8ded5 !important;
+  color: #202820 !important;
+  -webkit-text-fill-color: #202820 !important;
+}
+
+#root .lestra-director-main[data-route="/matricula"] .director-module-panel > :first-child .grid > button[class*="bg-[#f8faf6]"] > span {
+  color: #5f6b60 !important;
+  -webkit-text-fill-color: #5f6b60 !important;
+}
+
+#root .lestra-director-main[data-route="/matricula"] .director-module-panel > :first-child .grid > button[class*="bg-[#f8faf6]"] > p {
+  color: #202820 !important;
+  -webkit-text-fill-color: #202820 !important;
+}
