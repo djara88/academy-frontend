@@ -36,6 +36,7 @@ import './alumno-profile-readability.css';
 import './asistencias-multirama-fix.css';
 import './visual-readability-final.css';
 import './production-contrast-lock.css';
+import './dialog-readability.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
