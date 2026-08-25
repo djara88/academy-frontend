@@ -154,12 +154,7 @@
 
 /* --------------------------------------------------------------------------
    SOLICITUDES — cierre absoluto del cuadro gris "POR GESTIONAR"
-   --------------------------------------------------------------------------
-   Esta regla es deliberadamente específica. En esta pantalla existían varias
-   capas históricas que aplicaban color/text-fill a los hijos del hero. Aquí se
-   fija también display, tamaño y visibilidad para impedir que un 0 o cualquier
-   texto quede visualmente oculto aunque otra hoja intente heredarlo.
- */
+   -------------------------------------------------------------------------- */
 
 .lestra-director-main[data-route="/solicitudes"] .director-module-hero .director-module-hero-aside > .grid > :first-child {
   position: relative !important;
@@ -234,4 +229,59 @@
   font-size: 30px !important;
   line-height: 1 !important;
   font-weight: 900 !important;
+}
+
+/* --------------------------------------------------------------------------
+   SOLICITUDES — lock de máxima especificidad
+   --------------------------------------------------------------------------
+   #root eleva la especificidad por encima de cualquier normalización histórica
+   basada solo en clases. Primero se fuerza TODO el contenido de la tarjeta clara
+   a tinta oscura y luego se aplican los tres niveles de jerarquía.
+ */
+
+#root .lestra-director-main[data-route="/solicitudes"] .director-module-hero .director-module-hero-aside > .grid > :first-child,
+#root .lestra-director-main[data-route="/solicitudes"] .director-module-hero .director-module-hero-aside > .grid > :first-child * {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  -webkit-text-stroke: 0 transparent !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+  clip: auto !important;
+  clip-path: none !important;
+  -webkit-mask: none !important;
+  mask: none !important;
+}
+
+#root .lestra-director-main[data-route="/solicitudes"] .director-module-hero .director-module-hero-aside > .grid > :first-child {
+  background-color: #eef1eb !important;
+  background-image: none !important;
+}
+
+#root .lestra-director-main[data-route="/solicitudes"] .director-module-hero .director-module-hero-aside > .grid > :first-child > :first-child {
+  color: #526b00 !important;
+  -webkit-text-fill-color: #526b00 !important;
+}
+
+#root .lestra-director-main[data-route="/solicitudes"] .director-module-hero .director-module-hero-aside > .grid > :first-child > :nth-child(2) {
+  display: block !important;
+  color: #050805 !important;
+  -webkit-text-fill-color: #050805 !important;
+  font-size: 32px !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+  transform: none !important;
+  text-indent: 0 !important;
+}
+
+#root .lestra-director-main[data-route="/solicitudes"] .director-module-hero .director-module-hero-aside > .grid > :first-child > :nth-child(3) {
+  color: #344034 !important;
+  -webkit-text-fill-color: #344034 !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
 }
