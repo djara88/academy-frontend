@@ -1,0 +1,334 @@
+/* Finanzas Lestra · contrato final de visibilidad
+ * Alcance: /finanzas y /configuracion/finanzas.
+ * Objetivo: preservar las superficies oscuras del motor financiero y garantizar
+ * contraste suficiente frente a los contratos visuales globales del Director.
+ */
+
+/* ---------- SUPERFICIES DEL MOTOR FINANCIERO ---------- */
+.finance-module-scope [class*="bg-[#151b25]"],
+.finance-module-scope [class*="bg-[#151B25]"] {
+  background: #151b25 !important;
+  color: #f4f7f4 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.finance-module-scope [class*="bg-[#0d1117]"],
+.finance-module-scope [class*="bg-[#0D1117]"] {
+  background: #0d1117 !important;
+  color: #f4f7f4 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.finance-module-scope [class*="bg-[#101620]"] {
+  background: #101620 !important;
+  color: #f4f7f4 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Heroes internos con radial oscuro. Las capas globales no pueden aclararlos. */
+.finance-module-scope [class*="radial-gradient"][class*="#151b25"] {
+  background-color: #151b25 !important;
+  color: #f4f7f4 !important;
+  opacity: 1 !important;
+}
+
+/* ---------- TIPOGRAFÍA SOBRE SUPERFICIE OSCURA ---------- */
+.finance-module-scope [class*="bg-[#151b25]"] [class~="text-white"],
+.finance-module-scope [class*="bg-[#0d1117]"] [class~="text-white"],
+.finance-module-scope [class*="bg-[#101620]"] [class~="text-white"],
+.finance-module-scope [class*="radial-gradient"][class*="#151b25"] [class~="text-white"],
+.finance-module-scope [class*="bg-[#151b25]"][class~="text-white"],
+.finance-module-scope [class*="bg-[#0d1117]"][class~="text-white"] {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.finance-module-scope [class*="text-[#697586]"] {
+  color: #a7b2aa !important;
+  -webkit-text-fill-color: #a7b2aa !important;
+  opacity: 1 !important;
+}
+
+.finance-module-scope [class*="text-[#8995a4]"] {
+  color: #bdc7c0 !important;
+  -webkit-text-fill-color: #bdc7c0 !important;
+  opacity: 1 !important;
+}
+
+.finance-module-scope [class*="text-[#b6c0cc]"] {
+  color: #dce4de !important;
+  -webkit-text-fill-color: #dce4de !important;
+  opacity: 1 !important;
+}
+
+.finance-module-scope [class*="text-[#70e4df]"] {
+  color: #8cebe6 !important;
+  -webkit-text-fill-color: #8cebe6 !important;
+  opacity: 1 !important;
+}
+
+.finance-module-scope [class*="text-[#c7d0c8]"] {
+  color: #d8e0da !important;
+  -webkit-text-fill-color: #d8e0da !important;
+  opacity: 1 !important;
+}
+
+.finance-module-scope .text-emerald-300 {
+  color: #8fe3b2 !important;
+  -webkit-text-fill-color: #8fe3b2 !important;
+}
+
+.finance-module-scope .text-amber-300 {
+  color: #f5cf78 !important;
+  -webkit-text-fill-color: #f5cf78 !important;
+}
+
+.finance-module-scope .text-red-300 {
+  color: #ff9a9a !important;
+  -webkit-text-fill-color: #ff9a9a !important;
+}
+
+.finance-module-scope .text-red-200,
+.finance-module-scope [class*="text-red-200"] {
+  color: #ffc0c0 !important;
+  -webkit-text-fill-color: #ffc0c0 !important;
+}
+
+.finance-module-scope .text-violet-300 {
+  color: #cdb9ff !important;
+  -webkit-text-fill-color: #cdb9ff !important;
+}
+
+/* ---------- FILTROS, INPUTS Y SELECTS OSCUROS ---------- */
+.finance-module-scope input[class*="bg-[#0d1117]"],
+.finance-module-scope select[class*="bg-[#0d1117]"],
+.finance-module-scope textarea[class*="bg-[#0d1117]"],
+.finance-module-scope input[class*="bg-[#151b25]"],
+.finance-module-scope select[class*="bg-[#151b25]"],
+.finance-module-scope textarea[class*="bg-[#151b25]"] {
+  border-color: #46515d !important;
+  background: #0d1117 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  color-scheme: dark !important;
+}
+
+.finance-module-scope input[class*="bg-[#0d1117]"]::placeholder,
+.finance-module-scope textarea[class*="bg-[#0d1117]"]::placeholder,
+.finance-module-scope input[class*="bg-[#151b25]"]::placeholder,
+.finance-module-scope textarea[class*="bg-[#151b25]"]::placeholder {
+  color: #a1aca5 !important;
+  -webkit-text-fill-color: #a1aca5 !important;
+  opacity: 1 !important;
+}
+
+.finance-module-scope select[class*="bg-[#0d1117]"] option,
+.finance-module-scope select[class*="bg-[#151b25]"] option {
+  background: #0d1117 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.finance-module-scope input[type="checkbox"] {
+  accent-color: #9ac400 !important;
+}
+
+/* ---------- TABLAS DE CUENTAS, PAGOS, EGRESOS, FLUJO Y COBRANZA ---------- */
+.finance-module-scope table {
+  color: #eef3ef !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.finance-module-scope table thead,
+.finance-module-scope thead[class*="bg-[#0d1117]"] {
+  background: #0d1117 !important;
+  color: #abb6ae !important;
+  -webkit-text-fill-color: #abb6ae !important;
+}
+
+.finance-module-scope table thead th {
+  color: #abb6ae !important;
+  -webkit-text-fill-color: #abb6ae !important;
+  opacity: 1 !important;
+}
+
+.finance-module-scope table tbody tr {
+  color: #eef3ef !important;
+  border-color: rgba(255,255,255,.10) !important;
+}
+
+.finance-module-scope table tbody td {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* ---------- BOTONES Y NAVEGACIÓN ---------- */
+.finance-module-scope button[class*="bg-[#289E9D]"] {
+  background: #289e9d !important;
+  border-color: #289e9d !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.finance-module-scope button[class*="bg-[#289E9D]"]:hover:not(:disabled) {
+  background: #238b8a !important;
+}
+
+.finance-module-scope button[class*="text-[#b6c0cc]"] {
+  color: #dce4de !important;
+  -webkit-text-fill-color: #dce4de !important;
+}
+
+.finance-module-scope button[class*="text-[#70e4df]"] {
+  color: #8cebe6 !important;
+  -webkit-text-fill-color: #8cebe6 !important;
+}
+
+.finance-module-scope button:disabled {
+  opacity: .52 !important;
+}
+
+/* ---------- ESTADOS Y BADGES ---------- */
+.finance-module-scope [class*="bg-emerald-500/10"],
+.finance-module-scope [class*="bg-emerald-500/15"] {
+  background-color: rgba(16,185,129,.14) !important;
+}
+
+.finance-module-scope [class*="bg-amber-500/10"] {
+  background-color: rgba(245,158,11,.14) !important;
+}
+
+.finance-module-scope [class*="bg-red-500/10"],
+.finance-module-scope [class*="bg-red-500/5"] {
+  background-color: rgba(239,68,68,.12) !important;
+}
+
+.finance-module-scope [class*="bg-violet-500/10"] {
+  background-color: rgba(139,92,246,.13) !important;
+}
+
+/* ---------- DASHBOARD / GRÁFICOS ---------- */
+.finance-module-scope .recharts-wrapper text,
+.finance-module-scope .recharts-cartesian-axis-tick-value {
+  fill: #b6c1b9 !important;
+  color: #b6c1b9 !important;
+  opacity: 1 !important;
+}
+
+.finance-module-scope .recharts-cartesian-grid line {
+  stroke: #334038 !important;
+}
+
+.finance-module-scope .recharts-tooltip-wrapper {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.finance-module-scope .recharts-default-tooltip {
+  background: #0d1117 !important;
+  border: 1px solid #46515d !important;
+  color: #ffffff !important;
+}
+
+.finance-module-scope .recharts-tooltip-label,
+.finance-module-scope .recharts-tooltip-item {
+  color: #ffffff !important;
+}
+
+/* ---------- MODALES FINANCIEROS ACTUALES ---------- */
+.finance-module-scope > div > div.fixed[class*="bg-black"],
+.finance-module-scope div.fixed[class*="bg-black/70"] {
+  z-index: 100000 !important;
+}
+
+.finance-module-scope div.fixed form[class*="bg-[#151b25]"] {
+  border-color: #414c46 !important;
+  background: #151b25 !important;
+  color: #ffffff !important;
+  box-shadow: 0 28px 80px rgba(0,0,0,.42) !important;
+}
+
+.finance-module-scope div.fixed form[class*="bg-[#151b25]"] h2 {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.finance-module-scope div.fixed form[class*="bg-[#151b25]"] p {
+  color: #c0cac3 !important;
+  -webkit-text-fill-color: #c0cac3 !important;
+}
+
+/* ---------- CONFIGURACIÓN FINANCIERA (SUPERFICIE CLARA) ---------- */
+.finance-config-scope form input:not([type="checkbox"]),
+.finance-config-scope form select,
+.finance-config-scope form textarea {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  caret-color: #111711 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  color-scheme: light !important;
+}
+
+.finance-config-scope form input:not([type="checkbox"])::placeholder,
+.finance-config-scope form textarea::placeholder {
+  color: #6c786c !important;
+  -webkit-text-fill-color: #6c786c !important;
+  opacity: 1 !important;
+}
+
+.finance-config-scope form select option {
+  background: #ffffff !important;
+  color: #111711 !important;
+}
+
+.finance-config-scope form [class*="text-[#697468]"] {
+  color: #596659 !important;
+  -webkit-text-fill-color: #596659 !important;
+  opacity: 1 !important;
+}
+
+.finance-config-scope form [class*="text-[#789600]"] {
+  color: #667f00 !important;
+  -webkit-text-fill-color: #667f00 !important;
+}
+
+.finance-config-scope form h2,
+.finance-config-scope form [class*="text-[#111711]"] {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  opacity: 1 !important;
+}
+
+/* ---------- BLINDAJE FINAL ---------- */
+.finance-module-scope :is(h1,h2,h3,h4,p,span,strong,th,td,label,button,input,select,textarea) {
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+}
+
+@media (max-width: 640px) {
+  .finance-module-scope table {
+    font-size: 12px !important;
+  }
+
+  .finance-module-scope div.fixed form[class*="bg-[#151b25]"] {
+    max-height: 90dvh !important;
+    overflow-y: auto !important;
+    border-radius: 18px !important;
+    padding: 18px !important;
+  }
+}
