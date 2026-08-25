@@ -35,12 +35,26 @@
   [class~="bg-[#f3f6f0]"],
   [class~="bg-[#f3fadf]"]
 ) {
-  color: var(--lvf-ink);
+  color: var(--lvf-ink) !important;
 }
 
 /* Paneles del sistema DirectorModule siempre parten de un color de texto
    legible aunque una pantalla olvide declarar text-* en un descendiente. */
 .lestra-director-main:not([data-route^="/admin"]) .director-module-panel {
+  color: var(--lvf-ink) !important;
+}
+
+/* Los diálogos blancos deben recuperar explícitamente el contrato claro aunque
+   estén renderizados dentro de una pantalla que tenga superficies oscuras. */
+.lestra-director-main .app-content .fixed.inset-0 :is(
+  [class~="bg-white"],
+  [class~="bg-[#f8faf6]"],
+  [class~="bg-[#f6f8f4]"],
+  [class~="bg-[#f5f7f3]"],
+  [class~="bg-[#f3f6f0]"]
+),
+[role="dialog"][aria-modal="true"],
+[role="alertdialog"][aria-modal="true"] {
   color: var(--lvf-ink) !important;
 }
 
@@ -68,20 +82,45 @@
   background: #fff !important;
 }
 
-/* Los controles situados dentro de la cabecera oscura conservan el contrato
-   inverso. Esto evita que la normalización clara deje texto oscuro sobre cristal. */
-.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
-.app-content > div > :is(section, article, div):not([class*="absolute"]):has(h1) :is(input, select, textarea) {
+/* ÚNICAMENTE el componente DirectorHero utiliza el contrato inverso. Antes se
+   detectaba cualquier contenedor con :has(h1), lo que podía recolorear inputs
+   dentro de paneles o modales claros y volverlos ilegibles. */
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero :is(input, select, textarea) {
   color: #fff !important;
   -webkit-text-fill-color: #fff !important;
   background: rgba(255,255,255,.07) !important;
   border-color: rgba(255,255,255,.22) !important;
 }
 
-.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
-.app-content > div > :is(section, article, div):not([class*="absolute"]):has(h1) :is(input, textarea)::placeholder {
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero :is(input, textarea)::placeholder {
   color: #c7d0c8 !important;
   -webkit-text-fill-color: #c7d0c8 !important;
+}
+
+/* Si un diálogo claro se monta dentro de un hero, la superficie del diálogo
+   siempre tiene prioridad sobre la inversión del hero. */
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero .fixed.inset-0 :is(
+  [class~="bg-white"],
+  [class~="bg-[#f8faf6]"],
+  [class~="bg-[#f6f8f4]"],
+  [class~="bg-[#f5f7f3]"],
+  [class~="bg-[#f3f6f0]"]
+) :is(input, select, textarea) {
+  color: var(--lvf-ink) !important;
+  -webkit-text-fill-color: var(--lvf-ink) !important;
+  background: var(--lvf-field) !important;
+  border-color: var(--lvf-line) !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero .fixed.inset-0 :is(
+  [class~="bg-white"],
+  [class~="bg-[#f8faf6]"],
+  [class~="bg-[#f6f8f4]"],
+  [class~="bg-[#f5f7f3]"],
+  [class~="bg-[#f3f6f0]"]
+) :is(input, textarea)::placeholder {
+  color: var(--lvf-muted) !important;
+  -webkit-text-fill-color: var(--lvf-muted) !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -144,6 +183,12 @@
 [role="dialog"][aria-modal="true"],
 [role="alertdialog"][aria-modal="true"] {
   z-index: 1000 !important;
+}
+
+/* Dentro del overlay, el panel real queda por encima de decoraciones locales. */
+.lestra-director-main .app-content .fixed.inset-0 > :not([class*="absolute"]) {
+  position: relative;
+  z-index: 1;
 }
 
 /* Evita que el dock móvil tape las últimas líneas, campos o acciones de una
