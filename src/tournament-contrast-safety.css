@@ -1,0 +1,22 @@
+/* Torneos — cierre visual del resumen de pago.
+ * Esta superficie es deliberadamente oscura; el texto no puede heredar tinta
+ * del DirectorPanel claro.
+ */
+#root .lestra-director-main .tournament-payment-summary {
+  background: #111711 !important;
+  border-color: #263026 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+}
+
+#root .lestra-director-main .tournament-payment-summary * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
