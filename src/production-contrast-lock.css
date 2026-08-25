@@ -1,0 +1,153 @@
+/* Lestra Deportivo — bloqueo final de contraste para producción.
+ * Esta hoja se carga al final de TODA la cascada y usa clases explícitas del
+ * sistema DirectorModule. No modifica layout ni lógica: solo color, fondo y
+ * visibilidad de métricas que deben permanecer legibles en cualquier pantalla.
+ */
+
+/* --------------------------------------------------------------------------
+   MÉTRICAS DEL ASIDE DE DIRECTOR HERO
+   -------------------------------------------------------------------------- */
+
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero .director-module-hero-aside {
+  position: relative !important;
+  z-index: 20 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero .director-module-hero-aside > .grid > :first-child {
+  background: #f1f4ee !important;
+  border-color: #d6ddd2 !important;
+  color: #111711 !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero .director-module-hero-aside > .grid > :first-child > :first-child {
+  color: #5f7800 !important;
+  -webkit-text-fill-color: #5f7800 !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero .director-module-hero-aside > .grid > :first-child > :nth-child(2) {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  mix-blend-mode: normal !important;
+  filter: none !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero .director-module-hero-aside > .grid > :first-child > :nth-child(3) {
+  color: #536054 !important;
+  -webkit-text-fill-color: #536054 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero .director-module-hero-aside > .grid > :nth-child(2) {
+  background: #263b12 !important;
+  border-color: #567b16 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero .director-module-hero-aside > .grid > :nth-child(2) > :first-child {
+  color: #c7ff35 !important;
+  -webkit-text-fill-color: #c7ff35 !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero .director-module-hero-aside > .grid > :nth-child(2) > :nth-child(2) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  mix-blend-mode: normal !important;
+  filter: none !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero .director-module-hero-aside > .grid > :nth-child(2) > :nth-child(3) {
+  color: #d8dfd6 !important;
+  -webkit-text-fill-color: #d8dfd6 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* --------------------------------------------------------------------------
+   DIRECTOR STAT — colores deterministas por tono
+   -------------------------------------------------------------------------- */
+
+.lestra-director-main:not([data-route^="/admin"]) .director-stat {
+  opacity: 1 !important;
+  visibility: visible !important;
+  isolation: isolate;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-stat-default {
+  background: #ffffff !important;
+  border-color: #d9e0d6 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-stat-default .director-stat-label {
+  color: #647064 !important;
+  -webkit-text-fill-color: #647064 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-stat-default .director-stat-value {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-stat-default .director-stat-detail {
+  color: #5f6b60 !important;
+  -webkit-text-fill-color: #5f6b60 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-stat-lime {
+  background: #f3fadf !important;
+  border-color: #cde995 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-stat-lime .director-stat-label {
+  color: #5c7600 !important;
+  -webkit-text-fill-color: #5c7600 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-stat-lime .director-stat-value {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-stat-lime .director-stat-detail {
+  color: #4f6900 !important;
+  -webkit-text-fill-color: #4f6900 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-stat-dark {
+  background: #0d140f !important;
+  border-color: #263026 !important;
+  color: #ffffff !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-stat-dark .director-stat-label {
+  color: #b7ff00 !important;
+  -webkit-text-fill-color: #b7ff00 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-stat-dark .director-stat-value {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-stat-dark .director-stat-detail {
+  color: #d4ddd4 !important;
+  -webkit-text-fill-color: #d4ddd4 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-stat :is(.director-stat-label,.director-stat-value,.director-stat-detail) {
+  position: relative !important;
+  z-index: 2 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  mix-blend-mode: normal !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
