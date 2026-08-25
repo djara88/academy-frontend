@@ -1,42 +1,35 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "headers": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
-        {
-          "key": "Content-Security-Policy-Report-Only",
-          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https: wss:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https:"
-        }
-      ]
-    }
-  ],
-  "redirects": [
+      "src": "/(.*)",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+        "Content-Security-Policy-Report-Only": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https: wss:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self' https:"
+      },
+      "continue": true
+    },
     {
-      "source": "/pago-resultado",
-      "destination": "/pagar/resultado",
-      "permanent": false
-    }
-  ],
-  "rewrites": [
+      "src": "/pago-resultado",
+      "status": 307,
+      "headers": {
+        "Location": "/pagar/resultado"
+      }
+    },
     {
-      "source": "/",
+      "src": "/",
       "has": [
-        { "type": "host", "value": "deportivo.lestra.app" }
+        { "type": "host", "value": "deportivo\\.lestra\\.app" }
       ],
-      "destination": "/deportivo.html"
+      "dest": "/deportivo.html"
     },
+    { "handle": "filesystem" },
     {
-      "source": "/",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/:path((?!deportivo\\.html$).*)",
-      "destination": "/index.html"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
