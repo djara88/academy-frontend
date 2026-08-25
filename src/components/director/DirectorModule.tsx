@@ -34,7 +34,7 @@ export function DirectorHero({
           {description ? <div className="mt-4 max-w-4xl text-sm leading-6 text-[#c7d0c8] sm:text-base">{description}</div> : null}
           {actions ? <div className="mt-6 flex flex-wrap items-center gap-2.5">{actions}</div> : null}
         </div>
-        {aside ? <div className="min-w-0">{aside}</div> : null}
+        {aside ? <div className="director-module-hero-aside min-w-0">{aside}</div> : null}
       </div>
     </section>
   );
@@ -51,10 +51,10 @@ export function DirectorStat({ label, value, detail, tone = 'default' }: { label
       ? 'border-[#263026] bg-[#111711] text-white'
       : 'border-[#d9e0d6] bg-white';
   return (
-    <article className={`rounded-[20px] border p-5 shadow-[0_10px_26px_rgba(15,23,16,.035)] ${styles}`}>
-      <p className={`text-[10px] font-black uppercase tracking-[.14em] ${tone === 'dark' ? 'text-[#b7ff00]' : 'text-[#748073]'}`}>{label}</p>
-      <div className={`mt-2 text-2xl font-black tracking-[-.035em] ${tone === 'dark' ? 'text-white' : 'text-[#111711]'}`}>{value}</div>
-      {detail ? <div className={`mt-1 text-xs font-semibold ${tone === 'dark' ? 'text-[#c7d0c8]' : 'text-[#697468]'}`}>{detail}</div> : null}
+    <article className={`director-stat director-stat-${tone} rounded-[20px] border p-5 shadow-[0_10px_26px_rgba(15,23,16,.035)] ${styles}`}>
+      <p className={`director-stat-label text-[10px] font-black uppercase tracking-[.14em] ${tone === 'dark' ? 'text-[#b7ff00]' : 'text-[#748073]'}`}>{label}</p>
+      <div className={`director-stat-value mt-2 text-2xl font-black tracking-[-.035em] ${tone === 'dark' ? 'text-white' : 'text-[#111711]'}`}>{value}</div>
+      {detail ? <div className={`director-stat-detail mt-1 text-xs font-semibold ${tone === 'dark' ? 'text-[#c7d0c8]' : 'text-[#697468]'}`}>{detail}</div> : null}
     </article>
   );
 }
