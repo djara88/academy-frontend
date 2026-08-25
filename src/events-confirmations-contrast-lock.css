@@ -191,3 +191,167 @@
   mix-blend-mode: normal !important;
   text-shadow: none !important;
 }
+
+/* --------------------------------------------------------------------------
+   CTA NUEVO EVENTO
+   Sustituye el teal legado por el CTA principal Lestra y fija contraste.
+   -------------------------------------------------------------------------- */
+#root .lestra-director-main .events-performance-scope > div > section:first-of-type button {
+  min-height: 46px !important;
+  border: 1px solid #b7ff00 !important;
+  border-radius: 13px !important;
+  background: #b7ff00 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  padding-inline: 22px !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  box-shadow: 0 10px 24px rgba(183,255,0,.14) !important;
+}
+
+#root .lestra-director-main .events-performance-scope > div > section:first-of-type button:hover {
+  background: #c6ff35 !important;
+  border-color: #c6ff35 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* --------------------------------------------------------------------------
+   MODAL NUEVO EVENTO
+   El modal se renderiza dentro del motor de eventos. Neutralizamos cualquier
+   containing block heredado y lo hacemos comportarse como overlay de viewport.
+   -------------------------------------------------------------------------- */
+#root .lestra-director-main .events-performance-scope,
+#root .lestra-director-main .events-performance-scope > div {
+  transform: none !important;
+  filter: none !important;
+  perspective: none !important;
+  contain: none !important;
+  isolation: auto !important;
+  overflow: visible !important;
+}
+
+#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 100000 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: clamp(12px, 2vw, 24px) !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(5, 9, 6, .82) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  pointer-events: auto !important;
+}
+
+#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] > div {
+  position: relative !important;
+  z-index: 100001 !important;
+  width: min(760px, calc(100vw - 28px)) !important;
+  max-width: 760px !important;
+  max-height: min(92dvh, 920px) !important;
+  margin: auto !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  border: 1px solid #d8e0d5 !important;
+  border-radius: 26px !important;
+  background: #ffffff !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  box-shadow: 0 32px 90px rgba(0,0,0,.34) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Jerarquia del formulario sobre superficie clara */
+#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] > div h2 {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+}
+
+#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] > div > div:first-child p {
+  color: #668300 !important;
+  -webkit-text-fill-color: #668300 !important;
+}
+
+#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] label > span,
+#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] section p:not([class*="uppercase"]) {
+  color: #526052 !important;
+  -webkit-text-fill-color: #526052 !important;
+}
+
+#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] input:not([type="checkbox"]),
+#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] select,
+#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] textarea {
+  background: #f3f6f0 !important;
+  border-color: #d2dbcf !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  color-scheme: light !important;
+  opacity: 1 !important;
+}
+
+#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] option {
+  background: #ffffff !important;
+  color: #111711 !important;
+}
+
+/* Subtarjetas del formulario que venian oscuras se aclaran y mantienen jerarquia. */
+#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] section,
+#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] label[class*="bg-[#0d1117]"] {
+  background: #f8faf6 !important;
+  border-color: #d7dfd4 !important;
+  color: #111711 !important;
+}
+
+#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] section p[class*="uppercase"] {
+  color: #668300 !important;
+  -webkit-text-fill-color: #668300 !important;
+}
+
+/* Cierre visible y accion final coherente. */
+#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] > div > div:first-child > button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  border: 1px solid #263026 !important;
+  border-radius: 12px !important;
+  background: #111711 !important;
+  color: #b7ff00 !important;
+  -webkit-text-fill-color: #b7ff00 !important;
+  opacity: 1 !important;
+}
+
+#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] > div > div:last-child > button:last-child {
+  min-height: 48px !important;
+  background: #b7ff00 !important;
+  border: 1px solid #a8e900 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+}
+
+@media (max-width: 640px) {
+  #root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] {
+    align-items: flex-start !important;
+    padding: 10px !important;
+  }
+
+  #root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] > div {
+    width: 100% !important;
+    max-height: calc(100dvh - 20px) !important;
+    border-radius: 20px !important;
+  }
+}
