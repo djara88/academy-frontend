@@ -36,13 +36,13 @@
 
 /* --------------------------------------------------------------------------
    CABECERA DE MÓDULO
-   Convierte el bloque superior que contiene H1 al mismo lenguaje de la
-   Puesta en Marcha. Se excluyen Dashboard y Puesta en Marcha porque ya tienen
-   una composición propia dentro del mismo sistema.
+   IMPORTANTE: estos estilos se aplican únicamente al componente explícito
+   DirectorHero. Antes se detectaba cualquier bloque que contuviera un H1 con
+   :has(h1), lo que podía convertir contenedores completos en superficies
+   oscuras, forzar texto claro y recortar contenido con overflow:hidden.
    -------------------------------------------------------------------------- */
 
-.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
-.app-content > div > :is(div,section):not([class*="absolute"]):has(h1) {
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero {
   position: relative !important;
   isolation: isolate;
   overflow: hidden !important;
@@ -57,8 +57,7 @@
   box-shadow: 0 28px 72px rgba(15,23,16,.18), inset 0 1px 0 rgba(255,255,255,.035) !important;
 }
 
-.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
-.app-content > div > :is(div,section):not([class*="absolute"]):has(h1)::after {
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero::after {
   content: '';
   position: absolute;
   z-index: -1;
@@ -71,8 +70,7 @@
   pointer-events: none;
 }
 
-.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
-.app-content > div > :is(div,section):not([class*="absolute"]):has(h1) h1 {
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero h1 {
   max-width: 980px;
   margin-top: .55rem !important;
   color: #ffffff !important;
@@ -84,14 +82,12 @@
   text-wrap: balance;
 }
 
-.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
-.app-content > div > :is(div,section):not([class*="absolute"]):has(h1) :is(p,span,label) {
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero :is(p,span,label) {
   color: #c7d0c8 !important;
   -webkit-text-fill-color: #c7d0c8 !important;
 }
 
-.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
-.app-content > div > :is(div,section):not([class*="absolute"]):has(h1) :is(p,span)[class*="uppercase"] {
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero :is(p,span)[class*="uppercase"] {
   color: var(--lestra-ref-lime) !important;
   -webkit-text-fill-color: var(--lestra-ref-lime) !important;
   font-weight: 900 !important;
@@ -99,9 +95,9 @@
 }
 
 /* Los encabezados que incluyen acciones conservan botones nítidos. */
-.lestra-director-main:not([data-route^="/admin"]) .app-content > div > :is(div,section):not([class*="absolute"]):has(h1)
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero
 :is(button,a)[class*="bg-[#b9e937]"],
-.lestra-director-main:not([data-route^="/admin"]) .app-content > div > :is(div,section):not([class*="absolute"]):has(h1)
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero
 :is(button,a)[class*="bg-[#caff00]"] {
   background: var(--lestra-ref-lime) !important;
   border-color: var(--lestra-ref-lime) !important;
@@ -109,7 +105,7 @@
   -webkit-text-fill-color: #0b110d !important;
 }
 
-.lestra-director-main:not([data-route^="/admin"]) .app-content > div > :is(div,section):not([class*="absolute"]):has(h1)
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero
 :is(button,a)[class*="bg-white"] {
   background: #ffffff !important;
   border-color: rgba(255,255,255,.78) !important;
@@ -202,14 +198,12 @@
    -------------------------------------------------------------------------- */
 
 @media (max-width: 639px) {
-  .lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
-  .app-content > div > :is(div,section):not([class*="absolute"]):has(h1) {
+  .lestra-director-main:not([data-route^="/admin"]) .director-module-hero {
     border-radius: 26px !important;
     padding: 1.35rem !important;
   }
 
-  .lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
-  .app-content > div > :is(div,section):not([class*="absolute"]):has(h1) h1 {
+  .lestra-director-main:not([data-route^="/admin"]) .director-module-hero h1 {
     font-size: clamp(2rem, 11vw, 3.1rem) !important;
     line-height: 1.02 !important;
   }
