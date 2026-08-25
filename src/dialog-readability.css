@@ -1,0 +1,104 @@
+/* Lestra Deportivo — contrato final de legibilidad para avisos y diálogos.
+ * Se importa al final de la cascada. No cambia lógica, solo presentación.
+ */
+
+/* Toasts de éxito: usados, entre otros, al registrar una asistencia. */
+#root div[role="status"] {
+  position: relative !important;
+  z-index: 1200 !important;
+  background: rgba(13, 20, 15, .98) !important;
+  background-image: none !important;
+  border: 1px solid #567b16 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  isolation: isolate !important;
+}
+
+#root div[role="status"] :is(p, span, button) {
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+  -webkit-text-stroke: 0 transparent !important;
+  clip: auto !important;
+  clip-path: none !important;
+  -webkit-mask: none !important;
+  mask: none !important;
+}
+
+/* Icono de confirmación. */
+#root div[role="status"] > div:first-child {
+  background: #1c2b13 !important;
+  border: 1px solid rgba(183, 255, 0, .22) !important;
+  color: #b7ff00 !important;
+  -webkit-text-fill-color: #b7ff00 !important;
+}
+
+#root div[role="status"] > div:first-child svg {
+  color: #b7ff00 !important;
+  stroke: currentColor !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Título del aviso. */
+#root div[role="status"] > div:nth-child(2) > div:first-child > p:first-child {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-size: 14px !important;
+  line-height: 1.25 !important;
+  font-weight: 900 !important;
+}
+
+/* Nombre de la academia / contexto. */
+#root div[role="status"] > div:nth-child(2) > div:first-child > span {
+  color: #b7ff00 !important;
+  -webkit-text-fill-color: #b7ff00 !important;
+  font-weight: 800 !important;
+}
+
+/* Mensaje del registro. */
+#root div[role="status"] > div:nth-child(2) > p {
+  display: block !important;
+  color: #d9e1da !important;
+  -webkit-text-fill-color: #d9e1da !important;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Botón cerrar. */
+#root div[role="status"] > button {
+  color: #b8c4b8 !important;
+  -webkit-text-fill-color: #b8c4b8 !important;
+  background: transparent !important;
+  opacity: 1 !important;
+}
+
+#root div[role="status"] > button:hover {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background: rgba(255, 255, 255, .07) !important;
+}
+
+/* Los diálogos del mismo sistema también mantienen contraste explícito. */
+#root [id^="lestra-dialog-title-"] {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#root [id^="lestra-dialog-message-"] {
+  color: #d2dbe2 !important;
+  -webkit-text-fill-color: #d2dbe2 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
