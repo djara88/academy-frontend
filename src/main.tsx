@@ -47,6 +47,7 @@ import './tournament-contrast-safety.css';
 import './events-confirmations-contrast-lock.css';
 import './events-popup-simple.css';
 import './events-card-minimal.css';
+import './performance-popup-contrast.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
