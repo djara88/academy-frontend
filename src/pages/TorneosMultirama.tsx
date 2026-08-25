@@ -16,15 +16,38 @@ import {
 type Branch={id:string;nombre:string;disciplina:string;sede_id:string;sedes?:{id:string;nombre:string}|null};
 type Tournament={id:string;nombre:string;fecha_inicio?:string|null;fecha_fin?:string|null;costo_inscripcion:number;permite_cuotas:boolean;max_cuotas:number;estado?:string|null;rama_id?:string|null;sede_id?:string|null;organizador?:string|null;ubicacion?:string|null;reglamento_url?:string|null;ramas?:{id:string;nombre:string;disciplina:string}|null;sedes?:{id:string;nombre:string}|null};
 type EditForm={rama_id:string;nombre:string;organizador:string;ubicacion:string;reglamento_url:string;fecha_inicio:string;fecha_fin:string;costo_inscripcion:string;permite_cuotas:boolean;max_cuotas:string};
+type ParticipationSummary={total:number;confirmados:number;pendientes:number;rechazados:number};
+
 const money=(value:number)=>`$${Math.round(Number(value)||0).toLocaleString('es-CL')}`;
 const emptyEdit:EditForm={rama_id:'',nombre:'',organizador:'',ubicacion:'',reglamento_url:'',fecha_inicio:'',fecha_fin:'',costo_inscripcion:'0',permite_cuotas:false,max_cuotas:'2'};
+const emptyParticipation:ParticipationSummary={total:0,confirmados:0,pendientes:0,rechazados:0};
 const labelClass='mb-1.5 block text-[11px] font-black uppercase tracking-[.09em] text-[#697468]';
+
+const summarizeParticipation=(rows:any[]):ParticipationSummary=>{
+  const byPlayer=new Map<string,Set<string>>();
+  for(const row of rows||[]){
+    const key=String(row?.jugador_id||'');
+    if(!key)continue;
+    if(!byPlayer.has(key))byPlayer.set(key,new Set());
+    byPlayer.get(key)?.add(String(row?.respuesta_participacion||'Pendiente'));
+  }
+  let confirmados=0;
+  let pendientes=0;
+  let rechazados=0;
+  for(const responses of byPlayer.values()){
+    if(responses.has('Si'))confirmados+=1;
+    else if(responses.has('Pendiente')||responses.size===0)pendientes+=1;
+    else rechazados+=1;
+  }
+  return {total:byPlayer.size,confirmados,pendientes,rechazados};
+};
 
 export default function TorneosMultirama(){
   const {notify,confirmAction}=useAppDialog();
   const [items,setItems]=useState<Tournament[]>([]);
   const [branches,setBranches]=useState<Branch[]>([]);
   const [branchId,setBranchId]=useState('');
+  const [participation,setParticipation]=useState<Record<string,ParticipationSummary>>({});
   const [loading,setLoading]=useState(true);
   const [error,setError]=useState('');
   const [busyId,setBusyId]=useState('');
@@ -33,15 +56,30 @@ export default function TorneosMultirama(){
   const [savingEdit,setSavingEdit]=useState(false);
 
   const load=async()=>{
-    setLoading(true);setError('');
+    setLoading(true);
+    setError('');
     try{
       const response=await api.get('/api/torneos',{params:branchId?{rama_id:branchId}:undefined});
-      setItems(response.data.data||[]);
+      const tournaments=(response.data.data||[]) as Tournament[];
+      setItems(tournaments);
       setBranches(response.data.ramas||[]);
+
+      const results=await Promise.allSettled(tournaments.map(async tournament=>{
+        const participantResponse=await api.get(`/api/torneos/${tournament.id}/participantes`);
+        return [tournament.id,summarizeParticipation(participantResponse.data.data||[])] as const;
+      }));
+      const next:Record<string,ParticipationSummary>={};
+      for(const result of results){
+        if(result.status==='fulfilled')next[result.value[0]]=result.value[1];
+      }
+      setParticipation(next);
     }catch(err:any){
       setError(err.response?.data?.error||'No fue posible cargar las competencias.');
-    }finally{setLoading(false);}
+    }finally{
+      setLoading(false);
+    }
   };
+
   useEffect(()=>{void load();},[branchId]);
 
   const counts=useMemo(()=>({
@@ -82,7 +120,9 @@ export default function TorneosMultirama(){
       await notify(response.data?.message||'Competencia actualizada correctamente.');
     }catch(err:any){
       await notify(err.response?.data?.error||'No fue posible editar la competencia.');
-    }finally{setSavingEdit(false);}
+    }finally{
+      setSavingEdit(false);
+    }
   };
 
   const archive=async(tournament:Tournament)=>{
@@ -95,7 +135,9 @@ export default function TorneosMultirama(){
       await notify(response.data?.message||'Competencia archivada.');
     }catch(err:any){
       await notify(err.response?.data?.error||'No fue posible archivar la competencia.');
-    }finally{setBusyId('');}
+    }finally{
+      setBusyId('');
+    }
   };
 
   return (
@@ -103,7 +145,7 @@ export default function TorneosMultirama(){
       <DirectorHero
         eyebrow="Competencias oficiales"
         title="Campeonatos y competencias"
-        description="Administra competencias por rama, convocatorias, cobros, eventos y resultados desde una sola vista coherente."
+        description="Define primero quiénes participarán en cada competencia. La convocatoria del torneo es independiente de sus partidos, duelos o pruebas posteriores."
         actions={
           <>
             <Link to="/partidos" className={DIRECTOR_BUTTON_GHOST}>Eventos y resultados</Link>
@@ -123,68 +165,89 @@ export default function TorneosMultirama(){
             </select>
           </label>
         </DirectorPanel>
-        <DirectorStat label="Total" value={counts.total} />
-        <DirectorStat label="Activas" value={counts.activas} tone="lime" />
-        <DirectorStat label="Con inscripción" value={counts.conCosto} tone="dark" />
+        <DirectorStat label="Total" value={counts.total}/>
+        <DirectorStat label="Activas" value={counts.activas} tone="lime"/>
+        <DirectorStat label="Con inscripción" value={counts.conCosto} tone="dark"/>
       </section>
 
       {error?<div className="rounded-[18px] border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700">{error}</div>:null}
 
-      {loading ? (
+      {loading?(
         <DirectorPanel className="p-10 text-center text-sm font-bold text-[#697468]">Cargando competencias...</DirectorPanel>
-      ) : (
+      ):(
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {items.map((tournament)=>(
-            <DirectorPanel key={tournament.id} className="overflow-hidden p-5 transition hover:-translate-y-0.5 hover:border-[#a8ba9f]">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap gap-2">
-                    <span className="rounded-full border border-[#cde995] bg-[#f3fadf] px-2.5 py-1 text-[10px] font-black uppercase text-[#5f7900]">{tournament.ramas?.disciplina||'Competencia'}</span>
-                    <span className="rounded-full border border-[#dce2d8] bg-[#f4f6f2] px-2.5 py-1 text-[10px] font-black uppercase text-[#697468]">Seguimiento Lestra</span>
+          {items.map((tournament)=>{
+            const roster=participation[tournament.id]||emptyParticipation;
+            return (
+              <DirectorPanel key={tournament.id} className="overflow-hidden p-5 transition hover:-translate-y-0.5 hover:border-[#a8ba9f]">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap gap-2">
+                      <span className="rounded-full border border-[#cde995] bg-[#f3fadf] px-2.5 py-1 text-[10px] font-black uppercase text-[#5f7900]">{tournament.ramas?.disciplina||'Competencia'}</span>
+                      <span className="rounded-full border border-[#dce2d8] bg-[#f4f6f2] px-2.5 py-1 text-[10px] font-black uppercase text-[#697468]">Seguimiento Lestra</span>
+                    </div>
+                    <h2 className="mt-3 text-xl font-black tracking-[-.03em] text-[#111711]">{tournament.nombre}</h2>
+                    <p className="mt-1 text-xs text-[#697468]">{tournament.ramas?.nombre||'Sin rama asociada'}{tournament.sedes?.nombre?` · ${tournament.sedes.nombre}`:''}</p>
+                    {tournament.organizador?<p className="mt-1 text-xs text-[#7a8477]">Organiza: {tournament.organizador}</p>:null}
                   </div>
-                  <h2 className="mt-3 text-xl font-black tracking-[-.03em] text-[#111711]">{tournament.nombre}</h2>
-                  <p className="mt-1 text-xs text-[#697468]">{tournament.ramas?.nombre||'Sin rama asociada'}{tournament.sedes?.nombre?` · ${tournament.sedes.nombre}`:''}</p>
-                  {tournament.organizador?<p className="mt-1 text-xs text-[#7a8477]">Organiza: {tournament.organizador}</p>:null}
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#111711] text-lg">🏆</div>
                 </div>
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#111711] text-lg">🏆</div>
-              </div>
 
-              <div className="mt-4 rounded-[16px] border border-[#dfe5dc] bg-[#f5f7f3] p-3">
-                <p className="text-[9px] font-black uppercase tracking-[.12em] text-[#748073]">Gestión de la academia</p>
-                <p className="mt-1 text-sm font-black text-[#111711]">Convocatorias · eventos · resultados</p>
-                <p className="mt-1 text-[11px] leading-4 text-[#697468]">Cada competencia pertenece a una rama, pero esta vista consolida toda la academia.</p>
-              </div>
-
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                <div className="rounded-[16px] border border-[#e0e5dd] bg-white p-3">
-                  <p className="text-[10px] font-black uppercase text-[#748073]">Fechas</p>
-                  <p className="mt-1 text-sm font-black text-[#111711]">{tournament.fecha_inicio||'Por definir'}{tournament.fecha_fin&&tournament.fecha_fin!==tournament.fecha_inicio?` → ${tournament.fecha_fin}`:''}</p>
+                <div className="mt-4 rounded-[16px] border border-[#dfe5dc] bg-[#f5f7f3] p-3">
+                  <p className="text-[9px] font-black uppercase tracking-[.12em] text-[#748073]">Gestión de la academia</p>
+                  <p className="mt-1 text-sm font-black text-[#111711]">Participación · eventos · resultados</p>
+                  <p className="mt-1 text-[11px] leading-4 text-[#697468]">La participación se confirma a nivel de torneo y no necesita partidos programados.</p>
                 </div>
-                <div className="rounded-[16px] border border-[#cde995] bg-[#f3fadf] p-3">
-                  <p className="text-[10px] font-black uppercase text-[#6a7d35]">Inscripción</p>
-                  <p className="mt-1 text-sm font-black text-[#4f6900]">{Number(tournament.costo_inscripcion)>0?money(tournament.costo_inscripcion):'Gratuito'}</p>
+
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <div className="rounded-[16px] border border-[#e0e5dd] bg-white p-3">
+                    <p className="text-[10px] font-black uppercase text-[#748073]">Fechas</p>
+                    <p className="mt-1 text-sm font-black text-[#111711]">{tournament.fecha_inicio||'Por definir'}{tournament.fecha_fin&&tournament.fecha_fin!==tournament.fecha_inicio?` → ${tournament.fecha_fin}`:''}</p>
+                  </div>
+                  <div className="rounded-[16px] border border-[#cde995] bg-[#f3fadf] p-3">
+                    <p className="text-[10px] font-black uppercase text-[#6a7d35]">Inscripción</p>
+                    <p className="mt-1 text-sm font-black text-[#4f6900]">{Number(tournament.costo_inscripcion)>0?money(tournament.costo_inscripcion):'Gratuito'}</p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="mt-3 rounded-[14px] bg-[#111711] px-3 py-2 text-xs font-bold text-white">{tournament.permite_cuotas?`Pago en hasta ${tournament.max_cuotas} cuotas`:'Pago único'}</div>
+                <div className="tournament-payment-summary mt-3 rounded-[14px] bg-[#111711] px-3 py-2 text-xs font-bold text-white">
+                  {tournament.permite_cuotas?`Pago en hasta ${tournament.max_cuotas} cuotas`:'Pago único'}
+                </div>
 
-              <div className="mt-4 grid grid-cols-3 gap-2 border-t border-[#e3e8e0] pt-4">
-                <Link to={`/torneos/${tournament.id}`} className={`${DIRECTOR_BUTTON} min-h-10 px-3 text-xs`}>Gestionar</Link>
-                <button onClick={()=>openEdit(tournament)} className={`${DIRECTOR_BUTTON_GHOST} min-h-10 px-3 text-xs`}>Editar</button>
-                <button disabled={busyId===tournament.id} onClick={()=>void archive(tournament)} className={`${DIRECTOR_BUTTON_DARK} min-h-10 px-3 text-xs`}>{busyId===tournament.id?'...':'Archivar'}</button>
-              </div>
-            </DirectorPanel>
-          ))}
-          {!items.length ? (
+                <div className="mt-3 rounded-[16px] border border-[#dfe5dc] bg-[#f8faf6] p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#687667]">Participación del torneo</p>
+                    <span className="text-[10px] font-black text-[#111711]">{roster.total} alumno{roster.total===1?'':'s'}</span>
+                  </div>
+                  {roster.total?(
+                    <div className="mt-2 grid grid-cols-3 gap-1.5 text-center">
+                      <div className="rounded-xl border border-[#cde995] bg-[#f3fadf] px-2 py-2"><p className="text-sm font-black text-[#4f6900]">{roster.confirmados}</p><p className="text-[9px] font-bold text-[#5f7900]">Confirmados</p></div>
+                      <div className="rounded-xl border border-amber-200 bg-amber-50 px-2 py-2"><p className="text-sm font-black text-amber-800">{roster.pendientes}</p><p className="text-[9px] font-bold text-amber-700">Pendientes</p></div>
+                      <div className="rounded-xl border border-red-200 bg-red-50 px-2 py-2"><p className="text-sm font-black text-red-800">{roster.rechazados}</p><p className="text-[9px] font-bold text-red-700">No van</p></div>
+                    </div>
+                  ):(
+                    <p className="mt-2 text-[11px] font-semibold leading-4 text-[#697468]">Aún sin convocatoria. Puedes definir participantes ahora, aunque todavía no exista ningún evento.</p>
+                  )}
+                </div>
+
+                <div className="mt-4 grid grid-cols-3 gap-2 border-t border-[#e3e8e0] pt-4">
+                  <Link to={`/torneos/${tournament.id}`} className={`${DIRECTOR_BUTTON} min-h-10 px-3 text-xs`}>{roster.total?'Gestionar':'Definir equipo'}</Link>
+                  <button onClick={()=>openEdit(tournament)} className={`${DIRECTOR_BUTTON_GHOST} min-h-10 px-3 text-xs`}>Editar</button>
+                  <button disabled={busyId===tournament.id} onClick={()=>void archive(tournament)} className={`${DIRECTOR_BUTTON_DARK} min-h-10 px-3 text-xs`}>{busyId===tournament.id?'...':'Archivar'}</button>
+                </div>
+              </DirectorPanel>
+            );
+          })}
+          {!items.length?(
             <DirectorPanel className="col-span-full p-10 text-center">
               <p className="text-sm font-black text-[#111711]">No hay competencias activas.</p>
               <p className="mt-2 text-xs text-[#697468]">Crea una nueva competencia o revisa el Almacén si buscas una anterior.</p>
             </DirectorPanel>
-          ) : null}
+          ):null}
         </section>
       )}
 
-      {editing ? (
+      {editing?(
         <div className="fixed inset-0 z-[90] grid place-items-center overflow-y-auto bg-black/75 p-4 backdrop-blur-sm">
           <div className="w-full max-w-3xl rounded-[28px] border border-[#d9e0d6] bg-white p-5 shadow-2xl sm:p-7">
             <div className="flex items-start justify-between gap-4">
@@ -217,7 +280,7 @@ export default function TorneosMultirama(){
             </div>
           </div>
         </div>
-      ) : null}
+      ):null}
     </DirectorPage>
   );
 }
