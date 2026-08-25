@@ -1,8 +1,10 @@
 /* Lestra Deportivo — contrato final de legibilidad para avisos y diálogos.
- * Se importa al final de la cascada. No cambia lógica, solo presentación.
+ * Esta hoja debe cargarse como ÚLTIMA capa visual. No modifica lógica.
  */
 
-/* Toasts de éxito: usados, entre otros, al registrar una asistencia. */
+/* --------------------------------------------------------------------------
+   TOASTS
+   -------------------------------------------------------------------------- */
 #root div[role="status"] {
   position: relative !important;
   z-index: 1200 !important;
@@ -31,7 +33,6 @@
   mask: none !important;
 }
 
-/* Icono de confirmación. */
 #root div[role="status"] > div:first-child {
   background: #1c2b13 !important;
   border: 1px solid rgba(183, 255, 0, .22) !important;
@@ -46,7 +47,6 @@
   visibility: visible !important;
 }
 
-/* Título del aviso. */
 #root div[role="status"] > div:nth-child(2) > div:first-child > p:first-child {
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
@@ -55,14 +55,12 @@
   font-weight: 900 !important;
 }
 
-/* Nombre de la academia / contexto. */
 #root div[role="status"] > div:nth-child(2) > div:first-child > span {
   color: #b7ff00 !important;
   -webkit-text-fill-color: #b7ff00 !important;
   font-weight: 800 !important;
 }
 
-/* Mensaje del registro. */
 #root div[role="status"] > div:nth-child(2) > p {
   display: block !important;
   color: #d9e1da !important;
@@ -74,7 +72,6 @@
   visibility: visible !important;
 }
 
-/* Botón cerrar. */
 #root div[role="status"] > button {
   color: #b8c4b8 !important;
   -webkit-text-fill-color: #b8c4b8 !important;
@@ -88,17 +85,119 @@
   background: rgba(255, 255, 255, .07) !important;
 }
 
-/* Los diálogos del mismo sistema también mantienen contraste explícito. */
+/* --------------------------------------------------------------------------
+   DIÁLOGOS DEL SISTEMA
+   --------------------------------------------------------------------------
+   El selector parte de #root + role + aria-modal para superar los contratos
+   históricos que normalizan cualquier diálogo como superficie clara.
+ */
+#root :is([role="dialog"],[role="alertdialog"])[aria-modal="true"] {
+  background: #111811 !important;
+  background-color: #111811 !important;
+  background-image: none !important;
+  border: 1px solid #303a30 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, .58) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  isolation: isolate !important;
+}
+
+#root :is([role="dialog"],[role="alertdialog"])[aria-modal="true"] > div {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+/* Academia / contexto. */
+#root :is([role="dialog"],[role="alertdialog"])[aria-modal="true"] > div > div:first-child > div:last-child > p {
+  color: #aeb9aa !important;
+  -webkit-text-fill-color: #aeb9aa !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  font-weight: 900 !important;
+}
+
+/* Título. */
 #root [id^="lestra-dialog-title-"] {
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
   opacity: 1 !important;
   visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
 }
 
+/* Mensaje principal. */
 #root [id^="lestra-dialog-message-"] {
-  color: #d2dbe2 !important;
-  -webkit-text-fill-color: #d2dbe2 !important;
+  color: #d7ded5 !important;
+  -webkit-text-fill-color: #d7ded5 !important;
   opacity: 1 !important;
   visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  font-weight: 550 !important;
+}
+
+/* Todo texto interno recupera visibilidad; luego se aplican jerarquías arriba. */
+#root :is([role="dialog"],[role="alertdialog"])[aria-modal="true"] :is(p,h2,span,button) {
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+}
+
+/* Acción secundaria: Volver / Cancelar. */
+#root [role="dialog"][aria-modal="true"] > div > div:last-child > button:first-child {
+  border: 1px solid #394339 !important;
+  background: transparent !important;
+  color: #c1cac0 !important;
+  -webkit-text-fill-color: #c1cac0 !important;
+  box-shadow: none !important;
+}
+
+#root [role="dialog"][aria-modal="true"] > div > div:last-child > button:first-child:hover {
+  border-color: #667165 !important;
+  background: #1b231b !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Acción principal: siempre inequívoca y con contraste AA alto. */
+#root :is([role="dialog"],[role="alertdialog"])[aria-modal="true"] > div > div:last-child > button:last-child {
+  border: 1px solid #b7ff00 !important;
+  background: #b7ff00 !important;
+  background-image: none !important;
+  color: #101510 !important;
+  -webkit-text-fill-color: #101510 !important;
+  box-shadow: 0 10px 26px rgba(183, 255, 0, .16) !important;
+  font-weight: 900 !important;
+}
+
+#root :is([role="dialog"],[role="alertdialog"])[aria-modal="true"] > div > div:last-child > button:last-child:hover {
+  border-color: #c8ff43 !important;
+  background: #c8ff43 !important;
+  color: #0b100b !important;
+  -webkit-text-fill-color: #0b100b !important;
+}
+
+#root :is([role="dialog"],[role="alertdialog"])[aria-modal="true"] > div > div:last-child > button:last-child:focus-visible {
+  outline: 3px solid rgba(183, 255, 0, .32) !important;
+  outline-offset: 3px !important;
+}
+
+/* Iconos: no permitimos que normalizaciones globales los apaguen. */
+#root :is([role="dialog"],[role="alertdialog"])[aria-modal="true"] svg {
+  opacity: 1 !important;
+  visibility: visible !important;
+  stroke: currentColor !important;
+}
+
+@media (max-width: 640px) {
+  #root :is([role="dialog"],[role="alertdialog"])[aria-modal="true"] {
+    max-width: calc(100vw - 24px) !important;
+  }
 }
