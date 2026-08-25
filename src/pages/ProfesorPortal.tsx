@@ -5,6 +5,7 @@ import { useAppDialog } from '../contexts/DialogContext';
 import ProfessorAgendaPanel from '../components/profesor/ProfessorAgendaPanel';
 import ProfessorTodayPanel from '../components/profesor/ProfessorTodayPanel';
 import ProfessorCasesPanel from '../components/profesor/ProfessorCasesPanel';
+import ProfessorTacticalBoard from '../components/profesor/ProfessorTacticalBoard';
 import LiveMatchPanel from '../components/profesor/LiveMatchPanel';
 import TrainingLogPanel from '../components/profesor/TrainingLogPanel';
 import MatchPreparationPanel from '../components/profesor/MatchPreparationPanel';
@@ -13,7 +14,7 @@ type Category = { id: string; nombre: string; descripcion?: string | null; rama_
 type Player = { id: string; nombre: string; posicion_cancha?: string | null; posicion_principal?: string | null; rol_especialidad?: string | null; foto_url?: string | null; avatar_url?: string | null; alerta_medica?: string | null; telefono_emergencia?: string | null; estado_asistencia?: AttendanceState | null };
 type AttendanceState = 'Presente' | 'Ausente' | 'Justificado';
 type Profile = { profesor: { id: string; nombre: string }; academia: { id: string; nombre: string }; categorias: Category[] };
-type PortalTab = 'hoy' | 'asistencia' | 'agenda' | 'bitacoras' | 'partidos' | 'casos';
+type PortalTab = 'hoy' | 'asistencia' | 'entrenamientos' | 'partidos' | 'pizarra' | 'casos';
 type ActiveTool = { type: 'training' | 'preparation' | 'live'; id: string } | null;
 
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santiago', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
@@ -136,10 +137,10 @@ const ProfesorPortal = () => {
       <nav aria-label="Funciones del profesor" className="grid grid-cols-3 gap-2 rounded-2xl border border-[#30363d] bg-[#161b22] p-2 lg:grid-cols-6">
         {([
           ['hoy', '⌂ Hoy'],
-          ['asistencia', '✓ Lista'],
-          ['agenda', '▣ Agenda'],
-          ['bitacoras', '✎ Entrenos'],
+          ['asistencia', '✓ Asistencia'],
+          ['entrenamientos', '✎ Entrenamientos'],
           ['partidos', '⚡ Partidos'],
+          ['pizarra', '◇ Pizarra'],
           ['casos', '☏ Casos'],
         ] as [PortalTab, string][]).map(([tab, label]) => <button key={tab} type="button" aria-current={activeTab === tab ? 'page' : undefined} onClick={() => setActiveTab(tab)} className={`min-h-11 rounded-xl px-2 py-2 text-xs font-black transition-colors sm:text-sm ${activeTab === tab ? 'bg-[#289E9D] text-white shadow-lg' : 'text-[#8b949e] hover:bg-[#21262d] hover:text-white'}`}>{label}</button>)}
       </nav>
@@ -148,7 +149,9 @@ const ProfesorPortal = () => {
 
       {activeTab === 'casos' ? <ProfessorCasesPanel categories={profile?.categorias || []} academyName={profile?.academia.nombre} /> : null}
 
-      {activeTab === 'agenda' || activeTab === 'bitacoras' || activeTab === 'partidos' ? <ProfessorAgendaPanel mode={activeTab} academyName={profile?.academia.nombre} onLiveMatch={(id) => setActiveTool({ type: 'live', id })} onAttendance={openAttendance} /> : null}
+      {activeTab === 'pizarra' ? <ProfessorTacticalBoard categories={profile?.categorias || []} academyName={profile?.academia.nombre} /> : null}
+
+      {activeTab === 'entrenamientos' || activeTab === 'partidos' ? <ProfessorAgendaPanel mode={activeTab} academyName={profile?.academia.nombre} onLiveMatch={(id) => setActiveTool({ type: 'live', id })} onAttendance={openAttendance} /> : null}
 
       {activeTab === 'asistencia' ? !profile?.categorias.length ? <section className="card border-dashed p-8 text-center"><div className="text-5xl">📋</div><h2 className="mt-4 text-xl font-black">Sin categorías asignadas</h2><p className="mt-2 text-sm text-[#8b949e]">La dirección debe asignarte una categoría antes de comenzar.</p></section> : (
         <>
