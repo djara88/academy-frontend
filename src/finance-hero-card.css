@@ -1,0 +1,52 @@
+/* Lestra Deportivo · hero Finanzas
+ * Replica la composición aprobada: hero oscuro + tarjeta conectada clara.
+ * Esta hoja se carga después del contrato general de Finanzas para evitar
+ * herencias de texto claro sobre la superficie blanca.
+ */
+
+#root .lestra-director-main[data-route="/finanzas"] .finance-hero-connected-card {
+  background: #f4f5f2 !important;
+  background-image: none !important;
+  border: 1px solid #d7ddd4 !important;
+  color: #111711 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+  box-shadow: 0 12px 30px rgba(6, 14, 8, .10) !important;
+}
+
+#root .lestra-director-main[data-route="/finanzas"] .finance-hero-connected-card .finance-hero-connected-eyebrow {
+  color: #91b800 !important;
+  -webkit-text-fill-color: #91b800 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+#root .lestra-director-main[data-route="/finanzas"] .finance-hero-connected-card .finance-hero-connected-title {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+}
+
+#root .lestra-director-main[data-route="/finanzas"] .finance-hero-connected-card .finance-hero-connected-copy {
+  color: #354035 !important;
+  -webkit-text-fill-color: #354035 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+}
+
+#root .lestra-director-main[data-route="/finanzas"] .finance-hero-connected-card :is(p,span,strong) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
