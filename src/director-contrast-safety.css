@@ -38,9 +38,71 @@
 }
 
 /* --------------------------------------------------------------------------
+   TARJETAS KPI DEL HERO — contrato por superficie, no por orden de nodos.
+   production-contrast-lock define la primera tarjeta como clara y la segunda
+   como oscura. Aquí el texto sigue esa superficie aunque haya SVG, spans o
+   cambie el orden interno del componente.
+   -------------------------------------------------------------------------- */
+#root .lestra-director-main:not([data-route^="/admin"]) .director-module-hero .director-module-hero-aside > .grid > :first-child {
+  background: #f1f4ee !important;
+  border-color: #d6ddd2 !important;
+  color: #111711 !important;
+}
+
+#root .lestra-director-main:not([data-route^="/admin"]) .director-module-hero .director-module-hero-aside > .grid > :first-child > :is(p,span,div) {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+}
+
+#root .lestra-director-main:not([data-route^="/admin"]) .director-module-hero .director-module-hero-aside > .grid > :first-child > :is(p,span,div)[class*="uppercase"] {
+  color: #5f7800 !important;
+  -webkit-text-fill-color: #5f7800 !important;
+}
+
+#root .lestra-director-main:not([data-route^="/admin"]) .director-module-hero .director-module-hero-aside > .grid > :first-child > svg {
+  color: #5f7800 !important;
+  stroke: #5f7800 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#root .lestra-director-main:not([data-route^="/admin"]) .director-module-hero .director-module-hero-aside > .grid > :nth-child(2) {
+  background: #263b12 !important;
+  border-color: #567b16 !important;
+  color: #ffffff !important;
+}
+
+#root .lestra-director-main:not([data-route^="/admin"]) .director-module-hero .director-module-hero-aside > .grid > :nth-child(2) > :is(p,span,div) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+}
+
+#root .lestra-director-main:not([data-route^="/admin"]) .director-module-hero .director-module-hero-aside > .grid > :nth-child(2) > :is(p,span,div)[class*="uppercase"] {
+  color: #b7ff00 !important;
+  -webkit-text-fill-color: #b7ff00 !important;
+}
+
+#root .lestra-director-main:not([data-route^="/admin"]) .director-module-hero .director-module-hero-aside > .grid > :nth-child(2) > svg {
+  color: #b7ff00 !important;
+  stroke: #b7ff00 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* --------------------------------------------------------------------------
    APODERADOS · HERO
-   Esta tarjeta incorpora SVG antes de los <p>; por eso no debe depender de
-   :nth-child() globales creados para tarjetas exclusivamente textuales.
+   Esta tarjeta incorpora SVG antes de los <p>; fijamos además la jerarquía
+   exacta de número y etiqueta mostrada en el portal familiar.
    -------------------------------------------------------------------------- */
 #root .lestra-director-main[data-route="/apoderados"] .director-module-hero .director-module-hero-aside > .grid > :first-child {
   background: #f1f4ee !important;
