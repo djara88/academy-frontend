@@ -236,11 +236,11 @@ export default function EventosRendimiento() {
 
   useEffect(() => { void load(); }, [load]);
   useEffect(() => {
-    if (!modalOpen) return;
+    if (!modalOpen && !statsMatch) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = previousOverflow; };
-  }, [modalOpen]);
+  }, [modalOpen, statsMatch]);
 
   const branchCategories = useMemo(() => categories.filter((item) => !form.rama_id || item.rama_id === form.rama_id), [categories, form.rama_id]);
   const branchTournaments = useMemo(() => tournaments.filter((item) => !form.rama_id || item.rama_id === form.rama_id), [tournaments, form.rama_id]);
@@ -477,8 +477,8 @@ export default function EventosRendimiento() {
       </div>
     </div></div>, document.body) : null}
 
-    {statsMatch && statsProfile ? <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 p-3"><div className="max-h-[95vh] w-full max-w-6xl overflow-y-auto rounded-[26px] border border-[#C8A96B]/25 bg-[#151b25] p-5 sm:p-7">
-      <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-black uppercase text-[#D8BE87]">Eventos y Rendimiento · {statsProfile.label}</p><h2 className="mt-1 text-2xl font-black text-white">{statsProfile.icon} {statsMatch.rival}</h2><p className="mt-1 text-xs text-[#8b949e]">Temporada {statsContext.temporada || statsMatch.fecha?.slice(0, 4)} · {stats.length} deportistas · {statsContext.roster_source === 'categoria' ? 'plantel de categoría' : 'citaciones confirmadas'}</p></div><div className="flex gap-2"><button onClick={() => setShowAdvanced((value) => !value)} className="rounded-xl border border-violet-400/25 bg-violet-500/10 px-3 py-2 text-xs font-black text-violet-300">{showAdvanced ? 'Ocultar avanzadas' : 'Métricas avanzadas'}</button><button onClick={() => setStatsMatch(null)} className="text-2xl text-[#8995a4]">×</button></div></div>
+    {statsMatch && statsProfile ? createPortal(<div className="lestra-performance-popup fixed inset-0 z-[100000] flex items-center justify-center bg-black/85 p-3" role="dialog" aria-modal="true" aria-label="Registrar rendimiento"><div className="lestra-performance-popup-card max-h-[95vh] w-full max-w-6xl overflow-y-auto rounded-[26px] border border-[#C8A96B]/25 bg-[#151b25] p-5 sm:p-7">
+      <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-black uppercase text-[#D8BE87]">Eventos y Rendimiento · {statsProfile.label}</p><h2 className="mt-1 text-2xl font-black text-white">{statsProfile.icon} {statsMatch.rival}</h2><p className="mt-1 text-xs text-[#8b949e]">Temporada {statsContext.temporada || statsMatch.fecha?.slice(0, 4)} · {stats.length} deportistas · {statsContext.roster_source === 'categoria' ? 'plantel de categoría' : 'citaciones confirmadas'}</p></div><div className="flex gap-2"><button type="button" onClick={() => setShowAdvanced((value) => !value)} className="rounded-xl border border-violet-400/25 bg-violet-500/10 px-3 py-2 text-xs font-black text-violet-300">{showAdvanced ? 'Ocultar avanzadas' : 'Métricas avanzadas'}</button><button type="button" aria-label="Cerrar rendimiento" onClick={() => setStatsMatch(null)} className="lestra-performance-close text-2xl text-[#8995a4]">×</button></div></div>
 
       {statsProfile.usesHeadToHeadScore ? <section className="mt-5 rounded-2xl border border-[#289E9D]/20 bg-[#0d1117] p-4"><p className="text-[10px] font-black uppercase tracking-[.14em] text-[#70e4df]">Resultado general</p><div className="mt-3 grid grid-cols-2 gap-3"><label><span className="text-xs font-bold text-[#9aa6b5]">A favor · {statsProfile.scoreLabel}</span><input type="number" min="0" value={score.favor} onChange={(event) => setScore({ ...score, favor: event.target.value })} className={`${field} mt-1 text-center text-xl font-black`} /></label><label><span className="text-xs font-bold text-[#9aa6b5]">Rival · {statsProfile.scoreLabel}</span><input type="number" min="0" value={score.contra} onChange={(event) => setScore({ ...score, contra: event.target.value })} className={`${field} mt-1 text-center text-xl font-black`} /></label></div></section> : <section className="mt-5 rounded-2xl border border-[#C8A96B]/25 bg-[#C8A96B]/10 p-4"><p className="text-[10px] font-black uppercase tracking-[.14em] text-[#D8BE87]">Prueba y marca oficial</p><p className="mt-1 text-sm font-black text-white">{testName}</p><p className="mt-1 text-xs leading-5 text-[#b8ad95]">La marca que ingresas corresponde a <strong>este evento</strong>. Si el alumno no tiene una marca anterior, al guardar esta primera carrera/prueba Lestra la convertirá automáticamente en su PB y SB inicial.</p></section>}
 
@@ -503,6 +503,6 @@ export default function EventosRendimiento() {
 
       <label className="mt-5 flex items-start gap-3 rounded-xl border border-[#289E9D]/20 bg-[#289E9D]/10 p-3 text-sm font-bold text-[#bff8f5]"><input type="checkbox" checked={sendReport} onChange={(event) => setSendReport(event.target.checked)} className="mt-1" /><span><span className="block">Enviar resumen de rendimiento por WhatsApp</span><span className="mt-1 block text-xs font-normal leading-5 text-[#8fc9c7]">La familia recibirá participación, métricas y nuevas marcas PB/SB cuando corresponda.</span></span></label>
       <button disabled={savingStats || !stats.length} onClick={() => void saveStats()} className="mt-4 min-h-12 w-full rounded-xl bg-[#C8A96B] px-5 text-sm font-black text-[#15120c] disabled:opacity-50">{savingStats ? 'Guardando historial deportivo…' : sendReport ? 'Guardar rendimiento y enviar informes' : 'Guardar resultado y rendimiento'}</button>
-    </div></div> : null}
+    </div></div>, document.body) : null}
   </div>;
 }
