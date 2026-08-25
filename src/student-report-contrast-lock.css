@@ -1,0 +1,103 @@
+/* Lestra Deportivo — contrato final de contraste para el modal de informe familiar.
+ * Solo presentación. Se carga al final de la cascada para evitar que estilos
+ * globales vuelvan a ocultar la X o el botón secundario de descarga.
+ */
+
+/* Cierre: botón oscuro con X lima/blanca siempre visible. */
+#root .student-report-modal button[aria-label="Cerrar"] {
+  background: #10170f !important;
+  border: 1px solid #2f3c2f !important;
+  color: #d9ff55 !important;
+  -webkit-text-fill-color: #d9ff55 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+}
+
+#root .student-report-modal button[aria-label="Cerrar"] svg {
+  display: block !important;
+  color: #d9ff55 !important;
+  stroke: #d9ff55 !important;
+  fill: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+#root .student-report-modal button[aria-label="Cerrar"]:hover {
+  background: #192219 !important;
+  border-color: #a9d51c !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+#root .student-report-modal button[aria-label="Cerrar"]:hover svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+/* Primer CTA: "Solo descargar PDF". En el modal claro debe usar tinta oscura,
+   no lima brillante sobre blanco. */
+#root .student-report-modal div.mt-5.grid > button:first-child {
+  background: #ffffff !important;
+  border: 1.5px solid #9fc71b !important;
+  color: #5a7300 !important;
+  -webkit-text-fill-color: #5a7300 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+}
+
+#root .student-report-modal div.mt-5.grid > button:first-child svg {
+  color: #5a7300 !important;
+  stroke: #5a7300 !important;
+  fill: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#root .student-report-modal div.mt-5.grid > button:first-child:hover:not(:disabled) {
+  background: #f4f9e8 !important;
+  border-color: #7fa400 !important;
+  color: #425900 !important;
+  -webkit-text-fill-color: #425900 !important;
+}
+
+#root .student-report-modal div.mt-5.grid > button:first-child:hover:not(:disabled) svg {
+  color: #425900 !important;
+  stroke: #425900 !important;
+}
+
+/* Durante generación el botón sigue siendo legible. */
+#root .student-report-modal div.mt-5.grid > button:first-child:disabled {
+  background: #f1f3ed !important;
+  border-color: #bdc9a1 !important;
+  color: #66714d !important;
+  -webkit-text-fill-color: #66714d !important;
+  opacity: 1 !important;
+}
+
+#root .student-report-modal div.mt-5.grid > button:first-child:disabled svg {
+  color: #66714d !important;
+  stroke: #66714d !important;
+}
+
+/* CTA principal: conservar la identidad Lestra y asegurar tinta oscura. */
+#root .student-report-modal div.mt-5.grid > button:last-child {
+  background: #b7ff00 !important;
+  border-color: #a4e500 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  opacity: 1 !important;
+}
+
+#root .student-report-modal div.mt-5.grid > button:last-child svg {
+  color: #111711 !important;
+  stroke: #111711 !important;
+  opacity: 1 !important;
+}
