@@ -42,6 +42,7 @@ import './matricula-actions-contrast-lock.css';
 import './inscripciones-contrast-lock.css';
 import './student-report-contrast-lock.css';
 import './dialog-readability.css';
+import './director-contrast-safety.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
