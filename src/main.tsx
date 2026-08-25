@@ -45,6 +45,7 @@ import './dialog-readability.css';
 import './director-contrast-safety.css';
 import './tournament-contrast-safety.css';
 import './events-confirmations-contrast-lock.css';
+import './events-popup-simple.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
