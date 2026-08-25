@@ -1,0 +1,296 @@
+/* Registrar rendimiento: modal global real y legible.
+ * Se monta mediante createPortal directamente en document.body.
+ */
+
+.lestra-performance-popup {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483000 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+  overflow: hidden !important;
+  background: rgba(8, 12, 9, .52) !important;
+  pointer-events: auto !important;
+  isolation: isolate !important;
+}
+
+.lestra-performance-popup-card {
+  position: relative !important;
+  width: min(1180px, calc(100vw - 32px)) !important;
+  max-width: 1180px !important;
+  max-height: 92dvh !important;
+  margin: 0 !important;
+  padding: 22px !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  border: 1px solid #d8dfd5 !important;
+  border-radius: 22px !important;
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  box-shadow: 0 28px 80px rgba(10, 16, 11, .30) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Cabecera: permanece visible mientras se recorren los deportistas. */
+.lestra-performance-popup-card > div:first-child {
+  position: sticky !important;
+  top: -22px !important;
+  z-index: 20 !important;
+  margin: -22px -22px 0 !important;
+  padding: 18px 22px 15px !important;
+  border-bottom: 1px solid #e5eae2 !important;
+  background: rgba(255,255,255,.97) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+.lestra-performance-popup-card > div:first-child h2,
+.lestra-performance-popup-card .text-white {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  opacity: 1 !important;
+}
+
+.lestra-performance-popup-card > div:first-child > div:first-child > p:first-child,
+.lestra-performance-popup-card [class*="text-[#D8BE87]"],
+.lestra-performance-popup-card [class*="text-sky-300"],
+.lestra-performance-popup-card [class*="text-violet-300"] {
+  color: #668300 !important;
+  -webkit-text-fill-color: #668300 !important;
+  opacity: 1 !important;
+}
+
+.lestra-performance-popup-card [class*="text-[#8b949e]"],
+.lestra-performance-popup-card [class*="text-[#697586]"],
+.lestra-performance-popup-card [class*="text-[#9aa6b5]"],
+.lestra-performance-popup-card [class*="text-[#b8ad95]"],
+.lestra-performance-popup-card [class*="text-[#8fc9c7]"] {
+  color: #5a675a !important;
+  -webkit-text-fill-color: #5a675a !important;
+  opacity: 1 !important;
+}
+
+/* Todas las antiguas superficies oscuras pasan a ser tarjetas claras. */
+.lestra-performance-popup-card [class*="bg-[#0d1117]"],
+.lestra-performance-popup-card [class*="bg-[#151b25]"],
+.lestra-performance-popup-card [class*="bg-sky-500/5"],
+.lestra-performance-popup-card [class*="bg-violet-500/5"] {
+  background: #f8faf6 !important;
+  border-color: #dce3d9 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  box-shadow: none !important;
+}
+
+/* Secciones de resultado / marca: acentos suaves, texto oscuro. */
+.lestra-performance-popup-card > section[class*="bg-[#0d1117]"],
+.lestra-performance-popup-card > section[class*="bg-[#C8A96B]"] {
+  background: #f4f8ea !important;
+  border-color: #cfe39f !important;
+}
+
+.lestra-performance-popup-card section p[class*="uppercase"] {
+  color: #668300 !important;
+  -webkit-text-fill-color: #668300 !important;
+}
+
+/* Inputs y campos dejan de heredar fondo negro/texto blanco. */
+.lestra-performance-popup-card input:not([type="checkbox"]),
+.lestra-performance-popup-card select,
+.lestra-performance-popup-card textarea {
+  border: 1px solid #d1d9ce !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  caret-color: #111711 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  color-scheme: light !important;
+}
+
+.lestra-performance-popup-card input:not([type="checkbox"]):focus,
+.lestra-performance-popup-card select:focus,
+.lestra-performance-popup-card textarea:focus {
+  border-color: #92b500 !important;
+  outline: 2px solid rgba(183,255,0,.18) !important;
+  outline-offset: 1px !important;
+}
+
+.lestra-performance-popup-card input[type="checkbox"] {
+  accent-color: #91b800 !important;
+}
+
+.lestra-performance-popup-card input:disabled,
+.lestra-performance-popup-card textarea:disabled,
+.lestra-performance-popup-card select:disabled {
+  background: #f1f3ef !important;
+  color: #7a847a !important;
+  -webkit-text-fill-color: #7a847a !important;
+  opacity: .72 !important;
+}
+
+/* Métricas: valores fuertes y unidades visibles. */
+.lestra-performance-popup-card label[class*="border"] > span:first-child,
+.lestra-performance-popup-card article span[class*="uppercase"] {
+  color: #5d695d !important;
+  -webkit-text-fill-color: #5d695d !important;
+}
+
+.lestra-performance-popup-card label[class*="border"] input[class*="font-black"] {
+  color: #1b251b !important;
+  -webkit-text-fill-color: #1b251b !important;
+}
+
+/* Tarjetas por deportista. */
+.lestra-performance-popup-card article {
+  border-color: #dce3d9 !important;
+  background: #ffffff !important;
+  color: #111711 !important;
+  box-shadow: 0 5px 18px rgba(17,23,17,.035) !important;
+}
+
+.lestra-performance-popup-card article > div:nth-child(2) > label,
+.lestra-performance-popup-card article > label:last-child,
+.lestra-performance-popup-card article label[class*="bg-[#151b25]"] {
+  background: #f8faf6 !important;
+  border-color: #dce3d9 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+}
+
+/* Boton de métricas avanzadas. */
+.lestra-performance-popup-card > div:first-child > div:last-child > button:first-child {
+  border: 1px solid #c9d7b0 !important;
+  background: #f5f8ef !important;
+  color: #516700 !important;
+  -webkit-text-fill-color: #516700 !important;
+  opacity: 1 !important;
+}
+
+.lestra-performance-popup-card > div:first-child > div:last-child > button:first-child:hover {
+  background: #edf4dc !important;
+  border-color: #afc67e !important;
+}
+
+/* Cerrar siempre visible. */
+.lestra-performance-close {
+  display: inline-flex !important;
+  width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid #d5ddd2 !important;
+  border-radius: 10px !important;
+  background: #f5f7f3 !important;
+  color: #263126 !important;
+  -webkit-text-fill-color: #263126 !important;
+  font-size: 22px !important;
+  line-height: 1 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.lestra-performance-close:hover {
+  background: #eaf0e7 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+}
+
+/* Destacado/a conserva significado sin desaparecer. */
+.lestra-performance-popup-card article button {
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+.lestra-performance-popup-card article button[class*="bg-[#C8A96B]"] {
+  background: #e8f5c6 !important;
+  border: 1px solid #bfd878 !important;
+  color: #425500 !important;
+  -webkit-text-fill-color: #425500 !important;
+}
+
+.lestra-performance-popup-card article button[class*="border-[#C8A96B]"] {
+  background: #ffffff !important;
+  border-color: #c9d7aa !important;
+  color: #617200 !important;
+  -webkit-text-fill-color: #617200 !important;
+}
+
+/* Envio de resumen WhatsApp. */
+.lestra-performance-popup-card > label[class*="bg-[#289E9D]"] {
+  background: #f1f7df !important;
+  border-color: #c8dd91 !important;
+  color: #2f3c20 !important;
+  -webkit-text-fill-color: #2f3c20 !important;
+}
+
+.lestra-performance-popup-card > label[class*="bg-[#289E9D]"] span {
+  color: #405040 !important;
+  -webkit-text-fill-color: #405040 !important;
+}
+
+/* Guardado: CTA Lestra, no dorado legado. */
+.lestra-performance-popup-card > button:last-child {
+  min-height: 46px !important;
+  border: 1px solid #a9e400 !important;
+  border-radius: 12px !important;
+  background: #b7ff00 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  box-shadow: none !important;
+}
+
+.lestra-performance-popup-card > button:last-child:hover:not(:disabled) {
+  background: #c5ff32 !important;
+  border-color: #b4ef12 !important;
+}
+
+.lestra-performance-popup-card > button:last-child:disabled {
+  background: #e4ebd4 !important;
+  border-color: #d2dbc1 !important;
+  color: #727b69 !important;
+  -webkit-text-fill-color: #727b69 !important;
+  opacity: 1 !important;
+}
+
+/* Blindaje final contra los contratos visuales del dashboard. */
+.lestra-performance-popup-card :is(h2,p,span,label,button,input,select,textarea) {
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+}
+
+@media (max-width: 640px) {
+  .lestra-performance-popup {
+    align-items: stretch !important;
+    padding: 8px !important;
+  }
+
+  .lestra-performance-popup-card {
+    width: 100% !important;
+    max-height: calc(100dvh - 16px) !important;
+    padding: 15px !important;
+    border-radius: 17px !important;
+  }
+
+  .lestra-performance-popup-card > div:first-child {
+    top: -15px !important;
+    margin: -15px -15px 0 !important;
+    padding: 14px 15px 12px !important;
+  }
+}
