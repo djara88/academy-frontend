@@ -29,7 +29,7 @@ export default function FinanzasCompat() {
     return <DirectorPanel className="mx-auto max-w-6xl p-12 text-center text-sm font-bold text-[#697468]">Comprobando servicios financieros...</DirectorPanel>;
   }
 
-  return <DirectorPage className="max-w-[1500px]">
+  return <DirectorPage className="finance-module-scope max-w-[1500px]">
     <DirectorHero eyebrow="Administración financiera" title="Finanzas y recaudación" description="Controla cuentas corrientes, pagos, egresos, flujo y cobranza desde una sola vista conectada a las inscripciones deportivas y medios de pago de la academia." aside={<div className="rounded-[22px] border border-white/10 bg-white/5 p-5"><p className="text-[10px] font-black uppercase tracking-[.14em] text-[#b7ff00]">Operación conectada</p><p className="mt-2 text-lg font-black text-white">Cobros → pagos → conciliación</p><p className="mt-2 text-xs leading-5 text-[#c7d0c8]">Cada movimiento mantiene el vínculo con el alumno y su inscripción deportiva.</p></div>}/>
     <Suspense fallback={<DirectorPanel className="p-12 text-center text-sm font-bold text-[#697468]">Cargando Finanzas...</DirectorPanel>}>
       {mode === 'advanced' ? <FinanzasAdvanced /> : <FinanzasLegacy />}
