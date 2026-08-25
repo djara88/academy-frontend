@@ -1,7 +1,9 @@
-/* Torneos — cierre visual del resumen de pago.
- * Esta superficie es deliberadamente oscura; el texto no puede heredar tinta
- * del DirectorPanel claro.
+/* Torneos — contrato visual final.
+ * Mantiene la lógica intacta y fija contraste por superficie para gestión,
+ * participación, estados y eventos de una competencia.
  */
+
+/* Resumen de pago oscuro */
 #root .lestra-director-main .tournament-payment-summary {
   background: #111711 !important;
   border-color: #263026 !important;
@@ -22,15 +24,48 @@
 }
 
 /* --------------------------------------------------------------------------
+   KPI DE PARTICIPACIÓN
+   Es el bloque inmediatamente anterior a #participantes.
+   -------------------------------------------------------------------------- */
+#root .lestra-director-main section:has(+ #participantes) .director-stat {
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+#root .lestra-director-main section:has(+ #participantes) .director-stat-label {
+  color: #5d7600 !important;
+  -webkit-text-fill-color: #5d7600 !important;
+  font-size: 11px !important;
+  letter-spacing: .11em !important;
+  opacity: 1 !important;
+}
+
+#root .lestra-director-main section:has(+ #participantes) .director-stat-value {
+  color: #0d120d !important;
+  -webkit-text-fill-color: #0d120d !important;
+  font-size: 1.65rem !important;
+  line-height: 1 !important;
+  opacity: 1 !important;
+}
+
+#root .lestra-director-main section:has(+ #participantes) .director-stat-dark .director-stat-label {
+  color: #b7ff00 !important;
+  -webkit-text-fill-color: #b7ff00 !important;
+}
+
+#root .lestra-director-main section:has(+ #participantes) .director-stat-dark .director-stat-value {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* --------------------------------------------------------------------------
    PARTICIPACIÓN DEL TORNEO
-   El panel #participantes es una superficie clara. Varias hojas históricas del
-   Director estaban heredando blanco/grises demasiado suaves dentro del panel.
-   Este contrato se carga al final y fija contraste por superficie, no por orden
-   de nodos. No modifica ninguna lógica de convocatoria.
    -------------------------------------------------------------------------- */
 #root .lestra-director-main #participantes {
   background: #ffffff !important;
-  border-color: #cde995 !important;
+  border-color: #bddd73 !important;
   color: #111711 !important;
   -webkit-text-fill-color: #111711 !important;
   opacity: 1 !important;
@@ -39,94 +74,147 @@
   mix-blend-mode: normal !important;
 }
 
-/* Títulos y contenido principal */
 #root .lestra-director-main #participantes :is(h1,h2,h3,h4,strong) {
-  color: #111711 !important;
-  -webkit-text-fill-color: #111711 !important;
+  color: #0e140e !important;
+  -webkit-text-fill-color: #0e140e !important;
   opacity: 1 !important;
   visibility: visible !important;
   filter: none !important;
   mix-blend-mode: normal !important;
   text-shadow: none !important;
+}
+
+#root .lestra-director-main #participantes h2 {
+  font-size: clamp(1.55rem, 2.2vw, 2rem) !important;
+  line-height: 1.08 !important;
+}
+
+#root .lestra-director-main #participantes h3 {
+  font-size: 1.15rem !important;
+  line-height: 1.2 !important;
 }
 
 #root .lestra-director-main #participantes p {
-  color: #4f5b4f !important;
-  -webkit-text-fill-color: #4f5b4f !important;
+  color: #4b574b !important;
+  -webkit-text-fill-color: #4b574b !important;
   opacity: 1 !important;
   visibility: visible !important;
   filter: none !important;
   mix-blend-mode: normal !important;
   text-shadow: none !important;
+}
+
+/* Texto introductorio: un poco más grande y nítido */
+#root .lestra-director-main #participantes > div:first-child p:not([class*="uppercase"]) {
+  color: #4c584c !important;
+  -webkit-text-fill-color: #4c584c !important;
+  font-size: 14px !important;
+  line-height: 1.7 !important;
 }
 
 /* Eyebrows, labels y títulos de paso */
 #root .lestra-director-main #participantes p[class*="uppercase"],
 #root .lestra-director-main #participantes label > span,
 #root .lestra-director-main #participantes [class*="tracking-"][class*="uppercase"] {
-  color: #5f7800 !important;
-  -webkit-text-fill-color: #5f7800 !important;
+  color: #5a7200 !important;
+  -webkit-text-fill-color: #5a7200 !important;
   opacity: 1 !important;
   visibility: visible !important;
+  font-weight: 900 !important;
 }
 
 /* Selector de categoría */
-#root .lestra-director-main #participantes select,
-#root .lestra-director-main #participantes option {
+#root .lestra-director-main #participantes select {
+  min-height: 46px !important;
   color: #111711 !important;
   -webkit-text-fill-color: #111711 !important;
-  background-color: #f3f6f0 !important;
+  background-color: #f4f7f1 !important;
+  border-color: #cfd7cc !important;
+  font-weight: 800 !important;
   opacity: 1 !important;
   visibility: visible !important;
 }
 
-/* Estado resumen verde */
+#root .lestra-director-main #participantes option {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  background-color: #ffffff !important;
+}
+
+/* Resumen superior */
+#root .lestra-director-main #participantes > div:first-child > div:last-child {
+  background: #f3fadf !important;
+  border-color: #c2df7c !important;
+  color: #3f5600 !important;
+  -webkit-text-fill-color: #3f5600 !important;
+  font-weight: 900 !important;
+}
+
+/* Superficies verdes */
 #root .lestra-director-main #participantes [class*="bg-[#f3fadf]"] {
-  color: #415500 !important;
-  -webkit-text-fill-color: #415500 !important;
+  color: #3f5600 !important;
+  -webkit-text-fill-color: #3f5600 !important;
 }
 
 #root .lestra-director-main #participantes [class*="bg-[#f3fadf]"] :is(p,span,strong) {
-  color: #415500 !important;
-  -webkit-text-fill-color: #415500 !important;
+  color: #3f5600 !important;
+  -webkit-text-fill-color: #3f5600 !important;
 }
 
-/* Estados pendientes / no participa mantienen semántica y contraste */
+/* Estados semánticos */
+#root .lestra-director-main #participantes [class*="bg-amber-50"] {
+  background: #fff7dc !important;
+  border-color: #e7cf75 !important;
+}
+
 #root .lestra-director-main #participantes [class*="bg-amber-50"] :is(p,span,strong),
 #root .lestra-director-main #participantes [class*="text-amber-"] {
-  color: #7a5900 !important;
-  -webkit-text-fill-color: #7a5900 !important;
+  color: #765600 !important;
+  -webkit-text-fill-color: #765600 !important;
+}
+
+#root .lestra-director-main #participantes [class*="bg-red-50"] {
+  background: #fff0f0 !important;
+  border-color: #eab7b7 !important;
 }
 
 #root .lestra-director-main #participantes [class*="bg-red-50"] :is(p,span,strong),
 #root .lestra-director-main #participantes [class*="text-red-"] {
-  color: #9b2c2c !important;
-  -webkit-text-fill-color: #9b2c2c !important;
+  color: #982e2e !important;
+  -webkit-text-fill-color: #982e2e !important;
 }
 
-/* Estados vacíos: nunca más gris sobre blanco */
+/* Estado vacío */
 #root .lestra-director-main #participantes [class*="border-dashed"] {
-  background: #f8faf6 !important;
-  border-color: #cfd8cb !important;
-  color: #2d372d !important;
+  background: #fafbf8 !important;
+  border-color: #cbd4c8 !important;
+  color: #263126 !important;
   opacity: 1 !important;
   visibility: visible !important;
 }
 
 #root .lestra-director-main #participantes [class*="border-dashed"] :is(p,span,strong) {
-  color: #4c594c !important;
-  -webkit-text-fill-color: #4c594c !important;
+  color: #4b584b !important;
+  -webkit-text-fill-color: #4b584b !important;
   opacity: 1 !important;
   visibility: visible !important;
 }
 
-#root .lestra-director-main #participantes [class*="border-dashed"] :is(p,strong):first-child {
-  color: #273127 !important;
-  -webkit-text-fill-color: #273127 !important;
+#root .lestra-director-main #participantes [class*="border-dashed"] p:first-child {
+  color: #202920 !important;
+  -webkit-text-fill-color: #202920 !important;
+  font-size: 14px !important;
   font-weight: 900 !important;
 }
 
-/* Botones: las acciones claras y lima siempre deben leerse */
+#root .lestra-director-main #participantes [class*="border-dashed"] p + p {
+  color: #596559 !important;
+  -webkit-text-fill-color: #596559 !important;
+  font-size: 12px !important;
+  line-height: 1.55 !important;
+}
+
+/* Acciones */
 #root .lestra-director-main #participantes button,
 #root .lestra-director-main #participantes a {
   opacity: 1 !important;
@@ -137,20 +225,100 @@
 }
 
 #root .lestra-director-main #participantes button[class*="bg-white"],
-#root .lestra-director-main #participantes a[class*="bg-white"],
-#root .lestra-director-main #participantes button[class*="bg-[#b7ff00]"],
-#root .lestra-director-main #participantes a[class*="bg-[#b7ff00]"] {
-  color: #111711 !important;
-  -webkit-text-fill-color: #111711 !important;
+#root .lestra-director-main #participantes a[class*="bg-white"] {
+  color: #202720 !important;
+  -webkit-text-fill-color: #202720 !important;
+  border-color: #cfd7cc !important;
 }
 
-/* Fichas de alumnos: nombre y estado nunca heredan blanco */
+#root .lestra-director-main #participantes button[class*="bg-[#b7ff00]"],
+#root .lestra-director-main #participantes a[class*="bg-[#b7ff00]"] {
+  color: #101610 !important;
+  -webkit-text-fill-color: #101610 !important;
+}
+
+/* Alumnos elegibles */
 #root .lestra-director-main #participantes button p {
   color: #111711 !important;
   -webkit-text-fill-color: #111711 !important;
 }
 
 #root .lestra-director-main #participantes button p + p {
-  color: #5a665a !important;
-  -webkit-text-fill-color: #5a665a !important;
+  color: #515e51 !important;
+  -webkit-text-fill-color: #515e51 !important;
+  font-size: 11px !important;
+}
+
+/* Participantes registrados: la tarjeta debe leerse como información, no como disabled */
+#root .lestra-director-main #participantes > div[class*="border-t"] [class*="bg-[#f8faf6]"] {
+  background: #f7f9f5 !important;
+  border-color: #d3dbd0 !important;
+  box-shadow: 0 4px 14px rgba(15,23,16,.035) !important;
+}
+
+#root .lestra-director-main #participantes > div[class*="border-t"] [class*="bg-[#f8faf6]"] p:first-child {
+  color: #121912 !important;
+  -webkit-text-fill-color: #121912 !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+}
+
+#root .lestra-director-main #participantes > div[class*="border-t"] [class*="bg-[#f8faf6]"] p + p {
+  color: #4f5d4f !important;
+  -webkit-text-fill-color: #4f5d4f !important;
+  font-size: 11px !important;
+  font-weight: 650 !important;
+  line-height: 1.4 !important;
+}
+
+/* Chips de estado más firmes */
+#root .lestra-director-main #participantes > div[class*="border-t"] span[class*="rounded-full"] {
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+}
+
+/* --------------------------------------------------------------------------
+   EVENTOS DE LA COMPETENCIA (panel inmediatamente posterior)
+   -------------------------------------------------------------------------- */
+#root .lestra-director-main #participantes + .director-module-panel {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+}
+
+#root .lestra-director-main #participantes + .director-module-panel :is(h2,h3,strong) {
+  color: #101610 !important;
+  -webkit-text-fill-color: #101610 !important;
+}
+
+#root .lestra-director-main #participantes + .director-module-panel p {
+  color: #4d594d !important;
+  -webkit-text-fill-color: #4d594d !important;
+  opacity: 1 !important;
+}
+
+#root .lestra-director-main #participantes + .director-module-panel p[class*="uppercase"] {
+  color: #5a7200 !important;
+  -webkit-text-fill-color: #5a7200 !important;
+  font-weight: 900 !important;
+}
+
+#root .lestra-director-main #participantes + .director-module-panel article {
+  background: #f8faf6 !important;
+  border-color: #d3dbd0 !important;
+}
+
+#root .lestra-director-main #participantes + .director-module-panel article p[class*="text-xs"] {
+  color: #526052 !important;
+  -webkit-text-fill-color: #526052 !important;
+}
+
+#root .lestra-director-main #participantes + .director-module-panel [class*="border-dashed"] p:first-child {
+  color: #202920 !important;
+  -webkit-text-fill-color: #202920 !important;
+}
+
+#root .lestra-director-main #participantes + .director-module-panel [class*="border-dashed"] p + p {
+  color: #586558 !important;
+  -webkit-text-fill-color: #586558 !important;
 }
