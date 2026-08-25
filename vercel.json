@@ -1,4 +1,5 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "headers": [
     {
       "source": "/(.*)",
@@ -22,6 +23,13 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/",
+      "has": [
+        { "type": "host", "value": "deportivo.lestra.app" }
+      ],
+      "destination": "/deportivo.html"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
