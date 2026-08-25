@@ -44,6 +44,21 @@ type Metrics = {
   };
   categorias: Array<{ nombre: string; porcentaje: number; presentes: number; total: number }>;
   jugadores: Array<{ nombre: string; porcentaje: number; presentes: number; total: number }>;
+  registros?: Array<{
+    registro_id?: string;
+    entrenamiento_id: string;
+    fecha: string;
+    hora?: string | null;
+    registrado_at?: string | null;
+    alumno: string;
+    jugador_id?: string;
+    estado: 'Presente' | 'Ausente' | 'Justificado';
+    categoria: string;
+    rama: string;
+    disciplina?: string;
+    lugar?: string | null;
+    es_recuperacion: boolean;
+  }>;
 };
 type AttendanceStatus = 'Presente' | 'Ausente' | 'Justificado';
 
@@ -261,18 +276,68 @@ export default function AsistenciasMultirama() {
   };
 
   const exportExcel = () => {
-    if (!metrics?.jugadores?.length) return void notify('No hay datos para exportar.');
-    const sheet = XLSX.utils.json_to_sheet(metrics.jugadores.map((item, index) => ({
+    const detail = metrics?.registros || [];
+    if (!metrics?.jugadores?.length && !detail.length) return void notify('No hay datos para exportar.');
+
+    const summaryRows = (metrics?.jugadores || []).map((item, index) => ({
       Ranking: index + 1,
       Alumno: item.nombre,
       'Porcentaje (%)': item.porcentaje,
       Presentes: item.presentes,
-      Registros: item.total,
+      'Registros únicos': item.total,
       Rama: branch?.nombre || '',
-    })));
+      Disciplina: branch?.disciplina || '',
+      Mes: month,
+      Año: year,
+    }));
+
+    const detailRows = detail.map((item) => {
+      const sessionDate = item.fecha ? new Date(`${item.fecha}T12:00:00`) : null;
+      const registeredDate = item.registrado_at ? new Date(item.registrado_at) : null;
+      const validRegistrationDate = registeredDate && !Number.isNaN(registeredDate.getTime());
+      return {
+        'Fecha sesión': sessionDate && !Number.isNaN(sessionDate.getTime()) ? sessionDate.toLocaleDateString('es-CL') : item.fecha || '',
+        'Hora sesión': item.hora || '',
+        Alumno: item.alumno,
+        Estado: item.estado,
+        Categoría: item.categoria,
+        Rama: item.rama || branch?.nombre || '',
+        Disciplina: item.disciplina || branch?.disciplina || '',
+        Lugar: item.lugar || '',
+        'Tipo de clase': item.es_recuperacion ? 'Recuperación' : 'Regular',
+        'Fecha registro': validRegistrationDate ? registeredDate.toLocaleDateString('es-CL', { timeZone: 'America/Santiago' }) : '',
+        'Hora registro': validRegistrationDate ? registeredDate.toLocaleTimeString('es-CL', {
+          timeZone: 'America/Santiago',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        }) : '',
+        'ID sesión': item.entrenamiento_id,
+      };
+    });
+
     const book = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(book, sheet, 'Asistencias');
-    XLSX.writeFile(book, `Asistencias_${branch?.nombre || 'Rama'}_${month}_${year}.xlsx`);
+    const summarySheet = XLSX.utils.json_to_sheet(summaryRows);
+    summarySheet['!cols'] = [
+      { wch: 10 }, { wch: 30 }, { wch: 16 }, { wch: 12 }, { wch: 18 },
+      { wch: 24 }, { wch: 18 }, { wch: 8 }, { wch: 8 },
+    ];
+    if (summarySheet['!ref']) summarySheet['!autofilter'] = { ref: summarySheet['!ref'] };
+    XLSX.utils.book_append_sheet(book, summarySheet, 'Resumen');
+
+    if (detailRows.length) {
+      const detailSheet = XLSX.utils.json_to_sheet(detailRows);
+      detailSheet['!cols'] = [
+        { wch: 16 }, { wch: 14 }, { wch: 30 }, { wch: 14 }, { wch: 24 }, { wch: 24 },
+        { wch: 18 }, { wch: 24 }, { wch: 18 }, { wch: 18 }, { wch: 16 }, { wch: 38 },
+      ];
+      if (detailSheet['!ref']) detailSheet['!autofilter'] = { ref: detailSheet['!ref'] };
+      XLSX.utils.book_append_sheet(book, detailSheet, 'Detalle');
+    }
+
+    const safeBranch = String(branch?.nombre || 'Rama').replace(/[\\/:*?"<>|]+/g, '-');
+    XLSX.writeFile(book, `Asistencias_${safeBranch}_${month}_${year}.xlsx`);
   };
 
   return (
