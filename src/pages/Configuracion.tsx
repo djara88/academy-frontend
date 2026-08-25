@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getAcademyName } from '../config/brand';
 import api from '../api/axiosConfig';
@@ -30,6 +30,7 @@ const percent=(item:UsageItem)=>item.limit?Math.min(100,Math.round((item.used/it
 
 const Configuracion: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { notify } = useAppDialog();
   const academyName = getAcademyName(user?.nombre_academia);
@@ -37,6 +38,7 @@ const Configuracion: React.FC = () => {
   const [primaryBranchId,setPrimaryBranchId] = useState('');
   const [savingPrimary,setSavingPrimary] = useState(false);
   const [plan,setPlan]=useState<PlanSnapshot|null>(null);
+  const section = searchParams.get('seccion');
 
   const load = async () => {
     try {
@@ -76,6 +78,7 @@ const Configuracion: React.FC = () => {
   const modulos:ConfigModule[] = [
     ...(showFriendlies ? [{ titulo: 'Amistosos', desc: 'Programa partidos, controles, exhibiciones o competencias amistosas', icono: '🤝', ruta: '/amistosos' }] : []),
     { titulo: 'Profesores y accesos', desc: 'Administra cupos, accesos y categorías asignadas', icono: '🧑‍🏫', ruta: '/profesores' },
+    { titulo: 'Página pública', desc: 'Configura la página pública de tu academia, redes sociales, colores y galería', icono: '🌐', ruta: '/configuracion?seccion=pagina-publica' },
     { titulo: 'Perfil y horarios', desc: `Datos generales y horarios de ${academyName}`, icono: '🏟️', ruta: '/configuracion/perfil' },
     { titulo: 'Sedes y ramas', desc: 'Administra ubicaciones y disciplinas deportivas', icono: '🏢', ruta: '/configuracion/estructura' },
     { titulo: 'Categorías', desc: 'Crea y organiza categorías dentro de cada rama', icono: '🧩', ruta: '/configuracion/estructura?modo=categorias' },
@@ -87,6 +90,20 @@ const Configuracion: React.FC = () => {
     { titulo: 'WhatsApp', desc: 'Vincula y revisa el estado de la conexión', icono: '📱', ruta: '/whatsapp' },
     { titulo: 'Importar alumnos', desc: 'Carga Excel o CSV y revisa duplicados antes de importar', icono: '📥', ruta: '/importacion' },
   ];
+
+  if (section === 'pagina-publica') {
+    return (
+      <DirectorPage>
+        <DirectorHero
+          eyebrow="Configuración de academia"
+          title="Página pública"
+          description="Administra cómo se presenta tu academia públicamente: enlace, descripción, colores, redes sociales y galería."
+          actions={<button type="button" onClick={()=>navigate('/configuracion')} className={DIRECTOR_BUTTON_DARK}>← Volver a configuración</button>}
+        />
+        <PublicPageEditor academyName={academyName}/>
+      </DirectorPage>
+    );
+  }
 
   return (
     <DirectorPage>
@@ -141,8 +158,6 @@ const Configuracion: React.FC = () => {
           </div>
         </div>
       </DirectorPanel>
-
-      <PublicPageEditor academyName={academyName}/>
 
       <section className="space-y-4">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
