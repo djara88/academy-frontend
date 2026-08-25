@@ -31,7 +31,11 @@
       "destination": "/deportivo.html"
     },
     {
-      "source": "/(.*)",
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/:path((?!deportivo\\.html$).*)",
       "destination": "/index.html"
     }
   ]
