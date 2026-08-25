@@ -1,65 +1,59 @@
-/* Ventana emergente simple para Nuevo/Editar evento.
- * Capa final: solo modifica presentacion, no logica.
+/* Nuevo/Editar evento: popup global real.
+ * Este nodo se monta mediante createPortal directamente en document.body,
+ * por lo que no depende del scroll, overflow ni stacking context del dashboard.
  */
 
-/* El overlay solo oscurece suavemente la pagina. */
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] {
+.lestra-event-popup {
   position: fixed !important;
   inset: 0 !important;
-  z-index: 100000 !important;
+  z-index: 2147483000 !important;
   width: 100vw !important;
   height: 100dvh !important;
-  margin: 0 !important;
-  padding: 24px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  padding: 20px !important;
   overflow: hidden !important;
-  background: rgba(9, 14, 10, .46) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  background: rgba(8, 12, 9, .48) !important;
   pointer-events: auto !important;
+  isolation: isolate !important;
 }
 
-/* Popup compacto, similar a un dialogo convencional. */
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] > div {
+.lestra-event-popup-card {
   position: relative !important;
   width: min(640px, calc(100vw - 32px)) !important;
   max-width: 640px !important;
-  max-height: min(82dvh, 760px) !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  max-height: min(86dvh, 780px) !important;
+  display: flex !important;
+  flex-direction: column !important;
   overflow: hidden !important;
   border: 1px solid #d8dfd5 !important;
   border-radius: 20px !important;
   background: #ffffff !important;
   color: #111711 !important;
   -webkit-text-fill-color: #111711 !important;
-  box-shadow: 0 24px 70px rgba(13, 20, 14, .24) !important;
+  box-shadow: 0 24px 70px rgba(13, 20, 14, .28) !important;
   opacity: 1 !important;
   visibility: visible !important;
 }
 
-/* Cabecera limpia y fija. */
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] > div > div:first-child {
-  min-height: 82px !important;
-  padding: 20px 22px 16px !important;
+.lestra-event-popup-header {
+  flex: 0 0 auto !important;
+  min-height: 78px !important;
+  padding: 18px 20px 15px !important;
   border-bottom: 1px solid #e3e8e0 !important;
   background: #ffffff !important;
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 5 !important;
 }
 
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] > div > div:first-child p {
+.lestra-event-popup-header p {
   margin: 0 !important;
-  color: #789600 !important;
-  -webkit-text-fill-color: #789600 !important;
+  color: #6f8d00 !important;
+  -webkit-text-fill-color: #6f8d00 !important;
   font-size: 10px !important;
   letter-spacing: .12em !important;
 }
 
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] > div > div:first-child h2 {
+.lestra-event-popup-header h2 {
   margin-top: 4px !important;
   color: #111711 !important;
   -webkit-text-fill-color: #111711 !important;
@@ -67,11 +61,13 @@
   line-height: 1.2 !important;
 }
 
-/* X simple, no boton protagonista. */
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] > div > div:first-child > button {
+.lestra-event-popup-header > button {
+  display: inline-flex !important;
   width: 34px !important;
   height: 34px !important;
   min-height: 34px !important;
+  align-items: center !important;
+  justify-content: center !important;
   border: 1px solid #d9e0d6 !important;
   border-radius: 10px !important;
   background: #f7f9f5 !important;
@@ -80,33 +76,35 @@
   font-size: 22px !important;
   line-height: 1 !important;
   box-shadow: none !important;
+  opacity: 1 !important;
 }
 
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] > div > div:first-child > button:hover {
+.lestra-event-popup-header > button:hover {
   background: #eef3ea !important;
   color: #111711 !important;
   -webkit-text-fill-color: #111711 !important;
 }
 
-/* Solo el cuerpo del formulario hace scroll. */
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] > div > div.mt-5 {
+.lestra-event-popup-body {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
   margin-top: 0 !important;
-  max-height: calc(min(82dvh, 760px) - 82px) !important;
+  padding: 18px 20px 20px !important;
   overflow-y: auto !important;
   overscroll-behavior: contain !important;
-  padding: 18px 22px 22px !important;
   scrollbar-gutter: stable !important;
+  background: #ffffff !important;
 }
 
-/* Campos compactos y claros. */
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] label > span {
+.lestra-event-popup label > span {
   color: #566356 !important;
   -webkit-text-fill-color: #566356 !important;
+  opacity: 1 !important;
 }
 
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] input:not([type="checkbox"]),
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] select,
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] textarea {
+.lestra-event-popup input:not([type="checkbox"]),
+.lestra-event-popup select,
+.lestra-event-popup textarea {
   min-height: 44px !important;
   border: 1px solid #d4dcd1 !important;
   border-radius: 11px !important;
@@ -115,38 +113,43 @@
   -webkit-text-fill-color: #111711 !important;
   box-shadow: none !important;
   color-scheme: light !important;
+  opacity: 1 !important;
 }
 
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] input:focus,
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] select:focus,
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] textarea:focus {
-  border-color: #91b900 !important;
+.lestra-event-popup select option {
+  background: #ffffff !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+}
+
+.lestra-event-popup input:focus,
+.lestra-event-popup select:focus,
+.lestra-event-popup textarea:focus {
+  border-color: #8eb700 !important;
   outline: none !important;
-  box-shadow: 0 0 0 3px rgba(183, 255, 0, .12) !important;
+  box-shadow: 0 0 0 3px rgba(183,255,0,.12) !important;
 }
 
-/* Las cajas informativas dejan de parecer ventanas dentro de la ventana. */
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] section,
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] label[class*="bg-[#0d1117]"] {
-  border: 1px solid #e0e6dd !important;
-  border-radius: 14px !important;
+/* Las subzonas del formulario son simples bloques informativos, no modales. */
+.lestra-event-popup section,
+.lestra-event-popup label[class*="bg-[#0d1117]"] {
+  border-color: #dfe6dc !important;
   background: #f8faf6 !important;
   color: #111711 !important;
   box-shadow: none !important;
 }
 
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] section p[class*="uppercase"] {
-  color: #789600 !important;
-  -webkit-text-fill-color: #789600 !important;
+.lestra-event-popup section p[class*="uppercase"] {
+  color: #6f8d00 !important;
+  -webkit-text-fill-color: #6f8d00 !important;
 }
 
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] section p:not([class*="uppercase"]) {
+.lestra-event-popup section p:not([class*="uppercase"]) {
   color: #5d695d !important;
   -webkit-text-fill-color: #5d695d !important;
 }
 
-/* Accion final: una sola accion principal sencilla. */
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] > div > div.mt-5 > button:last-child {
+.lestra-event-popup .lestra-event-popup-body > button:last-child {
   min-height: 46px !important;
   border: 1px solid #a8e600 !important;
   border-radius: 12px !important;
@@ -155,26 +158,38 @@
   -webkit-text-fill-color: #111711 !important;
   font-weight: 900 !important;
   box-shadow: none !important;
+  opacity: 1 !important;
 }
 
-#root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] > div > div.mt-5 > button:last-child:hover {
+.lestra-event-popup .lestra-event-popup-body > button:last-child:hover {
   background: #c5ff35 !important;
 }
 
+/* Garantiza que ninguna capa histórica del Director vuelva a intervenir. */
+.lestra-event-popup :is(h2,p,span,label,button,input,select,option,textarea) {
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+}
+
 @media (max-width: 640px) {
-  #root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] {
-    padding: 12px !important;
-    align-items: center !important;
+  .lestra-event-popup {
+    padding: 10px !important;
   }
 
-  #root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] > div {
+  .lestra-event-popup-card {
     width: 100% !important;
-    max-height: calc(100dvh - 24px) !important;
+    max-height: calc(100dvh - 20px) !important;
     border-radius: 16px !important;
   }
 
-  #root .lestra-director-main .events-performance-scope > div > div.fixed.inset-0[class*="z-[70]"] > div > div.mt-5 {
-    max-height: calc(100dvh - 106px) !important;
+  .lestra-event-popup-header {
+    min-height: 72px !important;
+    padding: 16px !important;
+  }
+
+  .lestra-event-popup-body {
     padding: 16px !important;
   }
 }
