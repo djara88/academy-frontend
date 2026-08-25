@@ -16,12 +16,26 @@ export default function NuevoTorneoMultirama(){
 
   useEffect(()=>{const load=async()=>{try{const response=await api.get('/api/academias/rama-principal');const data=response.data.data;const ramaId=data?.rama_principal_id||data?.ramas?.[0]?.id||'';setBranches(data?.ramas||[]);setForm(current=>({...current,rama_id:ramaId}));}catch(error){console.error(error);}};void load();},[]);
   const selected=branches.find(branch=>branch.id===form.rama_id)||null;
-  const save=async()=>{if(!form.rama_id||!form.nombre.trim())return void notify('Selecciona la rama e ingresa el nombre del campeonato o competencia.');setSaving(true);try{const response=await api.post('/api/torneos',{...form,tipo_gestion:'externo',formato_competencia:'seguimiento',costo_inscripcion:Number(form.costo_inscripcion)||0,max_cuotas:Number(form.max_cuotas)||2});await notify('Competencia creada. Ahora puedes convocar alumnos y agregar sus partidos, duelos, pruebas o presentaciones.');navigate(`/torneos/${response.data.data.id}`);}catch(error:any){await notify(error.response?.data?.error||'No fue posible crear la competencia.');}finally{setSaving(false);}};
+
+  const save=async()=>{
+    if(!form.rama_id||!form.nombre.trim())return void notify('Selecciona la rama e ingresa el nombre del campeonato o competencia.');
+    if(form.fecha_inicio&&form.fecha_fin&&form.fecha_fin<form.fecha_inicio)return void notify('La fecha de término no puede ser anterior a la fecha de inicio.');
+    setSaving(true);
+    try{
+      const response=await api.post('/api/torneos',{...form,tipo_gestion:'externo',formato_competencia:'seguimiento',costo_inscripcion:Number(form.costo_inscripcion)||0,max_cuotas:Number(form.max_cuotas)||2});
+      await notify('Competencia creada. El siguiente paso es definir quiénes participarán. No necesitas tener partidos programados para enviar la convocatoria.');
+      navigate(`/torneos/${response.data.data.id}`);
+    }catch(error:any){
+      await notify(error.response?.data?.error||'No fue posible crear la competencia.');
+    }finally{
+      setSaving(false);
+    }
+  };
 
   return <DirectorPage className="max-w-5xl">
-    <DirectorHero eyebrow="Competencias · Lestra" title="Registrar competencia" description="Crea el contenedor deportivo y luego agrega sus eventos reales: partidos, duelos, pruebas, carreras o presentaciones según la disciplina." actions={<button onClick={()=>navigate('/torneos')} className={DIRECTOR_BUTTON_DARK}>← Competencias</button>} aside={selected?<div className="rounded-[20px] border border-white/15 bg-white/[.055] p-5"><p className="text-[10px] font-black uppercase tracking-[.14em] text-[#b7ff00]">Rama seleccionada</p><p className="mt-2 text-xl font-black text-white">{selected.nombre}</p><p className="mt-1 text-xs font-semibold text-[#c7d0c8]">{selected.disciplina}{selected.sedes?.nombre?` · ${selected.sedes.nombre}`:''}</p></div>:null}/>
+    <DirectorHero eyebrow="Competencias · Lestra" title="Registrar competencia" description="Crea la competencia, define quiénes participarán y recién después agrega partidos, duelos, pruebas o presentaciones. La participación del torneo no depende de que existan eventos." actions={<button onClick={()=>navigate('/torneos')} className={DIRECTOR_BUTTON_DARK}>← Competencias</button>} aside={selected?<div className="rounded-[20px] border border-white/15 bg-white/[.055] p-5"><p className="text-[10px] font-black uppercase tracking-[.14em] text-[#b7ff00]">Rama seleccionada</p><p className="mt-2 text-xl font-black text-white">{selected.nombre}</p><p className="mt-1 text-xs font-semibold text-[#c7d0c8]">{selected.disciplina}{selected.sedes?.nombre?` · ${selected.sedes.nombre}`:''}</p></div>:null}/>
 
-    <section className="grid gap-3 sm:grid-cols-3"><DirectorStat label="Paso 1" value="Rama" tone="lime"/><DirectorStat label="Paso 2" value="Datos"/><DirectorStat label="Paso 3" value="Inscripción" tone="dark"/></section>
+    <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><DirectorStat label="Paso 1" value="Rama" tone="lime"/><DirectorStat label="Paso 2" value="Datos"/><DirectorStat label="Paso 3" value="Inscripción"/><DirectorStat label="Paso 4" value="Participantes" tone="dark"/></section>
 
     <DirectorPanel className="p-5 sm:p-6">
       <div><p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">Paso 1</p><h2 className="mt-1 text-2xl font-black tracking-[-.03em] text-[#111711]">Rama deportiva</h2><p className="mt-1 text-sm text-[#697468]">Define qué categorías, alumnos y tipo de resultados estarán disponibles.</p></div>
@@ -49,7 +63,12 @@ export default function NuevoTorneoMultirama(){
       </div>
     </DirectorPanel>
 
-    <DirectorPanel className="border-[#cde995] bg-[#f3fadf] p-4"><p className="text-sm font-black text-[#435b00]">¿Qué ocurre después?</p><p className="mt-1 text-xs leading-5 text-[#5f6f4c]">Desde la competencia podrás convocar alumnos y abrir <strong>Eventos y resultados</strong> para registrar cada encuentro o prueba real.</p></DirectorPanel>
-    <button disabled={saving} onClick={()=>void save()} className={`${DIRECTOR_BUTTON} w-full`}>{saving?'Creando...':'Crear competencia'}</button>
+    <DirectorPanel className="border-[#cde995] bg-[#f3fadf] p-5 sm:p-6">
+      <p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">Paso 4 · después de crear</p>
+      <h2 className="mt-1 text-xl font-black text-[#111711]">Definir quiénes asistirán al torneo</h2>
+      <p className="mt-2 text-sm leading-6 text-[#5f6f4c]">Al crear la competencia entrarás directamente a su gestión para seleccionar alumnos por categoría y enviar la convocatoria. Verás <strong>Confirmados, Pendientes y No participan</strong> aunque todavía no hayas registrado ningún partido.</p>
+    </DirectorPanel>
+
+    <button disabled={saving} onClick={()=>void save()} className={`${DIRECTOR_BUTTON} w-full`}>{saving?'Creando...':'Crear y definir participantes'}</button>
   </DirectorPage>;
 }
