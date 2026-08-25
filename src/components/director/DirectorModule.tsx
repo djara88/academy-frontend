@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 
 export const DIRECTOR_FIELD = 'min-h-12 w-full rounded-[14px] border border-[#d6ddd2] bg-[#f3f6f0] px-4 text-sm font-bold text-[#111711] outline-none transition focus:border-[#8eb700] focus:ring-4 focus:ring-[#b7ff00]/10 disabled:cursor-not-allowed disabled:opacity-55';
 export const DIRECTOR_TEXTAREA = `${DIRECTOR_FIELD} min-h-28 py-3 resize-y`;
@@ -40,8 +40,10 @@ export function DirectorHero({
   );
 }
 
-export function DirectorPanel({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <section className={`director-module-panel min-w-0 rounded-[24px] border border-[#d9e0d6] bg-white shadow-[0_14px_36px_rgba(15,23,16,.045)] ${className}`}>{children}</section>;
+type DirectorPanelProps = ComponentPropsWithoutRef<'section'>;
+
+export function DirectorPanel({ children, className = '', ...props }: DirectorPanelProps) {
+  return <section {...props} className={`director-module-panel min-w-0 rounded-[24px] border border-[#d9e0d6] bg-white shadow-[0_14px_36px_rgba(15,23,16,.045)] ${className}`}>{children}</section>;
 }
 
 export function DirectorStat({ label, value, detail, tone = 'default' }: { label: string; value: ReactNode; detail?: ReactNode; tone?: 'default' | 'lime' | 'dark' }) {
