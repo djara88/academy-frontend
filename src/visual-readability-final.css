@@ -58,6 +58,67 @@
   color: var(--lvf-ink) !important;
 }
 
+/* --------------------------------------------------------------------------
+   HERO DIRECTOR: contrato de contraste explícito y final.
+   No dependemos de herencia ni del orden de las utilities de Tailwind.
+   Esto protege títulos, eyebrow, métricas laterales y textos auxiliares.
+   -------------------------------------------------------------------------- */
+
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero {
+  color: #f7faf5 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero h1 {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+  position: relative;
+  z-index: 2;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero p[class*="uppercase"] {
+  color: var(--lvf-lime) !important;
+  -webkit-text-fill-color: var(--lvf-lime) !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero [class*="text-white"] {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero [class*="text-[#c7d0c8]"] {
+  color: #d9e1da !important;
+  -webkit-text-fill-color: #d9e1da !important;
+  opacity: 1 !important;
+}
+
+/* Las tarjetas de métricas del aside deben conservar lectura incluso si otra
+   capa global intenta normalizar superficies o texto. */
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero .grid > div[class*="rounded"] {
+  position: relative;
+  z-index: 2;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero .grid > div[class*="rounded"] p:first-child {
+  color: var(--lvf-lime) !important;
+  -webkit-text-fill-color: var(--lvf-lime) !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero .grid > div[class*="rounded"] p:nth-child(2) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.lestra-director-main:not([data-route^="/admin"]) .director-module-hero .grid > div[class*="rounded"] p:nth-child(3) {
+  color: #d9e1da !important;
+  -webkit-text-fill-color: #d9e1da !important;
+  opacity: 1 !important;
+}
+
 /* Controles claros del nuevo director. Esta regla queda al final para ganar a
    los estilos globales oscuros de input/select/textarea definidos en index.css. */
 .lestra-director-main:not([data-route^="/admin"]) .app-content :is(
