@@ -101,3 +101,28 @@
   stroke: #111711 !important;
   opacity: 1 !important;
 }
+
+/* Aviso posterior a generar/enviar el informe.
+ * Alumnos.tsx usa el mismo contenedor de notice para este flujo. La cascada
+ * anterior dejaba el texto casi blanco sobre un verde muy claro. Se limita a
+ * la ficha que contiene StudentReportCard para no afectar otros módulos.
+ */
+#root div.mx-auto.max-w-7xl.space-y-6.pb-20:has(.student-report-card) > div:nth-child(2):not(section) {
+  background: #f1f7df !important;
+  border: 1px solid #aecb62 !important;
+  color: #3f5700 !important;
+  -webkit-text-fill-color: #3f5700 !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+}
+
+#root div.mx-auto.max-w-7xl.space-y-6.pb-20:has(.student-report-card) > div:nth-child(2):not(section) * {
+  color: #3f5700 !important;
+  -webkit-text-fill-color: #3f5700 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
