@@ -68,7 +68,7 @@ export default function FinanzasConfigV2(){
 
  if(loading)return <DirectorPanel className="mx-auto max-w-5xl p-12 text-center text-sm font-bold text-[#697468]">Cargando recaudación...</DirectorPanel>;
 
- return <DirectorPage className="max-w-5xl">
+ return <DirectorPage className="finance-module-scope finance-config-scope max-w-5xl">
   <DirectorHero
    eyebrow="Recaudación y medios de pago"
    title="Cómo recibe pagos tu academia"
