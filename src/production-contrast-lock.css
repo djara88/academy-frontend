@@ -151,3 +151,87 @@
   filter: none !important;
   text-shadow: none !important;
 }
+
+/* --------------------------------------------------------------------------
+   SOLICITUDES — cierre absoluto del cuadro gris "POR GESTIONAR"
+   --------------------------------------------------------------------------
+   Esta regla es deliberadamente específica. En esta pantalla existían varias
+   capas históricas que aplicaban color/text-fill a los hijos del hero. Aquí se
+   fija también display, tamaño y visibilidad para impedir que un 0 o cualquier
+   texto quede visualmente oculto aunque otra hoja intente heredarlo.
+ */
+
+.lestra-director-main[data-route="/solicitudes"] .director-module-hero .director-module-hero-aside > .grid > :first-child {
+  position: relative !important;
+  z-index: 30 !important;
+  display: block !important;
+  min-height: 118px !important;
+  background: #eef1eb !important;
+  background-image: none !important;
+  border: 1px solid #cfd7cc !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+.lestra-director-main[data-route="/solicitudes"] .director-module-hero .director-module-hero-aside > .grid > :first-child > * {
+  position: relative !important;
+  z-index: 31 !important;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/solicitudes"] .director-module-hero .director-module-hero-aside > .grid > :first-child > :first-child {
+  color: #526b00 !important;
+  -webkit-text-fill-color: #526b00 !important;
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+  font-weight: 900 !important;
+}
+
+.lestra-director-main[data-route="/solicitudes"] .director-module-hero .director-module-hero-aside > .grid > :first-child > :nth-child(2) {
+  margin-top: 8px !important;
+  min-height: 34px !important;
+  color: #0b110d !important;
+  -webkit-text-fill-color: #0b110d !important;
+  font-size: 30px !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.035em !important;
+}
+
+.lestra-director-main[data-route="/solicitudes"] .director-module-hero .director-module-hero-aside > .grid > :first-child > :nth-child(3) {
+  margin-top: 6px !important;
+  color: #455044 !important;
+  -webkit-text-fill-color: #455044 !important;
+  font-size: 11px !important;
+  line-height: 1.4 !important;
+  font-weight: 700 !important;
+}
+
+/* La tarjeta clara de métricas inferior queda igualmente blindada. */
+.lestra-director-main[data-route="/solicitudes"] .director-stat-lime,
+.lestra-director-main[data-route="/solicitudes"] .director-stat-lime * {
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/solicitudes"] .director-stat-lime .director-stat-value {
+  display: block !important;
+  min-height: 32px !important;
+  color: #0b110d !important;
+  -webkit-text-fill-color: #0b110d !important;
+  font-size: 30px !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+}
