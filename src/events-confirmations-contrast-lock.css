@@ -1,0 +1,193 @@
+/* Eventos y Rendimiento + Centro de confirmaciones
+ * Contrato final de contraste para superficies visibles en /partidos.
+ * Se carga despues del resto de locks visuales.
+ */
+
+/* --------------------------------------------------------------------------
+   EVENTOS Y RENDIMIENTO
+   El motor interno conserva su superficie oscura, pero el filtro principal
+   puede ser aclarado por la cascada global. Lo fijamos como control claro.
+   -------------------------------------------------------------------------- */
+#root .lestra-director-main .events-performance-scope > div > section:nth-of-type(2) {
+  background: #ffffff !important;
+  border-color: #d6ddd2 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#root .lestra-director-main .events-performance-scope > div > section:nth-of-type(2) select {
+  background: #ffffff !important;
+  border-color: #cbd4c8 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  color-scheme: light !important;
+}
+
+#root .lestra-director-main .events-performance-scope > div > section:nth-of-type(2) select option {
+  background: #ffffff !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+}
+
+/* Estado vacio/listado del motor: superficie clara = tinta oscura. */
+#root .lestra-director-main .events-performance-scope > div > section.grid + div,
+#root .lestra-director-main .events-performance-scope > div > section:nth-of-type(3):not(.grid) {
+  color: #384438 !important;
+  -webkit-text-fill-color: #384438 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* --------------------------------------------------------------------------
+   CENTRO DE CONFIRMACIONES
+   En el Director esta seccion se presenta como superficie clara. Todas las
+   tintas se calculan respecto de ese fondo, no respecto del tema oscuro legado.
+   -------------------------------------------------------------------------- */
+#root .lestra-director-main .sports-confirmations-scope > section {
+  background: #ffffff !important;
+  background-image: none !important;
+  border-color: #cfd9b3 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+#root .lestra-director-main .sports-confirmations-scope > section h2 {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  opacity: 1 !important;
+}
+
+#root .lestra-director-main .sports-confirmations-scope > section h3,
+#root .lestra-director-main .sports-confirmations-scope > section > div:first-child > div:first-child > p:first-child {
+  color: #668300 !important;
+  -webkit-text-fill-color: #668300 !important;
+  opacity: 1 !important;
+}
+
+/* Descripcion superior */
+#root .lestra-director-main .sports-confirmations-scope > section > div:first-child > div:first-child > p:last-child {
+  color: #526052 !important;
+  -webkit-text-fill-color: #526052 !important;
+  opacity: 1 !important;
+}
+
+/* Chip de pendientes */
+#root .lestra-director-main .sports-confirmations-scope [class*="bg-amber-500/10"] {
+  background: #fff4d6 !important;
+  border: 1px solid #e9cf7b !important;
+  color: #7a5900 !important;
+  -webkit-text-fill-color: #7a5900 !important;
+  opacity: 1 !important;
+}
+
+/* Boton Ver/Ocultar resueltos */
+#root .lestra-director-main .sports-confirmations-scope > section > div:first-child button {
+  background: #f7f9f5 !important;
+  border-color: #cfd7cc !important;
+  color: #334033 !important;
+  -webkit-text-fill-color: #334033 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#root .lestra-director-main .sports-confirmations-scope > section > div:first-child button:hover {
+  background: #eef3ea !important;
+  border-color: #aebaa9 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+}
+
+/* Filas de participacion/citacion: tarjetas claras y auditables. */
+#root .lestra-director-main .sports-confirmations-scope article {
+  background: #f8faf6 !important;
+  border-color: #d7dfd4 !important;
+  color: #111711 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#root .lestra-director-main .sports-confirmations-scope article p:first-child {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+}
+
+#root .lestra-director-main .sports-confirmations-scope article p:not(:first-child) {
+  color: #566356 !important;
+  -webkit-text-fill-color: #566356 !important;
+  opacity: 1 !important;
+}
+
+/* Estados semanticos */
+#root .lestra-director-main .sports-confirmations-scope [class*="text-emerald-"] {
+  color: #376400 !important;
+  -webkit-text-fill-color: #376400 !important;
+  background: #edf8d7 !important;
+}
+
+#root .lestra-director-main .sports-confirmations-scope [class*="text-red-"] {
+  color: #9b2c2c !important;
+  -webkit-text-fill-color: #9b2c2c !important;
+}
+
+#root .lestra-director-main .sports-confirmations-scope [class*="text-amber-"] {
+  color: #7a5900 !important;
+  -webkit-text-fill-color: #7a5900 !important;
+}
+
+/* Acciones de cada respuesta */
+#root .lestra-director-main .sports-confirmations-scope article button:first-of-type {
+  background: #b7ff00 !important;
+  border-color: #a4df00 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  opacity: 1 !important;
+}
+
+#root .lestra-director-main .sports-confirmations-scope article button:nth-of-type(2) {
+  background: #fff4f4 !important;
+  border-color: #e9b8b8 !important;
+  color: #9b2c2c !important;
+  -webkit-text-fill-color: #9b2c2c !important;
+  opacity: 1 !important;
+}
+
+#root .lestra-director-main .sports-confirmations-scope article select {
+  background: #ffffff !important;
+  border-color: #cfd7cc !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  opacity: 1 !important;
+  color-scheme: light !important;
+}
+
+#root .lestra-director-main .sports-confirmations-scope article select option {
+  background: #ffffff !important;
+  color: #111711 !important;
+}
+
+/* Estados vacios de ambas columnas */
+#root .lestra-director-main .sports-confirmations-scope [class*="border-dashed"] {
+  background: #fbfcfa !important;
+  border-color: #cfd8cb !important;
+  color: #526052 !important;
+  -webkit-text-fill-color: #526052 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Blindaje final: las reglas antiguas no pueden volver a borrar contenido. */
+#root .lestra-director-main .sports-confirmations-scope :is(h2,h3,p,span,button,select,option),
+#root .lestra-director-main .events-performance-scope > div > section:nth-of-type(2) :is(select,option) {
+  visibility: visible !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+}
