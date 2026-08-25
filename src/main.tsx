@@ -43,6 +43,7 @@ import './inscripciones-contrast-lock.css';
 import './student-report-contrast-lock.css';
 import './dialog-readability.css';
 import './director-contrast-safety.css';
+import './tournament-contrast-safety.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
