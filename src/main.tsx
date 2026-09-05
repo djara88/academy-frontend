@@ -15,8 +15,6 @@ import './setup-action-fix.css';
 import './setup-schedule-fix.css';
 import './setup-optional-fix.css';
 import './setup-optional-actions.css';
-import './director-reference-system.css';
-import './director-uniformity.css';
 import './director-brand-normalize.css';
 import './director-accent-cleanup.css';
 import './formation-friendlies.css';
