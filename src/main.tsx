@@ -32,7 +32,6 @@ import './chat-composer-lestra.css';
 import './prematriculas-recientes-lestra.css';
 import './prematricula-hide-finalidades.css';
 import './alumno-profile-readability.css';
-import './asistencias-multirama-fix.css';
 import './visual-readability-final.css';
 import './production-contrast-lock.css';
 import './inscripciones-contrast-lock.css';
