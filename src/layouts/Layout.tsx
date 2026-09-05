@@ -1,4 +1,4 @@
-import { useEffect, useState, type ComponentType } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -23,7 +23,7 @@ type PlanAccess = {
   addOns: { guardians: boolean };
   subscription: { status: string; blocked: boolean; trial: boolean; trialEndsAt?: string | null; remainingDays?: number | null; remainingHours?: number | null; urgency?: string | null; reason?: string | null };
 };
-type NavItem = { to: string; label: string; icon: ComponentType<{ className?: string; 'aria-hidden'?: boolean }>; feature?: string; badge?: string };
+type NavItem = { to: string; label: string; icon: typeof HomeIcon; feature?: string; badge?: string };
 type NavGroup = { label: string; items: NavItem[]; primary?: boolean };
 
 const directorGroups: NavGroup[] = [
