@@ -41,7 +41,6 @@ import './director-contrast-safety.css';
 import './tournament-contrast-safety.css';
 import './events-confirmations-contrast-lock.css';
 import './events-popup-simple.css';
-import './events-card-minimal.css';
 import './performance-popup-contrast.css';
 import './finance-visibility-contract.css';
 import './finance-hero-card.css';
