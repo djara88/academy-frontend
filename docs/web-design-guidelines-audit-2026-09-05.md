@@ -28,6 +28,9 @@ Deep analytics and secondary management remain available in their specialized mo
 - Rebuilt the director dashboard around decisions and high-frequency actions instead of decorative chart density.
 - Simplified Login and improved autocomplete, loading, and announced error states.
 - Unified dialogs/toasts and added focus trapping plus focus restoration.
+- Removed dead Dashboard presentation layers and the obsolete global watermark `MutationObserver`.
+- Removed the old dialog-readability override after dialogs became natively V2.
+- Removed the obsolete confirmations readability layer after the sports response component migration.
 
 ## Phase 2 — Alumnos + Matrícula
 
@@ -83,13 +86,10 @@ Legacy styles removed:
 - `src/events-card-minimal.css`
 - `src/events-confirmations-contrast-lock.css`
 - `src/tournament-filter-polish.css`
-
-Still isolated pending native modal migration:
-
 - `src/events-popup-simple.css`
 - `src/performance-popup-contrast.css`
 
-These two files protect portal-level modal behavior and sport-specific metric capture. They are being migrated at component level before deletion.
+Portal dialogs are now governed by the shared `src/sports-dialogs-v2.css` component contract. It keeps the correct `createPortal(document.body)` behavior while centralizing clear surfaces, mobile safe areas, internal scroll, sticky performance headers, focus-visible states, semantic success/danger treatment, and reduced-motion compatibility without maintaining two separate defensive contrast layers.
 
 ## Phase 5 — Finanzas
 
@@ -137,6 +137,7 @@ Migration objective: status → family → action.
 - Removed repeated statistics from hero + KPI strip + list header.
 - Retained only active/pending access indicators before the family list.
 - Editing, invitations, isolation by linked students, access state, and password reset remain unchanged.
+- Removed dead Apoderados-only selectors from the shared contrast safety layer after the hero aside was simplified.
 
 ## Phase 7 — Configuración
 
@@ -162,15 +163,22 @@ The following high-frequency Director surfaces now converge on shared V2/Directo
 - Profesores
 - Familias / Apoderados
 - Configuración
+- Shared dialogs/toasts
+- Sports event/performance portal dialogs
 
-Remaining deliberate exceptions are limited to complex portal/modal flows that still need native markup migration before their defensive CSS can be removed.
+Additional dead layers removed during convergence:
+
+- `src/dashboard-minimal.css`
+- `src/dashboard-watermark.ts`
+- `src/dialog-readability.css`
+- `src/confirmations-readability.css`
 
 ## Next migration order
 
-1. Migrate `Nuevo/Editar evento` modal markup natively and remove `events-popup-simple.css`.
-2. Migrate `Registrar rendimiento` modal markup natively and remove `performance-popup-contrast.css`.
-3. Compare branch against `main` and identify remaining dead compatibility selectors.
-4. Run final keyboard, responsive, mobile-touch, loading/empty/error, and visual-hierarchy review.
+1. Compare branch against `main` and identify remaining dead compatibility selectors/imports.
+2. Review remaining global layers (`director-*`, `production-*`, setup and profile-specific files) conservatively; remove only selectors whose target markup has already migrated.
+3. Run final keyboard, responsive, mobile-touch, loading/empty/error, and visual-hierarchy review.
+4. Verify the preview on Director high-frequency paths before considering merge.
 5. Keep business rules, security, plan gating, billing, and API contracts unchanged unless a separate functional task explicitly requests changes.
 
 ## Quality rules going forward
