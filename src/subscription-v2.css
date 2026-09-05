@@ -1,0 +1,229 @@
+/* Lestra Deportivo · Suscripción V2
+ *
+ * Contrato de presentación para /suscripcion. La lógica contractual, Mercado
+ * Pago, IVA, documentos tributarios y solicitudes de cambio permanecen en el
+ * componente. Esta capa sólo organiza la superficie comercial/contractual.
+ */
+
+.lestra-director-main[data-route="/suscripcion"] .app-content {
+  max-width: 1280px !important;
+  color: #151a16;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content > div {
+  gap: 18px !important;
+}
+
+/* Cabeceras de contrato/configuración: compactas, no hero promocional oscuro. */
+.lestra-director-main[data-route="/suscripcion"] .app-content section[class*="radial-gradient"] {
+  border: 1px solid #dce2d8 !important;
+  border-radius: 22px !important;
+  background: #fff !important;
+  background-image: none !important;
+  color: #151a16 !important;
+  padding: clamp(20px, 3vw, 30px) !important;
+  box-shadow: 0 8px 24px rgba(18,24,19,.045) !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content section[class*="radial-gradient"] h1 {
+  color: #151a16 !important;
+  -webkit-text-fill-color: #151a16 !important;
+  font-size: clamp(2rem, 4vw, 3.25rem) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -.045em !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content section[class*="radial-gradient"] p:not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-emerald"]) {
+  color: #667066 !important;
+  -webkit-text-fill-color: #667066 !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content section[class*="radial-gradient"] p[class*="uppercase"] {
+  color: #607900 !important;
+  -webkit-text-fill-color: #607900 !important;
+}
+
+/* Superficies contractuales. */
+.lestra-director-main[data-route="/suscripcion"] .app-content article,
+.lestra-director-main[data-route="/suscripcion"] .app-content section[class*="bg-[#151b25]"] {
+  border-color: #dce2d8 !important;
+  background: #fff !important;
+  background-image: none !important;
+  color: #151a16 !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content article :is(h2,h3,b,strong),
+.lestra-director-main[data-route="/suscripcion"] .app-content article [class~="text-white"],
+.lestra-director-main[data-route="/suscripcion"] .app-content section[class*="bg-[#151b25]"] [class~="text-white"] {
+  color: #151a16 !important;
+  -webkit-text-fill-color: #151a16 !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content :is(
+  [class*="text-[#8995a4]"],
+  [class*="text-[#9aa6b5]"],
+  [class*="text-[#697586]"],
+  [class*="text-[#c7d0da]"]
+) {
+  color: #697269 !important;
+  -webkit-text-fill-color: #697269 !important;
+}
+
+/* Inputs de facturación y cambio de contrato. */
+.lestra-director-main[data-route="/suscripcion"] .app-content :is(input:not([type="checkbox"]),select,textarea) {
+  min-height: 44px !important;
+  border: 1px solid #d4dbd1 !important;
+  border-radius: 11px !important;
+  background: #fff !important;
+  color: #151a16 !important;
+  -webkit-text-fill-color: #151a16 !important;
+  caret-color: #151a16 !important;
+  color-scheme: light !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content :is(input:not([type="checkbox"]),select,textarea):focus-visible {
+  border-color: #8fae20 !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content input[type="checkbox"] {
+  accent-color: #7f9f22;
+}
+
+/* Elecciones: plan/ciclo/documento funcionan como selección, no como banners. */
+.lestra-director-main[data-route="/suscripcion"] .app-content button[class*="bg-[#0d1117]"] {
+  border-color: #dce2d8 !important;
+  background: #f7f9f5 !important;
+  color: #151a16 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content button[class*="bg-[#0d1117]"] :is(b,span,p) {
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content button:is(
+  [class*="bg-[#289E9D]/10"],
+  [class*="bg-[#C8A96B]/10"],
+  [class*="bg-violet-500/10"]
+) {
+  border-color: #bfd873 !important;
+  background: #eff6dc !important;
+  color: #344300 !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content button:is(
+  [class*="bg-[#289E9D]/10"],
+  [class*="bg-[#C8A96B]/10"],
+  [class*="bg-violet-500/10"]
+) :is(b,span,p) {
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* Próximo pago: conserva una señal azul sutil porque es la acción de checkout,
+   pero deja de ser un gran bloque oscuro. */
+.lestra-director-main[data-route="/suscripcion"] .app-content article[class*="bg-[#009ee3]/10"] {
+  border-color: #cce3ef !important;
+  background: #f1f8fb !important;
+  color: #183848 !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content article[class*="bg-[#009ee3]/10"] :is(p,h2,h3) {
+  color: #315466 !important;
+  -webkit-text-fill-color: #315466 !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content article[class*="bg-[#009ee3]/10"] p[class*="text-3xl"],
+.lestra-director-main[data-route="/suscripcion"] .app-content article[class*="bg-[#009ee3]/10"] p[class*="text-2xl"] {
+  color: #151a16 !important;
+  -webkit-text-fill-color: #151a16 !important;
+}
+
+/* Estados contractuales: preservar semántica. */
+.lestra-director-main[data-route="/suscripcion"] .app-content [class*="bg-emerald-500/10"] {
+  border-color: #cbe6d6 !important;
+  background: #eef9f2 !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content [class*="text-emerald-200"],
+.lestra-director-main[data-route="/suscripcion"] .app-content [class*="text-emerald-300"] {
+  color: #17784d !important;
+  -webkit-text-fill-color: #17784d !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content [class*="bg-amber-500/10"] {
+  border-color: #efdca8 !important;
+  background: #fff8e8 !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content [class*="text-amber-200"],
+.lestra-director-main[data-route="/suscripcion"] .app-content [class*="text-amber-300"] {
+  color: #8a5b00 !important;
+  -webkit-text-fill-color: #8a5b00 !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content [class*="bg-red-500/10"] {
+  border-color: #f0c8cc !important;
+  background: #fff1f2 !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content [class*="text-red-200"],
+.lestra-director-main[data-route="/suscripcion"] .app-content [class*="text-red-300"] {
+  color: #c5303d !important;
+  -webkit-text-fill-color: #c5303d !important;
+}
+
+/* Fundador/promoción: se comunica como beneficio, no como tercer sistema de color. */
+.lestra-director-main[data-route="/suscripcion"] .app-content [class*="bg-violet-500/10"]:not(button) {
+  border-color: #d9e7ad !important;
+  background: #f5f9e9 !important;
+  color: #586d00 !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content [class*="text-violet-200"],
+.lestra-director-main[data-route="/suscripcion"] .app-content [class*="text-violet-300"] {
+  color: #617800 !important;
+  -webkit-text-fill-color: #617800 !important;
+}
+
+/* CTA Lestra. Mercado Pago conserva su botón azul cuando el componente lo usa. */
+.lestra-director-main[data-route="/suscripcion"] .app-content button[class*="bg-[#289E9D]"]:not([class*="/10"]) {
+  border-color: #151a16 !important;
+  background: #151a16 !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content button[class*="bg-[#289E9D]"]:not([class*="/10"]):hover:not(:disabled) {
+  background: #2a312b !important;
+}
+
+.lestra-director-main[data-route="/suscripcion"] .app-content button[class*="bg-[#009ee3]"] {
+  box-shadow: none !important;
+}
+
+/* Precios y números: lectura tabular, sin sombras decorativas. */
+.lestra-director-main[data-route="/suscripcion"] .app-content [class*="text-3xl"],
+.lestra-director-main[data-route="/suscripcion"] .app-content [class*="text-4xl"] {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .lestra-director-main[data-route="/suscripcion"] .app-content > div {
+    gap: 14px !important;
+  }
+
+  .lestra-director-main[data-route="/suscripcion"] .app-content section[class*="radial-gradient"] {
+    border-radius: 18px !important;
+  }
+
+  .lestra-director-main[data-route="/suscripcion"] .app-content section[class*="radial-gradient"] h1 {
+    font-size: clamp(1.9rem, 10vw, 2.45rem) !important;
+  }
+}
