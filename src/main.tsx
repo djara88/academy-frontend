@@ -40,7 +40,6 @@ import './director-contrast-safety.css';
 import './tournament-contrast-safety.css';
 import './events-popup-simple.css';
 import './performance-popup-contrast.css';
-import './finance-visibility-contract.css';
 import './visual-system-v2.css';
 import './operational-workflows-v2.css';
 
