@@ -20,7 +20,6 @@ import './director-uniformity.css';
 import './director-brand-normalize.css';
 import './director-accent-cleanup.css';
 import './director-hero-unified.css';
-import './config-access-dark.css';
 import './dashboard-minimal.css';
 import './dashboard-watermark';
 import './formation-friendlies.css';
