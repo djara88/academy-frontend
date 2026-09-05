@@ -75,27 +75,57 @@ Migration objective: field-first and mobile-first.
 
 Migration objective: one event mental model from planning through result capture.
 
-Current progress:
+Completed in the visible route surfaces:
 
 - Simplified the route-level header to `Partidos y eventos` with one operational description.
 - Removed the visible duplicate inner hero by collapsing its remaining action into the operational toolbar.
-- The top working area is converging to Rama filter + Nuevo evento, followed immediately by the event collection.
+- Top working area is now Rama filter + Nuevo evento, followed immediately by the event collection.
+- Event cards have a calmer information hierarchy and a single dominant action for performance capture.
+- Citación and editing are secondary; deletion is visually destructive without competing with the primary action.
+- Rebuilt `DirectorSportsResponses` natively on shared V2 surfaces instead of using a dark component plus contrast overrides.
+- Tournament list cards were simplified: repeated explanatory blocks are suppressed, hover lift was removed, and `Gestionar / Definir equipo` is the dominant action.
 - Existing event, citation, result, sport-profile and tournament APIs remain unchanged.
+
+Legacy styles removed in this phase:
+
+- `src/events-card-minimal.css`
+- `src/events-confirmations-contrast-lock.css`
+- `src/tournament-filter-polish.css`
+
+Deliberately retained for now:
+
+- `src/events-popup-simple.css`
+- `src/performance-popup-contrast.css`
+
+Those two files isolate viewport-level portal modals, including complex sport-specific metric capture. They will only be removed after the modal markup itself is migrated, rather than deleting defensive styles without an equivalent component contract.
+
+## Phase 5 — Finanzas
+
+Migration objective: money first, action second, analytics third.
+
+Current progress:
+
+- Reduced the route-level message to the financial decisions the director needs: collected, due, overdue and balance.
+- Removed the duplicated visual hero from the advanced financial engine; its inner header now acts only as the branch scope control.
+- Four principal financial figures remain prominent while students in arrears, delinquency and payments pending review become compact secondary facts.
+- `Cobro` is treated as the primary creation action; `Egreso` remains clearly destructive/secondary.
+- Financial navigation is converging from a dark tab strip to a compact segmented workspace control.
+- Removed the obsolete finance hero accessory stylesheet `src/finance-hero-card.css` after deleting the connected-marketing card from the header.
+- Financial API, collection automation, validation, payment, expense and account-current logic remains unchanged.
 
 Next in this phase:
 
-- Converge event cards and their action priority.
-- Unify modal language between planning and result capture.
-- Align tournament navigation and event context without duplicating competition information.
-- Remove superseded event-specific CSS after visual verification.
+- Converge the dashboard and table surfaces without losing financial semantics (income green, expense red, pending amber).
+- Reduce reliance on `finance-visibility-contract.css` as the advanced finance components become natively light/V2.
+- Verify payment validation, account current, collection automation and modal states on mobile.
 
 ## Remaining migration order
 
-1. Complete Partidos / Eventos / Torneos.
-2. Finanzas — prioritize income, debt, and required action.
-3. Profesores + Familias — role-specific experiences.
-4. Configuración — group options by user intent instead of technical structure.
-5. Continue removing superseded CSS layers after each module is verified.
+1. Complete Finance deep surfaces.
+2. Profesores + Familias — role-specific experiences.
+3. Configuración — group options by user intent instead of technical structure.
+4. Continue removing superseded CSS layers after each module is verified.
+5. Return to Partidos portal modals for native markup migration after the primary director workflow is stable.
 
 ## Quality rules going forward
 
