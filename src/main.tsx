@@ -19,7 +19,6 @@ import './director-reference-system.css';
 import './director-uniformity.css';
 import './director-brand-normalize.css';
 import './director-accent-cleanup.css';
-import './director-hero-unified.css';
 import './formation-friendlies.css';
 import './chat-composer-lestra.css';
 import './prematriculas-recientes-lestra.css';
