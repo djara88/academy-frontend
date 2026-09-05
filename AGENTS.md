@@ -1,12 +1,11 @@
-# Lestra Deportivo — UI quality gate
+# Lestra Deportivo — UI quality contract
 
-For any change that touches user-facing UI (`src/**/*.tsx`, `src/**/*.css`, public HTML, navigation, forms, dialogs, or responsive behavior):
+When changing UI or UX in this repository:
 
-1. Read `.agents/skills/web-design-guidelines/SKILL.md`.
-2. Fetch the fresh Vercel Web Interface Guidelines referenced by that skill before reviewing the change.
-3. Review the changed UI files against the complete guideline set.
-4. Report findings using `file:line` locations and address high-impact accessibility, focus, form, navigation, touch, responsive, i18n, and performance issues before considering the UI finished.
-5. Do not change business rules, permissions, billing logic, security controls, or API behavior merely to satisfy a visual guideline.
-6. Prefer small, reviewable fixes over broad visual rewrites. Preserve Lestra branding unless the task explicitly requests a redesign.
-
-For legacy screens, use the guidelines as a quality gate when the screen is touched; do not perform unrelated mass refactors automatically.
+1. Read `.agents/skills/web-design-guidelines/SKILL.md` and fetch the current Vercel Web Interface Guidelines before reviewing or finalizing UI changes.
+2. Treat `src/visual-system-v2.css` as the temporary convergence contract for the authenticated product shell while legacy global CSS is retired.
+3. Prefer simplifying hierarchy and removing obsolete corrective styles over adding another `*-fix.css`, `*-polish.css` or `*-contrast-lock.css` layer.
+4. Preserve business logic, permissions, plan gating, API contracts and security controls unless the task explicitly requires a functional change.
+5. Every migrated module must be usable on mobile, keyboard-accessible, respect reduced motion and expose clear loading, empty and error states.
+6. Keep one primary action per context whenever possible; secondary actions should not compete visually with the primary workflow.
+7. Verify preview builds before proposing production merge.
