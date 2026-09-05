@@ -38,7 +38,6 @@ import './student-report-contrast-lock.css';
 import './dialog-readability.css';
 import './director-contrast-safety.css';
 import './tournament-contrast-safety.css';
-import './events-confirmations-contrast-lock.css';
 import './events-popup-simple.css';
 import './performance-popup-contrast.css';
 import './finance-visibility-contract.css';
