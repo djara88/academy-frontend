@@ -1,9 +1,9 @@
-# Syncademia Frontend
+# Lestra Deportivo
 
-Repositorio privado del frontend de Syncademia. El despliegue de producción se realiza automáticamente mediante Vercel desde la rama `main`.
+Frontend de Lestra Deportivo.
 
-## Stack
+## UI quality
 
-React + TypeScript + Vite.
+La interfaz se revisa contra las Web Interface Guidelines integradas en `.agents/skills/web-design-guidelines/`.
 
-Este repositorio no debe almacenar secretos ni credenciales privadas. Las variables locales deben mantenerse fuera de Git mediante `.gitignore`.
+La migración visual actual usa `src/visual-system-v2.css` como contrato de convergencia mientras se retiran capas CSS correctivas antiguas. Consulta `docs/web-design-guidelines-audit-2026-09-05.md` para el diagnóstico, principios y orden de migración.
