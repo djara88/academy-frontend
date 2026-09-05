@@ -1,0 +1,216 @@
+/* Lestra Deportivo · Ficha de alumno V2
+ *
+ * Complementa operational-workflows-v2 para la vista profunda del alumno.
+ * No interviene el modal de informe: StudentReportCard ya es nativo V2.
+ */
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 {
+  max-width: 1280px !important;
+  gap: 16px !important;
+}
+
+/* Navegación contextual */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > div:first-child :is(button,a) {
+  min-height: 44px;
+  border-color: #dce2d8 !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  color: #4f594f !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > div:first-child :is(button,a):hover {
+  border-color: #c7d0c4 !important;
+  background: #f7f9f5 !important;
+  color: #151a16 !important;
+}
+
+/* Aviso contextual */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > div[class*="bg-[#289E9D]/10"] {
+  border-color: #d6e2bd !important;
+  background: #f4f8ea !important;
+  color: #526400 !important;
+}
+
+/* Cabecera del alumno: identidad y rama activa, no hero promocional. */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type {
+  border: 1px solid #dce2d8 !important;
+  border-radius: 22px !important;
+  background: #fff !important;
+  background-image: none !important;
+  color: #151a16 !important;
+  padding: clamp(18px, 2.5vw, 26px) !important;
+  box-shadow: 0 8px 24px rgba(18,24,19,.045) !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type :is(h1,h2,h3) {
+  color: #151a16 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type p {
+  color: #697269 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type img,
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type div[class*="h-28"][class*="w-28"] {
+  width: 88px !important;
+  height: 88px !important;
+  border-color: #d6ded2 !important;
+  border-radius: 20px !important;
+  box-shadow: none !important;
+}
+
+/* Chips informativos del hero */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type span[class*="rounded-full"] {
+  border-color: #dce2d8 !important;
+  background: #f5f7f3 !important;
+  color: #596359 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type span[class*="text-[#70e4df]"] {
+  color: #607900 !important;
+}
+
+/* Selector de disciplina */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type button[class*="rounded-xl"] {
+  min-height: 40px !important;
+  border-color: #dce2d8 !important;
+  background: #f7f9f5 !important;
+  color: #596359 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type button[class*="bg-violet-500/20"] {
+  border-color: #bfd873 !important;
+  background: #eff6dc !important;
+  color: #3f5100 !important;
+}
+
+/* Resumen de la ficha */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type > div > div:last-child > div {
+  border-color: #e0e5dd !important;
+  background: #f7f9f5 !important;
+  color: #151a16 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type > div > div:last-child > div p:first-child {
+  color: #747d74 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type > div > div:last-child > div p:last-child {
+  color: #151a16 !important;
+}
+
+/* Paneles profundos: los dark utilities históricos ya fueron normalizados por V2;
+   aquí se normaliza su tipografía descendiente. */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:not(:first-of-type) :is(h2,h3,h4)[class*="text-white"],
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:not(:first-of-type) p[class*="text-white"] {
+  color: #151a16 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:not(:first-of-type) :is(p,span,label)[class*="text-[#8995a4]"],
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:not(:first-of-type) :is(p,span,label)[class*="text-[#697586]"] {
+  color: #697269 !important;
+}
+
+/* Gestión de categorías */
+.student-category-manager {
+  border: 1px solid #dce2d8 !important;
+  border-radius: 18px !important;
+  background: #fff !important;
+  color: #151a16 !important;
+  box-shadow: none !important;
+}
+
+.student-category-manager > div:first-child :is(p,strong) {
+  color: #151a16 !important;
+}
+
+.student-category-manager > div:first-child p:nth-child(2),
+.student-category-manager > div:first-child > span {
+  color: #697269 !important;
+}
+
+.student-category-manager > div.grid > button {
+  min-height: 64px !important;
+  border: 1px solid #dce2d8 !important;
+  border-radius: 14px !important;
+  background: #f7f9f5 !important;
+  color: #4f594f !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.student-category-manager > div.grid > button:hover {
+  border-color: #c5cec2 !important;
+  background: #f2f5ef !important;
+}
+
+.student-category-manager > div.grid > button[class*="bg-[#b7ff00]"] {
+  border-color: #b9d362 !important;
+  background: #eef6d7 !important;
+  color: #344300 !important;
+}
+
+.student-category-manager > div.grid > button span {
+  color: inherit !important;
+}
+
+.student-category-manager > div.grid > button > span:first-child {
+  border-color: #dce2d8 !important;
+  background: #fff !important;
+}
+
+/* Asistencia: mantener estados funcionales, sin paneles oscuros. */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(3) > div:last-child > div:nth-child(2) {
+  border: 1px solid #dce2d8 !important;
+  background: #fff !important;
+  color: #151a16 !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(3) > div:last-child > div:nth-child(2) h2 {
+  color: #151a16 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(3) > div:last-child > div:nth-child(2) > div:nth-child(2) > div {
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(3) > div:last-child > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) {
+  border-color: #dce2d8 !important;
+  background: #f5f7f3 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(3) > div:last-child > div:nth-child(2) > div:nth-child(2) > div:nth-child(2) {
+  border-color: #cbe6d6 !important;
+  background: #eef9f2 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(3) > div:last-child > div:nth-child(2) > div:nth-child(2) > div:nth-child(3) {
+  border-color: #efdca8 !important;
+  background: #fff8e8 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(3) > div:last-child > div:nth-child(2) > div:nth-child(2) > div:nth-child(4) {
+  border-color: #f0c8cc !important;
+  background: #fff1f2 !important;
+}
+
+/* StudentReportCard ya gobierna su propio modal; sólo conserva integración de la tarjeta. */
+.student-report-card {
+  border-color: #dce2d8 !important;
+  background: #f5f7f3 !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 767px) {
+  .lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type {
+    border-radius: 18px !important;
+  }
+
+  .student-category-manager > div.grid {
+    grid-template-columns: 1fr !important;
+  }
+}
