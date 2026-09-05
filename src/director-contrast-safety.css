@@ -1,12 +1,11 @@
 /* Lestra Deportivo — red de seguridad semántica de contraste.
- * Debe cargarse última. Corrige únicamente elementos donde el contrato visual
- * ya determina fondo oscuro/claro pero hojas históricas pueden pisar el texto.
+ * Mantiene únicamente contratos compartidos que todavía tienen una superficie
+ * explícita. Los overrides específicos de módulos migrados se eliminan.
  */
 
 /* --------------------------------------------------------------------------
    BOTONES OSCUROS DEL DIRECTOR
    DIRECTOR_BUTTON_DARK siempre es superficie grafito: su texto debe ser claro.
-   La firma de utilities evita afectar tabs oscuros que deliberadamente usan lima.
    -------------------------------------------------------------------------- */
 #root .lestra-director-main:not([data-route^="/admin"]) button[class*="border-[#263026]"][class*="bg-[#111711]"][class*="text-white"] {
   color: #ffffff !important;
@@ -38,10 +37,9 @@
 }
 
 /* --------------------------------------------------------------------------
-   TARJETAS KPI DEL HERO — contrato por superficie, no por orden de nodos.
-   production-contrast-lock define la primera tarjeta como clara y la segunda
-   como oscura. Aquí el texto sigue esa superficie aunque haya SVG, spans o
-   cambie el orden interno del componente.
+   HERO ASIDE COMPARTIDO
+   Conserva contraste cuando un DirectorHero todavía presenta dos superficies
+   de resumen en su aside. No depende de rutas ni del orden de otros módulos.
    -------------------------------------------------------------------------- */
 #root .lestra-director-main:not([data-route^="/admin"]) .director-module-hero .director-module-hero-aside > .grid > :first-child {
   background: #f1f4ee !important;
@@ -97,94 +95,4 @@
   stroke: #b7ff00 !important;
   opacity: 1 !important;
   visibility: visible !important;
-}
-
-/* --------------------------------------------------------------------------
-   APODERADOS · HERO
-   Esta tarjeta incorpora SVG antes de los <p>; fijamos además la jerarquía
-   exacta de número y etiqueta mostrada en el portal familiar.
-   -------------------------------------------------------------------------- */
-#root .lestra-director-main[data-route="/apoderados"] .director-module-hero .director-module-hero-aside > .grid > :first-child {
-  background: #f1f4ee !important;
-  background-image: none !important;
-  border-color: #d6ddd2 !important;
-  color: #111711 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-#root .lestra-director-main[data-route="/apoderados"] .director-module-hero .director-module-hero-aside > .grid > :first-child > svg {
-  color: #5f7800 !important;
-  stroke: #5f7800 !important;
-  opacity: 1 !important;
-}
-
-#root .lestra-director-main[data-route="/apoderados"] .director-module-hero .director-module-hero-aside > .grid > :first-child > p:nth-of-type(1) {
-  display: block !important;
-  margin-top: .75rem !important;
-  color: #0b110d !important;
-  -webkit-text-fill-color: #0b110d !important;
-  font-size: 1.75rem !important;
-  line-height: 1 !important;
-  font-weight: 900 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  filter: none !important;
-  mix-blend-mode: normal !important;
-  text-shadow: none !important;
-}
-
-#root .lestra-director-main[data-route="/apoderados"] .director-module-hero .director-module-hero-aside > .grid > :first-child > p:nth-of-type(2) {
-  color: #5f7800 !important;
-  -webkit-text-fill-color: #5f7800 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-#root .lestra-director-main[data-route="/apoderados"] .director-module-hero .director-module-hero-aside > .grid > :nth-child(2) {
-  background: #263b12 !important;
-  border-color: #567b16 !important;
-  color: #ffffff !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-#root .lestra-director-main[data-route="/apoderados"] .director-module-hero .director-module-hero-aside > .grid > :nth-child(2) > svg {
-  color: #b7ff00 !important;
-  stroke: #b7ff00 !important;
-  opacity: 1 !important;
-}
-
-#root .lestra-director-main[data-route="/apoderados"] .director-module-hero .director-module-hero-aside > .grid > :nth-child(2) > p:nth-of-type(1) {
-  display: block !important;
-  margin-top: .75rem !important;
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-  font-size: 1.75rem !important;
-  line-height: 1 !important;
-  font-weight: 900 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-#root .lestra-director-main[data-route="/apoderados"] .director-module-hero .director-module-hero-aside > .grid > :nth-child(2) > p:nth-of-type(2) {
-  color: #b7ff00 !important;
-  -webkit-text-fill-color: #b7ff00 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-/* Acciones del listado de familias: Desactivar/Reactivar nunca pierden texto. */
-#root .lestra-director-main[data-route="/apoderados"] .director-module-panel article button[class*="bg-[#111711]"] {
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  filter: none !important;
-  mix-blend-mode: normal !important;
-}
-
-#root .lestra-director-main[data-route="/apoderados"] .director-module-panel article button[class*="bg-[#111711]"]:hover {
-  color: #b7ff00 !important;
-  -webkit-text-fill-color: #b7ff00 !important;
 }
