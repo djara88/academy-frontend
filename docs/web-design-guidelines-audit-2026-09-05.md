@@ -1,63 +1,115 @@
-# Web Design Guidelines audit — Lestra Deportivo
+# Auditoría y rediseño visual — Lestra Deportivo
 
-Date: 2026-09-05
-Scope: first-pass audit of the shared UI foundation, login, application shell, dashboard, dialogs, and commercial landing page.
-Guideline source: Vercel Web Interface Guidelines, fetched through `.agents/skills/web-design-guidelines/SKILL.md`.
+Fecha: 2026-09-05
 
-## Priority findings
+## Objetivo
 
-### src/index.css
+Usar las Web Interface Guidelines de Vercel como criterio de producto, no sólo como checklist técnico. El objetivo es reducir carga cognitiva, mejorar legibilidad y convertir Deportivo en una experiencia moderna, rápida de entender y consistente.
 
-- `src/index.css:31` — global form controls use `transition-all`; list only the properties that actually animate. Replace generic `focus:` treatment with a `focus-visible` strategy where appropriate.
-- `src/index.css:39` — global `button` rule uses `transition-all`, so the anti-pattern propagates to most application buttons.
-- `src/index.css:66` — `.sidebar-link` also uses `transition-all`.
-- `src/index.css:9` — theming does not expose an explicit `color-scheme`; keep it synchronized with the actual dark/light theme rather than hard-coding one scheme.
-- `src/index.css:29` — shared controls do not establish `touch-action: manipulation`; add it intentionally to interactive controls.
+## Diagnóstico inicial
 
-### src/App.tsx
+### 1. Exceso de capas visuales
 
-- `src/App.tsx:105` — `Cargando sistema...` → `Cargando sistema…`.
-- `src/App.tsx:114` — `Comprobando sesión...` → `Comprobando sesión…`.
-- `src/App.tsx:200` — Suspense fallback uses `...`; use `…` and consider a status/live region for route-loading feedback.
+`src/main.tsx` carga más de 40 hojas CSS. Varias son capas globales de corrección (`*-fix`, `*-polish`, `*-contrast-lock`, `director-*`, `readability-*`). Esto dificulta predecir qué regla termina ganando y favorece diferencias visuales entre módulos.
 
-### src/layouts/Layout.tsx
+### 2. Navegación con demasiadas opciones simultáneas
 
-- `src/layouts/Layout.tsx:172` — application shell has no skip link to the main content.
-- `src/layouts/Layout.tsx:211` — fixed mobile dock uses a hard-coded bottom offset and does not account for `env(safe-area-inset-bottom)`.
-- `src/layouts/Layout.tsx:173` — mobile navigation behaves as a drawer but does not implement complete focus containment/restoration when opened and closed.
-- `src/layouts/Layout.tsx:178` — academy logo image is visually sized with CSS but lacks explicit HTML `width`/`height` dimensions; same pattern is repeated in the mobile header.
+El director recibía Operación, Competencia y Administración completas en el sidebar. La funcionalidad era potente, pero la densidad aumentaba la carga cognitiva.
 
-### src/pages/Login.tsx
+### 3. Dashboard orientado a mostrar datos, no a decidir
 
-- `src/pages/Login.tsx:87` — Google image has no explicit `width`/`height`; the adjacent text already names Google, so use a deliberately decorative alt strategy or avoid redundant accessible naming.
-- `src/pages/Login.tsx:100` — email input lacks a meaningful `name`, `autocomplete="email"`, and `spellCheck={false}`.
-- `src/pages/Login.tsx:113` — password input lacks a meaningful `name` and `autocomplete="current-password"`.
-- `src/pages/Login.tsx:125` — asynchronous login error is not exposed through `aria-live`/alert semantics.
-- `src/pages/Login.tsx:136` — `Validando...` → `Validando…`.
+El dashboard combinaba KPIs, anillo de asistencia, gráfico de barras, estados, accesos rápidos, agenda, prioridades y onboarding. La información era útil, pero demasiada competía por atención en la misma pantalla.
 
-### src/pages/Dashboard.tsx
+### 4. Contrato de interacción inconsistente
 
-- `src/pages/Dashboard.tsx:161` — loading spinner has no reduced-motion variant.
-- `src/pages/Dashboard.tsx:162` — `Cargando resumen...` → `Cargando resumen…`.
-- Dashboard financial/date formatting already uses `Intl.NumberFormat` and `Intl.DateTimeFormat`; keep this pattern for other modules.
-- Visual chart/progress values should expose equivalent accessible values instead of relying on visual bar/ring geometry or `title` alone.
+- `transition-all` global.
+- Uso de `focus:` en vez de una estrategia consistente `focus-visible:`.
+- Falta `prefers-reduced-motion` global.
+- Dock móvil sin `safe-area-inset-bottom`.
+- Login con atributos de formulario incompletos.
+- Falta skip link en el shell principal.
 
-### src/contexts/DialogContext.tsx
+## Cambios aplicados en la rama de preview
 
-- Dialog semantics, `aria-modal`, labelled/described relationships, Escape handling, and initial focus are present.
-- Complete the modal behavior with a focus trap and restoration of focus to the invoking control after close.
-- Toasts already use `role="status"`; retain that behavior for asynchronous feedback.
+### Visual System v2
 
-## Architecture observation
+Se agregó `src/visual-system-v2.css` como capa de convergencia temporal para definir un contrato común mientras se retiran estilos antiguos:
 
-The UI contains many cumulative CSS correction layers (`*-fix.css`, `*-polish.css`, `*-contrast-lock.css`, readability/visual contracts). This is not itself a Web Interface Guidelines violation, but it raises regression risk because multiple late-stage styles can override the same controls. Future guideline fixes should prefer a shared foundational layer and then retire redundant overrides incrementally instead of adding another global patch file.
+- Superficies claras y neutrales.
+- Menos gradientes y sombras.
+- Radios más contenidos.
+- Estados hover/focus explícitos.
+- Tipografía y números más legibles.
+- Layout responsive más predecible.
+- Safe areas móviles.
+- Reduced motion.
 
-## Recommended order
+### Navegación progresiva
 
-1. Shared focus/transition/touch rules in `src/index.css`.
-2. Login form semantics and asynchronous feedback.
-3. Mobile safe-area and keyboard navigation in `Layout.tsx`.
-4. Reduced motion and accessible data visualizations.
-5. Incremental consolidation of legacy CSS as each module is touched.
+La barra lateral ahora prioriza lo diario:
 
-No business logic, API behavior, permissions, billing rules, or production deployment was changed by this audit.
+- Inicio
+- Solicitudes
+- Nueva matrícula
+- Alumnos
+- Asistencia
+
+El resto queda agrupado en secciones progresivas:
+
+- Equipo y familias
+- Competencia
+- Gestión
+
+Los grupos se abren automáticamente cuando la ruta activa pertenece a ellos. No se eliminó ningún módulo.
+
+### Dashboard como centro de decisiones
+
+El dashboard fue rediseñado para responder cuatro preguntas:
+
+1. ¿Qué debo hacer ahora?
+2. ¿Qué necesita atención?
+3. ¿Qué viene después?
+4. ¿Cómo va la operación básica?
+
+Se retiraron del inicio los gráficos decorativos y se mantuvo la información mediante indicadores simples y enlaces a los módulos profundos.
+
+### Login
+
+- Menos ruido decorativo.
+- `name` y `autocomplete` correctos.
+- `spellCheck={false}` en email.
+- Errores anunciables con `aria-live`.
+- Dimensiones explícitas en imagen externa.
+- Estados de carga con `…`.
+
+### Accesibilidad transversal
+
+- `focus-visible` coherente.
+- Skip link hacia contenido principal.
+- Iconos decorativos ocultos a tecnología asistiva.
+- `prefers-reduced-motion`.
+- `scroll-margin-top` para encabezados con id.
+- Targets táctiles y safe areas móviles.
+
+## Principio de migración
+
+`visual-system-v2.css` no debe transformarse en otro parche permanente. Es una capa de convergencia. Cada módulo que migremos debe:
+
+1. Adoptar el contrato visual V2.
+2. Pasar revisión de Web Interface Guidelines.
+3. Eliminar dependencias de CSS correctivo antiguo cuando sea seguro.
+4. Mantener lógica, permisos y contratos API intactos salvo necesidad funcional explícita.
+
+## Próximas prioridades
+
+1. Alumnos y matrícula.
+2. Asistencia.
+3. Eventos/partidos y torneos.
+4. Finanzas.
+5. Profesores y familias.
+6. Configuración.
+7. Retiro progresivo de CSS global legado.
+
+## Criterio de éxito
+
+La aplicación debe poder entenderse sin entrenamiento previo: una acción principal por contexto, jerarquía clara, menos elementos compitiendo por atención y el mismo comportamiento visual en todos los módulos.
