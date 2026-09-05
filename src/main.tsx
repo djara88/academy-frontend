@@ -50,6 +50,7 @@ import './events-card-minimal.css';
 import './performance-popup-contrast.css';
 import './finance-visibility-contract.css';
 import './finance-hero-card.css';
+import './visual-system-v2.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
@@ -60,7 +61,7 @@ const LoadingScreen = ({ academy = false }: { academy?: boolean }) => (
   <div className="grid min-h-screen place-items-center bg-[#e9ece4] px-6 text-center text-[#0b100c]">
     <div>
       <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#cdd5ca] border-t-[#93ba00]" />
-      <p className="mt-4 text-sm font-black">{academy ? 'Cargando academia...' : 'Cargando Lestra...'}</p>
+      <p className="mt-4 text-sm font-black">{academy ? 'Cargando academia…' : 'Cargando Lestra…'}</p>
     </div>
   </div>
 );
