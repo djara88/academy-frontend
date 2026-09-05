@@ -51,6 +51,7 @@ import './performance-popup-contrast.css';
 import './finance-visibility-contract.css';
 import './finance-hero-card.css';
 import './visual-system-v2.css';
+import './operational-workflows-v2.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
