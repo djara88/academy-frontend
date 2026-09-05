@@ -26,7 +26,6 @@ import './dashboard-minimal.css';
 import './dashboard-watermark';
 import './professors-actions-fix.css';
 import './formation-friendlies.css';
-import './tournament-filter-polish.css';
 import './confirmations-readability.css';
 import './chat-composer-lestra.css';
 import './prematriculas-recientes-lestra.css';
