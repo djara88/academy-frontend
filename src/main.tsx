@@ -35,8 +35,6 @@ import './alumno-profile-readability.css';
 import './asistencias-multirama-fix.css';
 import './visual-readability-final.css';
 import './production-contrast-lock.css';
-import './matricula-step4-contrast-lock.css';
-import './matricula-actions-contrast-lock.css';
 import './inscripciones-contrast-lock.css';
 import './student-report-contrast-lock.css';
 import './dialog-readability.css';
