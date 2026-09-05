@@ -227,6 +227,24 @@
   box-shadow: none !important;
 }
 
+/* Destructive actions are visible but intentionally secondary. */
+.lestra-director-main[data-route="/matricula"] .director-module-panel button[class*="border-red-200"][class*="bg-red-50"] {
+  border-color: #fecdd3 !important;
+  background: #fff7f8 !important;
+  color: #9f1239 !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/matricula"] .director-module-panel button[class*="border-red-200"][class*="bg-red-50"]:hover {
+  border-color: #fda4af !important;
+  background: #fff1f2 !important;
+}
+
+.lestra-director-main[data-route="/matricula"] .director-module-panel button[class*="border-red-200"][class*="bg-red-50"]:focus-visible {
+  outline: 3px solid rgba(244, 63, 94, .22) !important;
+  outline-offset: 2px !important;
+}
+
 @media (max-width: 767px) {
   .lestra-director-main[data-route="/alumnos"] .app-content,
   .lestra-director-main[data-route="/matricula"] .app-content {
