@@ -306,7 +306,6 @@
   grid-column: 1 / -1 !important;
 }
 
-/* Event collection: operational cards, not dashboard tiles. */
 .lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid {
   gap: .75rem !important;
 }
@@ -438,10 +437,73 @@
   outline-color: rgba(244, 63, 94, .22) !important;
 }
 
+/* --------------------------------------------------------------------------
+   Torneos: expose state and primary action, reduce repeated explanation
+   -------------------------------------------------------------------------- */
+.lestra-director-main[data-route="/torneos"] .director-module-page > section:nth-of-type(2) {
+  gap: .65rem !important;
+}
+
+.lestra-director-main[data-route="/torneos"] .director-module-page > section:nth-of-type(2) .director-stat {
+  padding: .9rem 1rem !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 {
+  gap: .75rem !important;
+}
+
+.lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 > .director-module-panel {
+  padding: 1rem !important;
+  border-radius: 18px !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 > .director-module-panel:hover {
+  transform: none !important;
+  border-color: #bcc6b8 !important;
+}
+
+/* The identical explanatory box on every competition is redundant. */
+.lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 > .director-module-panel > div:nth-child(2) {
+  display: none !important;
+}
+
+.lestra-director-main[data-route="/torneos"] .tournament-payment-summary {
+  margin-top: .6rem !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #697468 !important;
+  padding: 0 !important;
+  font-size: .7rem !important;
+}
+
+.lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 > .director-module-panel > div:last-child {
+  grid-template-columns: minmax(0,1.2fr) repeat(2,minmax(0,.8fr)) !important;
+  gap: .4rem !important;
+  margin-top: .8rem !important;
+  padding-top: .8rem !important;
+}
+
+.lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 > .director-module-panel > div:last-child > :first-child {
+  min-height: 40px !important;
+}
+
+.lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 > .director-module-panel > div:last-child > :nth-child(2),
+.lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 > .director-module-panel > div:last-child > :nth-child(3) {
+  min-height: 40px !important;
+  background: #fff !important;
+  color: #596456 !important;
+  border-color: #d7ded4 !important;
+}
+
 @media (max-width: 767px) {
   .lestra-director-main[data-route="/alumnos"] .app-content,
   .lestra-director-main[data-route="/matricula"] .app-content,
-  .lestra-director-main[data-route="/partidos"] .app-content {
+  .lestra-director-main[data-route="/partidos"] .app-content,
+  .lestra-director-main[data-route="/torneos"] .app-content {
     padding-inline: .75rem !important;
   }
 
@@ -496,5 +558,13 @@
 
   .lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:last-child > button:nth-child(4) {
     margin-left: 0 !important;
+  }
+
+  .lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 > .director-module-panel > div:last-child {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 > .director-module-panel > div:last-child > :first-child {
+    grid-column: 1 / -1 !important;
   }
 }
