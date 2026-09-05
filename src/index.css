@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -31,12 +29,6 @@
     transition-timing-function: ease;
   }
 
-  input:focus,
-  select:focus,
-  textarea:focus {
-    outline: none;
-  }
-
   input:focus-visible,
   select:focus-visible,
   textarea:focus-visible {
@@ -53,10 +45,6 @@
     transition-property: background-color, border-color, color, opacity, transform, box-shadow;
     transition-duration: 150ms;
     transition-timing-function: ease;
-  }
-
-  button:focus {
-    outline: none;
   }
 
   button:focus-visible,
