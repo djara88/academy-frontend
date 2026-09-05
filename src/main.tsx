@@ -21,7 +21,6 @@ import './director-brand-normalize.css';
 import './director-accent-cleanup.css';
 import './director-hero-unified.css';
 import './formation-friendlies.css';
-import './confirmations-readability.css';
 import './chat-composer-lestra.css';
 import './prematriculas-recientes-lestra.css';
 import './prematricula-hide-finalidades.css';
