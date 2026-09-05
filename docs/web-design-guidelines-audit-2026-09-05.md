@@ -58,15 +58,44 @@ Migration objective: one current decision at a time.
 
 No enrollment API, validation, signing, finance, permission, or plan logic was changed as part of these visual migrations.
 
+## Phase 3 — Asistencia
+
+Migration objective: field-first and mobile-first.
+
+- Rebuilt `AsistenciasMultirama` on shared `DirectorModule` components instead of continuing to patch its custom presentation layer.
+- The primary flow is now Rama → Categoría → Sesión → Lista → Presente / Ausente / Justificado → Guardar.
+- The roster receives the majority of available workspace and remains easy to use on mobile touch targets.
+- Reagendamiento is a two-step selection-and-action flow instead of another dashboard surface.
+- Monthly reporting is separated from passing attendance and keeps Excel export plus family report delivery.
+- Preserved the existing attendance, suspension, rescheduling, reporting, metrics and export API contracts.
+- Removed `src/asistencias-multirama-fix.css` from the bundle and deleted the file.
+- Removed the now-unused attendance override section from `src/operational-workflows-v2.css`.
+
+## Phase 4 — Partidos / Eventos / Torneos
+
+Migration objective: one event mental model from planning through result capture.
+
+Current progress:
+
+- Simplified the route-level header to `Partidos y eventos` with one operational description.
+- Removed the visible duplicate inner hero by collapsing its remaining action into the operational toolbar.
+- The top working area is converging to Rama filter + Nuevo evento, followed immediately by the event collection.
+- Existing event, citation, result, sport-profile and tournament APIs remain unchanged.
+
+Next in this phase:
+
+- Converge event cards and their action priority.
+- Unify modal language between planning and result capture.
+- Align tournament navigation and event context without duplicating competition information.
+- Remove superseded event-specific CSS after visual verification.
+
 ## Remaining migration order
 
-1. Complete Alumnos + Matrícula visual verification and final hierarchy polish.
-2. Asistencia — field-first/mobile-first interaction.
-3. Eventos / Partidos / Torneos — unify event mental model and actions.
-4. Finanzas — prioritize income, debt, and required action.
-5. Profesores + Familias — role-specific experiences.
-6. Configuración — group options by user intent instead of technical structure.
-7. Continue removing superseded CSS layers after each module is verified.
+1. Complete Partidos / Eventos / Torneos.
+2. Finanzas — prioritize income, debt, and required action.
+3. Profesores + Familias — role-specific experiences.
+4. Configuración — group options by user intent instead of technical structure.
+5. Continue removing superseded CSS layers after each module is verified.
 
 ## Quality rules going forward
 
