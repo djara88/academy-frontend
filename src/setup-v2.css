@@ -1,0 +1,516 @@
+/* Lestra Deportivo · Puesta en Marcha V2
+ *
+ * Contrato único del onboarding inicial. Reemplaza las antiguas capas
+ * setup-*-fix/polish. El objetivo es leer la pantalla como una secuencia de
+ * tareas operativas, no como una landing promocional.
+ */
+
+.lestra-setup-page {
+  --setup-v2-ink: #151a16;
+  --setup-v2-body: #667066;
+  --setup-v2-muted: #7a837a;
+  --setup-v2-line: #dce2d9;
+  --setup-v2-soft: #f5f7f3;
+  --setup-v2-soft-2: #eef2eb;
+  --setup-v2-lime: #b8ee13;
+  --setup-v2-lime-dark: #607900;
+  --setup-v2-danger: #c5303d;
+  --setup-v2-warning: #8a5b00;
+  --setup-v2-success: #17784d;
+  background: #eef1eb !important;
+  color: var(--setup-v2-ink) !important;
+}
+
+.lestra-setup-page > div {
+  max-width: 1280px !important;
+  gap: 18px !important;
+}
+
+/* --------------------------------------------------------------------------
+   CABECERA: progreso operativo, no hero de marketing
+   -------------------------------------------------------------------------- */
+.lestra-setup-page > div > section:first-child {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--setup-v2-line) !important;
+  border-radius: 22px !important;
+  background: #fff !important;
+  color: var(--setup-v2-ink) !important;
+  padding: clamp(20px, 3vw, 30px) !important;
+  box-shadow: 0 10px 30px rgba(18,24,19,.055) !important;
+}
+
+/* Retira ornamentación histórica del hero. */
+.lestra-setup-page > div > section:first-child > div[class*="pointer-events-none"] {
+  display: none !important;
+}
+
+.lestra-setup-page > div > section:first-child > .relative.grid {
+  gap: 22px !important;
+}
+
+.lestra-setup-page > div > section:first-child h1 {
+  max-width: 800px !important;
+  margin-top: 20px !important;
+  color: var(--setup-v2-ink) !important;
+  -webkit-text-fill-color: var(--setup-v2-ink) !important;
+  font-size: clamp(2rem, 4vw, 3.25rem) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -.045em !important;
+}
+
+.lestra-setup-page > div > section:first-child h1 span {
+  color: #617d00 !important;
+  -webkit-text-fill-color: #617d00 !important;
+}
+
+.lestra-setup-page > div > section:first-child p {
+  color: var(--setup-v2-body) !important;
+  -webkit-text-fill-color: var(--setup-v2-body) !important;
+}
+
+.lestra-setup-page > div > section:first-child p[class*="uppercase"] {
+  color: var(--setup-v2-lime-dark) !important;
+  -webkit-text-fill-color: var(--setup-v2-lime-dark) !important;
+}
+
+.lestra-setup-page > div > section:first-child [class*="bg-[#b9e937]"] {
+  background: var(--setup-v2-lime) !important;
+  color: var(--setup-v2-ink) !important;
+}
+
+/* Tarjeta de progreso. Mantiene el conic-gradient dinámico del componente. */
+.lestra-setup-page > div > section:first-child > .relative.grid > div:last-child {
+  min-width: min(100%, 300px);
+  gap: 16px !important;
+  border: 1px solid var(--setup-v2-line) !important;
+  border-radius: 18px !important;
+  background: var(--setup-v2-soft) !important;
+  color: var(--setup-v2-ink) !important;
+  padding: 16px !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+.lestra-setup-page > div > section:first-child > .relative.grid > div:last-child [class*="bg-[#171d18]"] {
+  background: #fff !important;
+  color: var(--setup-v2-ink) !important;
+  box-shadow: inset 0 0 0 1px #e2e7df;
+}
+
+.lestra-setup-page > div > section:first-child > .relative.grid > div:last-child :is(p,span) {
+  color: var(--setup-v2-body) !important;
+  -webkit-text-fill-color: var(--setup-v2-body) !important;
+}
+
+.lestra-setup-page > div > section:first-child > .relative.grid > div:last-child p.text-3xl,
+.lestra-setup-page > div > section:first-child > .relative.grid > div:last-child p.text-xl {
+  color: var(--setup-v2-ink) !important;
+  -webkit-text-fill-color: var(--setup-v2-ink) !important;
+}
+
+/* --------------------------------------------------------------------------
+   STEPPER: completado / actual / pendiente sin bloques oscuros
+   -------------------------------------------------------------------------- */
+.lestra-setup-page > div > div.grid > div {
+  border-radius: 16px !important;
+  box-shadow: none !important;
+  transition-property: border-color, background-color, color !important;
+  transition-duration: 150ms !important;
+}
+
+.lestra-setup-page > div > div.grid > div[class*="bg-[#20261f]"] {
+  border-color: #bfd873 !important;
+  background: #f0f7dc !important;
+  color: var(--setup-v2-ink) !important;
+}
+
+.lestra-setup-page > div > div.grid > div[class*="bg-[#20261f]"] p {
+  color: var(--setup-v2-ink) !important;
+  -webkit-text-fill-color: var(--setup-v2-ink) !important;
+}
+
+.lestra-setup-page > div > div.grid > div[class*="bg-[#20261f]"] p:last-child {
+  color: var(--setup-v2-body) !important;
+  -webkit-text-fill-color: var(--setup-v2-body) !important;
+}
+
+/* --------------------------------------------------------------------------
+   SECCIONES: una misma gramática para las seis tareas
+   -------------------------------------------------------------------------- */
+.lestra-setup-page > div > section:not(:first-child) {
+  border-radius: 22px !important;
+}
+
+.lestra-setup-page > div > section[class*="bg-[#f7f8f3]"] {
+  border: 1px solid var(--setup-v2-line) !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+.lestra-setup-page > div > section[class*="bg-[#f7f8f3]"] > div:first-child > div:first-child,
+.lestra-setup-page > div > section[class*="bg-[#f7f8f3]"] > .flex > div:first-child {
+  flex-shrink: 0;
+}
+
+.lestra-setup-page :is(h2,h3,h4,strong) {
+  color: var(--setup-v2-ink);
+}
+
+.lestra-setup-page .lestra-setup-primary-action {
+  min-height: 44px;
+  border: 1px solid #151a16 !important;
+  background: #151a16 !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  box-shadow: none !important;
+  transition-property: background-color, border-color, color !important;
+  transition-duration: 150ms !important;
+}
+
+.lestra-setup-page .lestra-setup-primary-action svg {
+  color: #c5f137 !important;
+  stroke: currentColor !important;
+}
+
+.lestra-setup-page .lestra-setup-primary-action:hover:not(:disabled) {
+  background: #2a312b !important;
+  border-color: #2a312b !important;
+  transform: none !important;
+}
+
+.lestra-setup-page .lestra-setup-primary-action:focus-visible,
+.lestra-setup-page button:focus-visible,
+.lestra-setup-page a:focus-visible,
+.lestra-setup-page input:focus-visible,
+.lestra-setup-page select:focus-visible,
+.lestra-setup-page textarea:focus-visible {
+  outline: 3px solid rgba(124,157,0,.28) !important;
+  outline-offset: 2px !important;
+}
+
+.lestra-setup-page .lestra-setup-primary-action:disabled {
+  border-color: #d3d9cf !important;
+  background: #e6eae3 !important;
+  color: #747d73 !important;
+  -webkit-text-fill-color: #747d73 !important;
+  opacity: 1 !important;
+}
+
+/* Las elecciones funcionan como opciones, no como CTA gigantes. */
+.lestra-setup-page button[class*="border-[#b9e937]"][class*="bg-[#b9e937]"] {
+  border-color: #bfd873 !important;
+  background: #f0f7dc !important;
+  color: #314000 !important;
+  box-shadow: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   HORARIOS: contrato real del componente SetupTimePicker
+   -------------------------------------------------------------------------- */
+.lestra-setup-page div.grid:has(> .setup-time-picker) {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px !important;
+  align-items: end !important;
+  column-gap: 12px !important;
+  row-gap: 10px !important;
+}
+
+.lestra-setup-page div.grid:has(> .setup-time-picker) > label:first-child {
+  grid-column: 1 / -1 !important;
+  min-width: 0 !important;
+}
+
+.lestra-setup-page div.grid:has(> .setup-time-picker) > .setup-time-picker {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+.lestra-setup-page div.grid:has(> .setup-time-picker) > div[class*="items-center"][class*="justify-center"] {
+  display: none !important;
+}
+
+.lestra-setup-page div.grid:has(> .setup-time-picker) > button[aria-label^="Eliminar horario"] {
+  grid-column: 3 !important;
+  align-self: end !important;
+}
+
+.setup-time-picker__label {
+  display: block;
+  margin: 0 0 6px;
+  min-height: 17px;
+  color: #697269;
+  font-size: 12px;
+  line-height: 1.25;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.setup-time-picker__control {
+  min-height: 44px;
+  display: grid;
+  grid-template-columns: 18px minmax(42px,1fr) 8px minmax(42px,1fr) auto;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border: 1px solid #cfd6cc;
+  border-radius: 11px;
+  background: #fff;
+  transition-property: border-color, box-shadow;
+  transition-duration: 150ms;
+}
+
+.setup-time-picker__control:focus-within {
+  border-color: #8fae20;
+  box-shadow: 0 0 0 3px rgba(184,238,19,.13);
+}
+
+.setup-time-picker__icon {
+  width: 17px;
+  height: 17px;
+  color: #768176;
+}
+
+.setup-time-picker__control select {
+  min-width: 0;
+  width: 100%;
+  height: 32px;
+  min-height: 32px !important;
+  padding: 0 2px !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: transparent !important;
+  color: var(--setup-v2-ink) !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+  text-align: center;
+  text-align-last: center;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+
+.setup-time-picker__control select:focus-visible {
+  outline: 2px solid rgba(124,157,0,.32) !important;
+  outline-offset: 1px !important;
+}
+
+.setup-time-picker__colon {
+  color: #596359;
+  font-size: 16px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.setup-time-picker__suffix {
+  color: #7d867d;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------------------
+   PRIVACIDAD: información seria, legible y secundaria a la tarea
+   -------------------------------------------------------------------------- */
+.lestra-setup-page .setup-privacy-notice {
+  border-color: #d6e1c4 !important;
+  background: #f6f9ef !important;
+  color: var(--setup-v2-ink) !important;
+  box-shadow: none !important;
+}
+
+.lestra-setup-page .setup-privacy-main {
+  gap: 22px !important;
+  padding: clamp(18px, 2.5vw, 24px) !important;
+}
+
+.lestra-setup-page .setup-privacy-heading {
+  color: var(--setup-v2-ink) !important;
+  -webkit-text-fill-color: var(--setup-v2-ink) !important;
+  font-size: clamp(1.25rem, 2.2vw, 1.7rem) !important;
+  line-height: 1.12 !important;
+}
+
+.lestra-setup-page .setup-privacy-lead {
+  color: #4f594f !important;
+  -webkit-text-fill-color: #4f594f !important;
+  line-height: 1.65 !important;
+}
+
+.lestra-setup-page .setup-privacy-disclaimer {
+  color: #707a70 !important;
+  -webkit-text-fill-color: #707a70 !important;
+}
+
+.lestra-setup-page .setup-privacy-law-badge {
+  background: #e6f3ba !important;
+  color: #465c00 !important;
+  -webkit-text-fill-color: #465c00 !important;
+}
+
+.lestra-setup-page .setup-privacy-date-badge {
+  border-color: #d2dbc8 !important;
+  background: #fff !important;
+  color: #677167 !important;
+  -webkit-text-fill-color: #677167 !important;
+}
+
+.lestra-setup-page .setup-privacy-evidence {
+  border-color: #d9e2ce !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+.lestra-setup-page .setup-privacy-evidence-title {
+  color: var(--setup-v2-lime-dark) !important;
+  -webkit-text-fill-color: var(--setup-v2-lime-dark) !important;
+}
+
+.lestra-setup-page .setup-privacy-evidence-item,
+.lestra-setup-page .setup-privacy-evidence-item span {
+  color: #4e594e !important;
+  -webkit-text-fill-color: #4e594e !important;
+}
+
+.lestra-setup-page .setup-privacy-evidence-icon {
+  color: #668100 !important;
+}
+
+.lestra-setup-page .setup-privacy-link {
+  border-color: #cbd8b3 !important;
+  background: #fff !important;
+  color: #4f6500 !important;
+  -webkit-text-fill-color: #4f6500 !important;
+  box-shadow: none !important;
+  transition-property: background-color, border-color, color !important;
+}
+
+.lestra-setup-page .setup-privacy-link:hover {
+  border-color: #b5c98d !important;
+  background: #eff5e4 !important;
+  transform: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   FUNCIONES ADICIONALES: claramente secundarias
+   -------------------------------------------------------------------------- */
+.lestra-setup-page section[class*="bg-[#20261f]"] {
+  border: 1px solid var(--setup-v2-line) !important;
+  background: #fff !important;
+  color: var(--setup-v2-ink) !important;
+  box-shadow: none !important;
+}
+
+.lestra-setup-page section[class*="bg-[#20261f]"] :is(h1,h2,h3,h4,strong) {
+  color: var(--setup-v2-ink) !important;
+  -webkit-text-fill-color: var(--setup-v2-ink) !important;
+}
+
+.lestra-setup-page section[class*="bg-[#20261f]"] > div:first-child p {
+  color: var(--setup-v2-body) !important;
+  -webkit-text-fill-color: var(--setup-v2-body) !important;
+}
+
+.lestra-setup-page section[class*="bg-[#20261f]"] > div:first-child p[class*="uppercase"] {
+  color: var(--setup-v2-lime-dark) !important;
+  -webkit-text-fill-color: var(--setup-v2-lime-dark) !important;
+}
+
+.lestra-setup-page section[class*="bg-[#20261f]"] > div:first-child [class*="bg-[#b9e937]"] {
+  background: #eef5d7 !important;
+  color: #617900 !important;
+}
+
+.lestra-setup-page section[class*="bg-[#20261f]"] > .mt-6.grid > div {
+  min-height: 0 !important;
+  border-color: #e1e6de !important;
+  background: var(--setup-v2-soft) !important;
+  color: var(--setup-v2-ink) !important;
+  box-shadow: none !important;
+}
+
+.lestra-setup-page section[class*="bg-[#20261f]"] > .mt-6.grid > div p:first-child {
+  color: var(--setup-v2-ink) !important;
+  -webkit-text-fill-color: var(--setup-v2-ink) !important;
+}
+
+.lestra-setup-page section[class*="bg-[#20261f]"] > .mt-6.grid > div p:last-child,
+.lestra-setup-page section[class*="bg-[#20261f]"] > .mt-6.grid > div span:not(.text-emerald-300) {
+  color: var(--setup-v2-muted) !important;
+  -webkit-text-fill-color: var(--setup-v2-muted) !important;
+}
+
+.lestra-setup-page section[class*="bg-[#20261f]"] > .mt-6.grid > div span.text-emerald-300 {
+  color: var(--setup-v2-success) !important;
+  -webkit-text-fill-color: var(--setup-v2-success) !important;
+}
+
+.lestra-setup-page .setup-optional-action-card {
+  padding-right: 1rem !important;
+  transition-property: border-color, background-color !important;
+  transition-duration: 150ms !important;
+}
+
+.lestra-setup-page .setup-optional-action-card::after {
+  content: none !important;
+}
+
+.lestra-setup-page .setup-optional-action-card:hover,
+.lestra-setup-page .setup-optional-action-card:focus-visible {
+  transform: none !important;
+  border-color: #c6d5b3 !important;
+  background: #f1f5ec !important;
+  box-shadow: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   ESTADOS / MOBILE
+   -------------------------------------------------------------------------- */
+.lestra-setup-page [class*="text-emerald-700"] { color: var(--setup-v2-success) !important; }
+.lestra-setup-page [class*="text-amber-700"],
+.lestra-setup-page [class*="text-amber-800"] { color: var(--setup-v2-warning) !important; }
+
+@media (max-width: 1023px) {
+  .lestra-setup-page > div > section:first-child > .relative.grid > div:last-child {
+    width: 100%;
+    max-width: 520px;
+  }
+}
+
+@media (max-width: 560px) {
+  .lestra-setup-page > div {
+    gap: 14px !important;
+  }
+
+  .lestra-setup-page > div > section:first-child,
+  .lestra-setup-page > div > section:not(:first-child) {
+    border-radius: 18px !important;
+  }
+
+  .lestra-setup-page > div > section:first-child h1 {
+    font-size: clamp(1.9rem, 10vw, 2.45rem) !important;
+  }
+
+  .lestra-setup-page div.grid:has(> .setup-time-picker) {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lestra-setup-page div.grid:has(> .setup-time-picker) > label:first-child,
+  .lestra-setup-page div.grid:has(> .setup-time-picker) > .setup-time-picker,
+  .lestra-setup-page div.grid:has(> .setup-time-picker) > button[aria-label^="Eliminar horario"] {
+    grid-column: 1 !important;
+  }
+
+  .lestra-setup-page div.grid:has(> .setup-time-picker) > button[aria-label^="Eliminar horario"] {
+    justify-self: end !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lestra-setup-page *,
+  .lestra-setup-page *::before,
+  .lestra-setup-page *::after {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
