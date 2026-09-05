@@ -65,6 +65,10 @@
     outline-offset: 2px;
   }
 
+  :where(h1, h2, h3, h4, h5, h6)[id] {
+    scroll-margin-top: 5rem;
+  }
+
   .label {
     @apply block text-sm font-semibold text-[#8b949e] mb-1;
   }
@@ -104,6 +108,42 @@
     overscroll-behavior-inline: contain;
     -webkit-overflow-scrolling: touch;
   }
+}
+
+.lestra-skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 2000;
+  transform: translateY(-180%);
+  border-radius: 0.75rem;
+  background: #ffffff;
+  color: #111512;
+  padding: 0.7rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 800;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+  transition: transform 150ms ease;
+}
+
+.lestra-skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+.lestra-nav-summary::-webkit-details-marker {
+  display: none;
+}
+
+.lestra-nav-summary::marker {
+  content: '';
+}
+
+.lestra-nav-summary svg {
+  transition: transform 150ms ease;
+}
+
+.lestra-nav-details[open] > .lestra-nav-summary svg {
+  transform: rotate(180deg);
 }
 
 .app-content,
