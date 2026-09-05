@@ -5,6 +5,7 @@ import './index.css';
 import './portal-visibility.css';
 import './readability-contract.css';
 import './setup-v2.css';
+import './subscription-v2.css';
 import './director-brand-normalize.css';
 import './director-accent-cleanup.css';
 import './formation-friendlies.css';
