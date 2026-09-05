@@ -9,6 +9,18 @@ import {
 } from '@heroicons/react/24/outline';
 import api from '../api/axiosConfig';
 import { useAcademyMessages } from '../hooks/useAcademyMessages';
+import {
+  DIRECTOR_BUTTON,
+  DIRECTOR_BUTTON_DARK,
+  DIRECTOR_BUTTON_GHOST,
+  DIRECTOR_FIELD,
+  DirectorHero,
+  DirectorPage,
+  DirectorPanel,
+  DirectorStat,
+  DirectorTabButton,
+  DirectorTabs,
+} from '../components/director/DirectorModule';
 
 type Branch = { id: string; nombre: string; disciplina: string; sedes?: { id: string; nombre: string } | null };
 type Category = { id: string; nombre: string; rama_id?: string | null; ramas?: { id: string; nombre: string; disciplina: string } | null };
@@ -61,6 +73,9 @@ type Metrics = {
   }>;
 };
 type AttendanceStatus = 'Presente' | 'Ausente' | 'Justificado';
+type Tab = 'lista' | 'reagendar' | 'reportes';
+
+const labelClass = 'mb-1.5 block text-[11px] font-black uppercase tracking-[.08em] text-[#697468]';
 
 const ageFrom = (value?: string | null) => {
   if (!value) return null;
@@ -80,9 +95,16 @@ const initials = (name: string) => name
   .map((part) => part[0]?.toUpperCase())
   .join('') || 'A';
 
+const statusButton = (selected: boolean, status: AttendanceStatus) => {
+  if (!selected) return 'border-[#dbe2d8] bg-white text-[#667064] hover:border-[#b5c0b1] hover:bg-[#f8faf6]';
+  if (status === 'Presente') return 'border-[#9bc900] bg-[#b7ff00] text-[#111711]';
+  if (status === 'Ausente') return 'border-[#202820] bg-[#111711] text-white';
+  return 'border-amber-300 bg-amber-50 text-amber-800';
+};
+
 export default function AsistenciasMultirama() {
   const { confirmAction, notify } = useAcademyMessages();
-  const [tab, setTab] = useState<'lista' | 'reportes' | 'reagendar'>('lista');
+  const [tab, setTab] = useState<Tab>('lista');
   const [branches, setBranches] = useState<Branch[]>([]);
   const [branchId, setBranchId] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
@@ -193,10 +215,6 @@ export default function AsistenciasMultirama() {
     summary[value] += 1;
     return summary;
   }, { Presente: 0, Ausente: 0, Justificado: 0 } as Record<AttendanceStatus, number>), [students, attendance]);
-
-  const setStudentAttendance = (studentId: string, value: AttendanceStatus) => {
-    setAttendance((current) => ({ ...current, [studentId]: value }));
-  };
 
   const markAllPresent = () => {
     setAttendance(Object.fromEntries(students.map((student) => [student.id, 'Presente'])) as Record<string, AttendanceStatus>);
@@ -341,359 +359,303 @@ export default function AsistenciasMultirama() {
   };
 
   return (
-    <div className="attendance-page">
-      <section className="attendance-hero">
-        <div className="attendance-hero-copy">
-          <p className="attendance-eyebrow">ASISTENCIA MULTIRRAMA</p>
-          <h1>Entrenamientos<br />y recuperaciones</h1>
-          <p className="attendance-hero-description">
-            Pasa lista con claridad, controla inasistencias y recupera clases sin mezclar categorías ni ramas.
-          </p>
-        </div>
-        <div className="attendance-branch-control">
-          <span>Rama activa</span>
-          <select
-            value={branchId}
-            onChange={(event) => {
-              setBranchId(event.target.value);
-              setCategoryId('');
-            }}
-          >
-            <option value="">Selecciona rama</option>
-            {branches.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.disciplina} · {item.nombre}{item.sedes?.nombre ? ` · ${item.sedes.nombre}` : ''}
-              </option>
-            ))}
-          </select>
-        </div>
-      </section>
+    <DirectorPage className="max-w-[1280px]">
+      <DirectorHero
+        eyebrow="Asistencia multirrama"
+        title="Pasar lista"
+        description="Registra una sesión, marca la asistencia y resuelve recuperaciones sin mezclar categorías ni ramas."
+        aside={(
+          <label className="block rounded-2xl border border-[#dce2d8] bg-[#f7f9f5] p-4">
+            <span className={labelClass}>Rama activa</span>
+            <select
+              className={DIRECTOR_FIELD}
+              value={branchId}
+              onChange={(event) => {
+                setBranchId(event.target.value);
+                setCategoryId('');
+              }}
+            >
+              <option value="">Selecciona rama</option>
+              {branches.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.disciplina} · {item.nombre}{item.sedes?.nombre ? ` · ${item.sedes.nombre}` : ''}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+      />
 
-      <nav className="attendance-tabs" aria-label="Secciones de asistencia">
-        <button type="button" data-active={tab === 'lista'} onClick={() => setTab('lista')}>Pasar lista</button>
-        <button type="button" data-active={tab === 'reagendar'} onClick={() => setTab('reagendar')}>Reagendar ({suspended.length})</button>
-        <button type="button" data-active={tab === 'reportes'} onClick={() => setTab('reportes')}>Dashboard</button>
-      </nav>
+      <DirectorTabs className="grid-cols-3">
+        <DirectorTabButton active={tab === 'lista'} onClick={() => setTab('lista')}>Pasar lista</DirectorTabButton>
+        <DirectorTabButton active={tab === 'reagendar'} onClick={() => setTab('reagendar')}>Reagendar ({suspended.length})</DirectorTabButton>
+        <DirectorTabButton active={tab === 'reportes'} onClick={() => setTab('reportes')}>Reportes</DirectorTabButton>
+      </DirectorTabs>
 
-      {tab === 'lista' && (
-        <section className="attendance-workspace">
-          <aside className="attendance-session-card">
-            <div className="attendance-section-heading">
-              <p>{branch?.disciplina || 'RAMA'}</p>
-              <h2>Configurar sesión</h2>
+      {tab === 'lista' ? (
+        <section className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
+          <DirectorPanel className="self-start p-4">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#75806f]">{branch?.disciplina || 'Rama'}</p>
+              <h2 className="mt-1 text-xl font-black tracking-[-.025em] text-[#111711]">Configurar sesión</h2>
             </div>
 
-            <div className="attendance-session-form">
-              <label className="attendance-field-block">
-                <span>Categoría</span>
-                <select value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
+            <div className="mt-4 grid gap-3 rounded-2xl border border-[#e1e6de] bg-[#f8faf6] p-3">
+              <label>
+                <span className={labelClass}>Categoría</span>
+                <select className={DIRECTOR_FIELD} value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
                   <option value="">Selecciona categoría</option>
-                  <option value="TODAS">Todas las categorías de esta rama</option>
+                  <option value="TODAS">Todas las categorías</option>
                   {categories.map((item) => <option key={item.id} value={item.id}>{item.nombre}</option>)}
                 </select>
               </label>
 
-              <div className="attendance-date-time-grid">
-                <label className="attendance-field-block attendance-date-field">
-                  <span>Fecha</span>
-                  <input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
+              <div className="grid grid-cols-2 gap-2">
+                <label>
+                  <span className={labelClass}>Fecha</span>
+                  <input className={DIRECTOR_FIELD} type="date" value={date} onChange={(event) => setDate(event.target.value)} />
                 </label>
-                <label className="attendance-field-block attendance-time-field">
-                  <span>Hora</span>
-                  <input type="time" value={time} onChange={(event) => setTime(event.target.value)} />
+                <label>
+                  <span className={labelClass}>Hora</span>
+                  <input className={DIRECTOR_FIELD} type="time" value={time} onChange={(event) => setTime(event.target.value)} />
                 </label>
               </div>
 
-              <label className="attendance-field-block">
-                <span>Lugar</span>
-                <input value={place} onChange={(event) => setPlace(event.target.value)} placeholder="Ej. Cancha principal" />
+              <label>
+                <span className={labelClass}>Lugar</span>
+                <input className={DIRECTOR_FIELD} value={place} onChange={(event) => setPlace(event.target.value)} placeholder="Ej. Cancha principal" />
               </label>
 
-              <label className="attendance-field-block">
-                <span>Estado de la sesión</span>
-                <select value={status} onChange={(event) => setStatus(event.target.value)}>
+              <label>
+                <span className={labelClass}>Estado</span>
+                <select className={DIRECTOR_FIELD} value={status} onChange={(event) => setStatus(event.target.value)}>
                   <option>Realizado</option>
                   <option>Cancelado</option>
                   <option>Programado</option>
                 </select>
               </label>
 
-              {status === 'Cancelado' && (
-                <label className="attendance-field-block">
-                  <span>Motivo de suspensión</span>
-                  <textarea value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Ej. lluvia, feriado o cancha no disponible" />
+              {status === 'Cancelado' ? (
+                <label>
+                  <span className={labelClass}>Motivo de suspensión</span>
+                  <textarea className={`${DIRECTOR_FIELD} min-h-24 py-3`} value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Ej. lluvia, feriado o cancha no disponible" />
                 </label>
-              )}
+              ) : null}
 
-              <label className="attendance-recovery-toggle">
-                <input type="checkbox" checked={recovery} onChange={(event) => setRecovery(event.target.checked)} />
-                <span>Es clase recuperativa</span>
+              <label className="flex min-h-11 items-center gap-2 text-sm font-bold text-[#596456]">
+                <input className="h-4 w-4 accent-[#8eb700]" type="checkbox" checked={recovery} onChange={(event) => setRecovery(event.target.checked)} />
+                Clase recuperativa
               </label>
 
-              <button className="attendance-primary-button" disabled={saving} onClick={() => void saveTraining()}>
+              <button className={DIRECTOR_BUTTON} disabled={saving} onClick={() => void saveTraining()}>
                 {saving ? 'Guardando…' : 'Guardar sesión'}
               </button>
             </div>
-          </aside>
+          </DirectorPanel>
 
-          <article className="attendance-roster-card">
-            <header className="attendance-roster-header">
-              <div className="attendance-roster-title-row">
+          <DirectorPanel className="overflow-hidden">
+            <header className="border-b border-[#e4e9e1] p-4 sm:p-5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="attendance-section-label">LISTA DE ALUMNOS</p>
-                  <h2>{category?.nombre || 'Selecciona una categoría'}</h2>
-                  <p className="attendance-roster-description">
-                    Identifica al alumno antes de registrar su estado de asistencia.
-                  </p>
+                  <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#75806f]">Lista de alumnos</p>
+                  <h2 className="mt-1 text-xl font-black tracking-[-.025em] text-[#111711]">{category?.nombre || 'Selecciona una categoría'}</h2>
+                  <p className="mt-1 text-sm text-[#697468]">Marca el estado de cada alumno y guarda la sesión una sola vez.</p>
                 </div>
-                <span className="attendance-count-pill">{students.length} {students.length === 1 ? 'alumno' : 'alumnos'}</span>
+                <span className="rounded-full border border-[#dbe2d8] bg-[#f7f9f5] px-3 py-1.5 text-xs font-black text-[#596456]">{students.length} alumnos</span>
               </div>
 
-              {students.length > 0 && (
+              {students.length > 0 ? (
                 <>
-                  <div className="attendance-summary-grid">
-                    <div className="attendance-summary-card" data-tone="present">
-                      <span>Presentes</span>
-                      <strong>{attendanceSummary.Presente}</strong>
-                    </div>
-                    <div className="attendance-summary-card" data-tone="absent">
-                      <span>Ausentes</span>
-                      <strong>{attendanceSummary.Ausente}</strong>
-                    </div>
-                    <div className="attendance-summary-card" data-tone="justified">
-                      <span>Justificados</span>
-                      <strong>{attendanceSummary.Justificado}</strong>
-                    </div>
+                  <div className="mt-4 grid grid-cols-3 gap-2">
+                    <MiniCount label="Presentes" value={attendanceSummary.Presente} tone="present" />
+                    <MiniCount label="Ausentes" value={attendanceSummary.Ausente} tone="absent" />
+                    <MiniCount label="Justificados" value={attendanceSummary.Justificado} tone="justified" />
                   </div>
-
-                  <div className="attendance-search-row">
-                    <label className="attendance-search-box">
-                      <input
-                        value={studentSearch}
-                        onChange={(event) => setStudentSearch(event.target.value)}
-                        placeholder="Buscar alumno, RUT o especialidad"
-                      />
-                      <MagnifyingGlassIcon aria-hidden="true" />
+                  <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+                    <label className="relative">
+                      <MagnifyingGlassIcon className="pointer-events-none absolute right-3 top-3.5 h-5 w-5 text-[#788277]" />
+                      <input className={`${DIRECTOR_FIELD} pr-10`} value={studentSearch} onChange={(event) => setStudentSearch(event.target.value)} placeholder="Buscar alumno, RUT o especialidad" />
                     </label>
-                    <button type="button" className="attendance-secondary-button" onClick={markAllPresent}>
-                      Todos presentes
-                    </button>
+                    <button type="button" className={DIRECTOR_BUTTON_GHOST} onClick={markAllPresent}>Todos presentes</button>
                   </div>
                 </>
-              )}
+              ) : null}
             </header>
 
-            <div className="attendance-roster-list">
-              {loadingStudents && <div className="attendance-empty-state">Cargando alumnos de la categoría…</div>}
+            <div className="grid max-h-[620px] min-h-[320px] content-start gap-2 overflow-y-auto bg-[#fafbf9] p-2 sm:p-3">
+              {loadingStudents ? <EmptyState>Cargando alumnos de la categoría…</EmptyState> : null}
 
               {!loadingStudents && filteredStudents.map((student, index) => {
                 const age = ageFrom(student.fecha_nacimiento);
                 const selected = attendance[student.id] || 'Presente';
                 return (
-                  <div key={student.id} className="attendance-student-row">
-                    <div className="attendance-student-identity">
-                      <span className="attendance-student-index">{String(index + 1).padStart(2, '0')}</span>
+                  <div key={student.id} className="grid gap-3 rounded-2xl border border-[#dfe5dc] bg-white p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className="w-6 shrink-0 text-center text-[10px] font-black text-[#7a8478]">{String(index + 1).padStart(2, '0')}</span>
                       {student.foto ? (
-                        <img src={student.foto} alt={`Foto de ${student.nombre}`} />
+                        <img src={student.foto} alt={`Foto de ${student.nombre}`} className="h-11 w-11 shrink-0 rounded-xl border border-[#dfe5dc] object-cover" />
                       ) : (
-                        <div className="attendance-student-avatar">{initials(student.nombre)}</div>
+                        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#d6e5a8] bg-[#f0f7dc] text-xs font-black text-[#607900]">{initials(student.nombre)}</div>
                       )}
-                      <div className="attendance-student-copy">
-                        <div className="attendance-student-name-line">
-                          <strong>{student.nombre}</strong>
-                          {student.tiene_alerta_medica && (
-                            <span className="attendance-medical-badge" title="El alumno tiene una alerta médica registrada">
-                              <ExclamationTriangleIcon /> Alerta
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <strong className="truncate text-sm font-black text-[#111711]">{student.nombre}</strong>
+                          {student.tiene_alerta_medica ? (
+                            <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-[10px] font-black text-amber-800" title="El alumno tiene una alerta médica registrada">
+                              <ExclamationTriangleIcon className="h-3.5 w-3.5" /> Alerta
                             </span>
-                          )}
+                          ) : null}
                         </div>
-                        <div className="attendance-student-meta">
+                        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[11px] font-semibold text-[#778176]">
                           <span>{student.documento || 'Sin documento'}</span>
-                          {age !== null && <span>{age} años</span>}
-                          <span>{student.rol_especialidad || 'Sin especialidad definida'}</span>
+                          {age !== null ? <span>{age} años</span> : null}
+                          <span>{student.rol_especialidad || 'Sin especialidad'}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="attendance-status-control">
-                      <button
-                        type="button"
-                        data-selected={selected === 'Presente'}
-                        data-status="present"
-                        onClick={() => setStudentAttendance(student.id, 'Presente')}
-                      >
-                        <CheckCircleIcon /> <span>Presente</span>
-                      </button>
-                      <button
-                        type="button"
-                        data-selected={selected === 'Ausente'}
-                        data-status="absent"
-                        onClick={() => setStudentAttendance(student.id, 'Ausente')}
-                      >
-                        <XCircleIcon /> <span>Ausente</span>
-                      </button>
-                      <button
-                        type="button"
-                        data-selected={selected === 'Justificado'}
-                        data-status="justified"
-                        onClick={() => setStudentAttendance(student.id, 'Justificado')}
-                      >
-                        <UserCircleIcon /> <span>Justif.</span>
-                      </button>
+                    <div className="grid grid-cols-3 gap-1 rounded-xl border border-[#dfe5dc] bg-[#f7f9f5] p-1">
+                      {(['Presente', 'Ausente', 'Justificado'] as AttendanceStatus[]).map((value) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => setAttendance((current) => ({ ...current, [student.id]: value }))}
+                          className={`inline-flex min-h-10 items-center justify-center gap-1 rounded-lg border px-2 text-[11px] font-black transition ${statusButton(selected === value, value)}`}
+                        >
+                          {value === 'Presente' ? <CheckCircleIcon className="h-4 w-4" /> : value === 'Ausente' ? <XCircleIcon className="h-4 w-4" /> : <UserCircleIcon className="h-4 w-4" />}
+                          <span>{value === 'Justificado' ? 'Justif.' : value}</span>
+                        </button>
+                      ))}
                     </div>
                   </div>
                 );
               })}
 
-              {!loadingStudents && students.length > 0 && filteredStudents.length === 0 && (
-                <div className="attendance-empty-state">No encontramos alumnos con esa búsqueda.</div>
-              )}
-              {!loadingStudents && categoryId && categoryId !== 'TODAS' && status === 'Realizado' && students.length === 0 && (
-                <div className="attendance-empty-state">No hay alumnos con inscripción activa en esta categoría.</div>
-              )}
-              {!categoryId && <div className="attendance-empty-state">Selecciona una categoría para cargar la lista.</div>}
-              {categoryId === 'TODAS' && (
-                <div className="attendance-info-state">
-                  “Todas” aplica la sesión a <strong>{branch?.nombre}</strong>. Para pasar lista alumno por alumno, selecciona una categoría específica.
-                </div>
-              )}
-              {status !== 'Realizado' && categoryId && categoryId !== 'TODAS' && (
-                <div className="attendance-info-state">La lista individual se habilita cuando el estado de la sesión es <strong>Realizado</strong>.</div>
-              )}
+              {!loadingStudents && students.length > 0 && filteredStudents.length === 0 ? <EmptyState>No encontramos alumnos con esa búsqueda.</EmptyState> : null}
+              {!loadingStudents && categoryId && categoryId !== 'TODAS' && status === 'Realizado' && students.length === 0 ? <EmptyState>No hay alumnos con inscripción activa en esta categoría.</EmptyState> : null}
+              {!categoryId ? <EmptyState>Selecciona una categoría para cargar la lista.</EmptyState> : null}
+              {categoryId === 'TODAS' ? <InfoState>“Todas” registra la sesión para <strong>{branch?.nombre}</strong>. Para pasar lista alumno por alumno, selecciona una categoría específica.</InfoState> : null}
+              {status !== 'Realizado' && categoryId && categoryId !== 'TODAS' ? <InfoState>La lista individual se habilita cuando el estado de la sesión es <strong>Realizado</strong>.</InfoState> : null}
             </div>
-          </article>
+          </DirectorPanel>
         </section>
-      )}
+      ) : null}
 
-      {tab === 'reagendar' && (
-        <section className="attendance-two-column">
-          <article className="attendance-panel">
-            <div className="attendance-section-heading">
-              <p>RECUPERACIONES</p>
-              <h2>Clases suspendidas</h2>
-              <span>{branch?.nombre || 'Rama seleccionada'}</span>
-            </div>
-            <div className="attendance-suspended-list">
+      {tab === 'reagendar' ? (
+        <section className="grid gap-4 lg:grid-cols-2">
+          <DirectorPanel className="p-4 sm:p-5">
+            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#75806f]">Recuperaciones</p>
+            <h2 className="mt-1 text-xl font-black text-[#111711]">Clases suspendidas</h2>
+            <p className="mt-1 text-sm text-[#697468]">{branch?.nombre || 'Rama seleccionada'}</p>
+
+            <div className="mt-4 grid gap-2">
               {suspended.map((item) => (
                 <button
                   key={item.id}
                   type="button"
-                  data-selected={selectedSuspended?.id === item.id}
                   onClick={() => setSelectedSuspended(item)}
+                  className={`grid gap-1 rounded-2xl border p-4 text-left transition ${selectedSuspended?.id === item.id ? 'border-[#8eb700] bg-[#f3fadf]' : 'border-[#dfe5dc] bg-white hover:border-[#b9c3b6] hover:bg-[#fafbf9]'}`}
                 >
-                  <strong>{item.categorias?.nombre || 'Categoría'}</strong>
-                  <span>{item.fecha}</span>
-                  <small>{item.motivo_cancelacion || 'Sin motivo informado'}</small>
+                  <div className="flex items-center justify-between gap-3">
+                    <strong className="text-sm font-black text-[#111711]">{item.categorias?.nombre || 'Categoría'}</strong>
+                    <span className="text-xs font-bold text-[#697468]">{item.fecha}</span>
+                  </div>
+                  <span className="text-xs text-[#697468]">{item.motivo_cancelacion || 'Sin motivo informado'}</span>
                 </button>
               ))}
-              {!suspended.length && <div className="attendance-empty-state">No hay suspensiones pendientes en esta rama.</div>}
+              {!suspended.length ? <EmptyState>No hay suspensiones pendientes en esta rama.</EmptyState> : null}
             </div>
-          </article>
+          </DirectorPanel>
 
-          <article className="attendance-panel">
-            <div className="attendance-section-heading">
-              <p>NUEVA FECHA</p>
-              <h2>Programar recuperación</h2>
-            </div>
+          <DirectorPanel className="self-start p-4 sm:p-5">
+            <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#75806f]">Nueva fecha</p>
+            <h2 className="mt-1 text-xl font-black text-[#111711]">Programar recuperación</h2>
+
             {selectedSuspended ? (
-              <div className="attendance-reschedule-form">
-                <div className="attendance-selected-class">
-                  <strong>{selectedSuspended.categorias?.nombre}</strong>
-                  <span>Suspendida el {selectedSuspended.fecha}</span>
+              <div className="mt-4 grid gap-3">
+                <div className="rounded-2xl border border-[#d6e5a8] bg-[#f3fadf] p-4">
+                  <strong className="block text-sm font-black text-[#111711]">{selectedSuspended.categorias?.nombre}</strong>
+                  <span className="mt-1 block text-xs text-[#697468]">Suspendida el {selectedSuspended.fecha}</span>
                 </div>
-                <label className="attendance-field-block">
-                  <span>Fecha</span>
-                  <input type="date" value={reschedule.fecha} onChange={(event) => setReschedule({ ...reschedule, fecha: event.target.value })} />
-                </label>
-                <label className="attendance-field-block">
-                  <span>Hora</span>
-                  <input type="time" value={reschedule.hora} onChange={(event) => setReschedule({ ...reschedule, hora: event.target.value })} />
-                </label>
-                <label className="attendance-field-block">
-                  <span>Lugar</span>
-                  <input value={reschedule.lugar} onChange={(event) => setReschedule({ ...reschedule, lugar: event.target.value })} placeholder="Lugar" />
-                </label>
-                <button className="attendance-primary-button" onClick={() => void rescheduleClass()}>Reagendar y notificar</button>
+                <label><span className={labelClass}>Fecha</span><input className={DIRECTOR_FIELD} type="date" value={reschedule.fecha} onChange={(event) => setReschedule({ ...reschedule, fecha: event.target.value })} /></label>
+                <label><span className={labelClass}>Hora</span><input className={DIRECTOR_FIELD} type="time" value={reschedule.hora} onChange={(event) => setReschedule({ ...reschedule, hora: event.target.value })} /></label>
+                <label><span className={labelClass}>Lugar</span><input className={DIRECTOR_FIELD} value={reschedule.lugar} onChange={(event) => setReschedule({ ...reschedule, lugar: event.target.value })} placeholder="Lugar" /></label>
+                <button className={DIRECTOR_BUTTON} onClick={() => void rescheduleClass()}>Reagendar y notificar</button>
               </div>
-            ) : (
-              <div className="attendance-empty-state">Selecciona una clase suspendida para asignar una nueva fecha.</div>
-            )}
-          </article>
+            ) : <EmptyState>Selecciona una clase suspendida para asignar una nueva fecha.</EmptyState>}
+          </DirectorPanel>
         </section>
-      )}
+      ) : null}
 
-      {tab === 'reportes' && (
-        <section className="attendance-dashboard">
-          <article className="attendance-panel attendance-dashboard-overview">
-            <div className="attendance-dashboard-toolbar">
-              <div className="attendance-section-heading">
-                <p>MÉTRICAS DE {branch?.nombre || 'LA RAMA'}</p>
-                <h2>Asistencia mensual</h2>
+      {tab === 'reportes' ? (
+        <section className="grid gap-4">
+          <DirectorPanel className="p-4 sm:p-5">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#75806f]">Métricas de {branch?.nombre || 'la rama'}</p>
+                <h2 className="mt-1 text-xl font-black text-[#111711]">Asistencia mensual</h2>
               </div>
-              <div className="attendance-dashboard-period">
-                <label className="attendance-field-block">
-                  <span>Mes</span>
-                  <select value={month} onChange={(event) => setMonth(event.target.value)}>
-                    {Array.from({ length: 12 }, (_, i) => (
-                      <option key={i + 1} value={String(i + 1).padStart(2, '0')}>{String(i + 1).padStart(2, '0')}</option>
-                    ))}
-                  </select>
-                </label>
-                <label className="attendance-field-block">
-                  <span>Año</span>
-                  <input value={year} onChange={(event) => setYear(event.target.value)} />
-                </label>
-                <button type="button" className="attendance-dark-button" onClick={exportExcel}>Excel</button>
+              <div className="grid gap-2 sm:grid-cols-[110px_130px_auto] sm:items-end">
+                <label><span className={labelClass}>Mes</span><select className={DIRECTOR_FIELD} value={month} onChange={(event) => setMonth(event.target.value)}>{Array.from({ length: 12 }, (_, i) => <option key={i + 1} value={String(i + 1).padStart(2, '0')}>{String(i + 1).padStart(2, '0')}</option>)}</select></label>
+                <label><span className={labelClass}>Año</span><input className={DIRECTOR_FIELD} value={year} onChange={(event) => setYear(event.target.value)} /></label>
+                <button type="button" className={DIRECTOR_BUTTON_DARK} onClick={exportExcel}>Exportar Excel</button>
               </div>
             </div>
 
-            {metrics && (
-              <div className="attendance-kpi-grid">
-                <div className="attendance-kpi"><span>Clases</span><strong>{metrics.global.totalClases}</strong></div>
-                <div className="attendance-kpi" data-accent="lime"><span>Asistencia</span><strong>{metrics.global.porcentajeGlobal}%</strong></div>
-                <div className="attendance-kpi"><span>Canceladas</span><strong>{metrics.global.canceladas}</strong></div>
-                <div className="attendance-kpi"><span>Recuperativas</span><strong>{metrics.global.recuperativas}</strong></div>
+            {metrics ? (
+              <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                <DirectorStat label="Clases" value={metrics.global.totalClases} detail="Registradas en el período" />
+                <DirectorStat label="Asistencia" value={`${metrics.global.porcentajeGlobal}%`} detail="Promedio global" tone="lime" />
+                <DirectorStat label="Canceladas" value={metrics.global.canceladas} detail="Sesiones suspendidas" />
+                <DirectorStat label="Recuperativas" value={metrics.global.recuperativas} detail="Clases recuperadas" />
               </div>
-            )}
-          </article>
+            ) : null}
+          </DirectorPanel>
 
-          <div className="attendance-two-column">
-            <article className="attendance-panel">
-              <div className="attendance-section-heading">
-                <p>DETALLE</p>
-                <h2>Por categoría</h2>
-              </div>
-              <div className="attendance-category-metrics">
+          <div className="grid gap-4 lg:grid-cols-2">
+            <DirectorPanel className="p-4 sm:p-5">
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#75806f]">Detalle</p>
+              <h2 className="mt-1 text-xl font-black text-[#111711]">Por categoría</h2>
+              <div className="mt-4 grid gap-2">
                 {metrics?.categorias.map((item) => (
-                  <div key={item.nombre}>
-                    <span>{item.nombre}</span>
-                    <strong>{item.porcentaje}%</strong>
+                  <div key={item.nombre} className="flex items-center justify-between gap-4 rounded-xl border border-[#e0e5dd] bg-[#fafbf9] px-4 py-3">
+                    <span className="text-sm font-bold text-[#596456]">{item.nombre}</span>
+                    <strong className="text-sm font-black text-[#111711]">{item.porcentaje}%</strong>
                   </div>
                 ))}
-                {!metrics?.categorias?.length && <div className="attendance-empty-state">No hay datos de categorías para este período.</div>}
+                {!metrics?.categorias?.length ? <EmptyState>No hay datos de categorías para este período.</EmptyState> : null}
               </div>
-            </article>
+            </DirectorPanel>
 
-            <article className="attendance-panel">
-              <div className="attendance-section-heading">
-                <p>FAMILIAS</p>
-                <h2>Reporte mensual</h2>
-                <span>Envía el resumen individual de una categoría a sus apoderados.</span>
+            <DirectorPanel className="p-4 sm:p-5">
+              <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#75806f]">Familias</p>
+              <h2 className="mt-1 text-xl font-black text-[#111711]">Reporte mensual</h2>
+              <p className="mt-1 text-sm text-[#697468]">Envía el resumen individual de una categoría a sus apoderados.</p>
+              <div className="mt-4 grid gap-3">
+                <label><span className={labelClass}>Categoría</span><select className={DIRECTOR_FIELD} value={categoryId} onChange={(event) => setCategoryId(event.target.value)}><option value="">Selecciona categoría</option>{categories.map((item) => <option key={item.id} value={item.id}>{item.nombre}</option>)}</select></label>
+                <button className={DIRECTOR_BUTTON} onClick={() => void sendReport()}>Enviar reporte mensual</button>
               </div>
-              <div className="attendance-report-form">
-                <label className="attendance-field-block">
-                  <span>Categoría</span>
-                  <select value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
-                    <option value="">Selecciona categoría</option>
-                    {categories.map((item) => <option key={item.id} value={item.id}>{item.nombre}</option>)}
-                  </select>
-                </label>
-                <button className="attendance-primary-button" onClick={() => void sendReport()}>Enviar reporte mensual</button>
-              </div>
-            </article>
+            </DirectorPanel>
           </div>
         </section>
-      )}
-    </div>
+      ) : null}
+    </DirectorPage>
   );
+}
+
+function MiniCount({ label, value, tone }: { label: string; value: number; tone: 'present' | 'absent' | 'justified' }) {
+  const classes = tone === 'present'
+    ? 'border-emerald-200 bg-emerald-50'
+    : tone === 'absent'
+      ? 'border-rose-200 bg-rose-50'
+      : 'border-amber-200 bg-amber-50';
+  return <div className={`rounded-xl border px-3 py-2 text-center ${classes}`}><span className="block text-[9px] font-black uppercase tracking-[.08em] text-[#687367]">{label}</span><strong className="mt-1 block text-lg font-black text-[#111711]">{value}</strong></div>;
+}
+
+function EmptyState({ children }: { children: React.ReactNode }) {
+  return <div className="rounded-2xl border border-dashed border-[#cfd7cc] bg-white p-6 text-center text-sm font-semibold text-[#697468]">{children}</div>;
+}
+
+function InfoState({ children }: { children: React.ReactNode }) {
+  return <div className="rounded-2xl border border-[#d6e5a8] bg-[#f7faed] p-5 text-sm leading-6 text-[#566056]">{children}</div>;
 }
