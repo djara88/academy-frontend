@@ -26,7 +26,6 @@ import './prematriculas-recientes-lestra.css';
 import './prematricula-hide-finalidades.css';
 import './alumno-profile-readability.css';
 import './visual-readability-final.css';
-import './student-report-contrast-lock.css';
 import './director-contrast-safety.css';
 import './tournament-contrast-safety.css';
 import './visual-system-v2.css';
