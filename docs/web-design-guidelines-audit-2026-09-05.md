@@ -35,22 +35,19 @@ Deep analytics and secondary management remain available in their specialized mo
 
 Migration objective: scan first, inspect second.
 
-- List view is converging from a three-column KPI-card wall to a single fast-scanning collection.
-- Search and discipline filters are treated as one compact toolbar.
-- Per-student list cards no longer surface three secondary KPIs simultaneously; those details remain in the student profile.
-- Avatar, typography, chips, borders, shadows, and hover states are quieter and optimized for recognition and selection.
-- The detailed multideporte profile remains available when the director opens a student.
-- Removed the superseded legacy stylesheet `src/alumnos-list-modern.css` rather than layering another override on top.
+- Student browsing prioritizes recognition and selection over KPI-card density.
+- Search and discipline filters behave as one compact toolbar.
+- Secondary student metrics remain in the detailed profile instead of competing in the list.
+- Removed the superseded `src/alumnos-list-modern.css` layer.
 
 ### Matrícula
 
 Migration objective: one current decision at a time.
 
-- The shared `DirectorHero` was converted from a dark marketing hero with oversized typography into a compact operational page header.
+- Shared `DirectorHero` now behaves as a compact operational header instead of a marketing hero.
 - The four-step flow remains intact: Apoderado → Alumno → Perfil deportivo → Valores y envío.
 - Step navigation is compact and horizontally scannable on small screens.
-- The active form area has stronger hierarchy than surrounding context.
-- Form focus, inputs, optional sections, destructive actions, and final actions are now governed by the shared Director/V2 system.
+- Form focus, optional sections, destructive actions, and final actions are governed by the shared Director/V2 system.
 - Removed obsolete dedicated presentation locks:
   - `src/matricula-contrast-lock.css`
   - `src/matricula-step4-contrast-lock.css`
@@ -62,70 +59,119 @@ No enrollment API, validation, signing, finance, permission, or plan logic was c
 
 Migration objective: field-first and mobile-first.
 
-- Rebuilt `AsistenciasMultirama` on shared `DirectorModule` components instead of continuing to patch its custom presentation layer.
-- The primary flow is now Rama → Categoría → Sesión → Lista → Presente / Ausente / Justificado → Guardar.
-- The roster receives the majority of available workspace and remains easy to use on mobile touch targets.
-- Reagendamiento is a two-step selection-and-action flow instead of another dashboard surface.
-- Monthly reporting is separated from passing attendance and keeps Excel export plus family report delivery.
-- Preserved the existing attendance, suspension, rescheduling, reporting, metrics and export API contracts.
-- Removed `src/asistencias-multirama-fix.css` from the bundle and deleted the file.
-- Removed the now-unused attendance override section from `src/operational-workflows-v2.css`.
+- Rebuilt `AsistenciasMultirama` on shared `DirectorModule` components.
+- Primary flow: Rama → Categoría → Sesión → Lista → Presente / Ausente / Justificado → Guardar.
+- Reagendamiento is a focused selection-and-action flow.
+- Monthly reporting remains separated from passing attendance and preserves Excel export plus family delivery.
+- Attendance, suspension, rescheduling, reporting, metrics, and export API contracts remain unchanged.
+- Removed `src/asistencias-multirama-fix.css` and the obsolete attendance override section from `src/operational-workflows-v2.css`.
 
 ## Phase 4 — Partidos / Eventos / Torneos
 
 Migration objective: one event mental model from planning through result capture.
 
-Completed in the visible route surfaces:
+- Simplified route-level framing to `Partidos y eventos`.
+- Removed the duplicate inner hero.
+- Working area is Rama filter + Nuevo evento, followed immediately by the event collection.
+- Event cards expose performance capture as the dominant action; citation/editing are secondary and deletion is destructive without competing visually.
+- Rebuilt `DirectorSportsResponses` natively on shared V2 surfaces.
+- Tournament cards were simplified and `Gestionar / Definir equipo` is now the dominant action.
+- Existing event, citation, result, sport-profile, and tournament APIs remain unchanged.
 
-- Simplified the route-level header to `Partidos y eventos` with one operational description.
-- Removed the visible duplicate inner hero by collapsing its remaining action into the operational toolbar.
-- Top working area is now Rama filter + Nuevo evento, followed immediately by the event collection.
-- Event cards have a calmer information hierarchy and a single dominant action for performance capture.
-- Citación and editing are secondary; deletion is visually destructive without competing with the primary action.
-- Rebuilt `DirectorSportsResponses` natively on shared V2 surfaces instead of using a dark component plus contrast overrides.
-- Tournament list cards were simplified: repeated explanatory blocks are suppressed, hover lift was removed, and `Gestionar / Definir equipo` is the dominant action.
-- Existing event, citation, result, sport-profile and tournament APIs remain unchanged.
-
-Legacy styles removed in this phase:
+Legacy styles removed:
 
 - `src/events-card-minimal.css`
 - `src/events-confirmations-contrast-lock.css`
 - `src/tournament-filter-polish.css`
 
-Deliberately retained for now:
+Still isolated pending native modal migration:
 
 - `src/events-popup-simple.css`
 - `src/performance-popup-contrast.css`
 
-Those two files isolate viewport-level portal modals, including complex sport-specific metric capture. They will only be removed after the modal markup itself is migrated, rather than deleting defensive styles without an equivalent component contract.
+These two files protect portal-level modal behavior and sport-specific metric capture. They are being migrated at component level before deletion.
 
 ## Phase 5 — Finanzas
 
 Migration objective: money first, action second, analytics third.
 
-Current progress:
+Completed:
 
-- Reduced the route-level message to the financial decisions the director needs: collected, due, overdue and balance.
-- Removed the duplicated visual hero from the advanced financial engine; its inner header now acts only as the branch scope control.
-- Four principal financial figures remain prominent while students in arrears, delinquency and payments pending review become compact secondary facts.
-- `Cobro` is treated as the primary creation action; `Egreso` remains clearly destructive/secondary.
-- Financial navigation is converging from a dark tab strip to a compact segmented workspace control.
-- Removed the obsolete finance hero accessory stylesheet `src/finance-hero-card.css` after deleting the connected-marketing card from the header.
-- Financial API, collection automation, validation, payment, expense and account-current logic remains unchanged.
+- One route header; duplicated financial hero removed.
+- Branch acts as scope rather than as another dashboard section.
+- Four principal figures remain prominent: collected, due, overdue, balance.
+- Students in arrears, delinquency, and payments pending review are secondary facts.
+- `Cobro` is the primary creation action; `Egreso` is secondary/destructive.
+- Rebuilt the advanced finance shell on V2 surfaces.
+- Rebuilt the compatibility/fallback finance mode on V2 surfaces.
+- Rebuilt current accounts, reported-payment validation, collection automation, payments, expenses, cash flow, and finance modals on light/shared surfaces.
+- Simplified the finance dashboard to actionable analysis: cash trend, priority debtors, branch comparison, and recent movements instead of repeated KPI/chart density.
+- Payment validation explicitly preserves the rule that an informed transfer does not move cash until Director validation.
 
-Next in this phase:
+Removed finance-specific compensation layers:
 
-- Converge the dashboard and table surfaces without losing financial semantics (income green, expense red, pending amber).
-- Reduce reliance on `finance-visibility-contract.css` as the advanced finance components become natively light/V2.
-- Verify payment validation, account current, collection automation and modal states on mobile.
+- `src/finance-hero-card.css`
+- `src/finance-visibility-contract.css`
 
-## Remaining migration order
+Financial APIs, collection automation, validation, payment, expense, and account-current logic remain unchanged.
 
-1. Complete Finance deep surfaces.
-2. Profesores + Familias — role-specific experiences.
-3. Configuración — group options by user intent instead of technical structure.
-4. Continue removing superseded CSS layers after each module is verified.
-5. Return to Partidos portal modals for native markup migration after the primary director workflow is stable.
+## Phase 6 — Profesores + Familias
+
+### Profesores
+
+Migration objective: team management first, technical monitoring second.
+
+- Rebuilt the page on shared `DirectorModule` components.
+- Primary information is now professor capacity, branch coverage, and branch filter.
+- Professor cards retain category assignments, credentials, status management, editing, and reset-password actions.
+- Activity remains available but is limited to recent records so it does not dominate team management.
+- Professor creation/edit modal was migrated to V2 surfaces.
+- Removed obsolete dedicated styles:
+  - `src/professors-polish.css`
+  - `src/professors-actions-fix.css`
+
+### Familias / Apoderados
+
+Migration objective: status → family → action.
+
+- Removed repeated statistics from hero + KPI strip + list header.
+- Retained only active/pending access indicators before the family list.
+- Editing, invitations, isolation by linked students, access state, and password reset remain unchanged.
+
+## Phase 7 — Configuración
+
+Migration objective: organize by director intent instead of technical module structure.
+
+- Replaced the flat wall of configuration cards with grouped intent sections.
+- Current groups: Academia y estructura, Personas y operación, Finanzas y condiciones, Comunicaciones, and Operación deportiva.
+- Plan usage and onboarding were compacted into one operational summary rather than four KPI cards plus a full checklist.
+- Rama principal remains a focused organization control.
+- Removed `src/config-access-dark.css`, which targeted the old large dark module-card layout.
+
+## Current cleanup status
+
+The following high-frequency Director surfaces now converge on shared V2/Director components rather than module-specific visual patches:
+
+- Dashboard
+- Alumnos
+- Matrícula
+- Asistencia
+- Partidos / Eventos
+- Torneos
+- Finanzas
+- Profesores
+- Familias / Apoderados
+- Configuración
+
+Remaining deliberate exceptions are limited to complex portal/modal flows that still need native markup migration before their defensive CSS can be removed.
+
+## Next migration order
+
+1. Migrate `Nuevo/Editar evento` modal markup natively and remove `events-popup-simple.css`.
+2. Migrate `Registrar rendimiento` modal markup natively and remove `performance-popup-contrast.css`.
+3. Compare branch against `main` and identify remaining dead compatibility selectors.
+4. Run final keyboard, responsive, mobile-touch, loading/empty/error, and visual-hierarchy review.
+5. Keep business rules, security, plan gating, billing, and API contracts unchanged unless a separate functional task explicitly requests changes.
 
 ## Quality rules going forward
 
