@@ -1,0 +1,423 @@
+/*
+ * Lestra Deportivo — Visual System v2
+ *
+ * This is the single convergence layer for the authenticated product shell.
+ * It intentionally reduces decorative noise and normalizes interaction states
+ * while older module-specific styles are progressively retired.
+ */
+
+:root {
+  --ls-bg: #f6f7f4;
+  --ls-surface: #ffffff;
+  --ls-surface-soft: #f0f2ed;
+  --ls-ink: #161a17;
+  --ls-muted: #687068;
+  --ls-line: #dfe4dc;
+  --ls-line-strong: #cbd3c8;
+  --ls-accent: #b8ee13;
+  --ls-accent-strong: #9fd000;
+  --ls-blue: #3157ff;
+  --ls-danger: #d93643;
+  --ls-warning: #b87500;
+  --ls-success: #118255;
+  --ls-sidebar: #111512;
+  --ls-radius-sm: 12px;
+  --ls-radius: 16px;
+  --ls-radius-lg: 22px;
+  --ls-shadow: 0 8px 28px rgba(18, 24, 19, .06);
+  --ls-focus: 0 0 0 3px rgba(49, 87, 255, .22);
+}
+
+html {
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--ls-bg) !important;
+  color: var(--ls-ink) !important;
+}
+
+/* ---------- Interaction contract ---------- */
+:where(a, button, input, select, textarea, [tabindex]):focus {
+  outline: none;
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--ls-blue) !important;
+  outline-offset: 2px !important;
+  box-shadow: var(--ls-focus) !important;
+}
+
+:where(button, a, input, select, textarea) {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(49, 87, 255, .12);
+}
+
+/* ---------- Product shell ---------- */
+.lestra-shell {
+  background: var(--ls-bg) !important;
+  color: var(--ls-ink) !important;
+}
+
+.lestra-shell .lestra-sidebar {
+  background: var(--ls-sidebar) !important;
+  border-color: rgba(255,255,255,.07) !important;
+  box-shadow: none !important;
+}
+
+.lestra-shell .lestra-sidebar-brand {
+  background: transparent !important;
+  border-color: rgba(255,255,255,.07) !important;
+}
+
+.lestra-shell .lestra-sidebar-brand h1 {
+  color: #fff !important;
+}
+
+.lestra-shell .lestra-nav-group-label {
+  color: #717a72 !important;
+  letter-spacing: .11em !important;
+}
+
+.lestra-shell .lestra-nav-link {
+  min-height: 44px;
+  border-radius: 12px !important;
+  color: #a8b0aa !important;
+  transition: background-color .16s ease, color .16s ease !important;
+}
+
+.lestra-shell .lestra-nav-link:hover {
+  background: rgba(255,255,255,.06) !important;
+  color: #fff !important;
+}
+
+.lestra-shell .lestra-nav-link[aria-current="page"],
+.lestra-shell .lestra-nav-link.is-active {
+  background: var(--ls-accent) !important;
+  color: #121612 !important;
+  box-shadow: none !important;
+}
+
+.lestra-shell .lestra-nav-link[aria-current="page"] svg,
+.lestra-shell .lestra-nav-link.is-active svg {
+  color: currentColor !important;
+}
+
+.lestra-shell .lestra-plan-link {
+  min-height: 44px !important;
+  border-radius: 12px !important;
+  border-color: rgba(184,238,19,.22) !important;
+  background: rgba(184,238,19,.08) !important;
+  color: #d9ff70 !important;
+}
+
+.lestra-shell .lestra-sidebar-footer {
+  border-color: rgba(255,255,255,.07) !important;
+}
+
+.lestra-shell .lestra-director-main {
+  background: var(--ls-bg) !important;
+}
+
+.lestra-director-main > .app-content,
+.lestra-director-main .app-content {
+  width: min(100%, 1480px) !important;
+  margin-inline: auto;
+}
+
+/* ---------- Global content rhythm ---------- */
+.lestra-director-main .app-content {
+  color: var(--ls-ink);
+}
+
+.lestra-director-main .app-content :where(h1, h2, h3) {
+  color: var(--ls-ink);
+  text-wrap: balance;
+}
+
+.lestra-director-main .app-content :where(p, li) {
+  text-wrap: pretty;
+}
+
+.lestra-director-main .app-content :where(.card, .card-uniforme, article[class*="card"], section[class*="card"]) {
+  border-color: var(--ls-line) !important;
+}
+
+/* Normalize legacy dark surfaces inside the director workspace. */
+.lestra-director-main .app-content :where(.card, .card-uniforme),
+.lestra-director-main .app-content [class*="bg-[#0d1117]"],
+.lestra-director-main .app-content [class*="bg-[#10141c]"],
+.lestra-director-main .app-content [class*="bg-[#101620]"],
+.lestra-director-main .app-content [class*="bg-[#111722]"],
+.lestra-director-main .app-content [class*="bg-[#151b25]"],
+.lestra-director-main .app-content [class*="bg-[#161b22]"] {
+  background: var(--ls-surface) !important;
+  color: var(--ls-ink) !important;
+  border-color: var(--ls-line) !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main .app-content :where(input, select, textarea) {
+  min-height: 44px;
+  border: 1px solid var(--ls-line-strong) !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  color: var(--ls-ink) !important;
+  box-shadow: none !important;
+  transition: border-color .15s ease, box-shadow .15s ease !important;
+}
+
+.lestra-director-main .app-content :where(input, select, textarea)::placeholder {
+  color: #8c948d !important;
+}
+
+.lestra-director-main .app-content :where(input, select, textarea):focus-visible {
+  border-color: var(--ls-blue) !important;
+}
+
+.lestra-director-main .app-content :where(button, a) {
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease, opacity .15s ease, transform .15s ease !important;
+}
+
+.lestra-director-main .app-content :where(button, a):active {
+  transform: translateY(1px);
+}
+
+/* ---------- Dashboard: reduce information noise ---------- */
+.new-era-dashboard {
+  max-width: 1380px !important;
+  gap: 16px !important;
+}
+
+.new-era-hero {
+  border: 1px solid var(--ls-line) !important;
+  border-radius: var(--ls-radius-lg) !important;
+  background: var(--ls-surface) !important;
+  box-shadow: none !important;
+  padding: clamp(20px, 2.6vw, 32px) !important;
+}
+
+.new-era-hero::after {
+  display: none !important;
+}
+
+.new-era-eyebrow {
+  color: var(--ls-muted) !important;
+  letter-spacing: .09em !important;
+}
+
+.new-era-eyebrow::before {
+  background: var(--ls-accent-strong) !important;
+  box-shadow: none !important;
+}
+
+.new-era-hero h1 {
+  margin-top: 8px !important;
+  max-width: 900px;
+  font-size: clamp(2rem, 4vw, 3.6rem) !important;
+  line-height: 1 !important;
+  letter-spacing: -.045em !important;
+}
+
+.new-era-status {
+  border: 1px solid var(--ls-line) !important;
+  background: var(--ls-surface-soft) !important;
+  color: var(--ls-ink) !important;
+}
+
+.new-era-card {
+  border: 1px solid var(--ls-line) !important;
+  border-radius: var(--ls-radius) !important;
+  background: var(--ls-surface) !important;
+  box-shadow: none !important;
+}
+
+.new-era-kpis {
+  gap: 12px !important;
+}
+
+.new-era-kpi {
+  min-height: 132px !important;
+  padding: 18px !important;
+}
+
+.new-era-kpi-icon {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 10px !important;
+}
+
+.new-era-kpi-value {
+  margin-top: 10px !important;
+  font-size: clamp(1.6rem, 2.7vw, 2.2rem) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.new-era-chart-layout {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.new-era-chart-layout > :nth-child(3) {
+  grid-column: 1 / -1;
+}
+
+.new-era-chart-card {
+  padding: 18px !important;
+}
+
+.new-era-ring {
+  width: 112px !important;
+  height: 112px !important;
+}
+
+.new-era-bars {
+  height: 120px !important;
+}
+
+.new-era-bar-track {
+  height: 92px !important;
+}
+
+.new-era-quick-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.new-era-quick {
+  min-height: 88px !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+}
+
+.new-era-quick:hover {
+  transform: translateY(-1px) !important;
+}
+
+/* ---------- Tables ---------- */
+.lestra-director-main .app-content table {
+  background: var(--ls-surface) !important;
+  border-color: var(--ls-line) !important;
+  border-radius: 14px !important;
+}
+
+.lestra-director-main .app-content thead th {
+  background: var(--ls-surface-soft) !important;
+  color: #525b53 !important;
+  border-color: var(--ls-line) !important;
+  font-size: 11px;
+  letter-spacing: .035em;
+}
+
+.lestra-director-main .app-content tbody tr {
+  border-color: #e9ece7 !important;
+}
+
+.lestra-director-main .app-content tbody tr:hover {
+  background: #fafbf9 !important;
+}
+
+.lestra-director-main .app-content :where(td, th) {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Mobile navigation ---------- */
+.lestra-mobile-header {
+  box-shadow: none !important;
+}
+
+.lestra-mobile-dock {
+  bottom: max(.75rem, env(safe-area-inset-bottom)) !important;
+  left: max(.75rem, env(safe-area-inset-left)) !important;
+  right: max(.75rem, env(safe-area-inset-right)) !important;
+  border-radius: 18px !important;
+  background: rgba(17,21,18,.96) !important;
+}
+
+.lestra-mobile-dock :where(a, button) {
+  min-height: 48px;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Responsive simplification ---------- */
+@media (max-width: 1023px) {
+  .new-era-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .new-era-chart-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .new-era-chart-layout > :nth-child(3) {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .lestra-director-main .app-content {
+    padding-inline: 14px !important;
+  }
+
+  .new-era-dashboard {
+    gap: 12px !important;
+  }
+
+  .new-era-hero {
+    border-radius: 18px !important;
+    padding: 18px !important;
+  }
+
+  .new-era-hero h1 {
+    font-size: clamp(1.85rem, 9vw, 2.6rem) !important;
+  }
+
+  .new-era-kpis {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .new-era-kpi {
+    min-height: 122px !important;
+    padding: 14px !important;
+  }
+
+  .new-era-kpi-icon {
+    position: static !important;
+    margin-bottom: 12px;
+  }
+
+  .new-era-kpi-value {
+    font-size: 1.55rem !important;
+  }
+
+  .new-era-quick-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .new-era-chart-card,
+  .new-era-card {
+    border-radius: 14px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .new-era-kpis,
+  .new-era-quick-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
