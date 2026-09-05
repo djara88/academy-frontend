@@ -31,10 +31,9 @@ import './inscripciones-contrast-lock.css';
 import './student-report-contrast-lock.css';
 import './director-contrast-safety.css';
 import './tournament-contrast-safety.css';
-import './events-popup-simple.css';
-import './performance-popup-contrast.css';
 import './visual-system-v2.css';
 import './operational-workflows-v2.css';
+import './sports-dialogs-v2.css';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
