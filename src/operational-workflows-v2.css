@@ -39,7 +39,6 @@
   gap: 1rem !important;
 }
 
-/* List/profile top surfaces become calm white workspace surfaces. */
 .lestra-director-main[data-route="/alumnos"] .app-content section[class*="radial-gradient"] {
   border-color: #dce2d8 !important;
   background: #ffffff !important;
@@ -62,7 +61,6 @@
   color: #697468 !important;
 }
 
-/* Search/filter row reads as one toolbar rather than another dashboard card. */
 .lestra-director-main[data-route="/alumnos"] .app-content section:has(input[placeholder*="Buscar por nombre"]) {
   border-color: #dce2d8 !important;
   border-radius: 18px !important;
@@ -86,7 +84,6 @@
   color: #697468 !important;
 }
 
-/* Student collection becomes a fast scanning list instead of a KPI-card wall. */
 .lestra-director-main[data-route="/alumnos"] .app-content section:has(> button.group) {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) !important;
@@ -142,12 +139,10 @@
   color: #566056 !important;
 }
 
-/* KPIs belong in the profile, not in every search result. */
 .lestra-director-main[data-route="/alumnos"] .app-content button.group > div:last-child {
   display: none !important;
 }
 
-/* Profile selectors become calm segmented controls. */
 .lestra-director-main[data-route="/alumnos"] .app-content section[class*="radial-gradient"] button[class*="violet"] {
   border-color: #d9dfd6 !important;
   background: #f7f9f5 !important;
@@ -176,7 +171,6 @@
   box-shadow: none !important;
 }
 
-/* Stepper stays compact and horizontally scannable on small screens. */
 .lestra-director-main[data-route="/matricula"] .director-module-panel > div:first-child:has(button) {
   padding: .75rem !important;
 }
@@ -202,7 +196,6 @@
   font-size: .78rem !important;
 }
 
-/* The current form area receives the visual emphasis, not every surrounding box. */
 .lestra-director-main[data-route="/matricula"] .director-module-panel > div:last-child {
   padding-top: 1.25rem !important;
 }
@@ -222,12 +215,10 @@
   box-shadow: 0 0 0 4px rgba(183, 255, 0, .13) !important;
 }
 
-/* Optional evaluation is deliberately quieter than required enrollment data. */
 .lestra-director-main[data-route="/matricula"] .director-module-panel div[class*="bg-[#f8faf6]"] {
   box-shadow: none !important;
 }
 
-/* Destructive actions are visible but intentionally secondary. */
 .lestra-director-main[data-route="/matricula"] .director-module-panel button[class*="border-red-200"][class*="bg-red-50"] {
   border-color: #fecdd3 !important;
   background: #fff7f8 !important;
@@ -245,9 +236,234 @@
   outline-offset: 2px !important;
 }
 
+/* --------------------------------------------------------------------------
+   Asistencia: field-first, roster-first, mobile-first
+   -------------------------------------------------------------------------- */
+.lestra-director-main[data-route="/asistencias"] .app-content {
+  max-width: 1240px !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-page {
+  gap: 1rem !important;
+  padding-bottom: 2.5rem !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-hero {
+  min-height: 0 !important;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 320px) !important;
+  align-items: center !important;
+  gap: 1.25rem !important;
+  padding: 1.25rem 1.4rem !important;
+  border: 1px solid #dce2d8 !important;
+  border-radius: 22px !important;
+  background: #fff !important;
+  box-shadow: 0 8px 22px rgba(15,23,16,.035) !important;
+  color: #111711 !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-hero::before,
+.lestra-director-main[data-route="/asistencias"] .attendance-hero::after {
+  display: none !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-eyebrow {
+  color: #71806d !important;
+  font-size: .64rem !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-hero h1 {
+  margin-top: .35rem !important;
+  color: #111711 !important;
+  font-size: clamp(1.9rem, 3vw, 2.75rem) !important;
+  line-height: 1 !important;
+  letter-spacing: -.04em !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-hero-description {
+  margin-top: .55rem !important;
+  max-width: 650px !important;
+  color: #697468 !important;
+  font-size: .9rem !important;
+  line-height: 1.5 !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-branch-control {
+  gap: .35rem !important;
+  padding: .75rem !important;
+  border-color: #dce2d8 !important;
+  border-radius: 14px !important;
+  background: #f7f9f5 !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-branch-control > span {
+  color: #697468 !important;
+  font-size: .62rem !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-branch-control select {
+  min-height: 44px !important;
+  border-color: #d7ded4 !important;
+  background: #fff !important;
+  color: #111711 !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-tabs {
+  width: min(100%, 410px) !important;
+  min-height: 48px !important;
+  gap: .25rem !important;
+  padding: .25rem !important;
+  border-radius: 13px !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-tabs button {
+  min-height: 40px !important;
+  border-radius: 9px !important;
+  font-size: .78rem !important;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-tabs button:focus-visible {
+  outline: 3px solid rgba(142,183,0,.24) !important;
+  outline-offset: 2px !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-workspace {
+  grid-template-columns: minmax(280px, .62fr) minmax(0, 1.7fr) !important;
+  gap: .75rem !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-session-card,
+.lestra-director-main[data-route="/asistencias"] .attendance-roster-card,
+.lestra-director-main[data-route="/asistencias"] .attendance-panel {
+  border-radius: 18px !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-session-card {
+  padding: .9rem !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-section-heading h2,
+.lestra-director-main[data-route="/asistencias"] .attendance-roster-title-row h2 {
+  font-size: 1.15rem !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-session-form {
+  margin-top: .75rem !important;
+  padding: .8rem !important;
+  gap: .6rem !important;
+  border: 1px solid #e0e5dd !important;
+  border-radius: 14px !important;
+  background: #f8faf6 !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-session-form .attendance-field-block > span,
+.lestra-director-main[data-route="/asistencias"] .attendance-recovery-toggle {
+  color: #697468 !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-field-block :is(input, select),
+.lestra-director-main[data-route="/asistencias"] .attendance-search-box input {
+  min-height: 44px !important;
+  height: 44px !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-field-block :is(input, select, textarea):focus-visible,
+.lestra-director-main[data-route="/asistencias"] .attendance-search-box input:focus-visible {
+  border-color: #8eb700 !important;
+  box-shadow: 0 0 0 4px rgba(183,255,0,.13) !important;
+  outline: none !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-primary-button,
+.lestra-director-main[data-route="/asistencias"] .attendance-secondary-button,
+.lestra-director-main[data-route="/asistencias"] .attendance-dark-button {
+  min-height: 44px !important;
+  transform: none !important;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-primary-button:hover:not(:disabled) {
+  transform: none !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-roster-header {
+  padding: 1rem !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-summary-grid {
+  margin-top: .7rem !important;
+  gap: .4rem !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-summary-card {
+  min-height: 62px !important;
+  border-bottom-width: 2px !important;
+  border-radius: 12px !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-summary-card > strong {
+  font-size: 1.05rem !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-search-row {
+  margin-top: .6rem !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-roster-list {
+  min-height: 360px !important;
+  max-height: calc(100dvh - 330px) !important;
+  padding: .6rem !important;
+  gap: .4rem !important;
+  background: #fafbf9 !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-student-row {
+  padding: .55rem .65rem !important;
+  gap: .65rem !important;
+  border-radius: 13px !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-student-row:hover {
+  box-shadow: none !important;
+  border-color: #b8c7b6 !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-student-identity img,
+.lestra-director-main[data-route="/asistencias"] .attendance-student-avatar {
+  width: 42px !important;
+  height: 42px !important;
+  flex-basis: 42px !important;
+  border-radius: 11px !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-status-control {
+  grid-template-columns: repeat(3, minmax(72px, 1fr)) !important;
+  padding: .2rem !important;
+  border-radius: 11px !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-status-control button {
+  min-height: 36px !important;
+  padding-inline: .5rem !important;
+  border-radius: 8px !important;
+  transition: background-color .12s ease, color .12s ease, border-color .12s ease !important;
+}
+
+.lestra-director-main[data-route="/asistencias"] .attendance-status-control button:focus-visible {
+  outline: 3px solid rgba(142,183,0,.24) !important;
+  outline-offset: 1px !important;
+}
+
 @media (max-width: 767px) {
   .lestra-director-main[data-route="/alumnos"] .app-content,
-  .lestra-director-main[data-route="/matricula"] .app-content {
+  .lestra-director-main[data-route="/matricula"] .app-content,
+  .lestra-director-main[data-route="/asistencias"] .app-content {
     padding-inline: .75rem !important;
   }
 
@@ -275,5 +491,64 @@
 
   .lestra-director-main[data-route="/matricula"] .director-module-hero-aside {
     display: none !important;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .attendance-page {
+    gap: .7rem !important;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .attendance-hero {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    padding: 1rem !important;
+    border-radius: 18px !important;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .attendance-hero h1 {
+    font-size: 1.65rem !important;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .attendance-hero-description {
+    display: none !important;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .attendance-branch-control {
+    padding: .55rem !important;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .attendance-tabs {
+    width: 100% !important;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .attendance-workspace {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .attendance-session-card {
+    padding: .75rem !important;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .attendance-session-form {
+    padding: .65rem !important;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .attendance-roster-list {
+    min-height: 260px !important;
+    max-height: none !important;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .attendance-student-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .attendance-status-control {
+    width: 100% !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  .lestra-director-main[data-route="/asistencias"] .attendance-status-control button {
+    justify-content: center !important;
+    min-height: 42px !important;
+    padding-inline: .35rem !important;
   }
 }
