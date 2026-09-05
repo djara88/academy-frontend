@@ -23,7 +23,6 @@ import './prematriculas-recientes-lestra.css';
 import './prematricula-hide-finalidades.css';
 import './alumno-profile-readability.css';
 import './visual-readability-final.css';
-import './tournament-contrast-safety.css';
 import './visual-system-v2.css';
 import './operational-workflows-v2.css';
 import './sports-dialogs-v2.css';
