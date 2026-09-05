@@ -30,7 +30,6 @@ import './visual-readability-final.css';
 import './production-contrast-lock.css';
 import './inscripciones-contrast-lock.css';
 import './student-report-contrast-lock.css';
-import './dialog-readability.css';
 import './director-contrast-safety.css';
 import './tournament-contrast-safety.css';
 import './events-popup-simple.css';
