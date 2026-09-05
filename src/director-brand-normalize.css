@@ -1,5 +1,6 @@
-/* Última normalización de marca del director: elimina acentos históricos
- * turquesa/dorado/morado en controles no semánticos y los lleva a Lestra.
+/* Normalización transitoria de marca del Director.
+ * Traduce únicamente acentos históricos no semánticos hacia la identidad Lestra.
+ * Estados de éxito, alerta y error conservan sus colores funcionales.
  */
 
 :root {
@@ -8,15 +9,13 @@
   --lbn-ink: #0b110d;
 }
 
-/* Fondos sólidos de marca heredados. */
+/* Fondos sólidos de marca heredados. No incluye emerald/green: éxito es semántico. */
 .lestra-director-main:not([data-route^="/admin"]) .app-content :is(div,span,button,a)[class~="bg-[#289E9D]"],
 .lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class~="bg-violet-500"],
 .lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class~="bg-purple-500"],
 .lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class~="bg-fuchsia-500"],
 .lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class~="bg-sky-500"],
-.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class~="bg-blue-500"],
-.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class~="bg-emerald-500"],
-.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class~="bg-green-500"] {
+.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class~="bg-blue-500"] {
   background: var(--lbn-lime) !important;
   border-color: var(--lbn-lime) !important;
   color: var(--lbn-ink) !important;
@@ -34,7 +33,7 @@
   background: rgba(202,255,0,.10) !important;
 }
 
-/* Bordes de marca. */
+/* Bordes de marca históricos. */
 .lestra-director-main:not([data-route^="/admin"]) .app-content :is(
   [class~="border-[#289E9D]"],
   [class~="border-[#289E9D]/25"],
@@ -60,21 +59,4 @@
   -webkit-text-fill-color: var(--lbn-lime-deep) !important;
 }
 
-/* Dentro de heroes, los acentos se vuelven lima luminoso, no verde oscuro. */
-.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
-.app-content > div > :is(div,section,article):not([class*="absolute"]):has(h1) :is(
-  [class~="text-[#70e4df]"],
-  [class~="text-[#48d8d0]"],
-  [class~="text-[#289E9D]"],
-  [class~="text-[#C8A96B]"],
-  [class~="text-[#D8BE87]"]
-) {
-  color: var(--lbn-lime) !important;
-  -webkit-text-fill-color: var(--lbn-lime) !important;
-}
-
-/* Botones de peligro/advertencia conservan semántica. */
-.lestra-director-main:not([data-route^="/admin"]) .app-content :is(button,a)[class*="bg-red-"] {
-  color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
-}
+/* Peligro/advertencia/éxito mantienen su semántica propia. */
