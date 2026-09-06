@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+/public/build-version.json
 
 # Variables de entorno. Vite puede usar .env.example como plantilla,
 # pero nunca se versionan credenciales o configuraciones privadas reales.
