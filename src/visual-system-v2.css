@@ -26,6 +26,10 @@
   --ls-radius-lg: 22px;
   --ls-shadow: 0 8px 28px rgba(18, 24, 19, .06);
   --ls-focus: 0 0 0 3px rgba(49, 87, 255, .22);
+  /* Portal dialogs render outside the Director shell, so keep their brand
+     accent tied to the same calmer Lestra palette. */
+  --sports-dialog-lime: #a3c63a !important;
+  --sports-dialog-lime-dark: #5e751d !important;
 }
 
 html {
@@ -36,6 +40,12 @@ html {
 body {
   background: var(--ls-bg) !important;
   color: var(--ls-ink) !important;
+}
+
+/* Puesta en Marcha owns local tokens; converge only brand/CTA colors here. */
+.lestra-setup-page {
+  --setup-v2-lime: #a3c63a !important;
+  --setup-v2-lime-dark: #5e751d !important;
 }
 
 /* ---------- Interaction contract ---------- */
@@ -153,6 +163,34 @@ body {
   color: var(--ls-ink) !important;
   border-color: var(--ls-line) !important;
   box-shadow: none !important;
+}
+
+/* Fluorescent greens from legacy/V2 markup are still useful as identity, but
+   large filled surfaces are intentionally calmer for long-session usability. */
+.lestra-director-main .app-content :where(
+  [class*="bg-[#b7ff00]"],
+  [class*="bg-[#b8ee13]"],
+  [class*="bg-[#b9e937]"]
+) {
+  background: var(--ls-accent) !important;
+  color: #151a16 !important;
+}
+
+.lestra-director-main .app-content :where(
+  [class*="border-[#b7ff00]"],
+  [class*="border-[#a8d900]"],
+  [class*="border-[#a8dc00]"],
+  [class*="border-[#b9e937]"]
+) {
+  border-color: var(--ls-accent-strong) !important;
+}
+
+.lestra-director-main .app-content :where(
+  [class*="bg-[#b7ff00]"],
+  [class*="bg-[#b8ee13]"],
+  [class*="bg-[#b9e937]"]
+):hover {
+  background: var(--ls-accent-strong) !important;
 }
 
 .lestra-director-main .app-content :where(input, select, textarea) {
