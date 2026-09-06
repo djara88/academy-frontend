@@ -12,7 +12,6 @@ import {
   DirectorHero,
   DirectorPage,
   DirectorPanel,
-  DirectorStat,
 } from '../components/director/DirectorModule';
 
 type Branch = { id:string; nombre:string; disciplina:string; sede_id:string; sedes?:{ id:string; nombre:string } | null };
@@ -23,10 +22,18 @@ type PlanSnapshot = {
   structure:{requiresChoice:boolean;primaryBranchId?:string|null};
   onboarding:Array<{key:string;label:string;done:boolean}>;
 };
-type ConfigModule = { titulo:string; desc:string; icono:string; ruta:string };
+type ConfigGroup = 'academia' | 'personas' | 'finanzas' | 'comunicaciones' | 'deporte';
+type ConfigModule = { titulo:string; desc:string; icono:string; ruta:string; group:ConfigGroup };
 
 const usageLabel:Record<string,string>={players:'Alumnos',professors:'Profesores',sites:'Sedes',branches:'Ramas'};
 const percent=(item:UsageItem)=>item.limit?Math.min(100,Math.round((item.used/item.limit)*100)):0;
+const groupInfo:Record<ConfigGroup,{title:string;description:string}> = {
+  academia:{title:'Academia y estructura',description:'Identidad, sedes, disciplinas, categorías y datos públicos.'},
+  personas:{title:'Personas y operación',description:'Equipo técnico, alumnos, familias e inventario asociado.'},
+  finanzas:{title:'Finanzas y condiciones',description:'Medios de pago, recaudación y reglas aceptadas en matrícula.'},
+  comunicaciones:{title:'Comunicaciones',description:'Canales que conectan a la academia con sus familias.'},
+  deporte:{title:'Operación deportiva',description:'Herramientas deportivas disponibles según tu plan.'},
+};
 
 const Configuracion: React.FC = () => {
   const navigate = useNavigate();
@@ -75,21 +82,24 @@ const Configuracion: React.FC = () => {
       && plan.entitlements.plan.code === 'formacion'
       && plan.entitlements.features.includes('amistosos')
   );
-  const modulos:ConfigModule[] = [
-    ...(showFriendlies ? [{ titulo: 'Amistosos', desc: 'Programa partidos, controles, exhibiciones o competencias amistosas', icono: '🤝', ruta: '/amistosos' }] : []),
-    { titulo: 'Profesores y accesos', desc: 'Administra cupos, accesos y categorías asignadas', icono: '🧑‍🏫', ruta: '/profesores' },
-    { titulo: 'Página pública', desc: 'Configura la página pública de tu academia, redes sociales, colores y galería', icono: '🌐', ruta: '/configuracion?seccion=pagina-publica' },
-    { titulo: 'Perfil y horarios', desc: `Datos generales y horarios de ${academyName}`, icono: '🏟️', ruta: '/configuracion/perfil' },
-    { titulo: 'Sedes y ramas', desc: 'Administra ubicaciones y disciplinas deportivas', icono: '🏢', ruta: '/configuracion/estructura' },
-    { titulo: 'Categorías', desc: 'Crea y organiza categorías dentro de cada rama', icono: '🧩', ruta: '/configuracion/estructura?modo=categorias' },
-    { titulo: 'Inscripciones multideporte', desc: 'Inscribe al mismo alumno en otra disciplina sin duplicar su ficha', icono: '🔄', ruta: '/inscripciones' },
-    { titulo: 'Apoderados PRO', desc: 'Portal familiar, chat, pagos, privacidad y solicitudes deportivas', icono: '👨‍👩‍👧', ruta: '/apoderados-pro' },
-    { titulo: 'Uniformes e inventario', desc: 'Catálogo, tallas, pedidos y entregas', icono: '👕', ruta: '/uniformes' },
-    { titulo: 'Finanzas y recaudación', desc: 'Configura los medios de pago de la academia', icono: '💳', ruta: '/configuracion/finanzas' },
-    { titulo: 'Términos de matrícula', desc: 'Reglamento y condiciones que aceptarán los apoderados', icono: '⚖️', ruta: '/terminos' },
-    { titulo: 'WhatsApp', desc: 'Vincula y revisa el estado de la conexión', icono: '📱', ruta: '/whatsapp' },
-    { titulo: 'Importar alumnos', desc: 'Carga Excel o CSV y revisa duplicados antes de importar', icono: '📥', ruta: '/importacion' },
+  const modules:ConfigModule[] = [
+    { titulo: 'Perfil y horarios', desc: `Datos generales y horarios de ${academyName}`, icono: '🏟️', ruta: '/configuracion/perfil', group:'academia' },
+    { titulo: 'Página pública', desc: 'Descripción, colores, redes sociales y galería pública', icono: '🌐', ruta: '/configuracion?seccion=pagina-publica', group:'academia' },
+    { titulo: 'Sedes y ramas', desc: 'Ubicaciones y disciplinas deportivas', icono: '🏢', ruta: '/configuracion/estructura', group:'academia' },
+    { titulo: 'Categorías', desc: 'Organiza categorías dentro de cada rama', icono: '🧩', ruta: '/configuracion/estructura?modo=categorias', group:'academia' },
+    { titulo: 'Importar alumnos', desc: 'Carga Excel o CSV y revisa duplicados', icono: '📥', ruta: '/importacion', group:'academia' },
+    { titulo: 'Profesores y accesos', desc: 'Cupos, accesos y categorías asignadas', icono: '🧑‍🏫', ruta: '/profesores', group:'personas' },
+    { titulo: 'Inscripciones multideporte', desc: 'Agrega disciplinas sin duplicar la ficha del alumno', icono: '🔄', ruta: '/inscripciones', group:'personas' },
+    { titulo: 'Apoderados PRO', desc: 'Portal familiar, chat, pagos y solicitudes deportivas', icono: '👨‍👩‍👧', ruta: '/apoderados-pro', group:'personas' },
+    { titulo: 'Uniformes e inventario', desc: 'Catálogo, tallas, pedidos y entregas', icono: '👕', ruta: '/uniformes', group:'personas' },
+    { titulo: 'Finanzas y recaudación', desc: 'Medios de pago y configuración financiera', icono: '💳', ruta: '/configuracion/finanzas', group:'finanzas' },
+    { titulo: 'Términos de matrícula', desc: 'Reglamento y condiciones que aceptan las familias', icono: '⚖️', ruta: '/terminos', group:'finanzas' },
+    { titulo: 'WhatsApp', desc: 'Vincula el canal y revisa su estado', icono: '📱', ruta: '/whatsapp', group:'comunicaciones' },
+    ...(showFriendlies ? [{ titulo: 'Amistosos', desc: 'Partidos, controles y exhibiciones amistosas', icono: '🤝', ruta: '/amistosos', group:'deporte' as ConfigGroup }] : []),
   ];
+  const groupedModules = (Object.keys(groupInfo) as ConfigGroup[])
+    .map((key)=>({key,...groupInfo[key],items:modules.filter((item)=>item.group===key)}))
+    .filter((group)=>group.items.length);
 
   if (section === 'pagina-publica') {
     return (
@@ -108,81 +118,62 @@ const Configuracion: React.FC = () => {
   return (
     <DirectorPage>
       <DirectorHero
-        eyebrow="Configuración de academia"
+        eyebrow="Configuración"
         title={academyName}
-        description="Administra estructura, plan, recaudación, accesos y preferencias desde un único centro de configuración."
+        description="Configura la academia por área de trabajo, sin recorrer menús técnicos."
         actions={<button type="button" onClick={()=>navigate('/puesta-en-marcha')} className={DIRECTOR_BUTTON_DARK}>Puesta en Marcha</button>}
-        aside={plan ? (
-          <div className="rounded-[20px] border border-white/15 bg-white/[.055] p-5">
-            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#b7ff00]">Plan actual</p>
-            <p className="mt-2 text-xl font-black text-white">{plan.entitlements.plan.name}</p>
-            <p className="mt-1 text-xs font-semibold text-[#c7d0c8]">{completed}/{plan.onboarding.length} pasos operativos completados</p>
-          </div>
-        ) : null}
       />
 
       {plan ? (
-        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {Object.entries(plan.usage).map(([key,item])=><DirectorStat key={key} label={usageLabel[key]} value={`${item.used}/${item.limit??'∞'}`} detail={item.limit ? `${percent(item)}% utilizado` : 'Sin límite'} tone={item.limit && percent(item)>=90 ? 'dark' : key==='players' ? 'lime' : 'default'} />)}
-        </section>
-      ) : null}
-
-      {plan ? (
         <DirectorPanel className="p-5 sm:p-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
-              <p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">Plan {plan.entitlements.plan.name}</p>
-              <h2 className="mt-1 text-2xl font-black tracking-[-.03em] text-[#111711]">Uso y estado de configuración</h2>
-              <p className="mt-1 text-sm text-[#697468]">Revisa cupos y confirma qué pasos esenciales ya están listos.</p>
+              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#6d8700]">Plan actual</p>
+              <h2 className="mt-1 text-xl font-black tracking-[-.025em] text-[#111711]">{plan.entitlements.plan.name}</h2>
+              <p className="mt-1 text-sm text-[#697468]">{completed}/{plan.onboarding.length} pasos operativos completados.</p>
             </div>
             <button onClick={()=>navigate('/suscripcion')} className={DIRECTOR_BUTTON}>Ver planes</button>
           </div>
 
-          <div className="mt-5 grid gap-2 md:grid-cols-2">
-            {plan.onboarding.map((item)=><div key={item.key} className={`flex items-center gap-3 rounded-[14px] border p-3 ${item.done?'border-[#cde995] bg-[#f3fadf]':'border-[#dfe5dc] bg-[#f6f8f4]'}`}><span className={`grid h-7 w-7 place-items-center rounded-full text-xs font-black ${item.done?'bg-[#b7ff00] text-[#111711]':'bg-white text-[#7a8477]'}`}>{item.done?'✓':'○'}</span><span className={`text-sm font-bold ${item.done?'text-[#435b00]':'text-[#5f695e]'}`}>{item.label}</span></div>)}
+          <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
+            {Object.entries(plan.usage).map(([key,item])=><div key={key} className={`rounded-xl border px-3 py-2.5 ${item.limit && percent(item)>=90?'border-amber-200 bg-amber-50':'border-[#e0e5dd] bg-[#fafbf9]'}`}><p className="text-[9px] font-black uppercase tracking-[.08em] text-[#748073]">{usageLabel[key]}</p><div className="mt-1 flex items-end justify-between gap-2"><strong className="text-base font-black text-[#111711]">{item.used}/{item.limit??'∞'}</strong><span className={`text-[10px] font-black ${item.limit && percent(item)>=90?'text-amber-800':'text-[#697468]'}`}>{item.limit?`${percent(item)}%`:'Sin límite'}</span></div></div>)}
           </div>
-          {plan.structure.requiresChoice?<div className="mt-4 rounded-[16px] border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-800"><b>Acción requerida:</b> selecciona la rama principal para continuar con tu plan actual.</div>:null}
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {plan.onboarding.filter((item)=>!item.done).slice(0,4).map((item)=><span key={item.key} className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-[10px] font-black text-amber-800">Pendiente · {item.label}</span>)}
+            {!plan.onboarding.some((item)=>!item.done)?<span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[10px] font-black text-emerald-800">Configuración esencial completa</span>:null}
+          </div>
+          {plan.structure.requiresChoice?<div className="mt-4 rounded-[14px] border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-800"><b>Acción requerida:</b> selecciona la rama principal para continuar con tu plan actual.</div>:null}
         </DirectorPanel>
       ) : null}
 
       <DirectorPanel className="p-5 sm:p-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(420px,.8fr)] lg:items-end">
           <div>
-            <p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">Organización deportiva</p>
-            <h2 className="mt-1 text-2xl font-black tracking-[-.03em] text-[#111711]">Rama principal</h2>
-            <p className="mt-1 max-w-2xl text-sm leading-6 text-[#697468]">Selecciona la rama principal de la academia. Si tu plan limita ramas activas, las demás se conservan sin eliminarse.</p>
+            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#6d8700]">Organización deportiva</p>
+            <h2 className="mt-1 text-xl font-black tracking-[-.025em] text-[#111711]">Rama principal</h2>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-[#697468]">Define la disciplina que Lestra tomará como referencia principal. Las demás ramas se conservan.</p>
           </div>
-          <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto lg:min-w-[520px]">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <select value={primaryBranchId} onChange={(event)=>setPrimaryBranchId(event.target.value)} className={DIRECTOR_FIELD}><option value="">Selecciona rama principal</option>{branches.map((branch)=><option key={branch.id} value={branch.id}>{branch.disciplina} · {branch.nombre}{branch.sedes?.nombre ? ` · ${branch.sedes.nombre}` : ''}</option>)}</select>
             <button disabled={!primaryBranchId || savingPrimary} onClick={()=>void savePrimary()} className={DIRECTOR_BUTTON}>{savingPrimary ? 'Guardando...' : 'Guardar'}</button>
           </div>
         </div>
       </DirectorPanel>
 
-      <section className="space-y-4">
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">Administración</p>
-            <h2 className="mt-1 text-2xl font-black tracking-[-.03em] text-[#111711]">Accesos de configuración</h2>
-          </div>
-          <p className="max-w-xl text-sm text-[#697468]">Todos los ajustes de la academia, organizados bajo el mismo sistema visual de Lestra.</p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {modulos.map((m) => (
-            <button key={m.titulo} type="button" onClick={() => navigate(m.ruta)} className="group min-h-[170px] rounded-[24px] border border-[#d9e0d6] bg-white p-5 text-left shadow-[0_14px_34px_rgba(20,29,21,.045)] transition hover:-translate-y-1 hover:border-[#9eb493] hover:shadow-[0_22px_48px_rgba(20,29,21,.09)] focus:outline-none focus:ring-4 focus:ring-[#b7ff00]/15">
-              <div className="flex h-full flex-col">
-                <div className="flex items-start justify-between gap-4">
-                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[15px] bg-[#111711] text-[23px]">{m.icono}</span>
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[#d9e0d6] bg-white text-lg font-black text-[#111711] transition group-hover:border-[#b7ff00] group-hover:bg-[#b7ff00]">→</span>
-                </div>
-                <h3 className="mt-5 text-[17px] font-black tracking-[-.02em] text-[#111711]">{m.titulo}</h3>
-                <p className="mt-2 max-w-[95%] text-sm leading-5 text-[#697468]">{m.desc}</p>
-                <div className="mt-auto pt-4"><div className="h-[3px] w-10 rounded-full bg-[#b7ff00] transition-all duration-200 group-hover:w-20" /></div>
-              </div>
-            </button>
-          ))}
-        </div>
+      <section className="space-y-5">
+        {groupedModules.map((group)=><div key={group.key}>
+          <div className="mb-2 px-1"><h2 className="text-base font-black text-[#111711]">{group.title}</h2><p className="mt-0.5 text-xs text-[#697468]">{group.description}</p></div>
+          <DirectorPanel className="overflow-hidden">
+            <div className="divide-y divide-[#e5e9e2] sm:grid sm:grid-cols-2 sm:divide-x sm:divide-y-0 xl:grid-cols-3">
+              {group.items.map((item)=><button key={item.titulo} type="button" onClick={()=>navigate(item.ruta)} className="group flex min-h-[104px] items-center gap-4 bg-white p-4 text-left transition hover:bg-[#fafbf9] focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-[-3px] focus-visible:outline-[#b7ff00]/40">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#dfe5dc] bg-[#f7f9f5] text-xl" aria-hidden="true">{item.icono}</span>
+                <span className="min-w-0 flex-1"><strong className="block text-sm font-black text-[#111711]">{item.titulo}</strong><span className="mt-1 block text-xs leading-5 text-[#697468]">{item.desc}</span></span>
+                <span className="shrink-0 text-lg font-black text-[#879181] transition group-hover:translate-x-0.5 group-hover:text-[#6d8700]" aria-hidden="true">→</span>
+              </button>)}
+            </div>
+          </DirectorPanel>
+        </div>)}
       </section>
     </DirectorPage>
   );

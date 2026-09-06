@@ -1,6 +1,6 @@
-/* Limpieza final de acentos no semánticos del director.
+/* Limpieza transitoria de acentos no semánticos del Director.
  * Rojo, ámbar y verde de estado se conservan; morado/azul/turquesa decorativos
- * se traducen a la identidad grafito/blanco/lima.
+ * se traducen a la identidad Lestra mientras esos módulos terminan de migrar.
  */
 
 .lestra-director-main:not([data-route^="/admin"]) .app-content :is(
@@ -47,19 +47,4 @@
 ) {
   color: #6f8700 !important;
   -webkit-text-fill-color: #6f8700 !important;
-}
-
-/* En los heroes, cualquier acento informativo vuelve a lima luminoso. */
-.lestra-director-main:not([data-route^="/admin"]):not([data-route="/dashboard"]):not([data-route="/puesta-en-marcha"])
-.app-content > div > :is(div,section,article):not([class*="absolute"]):has(h1) :is(
-  [class~="text-violet-200"], [class~="text-violet-300"],
-  [class~="text-purple-200"], [class~="text-purple-300"],
-  [class~="text-fuchsia-200"], [class~="text-fuchsia-300"],
-  [class~="text-sky-200"], [class~="text-sky-300"],
-  [class~="text-cyan-200"], [class~="text-cyan-300"],
-  [class~="text-blue-200"], [class~="text-blue-300"],
-  [class~="text-teal-200"], [class~="text-teal-300"]
-) {
-  color: #caff00 !important;
-  -webkit-text-fill-color: #caff00 !important;
 }

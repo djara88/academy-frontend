@@ -1,0 +1,266 @@
+/* Lestra Deportivo · Portales por rol
+ *
+ * Contrato visual exclusivo de Profesor (modo cancha) y Familia. El Director
+ * utiliza Visual System V2 y no comparte estas reglas.
+ */
+
+.lestra-court-shell {
+  min-height: 100dvh;
+  transition: background-color .18s ease, color .18s ease;
+}
+
+.lestra-portal-header {
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.lestra-portal-mark {
+  border: 1px solid rgba(82,222,215,.30);
+  background: #0a171e;
+  box-shadow: 0 8px 22px rgba(0,0,0,.14);
+}
+
+.lestra-visibility-toggle,
+.lestra-portal-exit {
+  border: 1px solid currentColor;
+}
+
+/* Modo cancha noche */
+.court-dark {
+  color-scheme: dark;
+  background: #091118;
+  color: #f7fbfc;
+}
+
+.court-dark .lestra-portal-header {
+  background: rgba(13,20,27,.95);
+  color: #fff;
+}
+
+.court-dark .lestra-portal-header p:last-child {
+  color: #83a0aa;
+}
+
+.court-dark .lestra-visibility-toggle {
+  color: #9ef4ef;
+  background: rgba(40,158,157,.09);
+  border-color: rgba(82,222,215,.24);
+}
+
+.court-dark .lestra-portal-exit {
+  color: #b1bdc5;
+  border-color: rgba(255,255,255,.14);
+}
+
+/* Modo cancha sol: alto contraste para uso exterior. */
+.court-bright {
+  color-scheme: light;
+  background: #edf3f4;
+  color: #0b1922;
+}
+
+.court-bright .lestra-portal-header {
+  background: rgba(255,255,255,.96);
+  color: #0b1922;
+  border-bottom-color: #d7e1e4;
+  box-shadow: 0 7px 24px rgba(14,33,43,.08);
+}
+
+.court-bright .lestra-portal-header p:last-child {
+  color: #536774;
+}
+
+.court-bright .lestra-portal-mark {
+  background: #09202a;
+  border-color: #b7dad9;
+}
+
+.court-bright .lestra-visibility-toggle {
+  color: #0a5f62;
+  background: #e7f7f6;
+  border-color: #a9d8d6;
+}
+
+.court-bright .lestra-portal-exit {
+  color: #465864;
+  background: #f4f7f8;
+  border-color: #ccd8dc;
+}
+
+.court-bright .lestra-portal-content {
+  color: #10202a;
+}
+
+.court-bright .lestra-portal-content .card,
+.court-bright .lestra-portal-content [class*="bg-[#0d1117]"],
+.court-bright .lestra-portal-content [class*="bg-[#151b25]"],
+.court-bright .lestra-portal-content [class*="bg-[#161b22]"],
+.court-bright .lestra-portal-content [class*="bg-[#10141c]"],
+.court-bright .lestra-portal-content [class*="bg-[#21262d]"] {
+  background: #fff !important;
+  background-image: none !important;
+  border-color: #d6e1e4 !important;
+  box-shadow: 0 8px 20px rgba(21,48,59,.055);
+}
+
+.court-bright .lestra-portal-content .text-white {
+  color: #10202a !important;
+}
+
+.court-bright .lestra-portal-content [class*="text-[#8b949e]"],
+.court-bright .lestra-portal-content [class*="text-[#b1bac4]"],
+.court-bright .lestra-portal-content [class*="text-[#8995a4]"],
+.court-bright .lestra-portal-content [class*="text-[#697586]"] {
+  color: #526875 !important;
+}
+
+.court-bright .lestra-portal-content :is(input, select, textarea) {
+  color: #0b1922 !important;
+  background: #fff !important;
+  border-color: #bacbd0 !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,.8), 0 0 0 1px rgba(16,32,42,.015);
+}
+
+.court-bright .lestra-portal-content :is(input, textarea)::placeholder {
+  color: #687d88 !important;
+}
+
+/* El encabezado de la jornada conserva identidad atlética incluso en modo sol. */
+.court-bright .lestra-portal-content > div > section:first-child {
+  background:
+    radial-gradient(circle at 88% 0%, rgba(82,222,215,.24), transparent 18rem),
+    linear-gradient(135deg, #0d4547 0%, #12333b 52%, #122630 100%) !important;
+  border-color: #0d6667 !important;
+  color: #fff !important;
+  box-shadow: 0 12px 28px rgba(13,69,71,.18);
+}
+
+.court-bright .lestra-portal-content > div > section:first-child :is(h1,h2,h3,p,span),
+.court-bright .lestra-portal-content > div > section:first-child .text-white,
+.court-bright .lestra-portal-content > div > section:first-child [class*="text-[#8b949e]"],
+.court-bright .lestra-portal-content > div > section:first-child [class*="text-[#b1bac4]"] {
+  color: #fff !important;
+}
+
+/* Navegación y controles de terreno: grandes, estables y táctiles. */
+.lestra-court-shell .lestra-portal-content nav[aria-label="Funciones del profesor"] {
+  position: sticky;
+  top: 78px;
+  z-index: 25;
+  box-shadow: 0 10px 30px rgba(0,0,0,.10);
+}
+
+.court-bright .lestra-portal-content nav[aria-label="Funciones del profesor"] {
+  background: rgba(255,255,255,.96) !important;
+  border-color: #cbd9dc !important;
+}
+
+.court-bright .lestra-portal-content nav[aria-label="Funciones del profesor"] button:not([aria-current="page"]) {
+  color: #405661 !important;
+  background: #f2f6f7 !important;
+}
+
+.lestra-court-shell .lestra-portal-content nav[aria-label="Funciones del profesor"] button {
+  min-height: 50px;
+  font-weight: 900;
+}
+
+.lestra-court-shell .lestra-portal-content :is(input, select) {
+  min-height: 52px;
+  font-size: 16px;
+}
+
+.lestra-court-shell .lestra-portal-content button {
+  min-height: 46px;
+  touch-action: manipulation;
+}
+
+.lestra-court-shell .lestra-portal-content article.card {
+  border-radius: 20px;
+}
+
+.lestra-court-shell .lestra-portal-content article.card button {
+  min-height: 54px;
+  border-radius: 14px;
+  font-weight: 900;
+}
+
+.court-bright .lestra-portal-content article.card {
+  box-shadow: 0 8px 18px rgba(20,46,58,.07);
+}
+
+.court-bright .lestra-portal-content article.card h3 {
+  color: #0c1c25 !important;
+}
+
+/* Portal Familia mantiene una identidad separada y privada. */
+.lestra-family-shell {
+  min-height: 100dvh;
+  background: #0c131b;
+  color: #fff;
+}
+
+.lestra-family-shell .lestra-portal-header {
+  background: rgba(16,23,32,.95);
+  color: #fff;
+}
+
+@media (max-width: 639px) {
+  /* El texto del selector se oculta visualmente en móvil, pero conserva el nombre accesible. */
+  .lestra-visibility-toggle > span.hidden {
+    display: block !important;
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .lestra-court-shell .lestra-portal-content {
+    padding: 10px 10px 34px !important;
+  }
+
+  .lestra-court-shell .lestra-portal-content > div {
+    gap: 14px;
+  }
+
+  .lestra-court-shell .lestra-portal-content nav[aria-label="Funciones del profesor"] {
+    display: flex !important;
+    grid-template-columns: none !important;
+    gap: 6px !important;
+    overflow-x: auto;
+    padding: 6px !important;
+    top: 70px;
+    scrollbar-width: none;
+  }
+
+  .lestra-court-shell .lestra-portal-content nav[aria-label="Funciones del profesor"]::-webkit-scrollbar {
+    display: none;
+  }
+
+  .lestra-court-shell .lestra-portal-content nav[aria-label="Funciones del profesor"] button {
+    flex: 0 0 auto;
+    min-width: 92px;
+    min-height: 52px;
+  }
+
+  .lestra-court-shell .lestra-portal-content article.card {
+    padding: 14px !important;
+  }
+
+  .lestra-court-shell .lestra-portal-content article.card button {
+    min-height: 56px;
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lestra-court-shell {
+    transition: none;
+  }
+}

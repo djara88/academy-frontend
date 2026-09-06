@@ -2,6 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '../api/axiosConfig';
 import { useAcademyMessages } from '../hooks/useAcademyMessages';
 import FinanceSchoolDashboard from '../components/FinanceSchoolDashboard';
+import {
+  DIRECTOR_FIELD,
+  DirectorPanel,
+  DirectorStat,
+  DirectorTabButton,
+  DirectorTabs,
+} from '../components/director/DirectorModule';
 
 type Branch = { id: string; nombre: string; disciplina: string; sedes?: { id: string; nombre: string } | null };
 type Summary = { totalIngresosReales: number; totalPorCobrar: number; totalVencido: number; totalPorVencer: number; totalEgresos: number; balanceNeto: number; totalAlumnos: number; alumnosMorosos: number; tasaMorosidad: number };
@@ -12,9 +19,8 @@ type Expense = { id: string; concepto: string; categoria_gasto?: string | null; 
 type FlowRow = { id: string; tipo: 'Ingreso' | 'Egreso'; concepto: string; monto: number; fecha?: string | null; metodo?: string | null; categoria?: string | null };
 type Tab = 'dashboard' | 'cuentas' | 'pagos' | 'egresos' | 'flujo';
 
-const panel = 'rounded-[24px] border border-white/10 bg-[#151b25]';
-const field = 'w-full rounded-xl border border-[#30363d] bg-[#0d1117] px-3 py-2.5 text-sm text-white outline-none focus:border-[#289E9D]';
 const money = (value: number) => `$${Math.round(Number(value) || 0).toLocaleString('es-CL')}`;
+const labelClass = 'mb-1.5 block text-[10px] font-black uppercase tracking-[.08em] text-[#697468]';
 
 export default function FinanzasLegacy() {
   const { notify } = useAcademyMessages();
@@ -65,52 +71,58 @@ export default function FinanzasLegacy() {
   });
 
   const tabs: Array<[Tab, string]> = [
-    ['dashboard', 'Dashboard'], ['cuentas', 'Cuentas'], ['pagos', 'Pagos'], ['egresos', 'Egresos'], ['flujo', 'Flujo'],
+    ['dashboard', 'Resumen'], ['cuentas', 'Cuentas'], ['pagos', 'Pagos'], ['egresos', 'Egresos'], ['flujo', 'Flujo'],
   ];
 
-  return <div className="mx-auto max-w-7xl space-y-6 pb-16">
-    <section className="rounded-[28px] border border-amber-400/20 bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,.12),transparent_38%),#151b25] p-6 sm:p-7">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+  return <div className="mx-auto max-w-7xl space-y-4 pb-16">
+    <DirectorPanel className="border-amber-200 bg-amber-50/30 p-4">
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(280px,420px)] lg:items-end">
         <div>
-          <p className="text-xs font-black uppercase tracking-[.18em] text-amber-300">Finanzas · modo compatible</p>
-          <h1 className="mt-2 text-3xl font-black text-white">Finanzas</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#9aa6b5]">La información financiera sigue disponible. Las funciones avanzadas de Cobranza 2.0 se habilitarán automáticamente cuando el backend termine de actualizarse.</p>
+          <p className="text-[10px] font-black uppercase tracking-[.12em] text-amber-800">Modo compatible</p>
+          <p className="mt-1 text-sm leading-6 text-[#596456]">La información financiera sigue disponible. Las funciones avanzadas de cobranza se habilitan automáticamente cuando el backend está disponible.</p>
         </div>
-        <select value={branchId} onChange={(event) => setBranchId(event.target.value)} className={`${field} lg:max-w-md`}>
-          <option value="">Vista consolidada · toda la academia</option>
-          {branches.map((item) => <option key={item.id} value={item.id}>{item.disciplina} · {item.nombre}{item.sedes?.nombre ? ` · ${item.sedes.nombre}` : ''}</option>)}
-        </select>
+        <label><span className={labelClass}>Alcance financiero</span><select value={branchId} onChange={(event) => setBranchId(event.target.value)} className={DIRECTOR_FIELD}><option value="">Vista consolidada · toda la academia</option>{branches.map((item) => <option key={item.id} value={item.id}>{item.disciplina} · {item.nombre}{item.sedes?.nombre ? ` · ${item.sedes.nombre}` : ''}</option>)}</select></label>
       </div>
-    </section>
+    </DirectorPanel>
 
-    {loading ? <div className={`${panel} p-10 text-center text-emerald-300`}>Cargando estado financiero...</div> : <>
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <div className={`${panel} p-5`}><p className="text-[10px] font-black uppercase text-[#697586]">Recaudado</p><p className="mt-1 text-2xl font-black text-emerald-300">{money(summary?.totalIngresosReales || 0)}</p></div>
-        <div className={`${panel} p-5`}><p className="text-[10px] font-black uppercase text-[#697586]">Por cobrar</p><p className="mt-1 text-2xl font-black text-amber-300">{money(summary?.totalPorCobrar || 0)}</p></div>
-        <div className={`${panel} p-5`}><p className="text-[10px] font-black uppercase text-[#697586]">Egresos</p><p className="mt-1 text-2xl font-black text-red-300">{money(summary?.totalEgresos || 0)}</p></div>
-        <div className={`${panel} p-5`}><p className="text-[10px] font-black uppercase text-[#697586]">Balance {branch ? `· ${branch.nombre}` : 'consolidado'}</p><p className={`mt-1 text-2xl font-black ${(summary?.balanceNeto || 0) >= 0 ? 'text-[#70e4df]' : 'text-red-300'}`}>{money(summary?.balanceNeto || 0)}</p></div>
+    {loading ? <DirectorPanel className="p-10 text-center text-sm font-bold text-[#697468]">Cargando estado financiero…</DirectorPanel> : <>
+      <section className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        <DirectorStat label="Recaudado" value={<span className="text-emerald-700">{money(summary?.totalIngresosReales || 0)}</span>} detail="Ingresos reales" />
+        <DirectorStat label="Por cobrar" value={<span className="text-amber-700">{money(summary?.totalPorCobrar || 0)}</span>} detail="Saldo pendiente" />
+        <DirectorStat label="Egresos" value={<span className="text-rose-700">{money(summary?.totalEgresos || 0)}</span>} detail="Salidas registradas" />
+        <DirectorStat label={branch ? `Balance · ${branch.nombre}` : 'Balance consolidado'} value={<span className={(summary?.balanceNeto || 0) >= 0 ? 'text-emerald-700' : 'text-rose-700'}>{money(summary?.balanceNeto || 0)}</span>} detail="Ingresos menos egresos" />
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-3">
-        <div className={`${panel} p-4 text-center`}><p className="text-[10px] uppercase text-[#697586]">Alumnos</p><p className="mt-1 text-xl font-black text-white">{summary?.totalAlumnos || 0}</p></div>
-        <div className={`${panel} p-4 text-center`}><p className="text-[10px] uppercase text-[#697586]">Con deuda vencida</p><p className="mt-1 text-xl font-black text-red-300">{summary?.alumnosMorosos || 0}</p></div>
-        <div className={`${panel} p-4 text-center`}><p className="text-[10px] uppercase text-[#697586]">Morosidad</p><p className="mt-1 text-xl font-black text-amber-300">{summary?.tasaMorosidad || 0}%</p></div>
+      <section className="grid grid-cols-3 gap-2">
+        <MiniFact label="Alumnos" value={summary?.totalAlumnos || 0} />
+        <MiniFact label="Con deuda vencida" value={summary?.alumnosMorosos || 0} tone="danger" />
+        <MiniFact label="Morosidad" value={`${summary?.tasaMorosidad || 0}%`} tone="pending" />
       </section>
 
-      <div className="overflow-x-auto rounded-xl border border-white/10 bg-[#0d1117]"><div className="flex min-w-max">{tabs.map(([key, label]) => <button key={key} onClick={() => setActiveTab(key)} className={`px-5 py-3 text-sm font-black ${activeTab === key ? 'bg-[#289E9D] text-white' : 'text-[#8995a4]'}`}>{label}</button>)}</div></div>
+      <div className="overflow-x-auto pb-1"><DirectorTabs className="grid-cols-5">{tabs.map(([key, label]) => <DirectorTabButton key={key} active={activeTab === key} onClick={() => setActiveTab(key)}>{label}</DirectorTabButton>)}</DirectorTabs></div>
 
       {activeTab === 'dashboard' ? <FinanceSchoolDashboard summary={summary} accounts={accounts} payments={payments} expenses={expenses} flow={flow} branches={branches} branchId={branchId} /> : null}
 
-      {activeTab === 'cuentas' ? <section className="space-y-4">
-        <div className={`${panel} flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between`}><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar alumno o apoderado" className={`${field} sm:max-w-md`} /><span className="text-xs text-[#8995a4]">{filteredAccounts.length} alumnos</span></div>
-        <div className="grid gap-3 lg:grid-cols-2">{filteredAccounts.map((account) => <article key={account.id} className={`${panel} p-5`}><div className="flex items-start justify-between gap-4"><div><h2 className="font-black text-white">{account.nombre}</h2><p className="mt-1 text-xs text-[#8995a4]">{account.tutores?.nombre_completo || 'Sin apoderado'}</p></div><div className="text-right"><p className="text-[10px] uppercase text-[#697586]">Saldo pendiente</p><p className={`text-lg font-black ${Number(account.saldoTotalPendiente || 0) > 0 ? 'text-amber-300' : 'text-emerald-300'}`}>{money(account.saldoTotalPendiente || 0)}</p></div></div><div className="mt-4 space-y-2">{(account.cobros || []).filter((charge) => charge.estado !== 'Anulado').slice(0, 8).map((charge) => <div key={charge.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#0d1117] p-3"><div><p className="text-sm font-bold text-white">{charge.concepto}</p><p className="text-[11px] text-[#697586]">{charge.fecha_vencimiento || 'Sin vencimiento'} · {charge.estado}</p></div><p className="text-sm font-black text-[#b6c0cc]">{money(Math.max(Number(charge.monto || 0) - Number(charge.monto_pagado || 0), 0))}</p></div>)}</div></article>)}</div>
+      {activeTab === 'cuentas' ? <section className="space-y-3">
+        <DirectorPanel className="flex flex-col gap-3 p-3 sm:flex-row sm:items-end sm:justify-between sm:p-4"><label className="w-full sm:max-w-md"><span className={labelClass}>Buscar cuenta</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Alumno o apoderado" className={DIRECTOR_FIELD} /></label><span className="pb-3 text-xs font-semibold text-[#697468]">{filteredAccounts.length} alumnos</span></DirectorPanel>
+        <div className="grid gap-3 lg:grid-cols-2">{filteredAccounts.map((account) => <DirectorPanel key={account.id} className="p-4"><div className="flex items-start justify-between gap-4"><div><h2 className="font-black text-[#111711]">{account.nombre}</h2><p className="mt-1 text-xs text-[#697468]">{account.tutores?.nombre_completo || 'Sin apoderado'}</p></div><div className="text-right"><p className="text-[9px] font-black uppercase tracking-[.08em] text-[#748073]">Saldo pendiente</p><p className={`text-lg font-black ${Number(account.saldoTotalPendiente || 0) > 0 ? 'text-amber-700' : 'text-emerald-700'}`}>{money(account.saldoTotalPendiente || 0)}</p></div></div><div className="mt-3 grid gap-1.5">{(account.cobros || []).filter((charge) => charge.estado !== 'Anulado').slice(0, 8).map((charge) => <div key={charge.id} className="flex items-center justify-between gap-3 rounded-xl border border-[#e0e5dd] bg-[#fafbf9] p-3"><div><p className="text-sm font-bold text-[#111711]">{charge.concepto}</p><p className="text-[11px] text-[#697468]">{charge.fecha_vencimiento || 'Sin vencimiento'} · {charge.estado}</p></div><p className="text-sm font-black text-[#596456]">{money(Math.max(Number(charge.monto || 0) - Number(charge.monto_pagado || 0), 0))}</p></div>)}</div></DirectorPanel>)}</div>
+        {!filteredAccounts.length ? <DirectorPanel className="p-8 text-center text-sm font-semibold text-[#697468]">No hay cuentas que coincidan con la búsqueda.</DirectorPanel> : null}
       </section> : null}
 
-      {activeTab === 'pagos' ? <section className={`${panel} overflow-hidden`}><div className="border-b border-white/10 p-5"><h2 className="text-xl font-black text-white">Pagos registrados</h2></div><div className="overflow-x-auto"><table className="min-w-[700px] w-full text-left text-sm"><thead className="bg-[#0d1117] text-[10px] uppercase text-[#697586]"><tr><th className="px-4 py-3">Fecha</th><th className="px-4 py-3">Alumno</th><th className="px-4 py-3">Concepto</th><th className="px-4 py-3">Método</th><th className="px-4 py-3 text-right">Monto</th></tr></thead><tbody className="divide-y divide-white/10">{payments.map((item) => <tr key={item.id}><td className="px-4 py-3 text-[#8995a4]">{item.fecha_pago ? new Date(item.fecha_pago).toLocaleDateString('es-CL') : '—'}</td><td className="px-4 py-3 font-bold text-white">{item.jugador?.nombre || 'General'}</td><td className="px-4 py-3 text-[#b6c0cc]">{item.cobro?.concepto || 'Pago'}</td><td className="px-4 py-3 text-[#8995a4]">{item.metodo_pago || '—'}</td><td className="px-4 py-3 text-right font-black text-emerald-300">{money(item.monto)}</td></tr>)}</tbody></table></div></section> : null}
+      {activeTab === 'pagos' ? <LegacyTable title="Pagos registrados" headers={['Fecha', 'Alumno', 'Concepto', 'Método', 'Monto']} empty={!payments.length}>{payments.map((item) => <tr key={item.id} className="hover:bg-[#fafbf9]"><td className="px-4 py-3 text-[#697468]">{item.fecha_pago ? new Date(item.fecha_pago).toLocaleDateString('es-CL') : '—'}</td><td className="px-4 py-3 font-bold text-[#111711]">{item.jugador?.nombre || 'General'}</td><td className="px-4 py-3 text-[#596456]">{item.cobro?.concepto || 'Pago'}</td><td className="px-4 py-3 text-[#697468]">{item.metodo_pago || '—'}</td><td className="px-4 py-3 text-right font-black text-emerald-700">+ {money(item.monto)}</td></tr>)}</LegacyTable> : null}
 
-      {activeTab === 'egresos' ? <section className={`${panel} overflow-hidden`}><div className="border-b border-white/10 p-5"><h2 className="text-xl font-black text-white">Egresos</h2></div><div className="overflow-x-auto"><table className="min-w-[720px] w-full text-left text-sm"><thead className="bg-[#0d1117] text-[10px] uppercase text-[#697586]"><tr><th className="px-4 py-3">Fecha</th><th className="px-4 py-3">Concepto</th><th className="px-4 py-3">Categoría</th><th className="px-4 py-3">Centro de costo</th><th className="px-4 py-3 text-right">Monto</th></tr></thead><tbody className="divide-y divide-white/10">{expenses.map((item) => <tr key={item.id}><td className="px-4 py-3 text-[#8995a4]">{item.fecha_gasto || '—'}</td><td className="px-4 py-3 font-bold text-white">{item.concepto}</td><td className="px-4 py-3 text-[#8995a4]">{item.categoria_gasto || 'Otros'}</td><td className="px-4 py-3 text-[#8995a4]">{item.centro_costo || 'General'}</td><td className="px-4 py-3 text-right font-black text-red-300">{money(item.monto)}</td></tr>)}</tbody></table></div></section> : null}
+      {activeTab === 'egresos' ? <LegacyTable title="Egresos" headers={['Fecha', 'Concepto', 'Categoría', 'Centro de costo', 'Monto']} empty={!expenses.length}>{expenses.map((item) => <tr key={item.id} className="hover:bg-[#fafbf9]"><td className="px-4 py-3 text-[#697468]">{item.fecha_gasto || '—'}</td><td className="px-4 py-3 font-bold text-[#111711]">{item.concepto}</td><td className="px-4 py-3 text-[#697468]">{item.categoria_gasto || 'Otros'}</td><td className="px-4 py-3 text-[#697468]">{item.centro_costo || 'General'}</td><td className="px-4 py-3 text-right font-black text-rose-700">− {money(item.monto)}</td></tr>)}</LegacyTable> : null}
 
-      {activeTab === 'flujo' ? <section className={`${panel} overflow-hidden`}><div className="border-b border-white/10 p-5"><h2 className="text-xl font-black text-white">Flujo de caja</h2></div><div className="overflow-x-auto"><table className="min-w-[720px] w-full text-left text-sm"><thead className="bg-[#0d1117] text-[10px] uppercase text-[#697586]"><tr><th className="px-4 py-3">Fecha</th><th className="px-4 py-3">Tipo</th><th className="px-4 py-3">Concepto</th><th className="px-4 py-3">Método</th><th className="px-4 py-3 text-right">Monto</th></tr></thead><tbody className="divide-y divide-white/10">{flow.map((item) => <tr key={`${item.tipo}-${item.id}`}><td className="px-4 py-3 text-[#8995a4]">{item.fecha ? new Date(item.fecha).toLocaleDateString('es-CL') : '—'}</td><td className={`px-4 py-3 font-black ${item.tipo === 'Ingreso' ? 'text-emerald-300' : 'text-red-300'}`}>{item.tipo}</td><td className="px-4 py-3 text-white">{item.concepto}</td><td className="px-4 py-3 text-[#8995a4]">{item.metodo || '—'}</td><td className={`px-4 py-3 text-right font-black ${item.tipo === 'Ingreso' ? 'text-emerald-300' : 'text-red-300'}`}>{item.tipo === 'Ingreso' ? '+' : '-'}{money(item.monto)}</td></tr>)}</tbody></table></div></section> : null}
+      {activeTab === 'flujo' ? <LegacyTable title="Flujo de caja" headers={['Fecha', 'Tipo', 'Concepto', 'Método', 'Monto']} empty={!flow.length}>{flow.map((item) => <tr key={`${item.tipo}-${item.id}`} className="hover:bg-[#fafbf9]"><td className="px-4 py-3 text-[#697468]">{item.fecha ? new Date(item.fecha).toLocaleDateString('es-CL') : '—'}</td><td className={`px-4 py-3 font-black ${item.tipo === 'Ingreso' ? 'text-emerald-700' : 'text-rose-700'}`}>{item.tipo}</td><td className="px-4 py-3 font-semibold text-[#111711]">{item.concepto}</td><td className="px-4 py-3 text-[#697468]">{item.metodo || '—'}</td><td className={`px-4 py-3 text-right font-black ${item.tipo === 'Ingreso' ? 'text-emerald-700' : 'text-rose-700'}`}>{item.tipo === 'Ingreso' ? '+' : '−'} {money(item.monto)}</td></tr>)}</LegacyTable> : null}
     </>}
   </div>;
+}
+
+function MiniFact({ label, value, tone = 'default' }: { label: string; value: string | number; tone?: 'default' | 'danger' | 'pending' }) {
+  const valueClass = tone === 'danger' ? 'text-rose-700' : tone === 'pending' ? 'text-amber-700' : 'text-[#111711]';
+  return <div className="rounded-xl border border-[#e0e5dd] bg-[#fafbf9] px-3 py-2.5 text-center"><p className="text-[9px] font-black uppercase tracking-[.08em] text-[#748073]">{label}</p><p className={`mt-1 text-base font-black ${valueClass}`}>{value}</p></div>;
+}
+
+function LegacyTable({ title, headers, empty, children }: { title: string; headers: string[]; empty: boolean; children: React.ReactNode }) {
+  return <DirectorPanel className="overflow-hidden"><header className="border-b border-[#e2e7df] p-4 sm:p-5"><h2 className="text-lg font-black text-[#111711]">{title}</h2></header><div className="overflow-x-auto"><table className="w-full min-w-[720px] text-left text-sm"><thead className="border-b border-[#e1e6de] bg-[#f7f9f5] text-[10px] uppercase tracking-wider text-[#697468]"><tr>{headers.map((header, index) => <th key={`${header}-${index}`} className={`px-4 py-3 ${index === headers.length - 1 ? 'text-right' : ''}`}>{header}</th>)}</tr></thead><tbody className="divide-y divide-[#e6ebe3]">{children}</tbody></table></div>{empty ? <div className="p-8 text-center text-sm font-semibold text-[#697468]">Sin registros.</div> : null}</DirectorPanel>;
 }

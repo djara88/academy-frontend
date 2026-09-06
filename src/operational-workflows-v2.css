@@ -1,0 +1,695 @@
+/* Lestra Deportivo — Operational Workflows V2
+ * Focused convergence layer for high-frequency director workflows.
+ * This is part of the V2 design system migration, not a legacy patch layer.
+ */
+
+/* --------------------------------------------------------------------------
+   Shared director modules: operational headers, not marketing heroes
+   -------------------------------------------------------------------------- */
+.director-module-hero .director-module-hero-aside > div {
+  gap: .6rem !important;
+}
+
+.director-module-hero .director-module-hero-aside > div > div {
+  border-color: #dce2d8 !important;
+  background: #f7f9f5 !important;
+  box-shadow: none !important;
+}
+
+.director-module-hero .director-module-hero-aside p[class*="text-white"] {
+  color: #111711 !important;
+}
+
+.director-module-hero .director-module-hero-aside p[class*="text-[#c7d0c8]"] {
+  color: #697468 !important;
+}
+
+.director-module-hero .director-module-hero-aside p[class*="text-[#b7ff00]"] {
+  color: #607900 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Alumnos: scan first, inspect second
+   -------------------------------------------------------------------------- */
+.lestra-director-main[data-route="/alumnos"] .app-content {
+  max-width: 1280px !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div {
+  gap: 1rem !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content section[class*="radial-gradient"] {
+  border-color: #dce2d8 !important;
+  background: #ffffff !important;
+  background-image: none !important;
+  box-shadow: 0 8px 22px rgba(15, 23, 16, .035) !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content section[class*="radial-gradient"] p[class*="text-[#70e4df]"] {
+  color: #667064 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content section[class*="radial-gradient"] h1,
+.lestra-director-main[data-route="/alumnos"] .app-content section[class*="radial-gradient"] h2,
+.lestra-director-main[data-route="/alumnos"] .app-content section[class*="radial-gradient"] [class*="text-white"] {
+  color: #111711 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content section[class*="radial-gradient"] [class*="text-[#9aa6b5]"],
+.lestra-director-main[data-route="/alumnos"] .app-content section[class*="radial-gradient"] [class*="text-[#8995a4]"] {
+  color: #697468 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content section:has(input[placeholder*="Buscar por nombre"]) {
+  border-color: #dce2d8 !important;
+  border-radius: 18px !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  padding: .75rem !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content section:has(input[placeholder*="Buscar por nombre"]) input,
+.lestra-director-main[data-route="/alumnos"] .app-content section:has(input[placeholder*="Buscar por nombre"]) select {
+  min-height: 44px !important;
+  border-color: #d9dfd6 !important;
+  background: #f8faf6 !important;
+  color: #111711 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content section:has(input[placeholder*="Buscar por nombre"]) > div > div:last-child {
+  min-height: 44px !important;
+  border-color: #d9dfd6 !important;
+  background: #f8faf6 !important;
+  color: #697468 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content section:has(> button.group) {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: .6rem !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content button.group {
+  min-height: 82px !important;
+  border: 1px solid #dfe4dc !important;
+  border-radius: 16px !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  padding: .85rem 1rem !important;
+  transform: none !important;
+  transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content button.group:hover {
+  border-color: #aeb8a9 !important;
+  background: #fafbf8 !important;
+  box-shadow: 0 5px 16px rgba(15, 23, 16, .04) !important;
+  transform: none !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content button.group:focus-visible {
+  outline: 3px solid rgba(142, 183, 0, .28) !important;
+  outline-offset: 2px !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content button.group > div:first-child {
+  align-items: center !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content button.group img.h-16,
+.lestra-director-main[data-route="/alumnos"] .app-content button.group div.h-16.w-16 {
+  width: 3rem !important;
+  height: 3rem !important;
+  border-radius: 13px !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content button.group h2 {
+  color: #111711 !important;
+  font-size: .95rem !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content button.group p[class*="text-[#7f8c9c]"] {
+  color: #7a8378 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content button.group span[class*="violet"] {
+  border-color: #dce2d8 !important;
+  background: #f4f7f1 !important;
+  color: #566056 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content button.group > div:last-child {
+  display: none !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content section[class*="radial-gradient"] button[class*="violet"] {
+  border-color: #d9dfd6 !important;
+  background: #f7f9f5 !important;
+  color: #596357 !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content section[class*="radial-gradient"] button[class*="bg-violet-500/20"] {
+  border-color: #111711 !important;
+  background: #111711 !important;
+  color: #fff !important;
+}
+
+/* --------------------------------------------------------------------------
+   Matrícula: one current decision at a time
+   -------------------------------------------------------------------------- */
+.lestra-director-main[data-route="/matricula"] .app-content {
+  max-width: 1180px !important;
+}
+
+.lestra-director-main[data-route="/matricula"] .director-module-page {
+  gap: 1rem !important;
+}
+
+.lestra-director-main[data-route="/matricula"] .director-module-panel {
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/matricula"] .director-module-panel > div:first-child:has(button) {
+  padding: .75rem !important;
+}
+
+.lestra-director-main[data-route="/matricula"] .director-module-panel > div:first-child:has(button) > div {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(128px, 1fr)) !important;
+  gap: .4rem !important;
+  overflow-x: auto !important;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+}
+
+.lestra-director-main[data-route="/matricula"] .director-module-panel > div:first-child:has(button) button {
+  min-height: 56px !important;
+  border-radius: 12px !important;
+  padding: .55rem .75rem !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/matricula"] .director-module-panel > div:first-child:has(button) button p {
+  margin-top: .1rem !important;
+  font-size: .78rem !important;
+}
+
+.lestra-director-main[data-route="/matricula"] .director-module-panel > div:last-child {
+  padding-top: 1.25rem !important;
+}
+
+.lestra-director-main[data-route="/matricula"] .director-module-panel input,
+.lestra-director-main[data-route="/matricula"] .director-module-panel select,
+.lestra-director-main[data-route="/matricula"] .director-module-panel textarea {
+  background: #fff !important;
+  border-color: #d9dfd6 !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/matricula"] .director-module-panel input:focus-visible,
+.lestra-director-main[data-route="/matricula"] .director-module-panel select:focus-visible,
+.lestra-director-main[data-route="/matricula"] .director-module-panel textarea:focus-visible {
+  border-color: #8eb700 !important;
+  box-shadow: 0 0 0 4px rgba(183, 255, 0, .13) !important;
+}
+
+.lestra-director-main[data-route="/matricula"] .director-module-panel div[class*="bg-[#f8faf6]"] {
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/matricula"] .director-module-panel button[class*="border-red-200"][class*="bg-red-50"] {
+  border-color: #fecdd3 !important;
+  background: #fff7f8 !important;
+  color: #9f1239 !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/matricula"] .director-module-panel button[class*="border-red-200"][class*="bg-red-50"]:hover {
+  border-color: #fda4af !important;
+  background: #fff1f2 !important;
+}
+
+.lestra-director-main[data-route="/matricula"] .director-module-panel button[class*="border-red-200"][class*="bg-red-50"]:focus-visible {
+  outline: 3px solid rgba(244, 63, 94, .22) !important;
+  outline-offset: 2px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Partidos y eventos: one header, one operational toolbar
+   -------------------------------------------------------------------------- */
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: .75rem !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 0 !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section:first-child {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  align-self: stretch !important;
+  border: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section:first-child > div {
+  height: 100% !important;
+  align-items: stretch !important;
+  justify-content: flex-end !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section:first-child > div > div:first-child {
+  display: none !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section:first-child button {
+  min-height: 48px !important;
+  border: 1px solid #b7ff00 !important;
+  border-radius: 13px !important;
+  background: #b7ff00 !important;
+  color: #111711 !important;
+  padding: .75rem 1.1rem !important;
+  box-shadow: none !important;
+  white-space: nowrap !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section:nth-child(2) {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  min-width: 0 !important;
+  border: 1px solid #dce2d8 !important;
+  border-radius: 16px !important;
+  background: #fff !important;
+  padding: .55rem !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section:nth-child(2) select {
+  min-height: 48px !important;
+  max-width: none !important;
+  border-color: #d9dfd6 !important;
+  background: #f8faf6 !important;
+  color: #111711 !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid,
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > div[class*="text-center"] {
+  grid-column: 1 / -1 !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid {
+  gap: .75rem !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article {
+  overflow: hidden !important;
+  border: 1px solid #dce3d9 !important;
+  border-radius: 16px !important;
+  background: #fff !important;
+  color: #111711 !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:first-child {
+  padding: 1rem !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article h2 {
+  margin-top: .55rem !important;
+  color: #111711 !important;
+  font-size: 1.05rem !important;
+  line-height: 1.25 !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article h2 + p,
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:first-child > div:first-child > div:last-child p:last-child {
+  color: #697468 !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:first-child > div:first-child > div:last-child p:first-child {
+  color: #111711 !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:first-child > div:first-child > div:first-child > div:first-child > span {
+  border: 1px solid #dce2d8 !important;
+  background: #f4f7f1 !important;
+  color: #596456 !important;
+  padding: .25rem .55rem !important;
+  font-size: .56rem !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:first-child > div.mt-4.grid {
+  margin-top: .75rem !important;
+  gap: .4rem !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:first-child > div.mt-4.grid > div {
+  grid-column: auto !important;
+  min-width: 0 !important;
+  min-height: 54px !important;
+  padding: .55rem .65rem !important;
+  border: 1px solid #e0e5dd !important;
+  border-radius: 12px !important;
+  background: #f8faf6 !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:first-child > div.mt-4.grid > div > p:first-child {
+  color: #748073 !important;
+  font-size: .55rem !important;
+  line-height: 1.25 !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:first-child > div.mt-4.grid > div > p:last-child {
+  margin-top: .2rem !important;
+  color: #111711 !important;
+  font-size: .78rem !important;
+  line-height: 1.3 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:first-child > div[class*="bg-emerald"] {
+  margin-top: .65rem !important;
+  border-color: #cde5c5 !important;
+  border-radius: 11px !important;
+  background: #eff8eb !important;
+  color: #315b26 !important;
+  padding: .5rem .65rem !important;
+  font-size: .95rem !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:last-child {
+  gap: .4rem !important;
+  padding: .7rem .85rem !important;
+  border-top: 1px solid #e5e9e2 !important;
+  background: #fff !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:last-child > button {
+  min-height: 38px !important;
+  border-radius: 10px !important;
+  padding: .45rem .7rem !important;
+  font-size: .68rem !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:last-child > button:nth-child(1) {
+  border-color: #cfd8cb !important;
+  background: #fff !important;
+  color: #596456 !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:last-child > button:nth-child(2) {
+  border-color: #b7ff00 !important;
+  background: #b7ff00 !important;
+  color: #111711 !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:last-child > button:nth-child(3) {
+  border-color: #d7ded4 !important;
+  background: #fff !important;
+  color: #3f493f !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:last-child > button:nth-child(4) {
+  margin-left: auto !important;
+  border-color: #fecdd3 !important;
+  background: #fff7f8 !important;
+  color: #9f1239 !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:last-child > button:focus-visible {
+  outline: 3px solid rgba(142, 183, 0, .24) !important;
+  outline-offset: 2px !important;
+}
+
+.lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:last-child > button:nth-child(4):focus-visible {
+  outline-color: rgba(244, 63, 94, .22) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Torneos: expose state and primary action, reduce repeated explanation
+   -------------------------------------------------------------------------- */
+.lestra-director-main[data-route="/torneos"] .director-module-page > section:nth-of-type(2) {
+  gap: .65rem !important;
+}
+
+.lestra-director-main[data-route="/torneos"] .director-module-page > section:nth-of-type(2) .director-stat {
+  padding: .9rem 1rem !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 {
+  gap: .75rem !important;
+}
+
+.lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 > .director-module-panel {
+  padding: 1rem !important;
+  border-radius: 18px !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 > .director-module-panel:hover {
+  transform: none !important;
+  border-color: #bcc6b8 !important;
+}
+
+.lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 > .director-module-panel > div:nth-child(2) {
+  display: none !important;
+}
+
+.lestra-director-main[data-route="/torneos"] .tournament-payment-summary {
+  margin-top: .6rem !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #697468 !important;
+  padding: 0 !important;
+  font-size: .7rem !important;
+}
+
+.lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 > .director-module-panel > div:last-child {
+  grid-template-columns: minmax(0,1.2fr) repeat(2,minmax(0,.8fr)) !important;
+  gap: .4rem !important;
+  margin-top: .8rem !important;
+  padding-top: .8rem !important;
+}
+
+.lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 > .director-module-panel > div:last-child > :first-child {
+  min-height: 40px !important;
+}
+
+.lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 > .director-module-panel > div:last-child > :nth-child(2),
+.lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 > .director-module-panel > div:last-child > :nth-child(3) {
+  min-height: 40px !important;
+  background: #fff !important;
+  color: #596456 !important;
+  border-color: #d7ded4 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Finanzas: money first, action second, analytics third
+   -------------------------------------------------------------------------- */
+.lestra-director-main[data-route="/finanzas"] .finance-module-scope > div.mx-auto {
+  gap: 1rem !important;
+}
+
+/* Inner legacy hero becomes the branch scope control only. */
+.lestra-director-main[data-route="/finanzas"] .finance-module-scope > div.mx-auto > section:first-child {
+  border: 1px solid #dce2d8 !important;
+  border-radius: 16px !important;
+  background: #fff !important;
+  background-image: none !important;
+  padding: .6rem !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .finance-module-scope > div.mx-auto > section:first-child > div {
+  display: block !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .finance-module-scope > div.mx-auto > section:first-child > div > div:first-child {
+  display: none !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .finance-module-scope > div.mx-auto > section:first-child select {
+  min-height: 46px !important;
+  max-width: none !important;
+  border-color: #d9dfd6 !important;
+  background: #f8faf6 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  color-scheme: light !important;
+  box-shadow: none !important;
+}
+
+/* Four financial truths stay prominent but calm. */
+.lestra-director-main[data-route="/finanzas"] .finance-module-scope > div.mx-auto > section.grid.sm\:grid-cols-2.xl\:grid-cols-4 {
+  gap: .6rem !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .finance-module-scope > div.mx-auto > section.grid.sm\:grid-cols-2.xl\:grid-cols-4 > div {
+  border: 1px solid #dce2d8 !important;
+  border-radius: 16px !important;
+  background: #fff !important;
+  padding: 1rem !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .finance-module-scope > div.mx-auto > section.grid.sm\:grid-cols-2.xl\:grid-cols-4 > div p:first-child {
+  color: #748073 !important;
+  -webkit-text-fill-color: #748073 !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .finance-module-scope > div.mx-auto > section.grid.sm\:grid-cols-2.xl\:grid-cols-4 > div p:last-child {
+  font-size: 1.45rem !important;
+}
+
+/* Operational counts become secondary compact facts. */
+.lestra-director-main[data-route="/finanzas"] .finance-module-scope > div.mx-auto > section.grid.sm\:grid-cols-4 {
+  gap: .45rem !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .finance-module-scope > div.mx-auto > section.grid.sm\:grid-cols-4 > div {
+  border: 1px solid #e0e5dd !important;
+  border-radius: 13px !important;
+  background: #fafbf9 !important;
+  padding: .65rem .75rem !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .finance-module-scope > div.mx-auto > section.grid.sm\:grid-cols-4 > div p:first-child {
+  color: #748073 !important;
+  -webkit-text-fill-color: #748073 !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .finance-module-scope > div.mx-auto > section.grid.sm\:grid-cols-4 > div p:last-child {
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  font-size: 1rem !important;
+}
+
+/* Creation actions: charge is primary, expense is destructive secondary. */
+.lestra-director-main[data-route="/finanzas"] .finance-module-scope button[class*="bg-[#289E9D]"] {
+  border: 1px solid #b7ff00 !important;
+  background: #b7ff00 !important;
+  color: #111711 !important;
+  -webkit-text-fill-color: #111711 !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .finance-module-scope button[class*="bg-red-500/10"] {
+  border-color: #fecdd3 !important;
+  background: #fff !important;
+  color: #9f1239 !important;
+  -webkit-text-fill-color: #9f1239 !important;
+  box-shadow: none !important;
+}
+
+/* Finance navigation reads as a segmented workspace control. */
+.lestra-director-main[data-route="/finanzas"] .finance-module-scope > div.mx-auto > div.overflow-x-auto.rounded-xl {
+  border-color: #dce2d8 !important;
+  background: #fff !important;
+  padding: .3rem !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .finance-module-scope > div.mx-auto > div.overflow-x-auto.rounded-xl button {
+  min-height: 40px !important;
+  border-radius: 9px !important;
+  color: #687367 !important;
+  -webkit-text-fill-color: #687367 !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .finance-module-scope > div.mx-auto > div.overflow-x-auto.rounded-xl button[class*="bg-[#289E9D]"] {
+  border-color: #111711 !important;
+  background: #111711 !important;
+  color: #b7ff00 !important;
+  -webkit-text-fill-color: #b7ff00 !important;
+}
+
+@media (max-width: 767px) {
+  .lestra-director-main[data-route="/alumnos"] .app-content,
+  .lestra-director-main[data-route="/matricula"] .app-content,
+  .lestra-director-main[data-route="/partidos"] .app-content,
+  .lestra-director-main[data-route="/torneos"] .app-content,
+  .lestra-director-main[data-route="/finanzas"] .app-content {
+    padding-inline: .75rem !important;
+  }
+
+  .lestra-director-main[data-route="/alumnos"] .app-content section[class*="radial-gradient"] {
+    padding: 1rem !important;
+    border-radius: 20px !important;
+  }
+
+  .lestra-director-main[data-route="/alumnos"] .app-content section[class*="radial-gradient"] h1 {
+    font-size: 1.75rem !important;
+  }
+
+  .lestra-director-main[data-route="/alumnos"] .app-content button.group {
+    padding: .75rem !important;
+  }
+
+  .lestra-director-main[data-route="/matricula"] .director-module-hero {
+    border-radius: 20px !important;
+    padding: 1rem !important;
+  }
+
+  .lestra-director-main[data-route="/matricula"] .director-module-hero h1 {
+    font-size: 1.85rem !important;
+  }
+
+  .lestra-director-main[data-route="/matricula"] .director-module-hero-aside {
+    display: none !important;
+  }
+
+  .lestra-director-main[data-route="/partidos"] .events-performance-scope > div {
+    grid-template-columns: 1fr !important;
+  }
+
+  .lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section:nth-child(2) {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+
+  .lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section:first-child {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+  }
+
+  .lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section:first-child button {
+    width: 100% !important;
+  }
+
+  .lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:last-child {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .lestra-director-main[data-route="/partidos"] .events-performance-scope > div > section.grid > article > div:last-child > button:nth-child(4) {
+    margin-left: 0 !important;
+  }
+
+  .lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 > .director-module-panel > div:last-child {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .lestra-director-main[data-route="/torneos"] .director-module-page > section.grid.md\:grid-cols-2.xl\:grid-cols-3 > .director-module-panel > div:last-child > :first-child {
+    grid-column: 1 / -1 !important;
+  }
+
+  .lestra-director-main[data-route="/finanzas"] .finance-module-scope > div.mx-auto > section.grid.sm\:grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  }
+}

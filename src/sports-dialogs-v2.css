@@ -1,0 +1,361 @@
+/* Lestra Deportivo · Sports dialogs V2
+ * Shared component contract for event creation/editing and performance capture.
+ * These dialogs render through createPortal(document.body), so the contract is
+ * intentionally scoped to the portal roots and loaded after the global systems.
+ */
+
+:root {
+  --sports-dialog-ink: #151a16;
+  --sports-dialog-body: #667066;
+  --sports-dialog-muted: #7b847b;
+  --sports-dialog-line: #dce2d9;
+  --sports-dialog-soft: #f6f8f4;
+  --sports-dialog-soft-strong: #eef2eb;
+  --sports-dialog-lime: #b8ee13;
+  --sports-dialog-lime-dark: #637f00;
+  --sports-dialog-danger: #c5303d;
+  --sports-dialog-success: #17784d;
+}
+
+.lestra-event-popup,
+.lestra-performance-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  width: 100vw;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  background: rgba(10, 14, 11, .56);
+  isolation: isolate;
+}
+
+.lestra-event-popup-card,
+.lestra-performance-popup-card {
+  position: relative;
+  width: min(100%, 1180px);
+  max-height: calc(100dvh - max(24px, env(safe-area-inset-top)) - max(24px, env(safe-area-inset-bottom)));
+  overflow: hidden;
+  border: 1px solid var(--sports-dialog-line);
+  border-radius: 22px;
+  background: #fff;
+  color: var(--sports-dialog-ink);
+  box-shadow: 0 28px 90px rgba(14, 20, 15, .24);
+  color-scheme: light;
+}
+
+.lestra-event-popup-card {
+  max-width: 660px;
+  display: flex;
+  flex-direction: column;
+}
+
+.lestra-performance-popup-card {
+  max-width: 1180px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding: 22px;
+}
+
+.lestra-event-popup-header,
+.lestra-performance-popup-card > div:first-child {
+  background: rgba(255,255,255,.97);
+  border-bottom: 1px solid #e6eae3;
+}
+
+.lestra-event-popup-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 76px;
+  padding: 18px 20px 15px;
+}
+
+.lestra-performance-popup-card > div:first-child {
+  position: sticky;
+  top: -22px;
+  z-index: 20;
+  margin: -22px -22px 0;
+  padding: 18px 22px 15px;
+  backdrop-filter: blur(8px);
+}
+
+.lestra-event-popup-header p,
+.lestra-performance-popup-card > div:first-child p:first-child,
+.lestra-performance-popup-card section p[class*="uppercase"] {
+  color: var(--sports-dialog-lime-dark);
+}
+
+.lestra-event-popup-header h2,
+.lestra-performance-popup-card h2,
+.lestra-performance-popup-card .text-white {
+  color: var(--sports-dialog-ink);
+}
+
+.lestra-event-popup-header > button,
+.lestra-performance-close {
+  display: inline-flex;
+  width: 38px;
+  height: 38px;
+  min-height: 38px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d8ded5;
+  border-radius: 11px;
+  background: var(--sports-dialog-soft);
+  color: #3f493f;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.lestra-event-popup-header > button:hover,
+.lestra-performance-close:hover {
+  background: #edf1e9;
+  color: var(--sports-dialog-ink);
+}
+
+.lestra-event-popup-header > button:focus-visible,
+.lestra-performance-close:focus-visible,
+.lestra-event-popup button:focus-visible,
+.lestra-performance-popup button:focus-visible,
+.lestra-event-popup input:focus-visible,
+.lestra-event-popup select:focus-visible,
+.lestra-event-popup textarea:focus-visible,
+.lestra-performance-popup input:focus-visible,
+.lestra-performance-popup select:focus-visible,
+.lestra-performance-popup textarea:focus-visible {
+  outline: 3px solid rgba(143, 185, 0, .24);
+  outline-offset: 2px;
+}
+
+.lestra-event-popup-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: 0;
+  padding: 18px 20px 20px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  background: #fff;
+}
+
+.lestra-event-popup label > span,
+.lestra-performance-popup-card [class*="text-[#8b949e]"],
+.lestra-performance-popup-card [class*="text-[#697586]"],
+.lestra-performance-popup-card [class*="text-[#9aa6b5]"],
+.lestra-performance-popup-card [class*="text-[#b8ad95]"],
+.lestra-performance-popup-card [class*="text-[#8fc9c7]"] {
+  color: var(--sports-dialog-body);
+}
+
+.lestra-event-popup input:not([type="checkbox"]),
+.lestra-event-popup select,
+.lestra-event-popup textarea,
+.lestra-performance-popup-card input:not([type="checkbox"]),
+.lestra-performance-popup-card select,
+.lestra-performance-popup-card textarea {
+  min-height: 44px;
+  border: 1px solid #d4dbd1;
+  border-radius: 11px;
+  background: #fff;
+  color: var(--sports-dialog-ink);
+  caret-color: var(--sports-dialog-ink);
+  box-shadow: none;
+  color-scheme: light;
+}
+
+.lestra-event-popup select option,
+.lestra-performance-popup select option {
+  background: #fff;
+  color: var(--sports-dialog-ink);
+}
+
+.lestra-event-popup input:not([type="checkbox"]):focus-visible,
+.lestra-event-popup select:focus-visible,
+.lestra-event-popup textarea:focus-visible,
+.lestra-performance-popup-card input:not([type="checkbox"]):focus-visible,
+.lestra-performance-popup-card select:focus-visible,
+.lestra-performance-popup-card textarea:focus-visible {
+  border-color: #8fae20;
+}
+
+.lestra-event-popup input[type="checkbox"],
+.lestra-performance-popup input[type="checkbox"] {
+  accent-color: #7f9f22;
+}
+
+.lestra-event-popup :is(section, label[class*="bg-[#0d1117]"]),
+.lestra-performance-popup-card :is(
+  [class*="bg-[#0d1117]"],
+  [class*="bg-[#151b25]"],
+  [class*="bg-sky-500/5"],
+  [class*="bg-violet-500/5"]
+) {
+  border-color: var(--sports-dialog-line);
+  background: var(--sports-dialog-soft);
+  color: var(--sports-dialog-ink);
+  box-shadow: none;
+}
+
+.lestra-event-popup section p:not([class*="uppercase"]),
+.lestra-performance-popup-card section p:not([class*="uppercase"]) {
+  color: var(--sports-dialog-body);
+}
+
+.lestra-performance-popup-card [class*="text-[#D8BE87]"],
+.lestra-performance-popup-card [class*="text-sky-300"],
+.lestra-performance-popup-card [class*="text-violet-300"] {
+  color: var(--sports-dialog-lime-dark);
+}
+
+.lestra-performance-popup-card > section[class*="bg-[#C8A96B]"],
+.lestra-performance-popup-card > section[class*="bg-[#0d1117]"] {
+  border-color: #cfdfa5;
+  background: #f5f8eb;
+}
+
+.lestra-performance-popup-card label[class*="border"] > span:first-child,
+.lestra-performance-popup-card article span[class*="uppercase"] {
+  color: #5f695f;
+}
+
+.lestra-performance-popup-card label[class*="border"] input[class*="font-black"],
+.lestra-performance-popup-card input[class*="text-white"],
+.lestra-performance-popup-card textarea[class*="text-white"] {
+  color: var(--sports-dialog-ink);
+}
+
+.lestra-performance-popup-card article {
+  border-color: var(--sports-dialog-line);
+  background: #fff;
+  color: var(--sports-dialog-ink);
+  box-shadow: 0 5px 18px rgba(17, 23, 17, .035);
+}
+
+.lestra-performance-popup-card article > div:nth-child(2) > label,
+.lestra-performance-popup-card article > label:last-child,
+.lestra-performance-popup-card article label[class*="bg-[#151b25]"] {
+  border-color: var(--sports-dialog-line);
+  background: var(--sports-dialog-soft);
+  color: var(--sports-dialog-ink);
+}
+
+.lestra-performance-popup-card input:disabled,
+.lestra-performance-popup-card textarea:disabled,
+.lestra-performance-popup-card select:disabled {
+  background: #f0f2ee;
+  color: #7a827a;
+  opacity: .72;
+}
+
+.lestra-performance-popup-card > div:first-child > div:last-child > button:first-child {
+  border: 1px solid #ccd8b5;
+  background: #f5f8ef;
+  color: #536900;
+}
+
+.lestra-performance-popup-card > div:first-child > div:last-child > button:first-child:hover {
+  border-color: #b6c78d;
+  background: #edf3df;
+}
+
+.lestra-performance-popup-card article button[class*="bg-[#C8A96B]"] {
+  border: 1px solid #bfd878;
+  background: #e8f5c6;
+  color: #425500;
+}
+
+.lestra-performance-popup-card article button[class*="border-[#C8A96B]"] {
+  border-color: #cad7ad;
+  background: #fff;
+  color: #617200;
+}
+
+.lestra-performance-popup-card > label[class*="bg-[#289E9D]"] {
+  border-color: #c8dd91;
+  background: #f1f7df;
+  color: #2f3c20;
+}
+
+.lestra-performance-popup-card > label[class*="bg-[#289E9D]"] span {
+  color: #485648;
+}
+
+.lestra-event-popup .lestra-event-popup-body > button:last-child,
+.lestra-performance-popup-card > button:last-child {
+  min-height: 46px;
+  border: 1px solid #a8dc00;
+  border-radius: 12px;
+  background: var(--sports-dialog-lime);
+  color: var(--sports-dialog-ink);
+  font-weight: 900;
+  box-shadow: none;
+}
+
+.lestra-event-popup .lestra-event-popup-body > button:last-child:hover:not(:disabled),
+.lestra-performance-popup-card > button:last-child:hover:not(:disabled) {
+  background: #c3f52f;
+}
+
+.lestra-performance-popup-card > button:last-child:disabled {
+  border-color: #d4dcc7;
+  background: #e8eddf;
+  color: #747c6e;
+  opacity: 1;
+}
+
+.lestra-performance-popup-card .text-red-300,
+.lestra-performance-popup-card button[class*="text-red-300"] {
+  color: var(--sports-dialog-danger);
+}
+
+.lestra-performance-popup-card .text-emerald-700 {
+  color: var(--sports-dialog-success);
+}
+
+@media (max-width: 640px) {
+  .lestra-event-popup,
+  .lestra-performance-popup {
+    align-items: stretch;
+    padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  }
+
+  .lestra-event-popup-card,
+  .lestra-performance-popup-card {
+    width: 100%;
+    max-height: 100%;
+    border-radius: 17px;
+  }
+
+  .lestra-event-popup-header {
+    padding: 15px 16px 13px;
+  }
+
+  .lestra-event-popup-body {
+    padding: 16px;
+  }
+
+  .lestra-performance-popup-card {
+    padding: 15px;
+  }
+
+  .lestra-performance-popup-card > div:first-child {
+    top: -15px;
+    margin: -15px -15px 0;
+    padding: 14px 15px 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lestra-event-popup *,
+  .lestra-performance-popup * {
+    scroll-behavior: auto;
+  }
+}
