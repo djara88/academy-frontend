@@ -16,6 +16,8 @@
   --ls-line-strong: #cbd3c8;
   --ls-accent: #a3c63a;
   --ls-accent-strong: #8faf31;
+  --ls-accent-text: #5e751d;
+  --ls-accent-on-dark: #d8e8a8;
   --ls-blue: #3157ff;
   --ls-danger: #d93643;
   --ls-warning: #b87500;
@@ -165,12 +167,13 @@ body {
   box-shadow: none !important;
 }
 
-/* Fluorescent greens from legacy/V2 markup are still useful as identity, but
-   large filled surfaces are intentionally calmer for long-session usability. */
+/* Legacy fluorescent brand classes are translated inside Director only.
+   Semantic success/warning/error colors remain untouched. */
 .lestra-director-main .app-content :where(
   [class*="bg-[#b7ff00]"],
   [class*="bg-[#b8ee13]"],
-  [class*="bg-[#b9e937]"]
+  [class*="bg-[#b9e937]"],
+  [class*="bg-[#c8ff00]"]
 ) {
   background: var(--ls-accent) !important;
   color: #151a16 !important;
@@ -180,7 +183,8 @@ body {
   [class*="border-[#b7ff00]"],
   [class*="border-[#a8d900]"],
   [class*="border-[#a8dc00]"],
-  [class*="border-[#b9e937]"]
+  [class*="border-[#b9e937]"],
+  [class*="border-[#c8ff00]"]
 ) {
   border-color: var(--ls-accent-strong) !important;
 }
@@ -188,9 +192,33 @@ body {
 .lestra-director-main .app-content :where(
   [class*="bg-[#b7ff00]"],
   [class*="bg-[#b8ee13]"],
-  [class*="bg-[#b9e937]"]
+  [class*="bg-[#b9e937]"],
+  [class*="bg-[#c8ff00]"]
 ):hover {
   background: var(--ls-accent-strong) !important;
+}
+
+/* The original neon was also embedded as text utilities. On light surfaces
+   use a restrained olive; on dark controls use a soft sage with contrast. */
+.lestra-director-main .app-content :where(
+  [class*="text-[#b7ff00]"],
+  [class*="text-[#b8ee13]"],
+  [class*="text-[#b9e937]"],
+  [class*="text-[#c8ff00]"],
+  [class*="text-[#c5ff35]"]
+) {
+  color: var(--ls-accent-text) !important;
+  -webkit-text-fill-color: var(--ls-accent-text) !important;
+}
+
+.lestra-director-main .app-content :where(
+  [class*="bg-[#111711]"][class*="text-[#b7ff00]"],
+  [class*="bg-[#111512]"][class*="text-[#b7ff00]"],
+  [class*="bg-[#111711]"][class*="text-[#b8ee13]"],
+  [class*="bg-[#111512]"][class*="text-[#b8ee13]"]
+) {
+  color: var(--ls-accent-on-dark) !important;
+  -webkit-text-fill-color: var(--ls-accent-on-dark) !important;
 }
 
 .lestra-director-main .app-content :where(input, select, textarea) {
