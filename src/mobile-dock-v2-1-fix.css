@@ -1,45 +1,58 @@
-/* V2.1 mobile dock correction: no continuous horizontal bar. */
+/* V2.1 mobile dock correction: remove the continuous dark bar entirely. */
 @media (max-width: 1023px) {
-  body .lestra-shell .lestra-mobile-dock {
-    gap: 6px !important;
+  html body .lestra-shell > div > nav.lestra-mobile-dock {
+    gap: 7px !important;
     padding: 0 !important;
     border: 0 !important;
-    background: transparent !important;
+    border-radius: 0 !important;
+    background: none !important;
+    background-color: transparent !important;
+    background-image: none !important;
     box-shadow: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+    isolation: auto !important;
   }
 
-  body .lestra-shell .lestra-mobile-dock :where(a, button) {
+  html body .lestra-shell > div > nav.lestra-mobile-dock::before,
+  html body .lestra-shell > div > nav.lestra-mobile-dock::after {
+    display: none !important;
+    content: none !important;
+  }
+
+  html body .lestra-shell > div > nav.lestra-mobile-dock > :where(a, button) {
+    min-width: 0 !important;
     min-height: 58px !important;
-    border: 1px solid rgba(28, 35, 29, .10) !important;
+    border: 1px solid rgba(28, 35, 29, .11) !important;
     border-radius: 16px !important;
-    background: rgba(255, 255, 255, .97) !important;
-    color: #606a61 !important;
-    box-shadow: 0 5px 16px rgba(18, 24, 19, .08) !important;
-    backdrop-filter: blur(14px) !important;
-    -webkit-backdrop-filter: blur(14px) !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #5f695f !important;
+    box-shadow: 0 5px 16px rgba(18, 24, 19, .09) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
   }
 
-  body .lestra-shell .lestra-mobile-dock :where(a, button) svg {
-    color: #6c766d !important;
+  html body .lestra-shell > div > nav.lestra-mobile-dock > :where(a, button) svg {
+    color: #6b756c !important;
   }
 
-  body .lestra-shell .lestra-mobile-dock :where(a, button):hover {
+  html body .lestra-shell > div > nav.lestra-mobile-dock > :where(a, button):hover {
     background: #f7f9f5 !important;
     color: #1c221d !important;
   }
 
-  body .lestra-shell .lestra-mobile-dock a[aria-current="page"],
-  body .lestra-shell .lestra-mobile-dock a.is-active {
-    border-color: #111711 !important;
-    background: #111711 !important;
+  html body .lestra-shell > div > nav.lestra-mobile-dock > a[aria-current="page"],
+  html body .lestra-shell > div > nav.lestra-mobile-dock > a.is-active {
+    border-color: #202820 !important;
+    background: #1c231d !important;
+    background-color: #1c231d !important;
     color: #ffffff !important;
-    box-shadow: 0 8px 20px rgba(17, 23, 17, .17) !important;
+    box-shadow: 0 8px 20px rgba(17, 23, 17, .18) !important;
   }
 
-  body .lestra-shell .lestra-mobile-dock a[aria-current="page"] svg,
-  body .lestra-shell .lestra-mobile-dock a.is-active svg {
+  html body .lestra-shell > div > nav.lestra-mobile-dock > a[aria-current="page"] svg,
+  html body .lestra-shell > div > nav.lestra-mobile-dock > a.is-active svg {
     color: #d8e8a8 !important;
   }
 }
