@@ -15,6 +15,7 @@ import './visual-readability-final.css';
 import './visual-system-v2.css';
 import './operational-workflows-v2.css';
 import './sports-dialogs-v2.css';
+import VersionUpdateNotice from './components/VersionUpdateNotice';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
@@ -32,6 +33,7 @@ const LoadingScreen = ({ academy = false }: { academy?: boolean }) => (
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
+    <VersionUpdateNotice />
     <Suspense fallback={<LoadingScreen academy={isDirectPublicAcademyRoute} />}>
       {isDirectPublicAcademyRoute ? (
         <BrowserRouter>
