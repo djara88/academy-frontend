@@ -14,8 +14,8 @@
   --ls-muted: #687068;
   --ls-line: #dfe4dc;
   --ls-line-strong: #cbd3c8;
-  --ls-accent: #b8ee13;
-  --ls-accent-strong: #9fd000;
+  --ls-accent: #a3c63a;
+  --ls-accent-strong: #8faf31;
   --ls-blue: #3157ff;
   --ls-danger: #d93643;
   --ls-warning: #b87500;
@@ -103,9 +103,9 @@ body {
 .lestra-shell .lestra-plan-link {
   min-height: 44px !important;
   border-radius: 12px !important;
-  border-color: rgba(184,238,19,.22) !important;
-  background: rgba(184,238,19,.08) !important;
-  color: #d9ff70 !important;
+  border-color: rgba(163,198,58,.28) !important;
+  background: rgba(163,198,58,.12) !important;
+  color: #d8e8a8 !important;
 }
 
 .lestra-shell .lestra-sidebar-footer {
