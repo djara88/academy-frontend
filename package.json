@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "brand:audit": "node scripts/brand-audit.mjs",
-    "prebuild": "npm run brand:audit",
+    "orphan:audit": "node scripts/orphan-audit.mjs",
+    "prebuild": "npm run brand:audit && npm run orphan:audit",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
