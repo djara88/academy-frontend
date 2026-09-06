@@ -1,8 +1,8 @@
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 
-export const DIRECTOR_FIELD = 'min-h-12 w-full rounded-[14px] border border-[#d6ddd2] bg-white px-4 text-sm font-bold text-[#111711] outline-none transition-[border-color,box-shadow,background-color] duration-150 focus-visible:border-[#8eb700] focus-visible:ring-4 focus-visible:ring-[#b7ff00]/15 disabled:cursor-not-allowed disabled:opacity-55';
+export const DIRECTOR_FIELD = 'min-h-12 w-full rounded-[14px] border border-[#d6ddd2] bg-white px-4 text-sm font-bold text-[#111711] outline-none transition-[border-color,box-shadow,background-color] duration-150 focus-visible:border-[#8faf31] focus-visible:ring-4 focus-visible:ring-[#a3c63a]/18 disabled:cursor-not-allowed disabled:opacity-55';
 export const DIRECTOR_TEXTAREA = `${DIRECTOR_FIELD} min-h-28 py-3 resize-y`;
-export const DIRECTOR_BUTTON = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#b7ff00] bg-[#b7ff00] px-5 text-sm font-black text-[#111711] transition-[background-color,border-color,box-shadow] duration-150 hover:bg-[#c5ff35] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#b7ff00]/25 disabled:cursor-not-allowed disabled:opacity-45';
+export const DIRECTOR_BUTTON = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#91b12f] bg-[#a3c63a] px-5 text-sm font-black text-[#151a16] transition-[background-color,border-color,box-shadow] duration-150 hover:border-[#819d2a] hover:bg-[#94b535] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#a3c63a]/24 disabled:cursor-not-allowed disabled:opacity-45';
 export const DIRECTOR_BUTTON_DARK = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#202720] bg-[#111711] px-5 text-sm font-black text-white transition-[background-color,border-color,color,box-shadow] duration-150 hover:bg-[#202720] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#111711]/20 disabled:cursor-not-allowed disabled:opacity-45';
 export const DIRECTOR_BUTTON_GHOST = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#d7ded4] bg-white px-5 text-sm font-black text-[#111711] transition-[background-color,border-color,box-shadow] duration-150 hover:border-[#aab6a4] hover:bg-[#f7f9f5] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#111711]/10 disabled:cursor-not-allowed disabled:opacity-45';
 
@@ -25,7 +25,7 @@ export function DirectorHero({
 }) {
   return (
     <section className="director-module-hero relative overflow-hidden rounded-[26px] border border-[#dce2d8] bg-white px-5 py-6 text-[#111711] shadow-[0_8px_24px_rgba(15,23,16,.045)] sm:px-7 sm:py-7 lg:px-8">
-      <div aria-hidden="true" className="absolute inset-y-0 left-0 w-1.5 bg-[#b7ff00]" />
+      <div aria-hidden="true" className="absolute inset-y-0 left-0 w-1.5 bg-[#a3c63a]" />
       <div className={`relative z-10 grid gap-6 ${aside ? 'lg:grid-cols-[minmax(0,1.35fr)_minmax(270px,.65fr)] lg:items-center' : ''}`}>
         <div className="min-w-0 pl-1">
           <p className="text-[10px] font-black uppercase tracking-[.15em] text-[#71806d]">{eyebrow}</p>
@@ -53,7 +53,7 @@ export function DirectorStat({ label, value, detail, tone = 'default' }: { label
       : 'border-[#d9e0d6] bg-white';
   return (
     <article className={`director-stat director-stat-${tone} rounded-[18px] border p-4 ${styles}`}>
-      <p className={`director-stat-label text-[10px] font-black uppercase tracking-[.12em] ${tone === 'dark' ? 'text-[#b7ff00]' : 'text-[#748073]'}`}>{label}</p>
+      <p className={`director-stat-label text-[10px] font-black uppercase tracking-[.12em] ${tone === 'dark' ? 'text-[#c9d6a6]' : 'text-[#748073]'}`}>{label}</p>
       <div className={`director-stat-value mt-2 text-2xl font-black tracking-[-.035em] ${tone === 'dark' ? 'text-white' : 'text-[#111711]'}`}>{value}</div>
       {detail ? <div className={`director-stat-detail mt-1 text-xs font-semibold ${tone === 'dark' ? 'text-[#c7d0c8]' : 'text-[#697468]'}`}>{detail}</div> : null}
     </article>
@@ -65,5 +65,5 @@ export function DirectorTabs({ children, className = '' }: { children: ReactNode
 }
 
 export function DirectorTabButton({ active, children, onClick }: { active: boolean; children: ReactNode; onClick: () => void }) {
-  return <button type="button" onClick={onClick} className={`min-h-11 min-w-0 rounded-[10px] px-4 text-sm font-black transition-[background-color,color,border-color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#111711]/10 ${active ? 'border border-[#263026] bg-[#111711] text-[#b7ff00]' : 'border border-transparent bg-transparent text-[#687367] hover:bg-[#f2f5ef] hover:text-[#111711]'}`}>{children}</button>;
+  return <button type="button" onClick={onClick} className={`min-h-11 min-w-0 rounded-[10px] px-4 text-sm font-black transition-[background-color,color,border-color,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#111711]/10 ${active ? 'border border-[#263026] bg-[#111711] text-white' : 'border border-transparent bg-transparent text-[#687367] hover:bg-[#f2f5ef] hover:text-[#111711]'}`}>{children}</button>;
 }
