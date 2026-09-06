@@ -92,13 +92,13 @@ export default function StudentReportCard({ studentId, branchId, branchLabel, st
       <div className="student-report-card mt-5 rounded-2xl border border-[#dce3d8] bg-[#f5f7f3] p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-3">
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#263126] bg-[#111711] text-[#b7ff00]">
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#263126] bg-[#111711] text-[#d8e8a8]">
               <DocumentChartBarIcon aria-hidden="true" className="h-6 w-6" />
             </div>
             <div>
               <p className="font-black text-[#111711]">Informe de evolución del alumno</p>
               <p className="mt-1 max-w-2xl text-xs leading-5 text-[#657064]">
-                Genera un PDF específico de <strong className="text-[#4f6900]">{branchLabel}</strong> con asistencia, evaluación, rendimiento competitivo, categorías y reconocimientos. No mezcla otras ramas.
+                Genera un PDF específico de <strong className="text-[#5e751d]">{branchLabel}</strong> con asistencia, evaluación, rendimiento competitivo, categorías y reconocimientos. No mezcla otras ramas.
               </p>
             </div>
           </div>
@@ -138,7 +138,7 @@ export default function StudentReportCard({ studentId, branchId, branchLabel, st
           >
             <div className="flex items-start justify-between gap-4 border-b border-[#e6eae3] p-5 sm:p-6">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#657d00]">Informe familiar · {branchLabel}</p>
+                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#5e751d]">Informe familiar · {branchLabel}</p>
                 <h2 id={dialogTitleId} className="mt-1 text-2xl font-black tracking-[-.03em] text-[#151a16]">{studentName || 'Alumno'}</h2>
                 <p id={dialogDescriptionId} className="mt-2 text-sm leading-6 text-[#667066]">El PDF se descarga siempre. También puedes enviarlo al correo registrado del apoderado.</p>
               </div>
@@ -161,7 +161,7 @@ export default function StudentReportCard({ studentId, branchId, branchLabel, st
                 onChange={(event) => setComments(event.target.value)}
                 maxLength={2500}
                 placeholder="Ej.: Ha mostrado avances importantes en constancia y toma de decisiones. Recomendamos continuar reforzando…"
-                className="mt-2 min-h-36 w-full resize-y rounded-xl border border-[#d4dbd1] bg-white p-4 text-sm leading-6 text-[#151a16] outline-none placeholder:text-[#8b938b] focus-visible:border-[#8fae20] focus-visible:ring-4 focus-visible:ring-[#b7ff00]/15"
+                className="mt-2 min-h-36 w-full resize-y rounded-xl border border-[#d4dbd1] bg-white p-4 text-sm leading-6 text-[#151a16] outline-none placeholder:text-[#8b938b] focus-visible:border-[#8faf31] focus-visible:ring-4 focus-visible:ring-[#a3c63a]/18"
               />
               <p className="mt-2 text-[11px] leading-5 text-[#737c73]">El informe excluye información financiera y antecedentes médicos sensibles.</p>
 
@@ -170,7 +170,7 @@ export default function StudentReportCard({ studentId, branchId, branchLabel, st
                   type="button"
                   disabled={Boolean(processing)}
                   onClick={() => void generate(false)}
-                  className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#c8d5ad] bg-white px-4 text-sm font-black text-[#526700] transition-[background-color,border-color,color] hover:border-[#a9bd7c] hover:bg-[#f4f8eb] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#b7ff00]/15 disabled:cursor-not-allowed disabled:bg-[#f1f3ef] disabled:text-[#747c6e]"
+                  className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#c8d5ad] bg-white px-4 text-sm font-black text-[#526700] transition-[background-color,border-color,color] hover:border-[#a9bd7c] hover:bg-[#f4f8eb] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#a3c63a]/18 disabled:cursor-not-allowed disabled:bg-[#f1f3ef] disabled:text-[#747c6e]"
                 >
                   <ArrowDownTrayIcon aria-hidden="true" className="h-5 w-5" />
                   {processing === 'download' ? 'Generando…' : 'Solo descargar PDF'}
@@ -179,7 +179,7 @@ export default function StudentReportCard({ studentId, branchId, branchLabel, st
                   type="button"
                   disabled={Boolean(processing)}
                   onClick={() => void generate(true)}
-                  className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#a8dc00] bg-[#b8ee13] px-4 text-sm font-black text-[#151a16] transition-[background-color,border-color] hover:bg-[#c3f52f] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#b7ff00]/20 disabled:cursor-not-allowed disabled:border-[#d4dcc7] disabled:bg-[#e8eddf] disabled:text-[#747c6e]"
+                  className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#91b12f] bg-[#a3c63a] px-4 text-sm font-black text-[#151a16] transition-[background-color,border-color] hover:border-[#819d2a] hover:bg-[#94b535] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#a3c63a]/24 disabled:cursor-not-allowed disabled:border-[#d4dcc7] disabled:bg-[#e8eddf] disabled:text-[#747c6e]"
                 >
                   <EnvelopeIcon aria-hidden="true" className="h-5 w-5" />
                   {processing === 'email' ? 'Enviando…' : 'Descargar y enviar'}
