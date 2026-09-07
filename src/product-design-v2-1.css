@@ -1,0 +1,286 @@
+/*
+ * Lestra Deportivo — Product Design V2.1 exploration
+ *
+ * Deliberate product-polish layer informed by Vercel Web Interface Guidelines
+ * and shadcn's high-signal product UI direction. This is not a legacy fix:
+ * it only refines shared shell, hierarchy, elevation, mobile navigation and
+ * the Director's technical-team workspace while the design is evaluated.
+ */
+
+:root {
+  --ls-v21-shadow-sm: 0 1px 2px rgba(18, 24, 19, .04), 0 8px 22px rgba(18, 24, 19, .05);
+  --ls-v21-shadow-md: 0 2px 6px rgba(18, 24, 19, .05), 0 16px 38px rgba(18, 24, 19, .08);
+  --ls-v21-shadow-float: 0 8px 20px rgba(18, 24, 19, .09), 0 24px 56px rgba(18, 24, 19, .13);
+  --ls-v21-accent-soft: #f3f7e7;
+  --ls-v21-accent-line: #d9e7b5;
+  --ls-v21-elevated: #fbfcfa;
+}
+
+/* ---------- Shared product hierarchy ---------- */
+.lestra-director-main {
+  background: #f4f6f2 !important;
+}
+
+.director-module-hero {
+  border-color: #d8dfd5 !important;
+  box-shadow: var(--ls-v21-shadow-md) !important;
+}
+
+.director-module-hero > [class*="relative"] > [class*="min-w-0"] > p:first-child {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  min-height: 26px;
+  padding: 4px 10px;
+  border: 1px solid var(--ls-v21-accent-line);
+  border-radius: 999px;
+  background: var(--ls-v21-accent-soft);
+  color: #5e751d !important;
+  letter-spacing: .12em !important;
+}
+
+.director-module-panel {
+  border-color: #d8dfd5 !important;
+  box-shadow: var(--ls-v21-shadow-sm) !important;
+}
+
+.director-stat {
+  box-shadow: 0 1px 2px rgba(18, 24, 19, .035) !important;
+}
+
+.director-stat-default {
+  background: var(--ls-v21-elevated) !important;
+}
+
+.director-stat-lime {
+  border-color: var(--ls-v21-accent-line) !important;
+  background: var(--ls-v21-accent-soft) !important;
+}
+
+/* ---------- Mobile shell ---------- */
+.lestra-mobile-header {
+  border-color: rgba(255, 255, 255, .08) !important;
+  box-shadow: 0 5px 20px rgba(9, 14, 10, .13) !important;
+}
+
+.lestra-mobile-header > div:nth-child(2) > p:first-child {
+  color: #aeb8ae !important;
+}
+
+.lestra-mobile-dock {
+  bottom: max(.7rem, env(safe-area-inset-bottom)) !important;
+  left: max(.7rem, env(safe-area-inset-left)) !important;
+  right: max(.7rem, env(safe-area-inset-right)) !important;
+  gap: 3px !important;
+  padding: 6px !important;
+  border: 1px solid rgba(25, 32, 26, .12) !important;
+  border-radius: 21px !important;
+  background: rgba(255, 255, 255, .97) !important;
+  box-shadow: var(--ls-v21-shadow-float) !important;
+  backdrop-filter: blur(20px) saturate(1.08) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.08) !important;
+}
+
+.lestra-mobile-dock :where(a, button) {
+  display: flex !important;
+  min-width: 0;
+  min-height: 56px !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 0 !important;
+  border-radius: 15px !important;
+  background: transparent !important;
+  color: #69736a !important;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -.01em;
+  -webkit-tap-highlight-color: rgba(163, 198, 58, .14);
+  transition: background-color .15s ease, color .15s ease, transform .15s ease, box-shadow .15s ease !important;
+}
+
+.lestra-mobile-dock :where(a, button) svg {
+  width: 21px !important;
+  height: 21px !important;
+  color: #7a847b !important;
+  stroke-width: 1.8;
+}
+
+.lestra-mobile-dock :where(a, button):hover {
+  background: #f2f5ef !important;
+  color: #20261f !important;
+}
+
+.lestra-mobile-dock :where(a, button):active {
+  transform: translateY(1px);
+}
+
+.lestra-mobile-dock a[aria-current="page"],
+.lestra-mobile-dock a.is-active {
+  background: #111711 !important;
+  color: #fff !important;
+  box-shadow: 0 7px 18px rgba(17, 23, 17, .17) !important;
+}
+
+.lestra-mobile-dock a[aria-current="page"] svg,
+.lestra-mobile-dock a.is-active svg {
+  color: #d8e8a8 !important;
+}
+
+.lestra-mobile-dock :where(a, button) span {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Technical team: explicit light product treatment ---------- */
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl {
+  overflow: hidden;
+  border-color: #d8dfd5 !important;
+  background: #fff !important;
+  color: #161a17 !important;
+  box-shadow: var(--ls-v21-shadow-sm) !important;
+}
+
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl > div:first-child {
+  padding-bottom: 2px;
+}
+
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl > div:first-child > div:first-child > div:first-child > svg {
+  width: 42px !important;
+  height: 42px !important;
+  padding: 9px;
+  border: 1px solid var(--ls-v21-accent-line);
+  border-radius: 13px;
+  background: var(--ls-v21-accent-soft);
+  color: #657f22 !important;
+}
+
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl h2,
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl h3 {
+  color: #161a17 !important;
+}
+
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl > div:first-child > div:first-child > p {
+  color: #687068 !important;
+}
+
+/* The primary action stays high-signal without becoming a fluorescent banner. */
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl > div:first-child > button {
+  align-self: flex-start;
+  border: 1px solid #222a23 !important;
+  background: #111711 !important;
+  color: #fff !important;
+  box-shadow: 0 6px 16px rgba(17, 23, 17, .12) !important;
+}
+
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl > div:first-child > button svg {
+  color: #d8e8a8 !important;
+}
+
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl > div:first-child > button:hover {
+  background: #202720 !important;
+}
+
+/* Summary + filters read as one compact command surface. */
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl > div:nth-child(2) {
+  align-items: stretch;
+}
+
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl > div:nth-child(2) > div {
+  border-color: #dce2d8 !important;
+  background: #fafbf9 !important;
+  color: #161a17 !important;
+  box-shadow: 0 1px 2px rgba(18, 24, 19, .025) !important;
+}
+
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl > div:nth-child(2) > div:nth-child(2) {
+  border-color: #f0d4b9 !important;
+  background: #fff6ee !important;
+}
+
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl > div:nth-child(2) > div:nth-child(2) p:first-child {
+  color: #b95c16 !important;
+}
+
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl .label {
+  color: #687068 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+}
+
+/* Legacy inner dark surfaces become deliberate, raised light surfaces. */
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl [class*="bg-[#0d1117]"] {
+  border-color: #dbe2d8 !important;
+  background: #fafbf9 !important;
+  color: #161a17 !important;
+  box-shadow: none !important;
+}
+
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl [class*="text-white"] {
+  color: #161a17 !important;
+}
+
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl [class*="text-[#8b949e]"],
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl [class*="text-[#697586]"] {
+  color: #6d756e !important;
+}
+
+/* Cases act like actionable rows, not dark nested cards. */
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl button[class*="text-left"] {
+  border-color: #dce3da !important;
+  background: #fff !important;
+  color: #161a17 !important;
+  box-shadow: 0 1px 2px rgba(18, 24, 19, .03) !important;
+}
+
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl button[class*="text-left"]:hover {
+  border-color: #b9c6b5 !important;
+  background: #fbfcfa !important;
+  box-shadow: 0 9px 24px rgba(18, 24, 19, .07) !important;
+  transform: translateY(-1px);
+}
+
+/* Empty state gets a calm surface and clearer hierarchy. */
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl div[class*="border-dashed"] {
+  min-height: 132px;
+  display: grid;
+  place-items: center;
+  border-color: #ccd6c8 !important;
+  background: #fafbf9 !important;
+  color: #737d74 !important;
+  border-radius: 18px !important;
+}
+
+/* Compose action uses the brand as an accent, not as a full neon sheet. */
+main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl [class*="bg-[#0d1117]"] button[class*="bg-[#289E9D]"] {
+  border: 1px solid #91b12f !important;
+  background: #a3c63a !important;
+  color: #151a16 !important;
+}
+
+@media (max-width: 767px) {
+  .lestra-mobile-dock {
+    max-width: 680px;
+    margin-inline: auto;
+  }
+
+  main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl {
+    border-radius: 22px !important;
+  }
+
+  main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl > div:first-child > button {
+    width: 100%;
+    align-self: stretch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-route="/profesores"] .app-content section.mt-6.rounded-3xl button[class*="text-left"]:hover {
+    transform: none;
+  }
+}
