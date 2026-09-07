@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import api from '../api/axiosConfig';
+import JerseyNumberPicker from '../components/JerseyNumberPicker';
 import { useAcademyMessages } from '../hooks/useAcademyMessages';
 import {
   DIRECTOR_BUTTON,
@@ -39,8 +40,9 @@ const validarRut = (rut: string) => {
 const emptyTutor = { nombre_completo: '', rut: '', telefono: '', email: '' };
 type StructureBranch = { id: string; sede_id: string; nombre: string; disciplina: string; principal: boolean; activa: boolean };
 type StructureSite = { id: string; nombre: string; principal: boolean; activa: boolean; ramas: StructureBranch[] };
+type Category = { id: string; nombre: string; rama_id?: string | null; sede_id?: string | null };
 type SportProfile = { code: string; label: string; roleLabel: string; roles: string[]; metrics: string[]; profileCode: string; metricVersion: number; supportsFootballStats: boolean };
-const emptyPlayer = { nombre: '', rut: '', fecha_nacimiento: '', sexo: '', posicion_cancha: '', tipo_alumno: 'Nuevo', certificado_medico: 'Pendiente', talla_uniforme: '', numero_camiseta: '', nombre_camiseta: '', talla_apoderado: 'No desea', monto_camiseta_apoderado: '', sede_id: '', rama_id: '' };
+const emptyPlayer = { nombre: '', rut: '', fecha_nacimiento: '', sexo: '', posicion_cancha: '', tipo_alumno: 'Nuevo', certificado_medico: 'Pendiente', talla_uniforme: '', numero_camiseta: '', nombre_camiseta: '', talla_apoderado: 'No desea', monto_camiseta_apoderado: '', sede_id: '', rama_id: '', categoria_id: '' };
 const emptyFinance = { monto_matricula: '', abono_matricula: '', monto_mensualidad: '' };
 const steps = ['Apoderado', 'Alumno', 'Perfil deportivo', 'Valores y envío'];
 
@@ -65,6 +67,8 @@ const MatriculaPreparacion: React.FC = () => {
   const [rutChecking, setRutChecking] = useState(false);
   const [lastAction, setLastAction] = useState<'created' | 'updated'>('created');
   const [structure, setStructure] = useState<StructureSite[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
 
   const loadRecent = () => api.get('/api/prematriculas').then((response) => setRecent(response.data?.data || [])).catch(() => setRecent([]));
 
@@ -78,7 +82,7 @@ const MatriculaPreparacion: React.FC = () => {
     if (jugador.sede_id || !structure.length) return;
     const site = structure.find((item) => item.principal && item.activa) || structure.find((item) => item.activa);
     const branch = site?.ramas.find((item) => item.principal && item.activa) || site?.ramas.find((item) => item.activa);
-    if (site) setJugador((current) => ({ ...current, sede_id: site.id, rama_id: branch?.id || '' }));
+    if (site) setJugador((current) => ({ ...current, sede_id: site.id, rama_id: branch?.id || '', categoria_id: '', numero_camiseta: '' }));
   }, [structure, jugador.sede_id]);
 
   useEffect(() => {
@@ -101,12 +105,44 @@ const MatriculaPreparacion: React.FC = () => {
     return () => { cancelled = true; };
   }, [jugador.rama_id, jugador.posicion_cancha, evaluationEnabled]);
 
+  useEffect(() => {
+    if (!jugador.rama_id) {
+      setCategories([]);
+      setCategoriesLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setCategoriesLoading(true);
+    void api.get('/api/categorias', { params: { rama_id: jugador.rama_id } })
+      .then((response) => {
+        if (cancelled) return;
+        const nextCategories = (response.data?.data || []) as Category[];
+        setCategories(nextCategories);
+        setJugador((current) => {
+          if (current.rama_id !== jugador.rama_id) return current;
+          const currentStillExists = nextCategories.some((category) => category.id === current.categoria_id);
+          const nextCategoryId = currentStillExists ? current.categoria_id : nextCategories.length === 1 ? nextCategories[0].id : '';
+          if (nextCategoryId === current.categoria_id) return current;
+          return { ...current, categoria_id: nextCategoryId, numero_camiseta: '' };
+        });
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCategories([]);
+          setError('No fue posible cargar las categorías de la rama seleccionada.');
+        }
+      })
+      .finally(() => { if (!cancelled) setCategoriesLoading(false); });
+    return () => { cancelled = true; };
+  }, [jugador.rama_id]);
+
   const activeSites = useMemo(() => structure.filter((site) => site.activa), [structure]);
   const availableBranches = useMemo(() => {
     const site = structure.find((item) => item.id === jugador.sede_id);
     return (site?.ramas || []).filter((branch) => branch.activa);
   }, [structure, jugador.sede_id]);
   const activeBranch = structure.flatMap((site) => site.ramas).find((branch) => branch.id === jugador.rama_id) || null;
+  const activeCategory = categories.find((category) => category.id === jugador.categoria_id) || null;
   const total = Number(finanzas.monto_matricula || 0) + (jugador.talla_apoderado !== 'No desea' ? Number(jugador.monto_camiseta_apoderado || 0) : 0);
   const saldo = Math.max(0, total - Number(finanzas.abono_matricula || 0));
 
@@ -117,6 +153,8 @@ const MatriculaPreparacion: React.FC = () => {
     setFinanzas(emptyFinance);
     setEvaluacion({});
     setSportProfile(null);
+    setCategories([]);
+    setCategoriesLoading(false);
     setError('');
     setRutConflict('');
     setEditingId(null);
@@ -134,6 +172,14 @@ const MatriculaPreparacion: React.FC = () => {
     }
     if (step === 1 && structure.length && (!jugador.sede_id || !jugador.rama_id)) {
       setError('Selecciona la sede y rama deportiva del alumno.');
+      return false;
+    }
+    if (step === 1 && categoriesLoading) {
+      setError('Espera un momento mientras cargamos las categorías de la rama.');
+      return false;
+    }
+    if (step === 1 && categories.length > 0 && !jugador.categoria_id) {
+      setError('Selecciona la categoría deportiva del alumno.');
       return false;
     }
     if (step === 1 && jugador.rut && !validarRut(jugador.rut)) {
@@ -185,7 +231,7 @@ const MatriculaPreparacion: React.FC = () => {
     const finance = item.finanzas_payload || {};
     setEditingId(item.id);
     setTutor({ ...emptyTutor, ...(item.tutor_payload || {}) });
-    setJugador({ ...emptyPlayer, ...player, numero_camiseta: player.numero_camiseta == null ? '' : String(player.numero_camiseta), monto_camiseta_apoderado: player.monto_camiseta_apoderado == null ? '' : String(player.monto_camiseta_apoderado) });
+    setJugador({ ...emptyPlayer, ...player, categoria_id: player.categoria_id || '', numero_camiseta: player.numero_camiseta == null ? '' : String(player.numero_camiseta), monto_camiseta_apoderado: player.monto_camiseta_apoderado == null ? '' : String(player.monto_camiseta_apoderado) });
     setFinanzas({ monto_matricula: finance.monto_matricula == null ? '' : String(finance.monto_matricula), abono_matricula: finance.abono_matricula == null ? '' : String(finance.abono_matricula), monto_mensualidad: finance.monto_mensualidad == null ? '' : String(finance.monto_mensualidad) });
     setEvaluacion(item.evaluacion_payload || {});
     setRutConflict('');
@@ -219,6 +265,7 @@ const MatriculaPreparacion: React.FC = () => {
       jugador: {
         ...jugador,
         rut: jugador.rut || null,
+        categoria_id: jugador.categoria_id || null,
         numero_camiseta: jugador.numero_camiseta ? Number(jugador.numero_camiseta) : null,
         monto_camiseta_apoderado: jugador.talla_apoderado !== 'No desea' ? Number(jugador.monto_camiseta_apoderado || 0) : 0,
       },
@@ -239,7 +286,9 @@ const MatriculaPreparacion: React.FC = () => {
       await loadRecent();
     } catch (requestError: any) {
       const message = requestError?.response?.data?.error || 'No fue posible enviar la pre-matrícula.';
-      if (['PLAYER_RUT_EXISTS', 'PRE_ENROLLMENT_RUT_EXISTS'].includes(requestError?.response?.data?.code)) setRutConflict(message);
+      const code = String(requestError?.response?.data?.code || '');
+      if (['PLAYER_RUT_EXISTS', 'PRE_ENROLLMENT_RUT_EXISTS'].includes(code)) setRutConflict(message);
+      if (code.startsWith('JERSEY_')) setStep(2);
       setError(message);
     } finally { setLoading(false); }
   };
@@ -274,20 +323,33 @@ const MatriculaPreparacion: React.FC = () => {
 
         {step === 0 ? <div><SectionTitle eyebrow="Responsable" title="Datos del apoderado" description="Esta persona recibirá el enlace privado de revisión y firma." /><div className="mt-5 grid gap-4 md:grid-cols-2"><Field label="Nombre completo *"><input value={tutor.nombre_completo} onChange={(event) => setTutor({ ...tutor, nombre_completo: event.target.value })} className={DIRECTOR_FIELD} /></Field><Field label="RUT *"><input value={tutor.rut} onChange={(event) => setTutor({ ...tutor, rut: formatRut(event.target.value) })} className={DIRECTOR_FIELD} placeholder="12.345.678-5" /></Field><Field label="Teléfono *"><input value={tutor.telefono} onChange={(event) => setTutor({ ...tutor, telefono: event.target.value })} className={DIRECTOR_FIELD} placeholder="+56 9..." /></Field><Field label="Correo *"><input type="email" value={tutor.email} onChange={(event) => setTutor({ ...tutor, email: event.target.value })} className={DIRECTOR_FIELD} /></Field></div></div> : null}
 
-        {step === 1 ? <div><SectionTitle eyebrow="Alumno" title="Identificación y disciplina" description="Selecciona la sede y rama correctas para que categorías, cobros y operación deportiva queden bien asociadas." /><div className="mt-5 grid gap-4 md:grid-cols-2"><Field label="Nombre completo *"><input value={jugador.nombre} onChange={(event) => setJugador({ ...jugador, nombre: event.target.value })} className={DIRECTOR_FIELD} /></Field><Field label="RUT / documento"><input value={jugador.rut} onBlur={() => void checkPlayerRut()} onChange={(event) => { setRutConflict(''); setJugador({ ...jugador, rut: formatRut(event.target.value) }); }} className={DIRECTOR_FIELD} placeholder="Opcional" /></Field><Field label="Fecha de nacimiento *"><input type="date" value={jugador.fecha_nacimiento} onChange={(event) => setJugador({ ...jugador, fecha_nacimiento: event.target.value })} className={DIRECTOR_FIELD} /></Field><Field label="Sexo *"><select value={jugador.sexo} onChange={(event) => setJugador({ ...jugador, sexo: event.target.value })} className={DIRECTOR_FIELD}><option value="">Seleccionar</option><option>Masculino</option><option>Femenino</option><option>Otro</option><option>Prefiere no indicar</option></select></Field><Field label="Sede *"><select value={jugador.sede_id} onChange={(event) => { const site = structure.find((item) => item.id === event.target.value); const branch = site?.ramas.find((item) => item.principal && item.activa) || site?.ramas.find((item) => item.activa); setJugador({ ...jugador, sede_id: event.target.value, rama_id: branch?.id || '', posicion_cancha: '' }); }} className={DIRECTOR_FIELD}><option value="">Seleccionar sede</option>{activeSites.map((site) => <option key={site.id} value={site.id}>{site.nombre}</option>)}</select></Field><Field label="Rama deportiva *"><select value={jugador.rama_id} onChange={(event) => setJugador({ ...jugador, rama_id: event.target.value, posicion_cancha: '' })} className={DIRECTOR_FIELD}><option value="">Seleccionar rama</option>{availableBranches.map((branch) => <option key={branch.id} value={branch.id}>{branch.disciplina} · {branch.nombre}</option>)}</select></Field></div>{rutChecking ? <p className="mt-3 text-xs font-bold text-[#617b00]">Validando RUT…</p> : null}{rutConflict ? <p className="mt-3 text-xs font-bold text-red-700">{rutConflict}</p> : null}</div> : null}
+        {step === 1 ? <div><SectionTitle eyebrow="Alumno" title="Identificación y disciplina" description="Selecciona sede, rama y categoría para que el dorsal, los cobros y la operación deportiva queden en el alcance correcto." /><div className="mt-5 grid gap-4 md:grid-cols-2"><Field label="Nombre completo *"><input value={jugador.nombre} onChange={(event) => setJugador({ ...jugador, nombre: event.target.value })} className={DIRECTOR_FIELD} /></Field><Field label="RUT / documento"><input value={jugador.rut} onBlur={() => void checkPlayerRut()} onChange={(event) => { setRutConflict(''); setJugador({ ...jugador, rut: formatRut(event.target.value) }); }} className={DIRECTOR_FIELD} placeholder="Opcional" /></Field><Field label="Fecha de nacimiento *"><input type="date" value={jugador.fecha_nacimiento} onChange={(event) => setJugador({ ...jugador, fecha_nacimiento: event.target.value })} className={DIRECTOR_FIELD} /></Field><Field label="Sexo *"><select value={jugador.sexo} onChange={(event) => setJugador({ ...jugador, sexo: event.target.value })} className={DIRECTOR_FIELD}><option value="">Seleccionar</option><option>Masculino</option><option>Femenino</option><option>Otro</option><option>Prefiere no indicar</option></select></Field><Field label="Sede *"><select value={jugador.sede_id} onChange={(event) => { const site = structure.find((item) => item.id === event.target.value); const branch = site?.ramas.find((item) => item.principal && item.activa) || site?.ramas.find((item) => item.activa); setJugador({ ...jugador, sede_id: event.target.value, rama_id: branch?.id || '', categoria_id: '', numero_camiseta: '', posicion_cancha: '' }); }} className={DIRECTOR_FIELD}><option value="">Seleccionar sede</option>{activeSites.map((site) => <option key={site.id} value={site.id}>{site.nombre}</option>)}</select></Field><Field label="Rama deportiva *"><select value={jugador.rama_id} onChange={(event) => setJugador({ ...jugador, rama_id: event.target.value, categoria_id: '', numero_camiseta: '', posicion_cancha: '' })} className={DIRECTOR_FIELD}><option value="">Seleccionar rama</option>{availableBranches.map((branch) => <option key={branch.id} value={branch.id}>{branch.disciplina} · {branch.nombre}</option>)}</select></Field><Field label={categories.length ? 'Categoría *' : 'Categoría'}><select value={jugador.categoria_id} onChange={(event) => setJugador({ ...jugador, categoria_id: event.target.value, numero_camiseta: '' })} disabled={!jugador.rama_id || categoriesLoading || !categories.length} className={DIRECTOR_FIELD}><option value="">{categoriesLoading ? 'Cargando categorías…' : categories.length ? 'Seleccionar categoría' : 'Sin categorías configuradas'}</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.nombre}</option>)}</select></Field></div>{rutChecking ? <p className="mt-3 text-xs font-bold text-[#617b00]">Validando RUT…</p> : null}{rutConflict ? <p className="mt-3 text-xs font-bold text-red-700">{rutConflict}</p> : null}{jugador.rama_id && !categoriesLoading && !categories.length ? <p className="mt-3 text-xs font-semibold text-[#697468]">Esta rama no tiene categorías configuradas; la matrícula puede continuar a nivel de rama.</p> : null}</div> : null}
 
-        {step === 2 ? <div><SectionTitle eyebrow="Perfil deportivo" title={activeBranch ? `${activeBranch.disciplina} · ${activeBranch.nombre}` : 'Perfil deportivo'} description="Estos datos quedan ligados a la inscripción deportiva y no duplican la ficha personal del alumno." /><div className="mt-5 grid gap-4 md:grid-cols-2"><Field label={sportProfile?.roleLabel || 'Posición / especialidad'}>{sportProfile?.roles?.length ? <select value={jugador.posicion_cancha} onChange={(event) => setJugador({ ...jugador, posicion_cancha: event.target.value })} className={DIRECTOR_FIELD}><option value="">Seleccionar</option>{sportProfile.roles.map((role) => <option key={role}>{role}</option>)}</select> : <input value={jugador.posicion_cancha} onChange={(event) => setJugador({ ...jugador, posicion_cancha: event.target.value })} className={DIRECTOR_FIELD} />}</Field><Field label="Certificado médico"><select value={jugador.certificado_medico} onChange={(event) => setJugador({ ...jugador, certificado_medico: event.target.value })} className={DIRECTOR_FIELD}><option>Pendiente</option><option>Vigente</option><option>No aplica</option></select></Field><Field label="Talla uniforme"><input value={jugador.talla_uniforme} onChange={(event) => setJugador({ ...jugador, talla_uniforme: event.target.value })} className={DIRECTOR_FIELD} placeholder="Ej. 12 / S / M" /></Field><Field label="Número / dorsal"><input type="number" min="0" value={jugador.numero_camiseta} onChange={(event) => setJugador({ ...jugador, numero_camiseta: event.target.value })} className={DIRECTOR_FIELD} /></Field><Field label="Nombre camiseta"><input value={jugador.nombre_camiseta} onChange={(event) => setJugador({ ...jugador, nombre_camiseta: event.target.value.toUpperCase() })} className={DIRECTOR_FIELD} /></Field><Field label="Polera apoderado"><select value={jugador.talla_apoderado} onChange={(event) => setJugador({ ...jugador, talla_apoderado: event.target.value })} className={DIRECTOR_FIELD}><option>No desea</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option></select></Field>{jugador.talla_apoderado !== 'No desea' ? <Field label="Valor polera apoderado"><input type="number" min="0" value={jugador.monto_camiseta_apoderado} onChange={(event) => setJugador({ ...jugador, monto_camiseta_apoderado: event.target.value })} className={DIRECTOR_FIELD} /></Field> : null}</div>
+        {step === 2 ? <div><SectionTitle eyebrow="Perfil deportivo" title={activeBranch ? `${activeBranch.disciplina} · ${activeBranch.nombre}${activeCategory ? ` · ${activeCategory.nombre}` : ''}` : 'Perfil deportivo'} description="Completa el perfil y elige el dorsal visualmente. Los números reservados u ocupados no se pueden seleccionar." /><div className="mt-5 grid gap-4 md:grid-cols-2"><Field label={sportProfile?.roleLabel || 'Posición / especialidad'}>{sportProfile?.roles?.length ? <select value={jugador.posicion_cancha} onChange={(event) => setJugador({ ...jugador, posicion_cancha: event.target.value })} className={DIRECTOR_FIELD}><option value="">Seleccionar</option>{sportProfile.roles.map((role) => <option key={role}>{role}</option>)}</select> : <input value={jugador.posicion_cancha} onChange={(event) => setJugador({ ...jugador, posicion_cancha: event.target.value })} className={DIRECTOR_FIELD} />}</Field><Field label="Certificado médico"><select value={jugador.certificado_medico} onChange={(event) => setJugador({ ...jugador, certificado_medico: event.target.value })} className={DIRECTOR_FIELD}><option>Pendiente</option><option>Vigente</option><option>No aplica</option></select></Field><Field label="Talla uniforme"><input value={jugador.talla_uniforme} onChange={(event) => setJugador({ ...jugador, talla_uniforme: event.target.value })} className={DIRECTOR_FIELD} placeholder="Ej. 12 / S / M" /></Field><Field label="Nombre camiseta"><input value={jugador.nombre_camiseta} onChange={(event) => setJugador({ ...jugador, nombre_camiseta: event.target.value.toUpperCase() })} className={DIRECTOR_FIELD} /></Field><Field label="Polera apoderado"><select value={jugador.talla_apoderado} onChange={(event) => setJugador({ ...jugador, talla_apoderado: event.target.value })} className={DIRECTOR_FIELD}><option>No desea</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option></select></Field>{jugador.talla_apoderado !== 'No desea' ? <Field label="Valor polera apoderado"><input type="number" min="0" value={jugador.monto_camiseta_apoderado} onChange={(event) => setJugador({ ...jugador, monto_camiseta_apoderado: event.target.value })} className={DIRECTOR_FIELD} /></Field> : null}</div>
+          <div className="mt-6">
+            <JerseyNumberPicker
+              branchId={jugador.rama_id}
+              categoryId={jugador.categoria_id || null}
+              value={jugador.numero_camiseta || null}
+              excludePrematriculaId={editingId}
+              selectable={Boolean(jugador.rama_id && (!categories.length || jugador.categoria_id))}
+              title={jugador.numero_camiseta ? `Dorsal seleccionado #${jugador.numero_camiseta}` : `Elige el dorsal de ${jugador.nombre || 'este alumno'}`}
+              description="Toca una camiseta disponible. Una pre-matrícula activa reserva ese número hasta que se firme, cancele o venza."
+              onSelect={(number) => setJugador((current) => ({ ...current, numero_camiseta: String(number) }))}
+            />
+            {jugador.numero_camiseta ? <div className="mt-3 flex justify-end"><button type="button" onClick={() => setJugador((current) => ({ ...current, numero_camiseta: '' }))} className={DIRECTOR_BUTTON_GHOST}>Continuar sin dorsal</button></div> : null}
+          </div>
           {evaluationEnabled && sportProfile?.metrics?.length ? <div className="mt-6 rounded-[18px] border border-[#dfe5dc] bg-[#f8faf6] p-4"><p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">Evaluación inicial opcional</p><p className="mt-1 text-sm text-[#697468]">Puedes dejar una línea base para comparar evolución futura.</p><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{sportProfile.metrics.map((metric) => <Field key={metric} label={metric}><input type="number" min="0" max="100" value={evaluacion[metric] ?? 50} onChange={(event) => setEvaluacion({ ...evaluacion, [metric]: Number(event.target.value) || 0 })} className={DIRECTOR_FIELD} /></Field>)}</div></div> : null}</div> : null}
 
-        {step === 3 ? <div><SectionTitle eyebrow="Valores y envío" title="Define los cobros iniciales" description="Estos montos se formalizan cuando el apoderado completa y firma la matrícula." /><div className="mt-5 grid gap-4 md:grid-cols-3"><Field label="Matrícula"><input type="number" min="0" value={finanzas.monto_matricula} onChange={(event) => setFinanzas({ ...finanzas, monto_matricula: event.target.value })} className={DIRECTOR_FIELD} /></Field><Field label="Abono matrícula"><input type="number" min="0" value={finanzas.abono_matricula} onChange={(event) => setFinanzas({ ...finanzas, abono_matricula: event.target.value })} className={DIRECTOR_FIELD} /></Field><Field label="Mensualidad"><input type="number" min="0" value={finanzas.monto_mensualidad} onChange={(event) => setFinanzas({ ...finanzas, monto_mensualidad: event.target.value })} className={DIRECTOR_FIELD} /></Field></div><div className="mt-5 grid gap-3 sm:grid-cols-3"><DirectorStat label="Total inicial" value={money(total)} detail="Matrícula + adicionales" /><DirectorStat label="Abono" value={money(finanzas.abono_matricula)} detail="Informado al preparar" tone="lime" /><DirectorStat label="Saldo inicial" value={money(saldo)} detail="Pendiente al firmar" tone="dark" /></div><div className="mt-5 rounded-[18px] border border-[#cde995] bg-[#f3fadf] p-4 text-sm leading-6 text-[#566056]"><strong className="text-[#111711]">Antes de enviar:</strong> revisa correo, RUT, sede, rama y valores. El apoderado verá la información, términos y consentimientos antes de firmar.</div></div> : null}
+        {step === 3 ? <div><SectionTitle eyebrow="Valores y envío" title="Define los cobros iniciales" description="Estos montos se formalizan cuando el apoderado completa y firma la matrícula." /><div className="mt-5 grid gap-4 md:grid-cols-3"><Field label="Matrícula"><input type="number" min="0" value={finanzas.monto_matricula} onChange={(event) => setFinanzas({ ...finanzas, monto_matricula: event.target.value })} className={DIRECTOR_FIELD} /></Field><Field label="Abono matrícula"><input type="number" min="0" value={finanzas.abono_matricula} onChange={(event) => setFinanzas({ ...finanzas, abono_matricula: event.target.value })} className={DIRECTOR_FIELD} /></Field><Field label="Mensualidad"><input type="number" min="0" value={finanzas.monto_mensualidad} onChange={(event) => setFinanzas({ ...finanzas, monto_mensualidad: event.target.value })} className={DIRECTOR_FIELD} /></Field></div><div className="mt-5 grid gap-3 sm:grid-cols-3"><DirectorStat label="Total inicial" value={money(total)} detail="Matrícula + adicionales" /><DirectorStat label="Abono" value={money(finanzas.abono_matricula)} detail="Informado al preparar" tone="lime" /><DirectorStat label="Saldo inicial" value={money(saldo)} detail="Pendiente al firmar" tone="dark" /></div><div className="mt-5 rounded-[18px] border border-[#cde995] bg-[#f3fadf] p-4 text-sm leading-6 text-[#566056]"><strong className="text-[#111711]">Antes de enviar:</strong> revisa correo, RUT, sede, rama, categoría, dorsal y valores. El servidor volverá a validar el dorsal al crear la pre-matrícula.</div></div> : null}
 
-        <div className="mt-7 flex flex-col-reverse gap-3 border-t border-[#e5e9e2] pt-5 sm:flex-row sm:justify-between"><button type="button" disabled={step === 0 || loading} onClick={() => setStep((current) => Math.max(0, current - 1))} className={DIRECTOR_BUTTON_GHOST}>← Anterior</button>{step < steps.length - 1 ? <button type="button" disabled={rutChecking} onClick={() => void next()} className={DIRECTOR_BUTTON}>Continuar →</button> : <button type="button" disabled={loading || rutChecking} onClick={() => void submit()} className={DIRECTOR_BUTTON_DARK}>{loading ? 'Preparando…' : editingId ? 'Guardar y reenviar' : 'Crear y enviar pre-matrícula'}</button>}</div>
+        <div className="mt-7 flex flex-col-reverse gap-3 border-t border-[#e5e9e2] pt-5 sm:flex-row sm:justify-between"><button type="button" disabled={step === 0 || loading} onClick={() => setStep((current) => Math.max(0, current - 1))} className={DIRECTOR_BUTTON_GHOST}>← Anterior</button>{step < steps.length - 1 ? <button type="button" disabled={rutChecking || categoriesLoading} onClick={() => void next()} className={DIRECTOR_BUTTON}>Continuar →</button> : <button type="button" disabled={loading || rutChecking || categoriesLoading} onClick={() => void submit()} className={DIRECTOR_BUTTON_DARK}>{loading ? 'Preparando…' : editingId ? 'Guardar y reenviar' : 'Crear y enviar pre-matrícula'}</button>}</div>
       </div>
     </DirectorPanel>
 
     <section>
       <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">Seguimiento</p><h2 className="mt-1 text-2xl font-black text-[#111711]">Pre-matrículas recientes</h2></div><p className="text-sm text-[#697468]">Corrige o cancela antes de la firma cuando sea necesario.</p></div>
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">{recent.map((item) => <DirectorPanel key={item.id} className="p-5"><div className="flex items-start justify-between gap-3"><div><h3 className="font-black text-[#111711]">{item.jugador_payload?.nombre || 'Alumno'}</h3><p className="mt-1 text-xs font-semibold text-[#697468]">{item.tutor_payload?.nombre_completo || 'Apoderado'} · {item.tutor_payload?.email || 'Sin correo'}</p></div><span className={`rounded-full border px-2.5 py-1 text-[10px] font-black uppercase ${statusTone(item.estado)}`}>{item.estado}</span></div><div className="mt-4 grid grid-cols-2 gap-2 text-xs"><div className="rounded-[13px] border border-[#e1e6df] bg-[#f8faf6] p-3"><p className="font-black uppercase text-[#7c867b]">Matrícula</p><p className="mt-1 font-black text-[#111711]">{money(item.finanzas_payload?.monto_matricula || 0)}</p></div><div className="rounded-[13px] border border-[#e1e6df] bg-[#f8faf6] p-3"><p className="font-black uppercase text-[#7c867b]">Mensualidad</p><p className="mt-1 font-black text-[#111711]">{money(item.finanzas_payload?.monto_mensualidad || 0)}</p></div></div><div className="mt-4 flex flex-wrap gap-2">{!['firmada', 'cancelada'].includes(item.estado) ? <button type="button" onClick={() => startEdit(item)} className={DIRECTOR_BUTTON_GHOST}>Editar</button> : null}{!['firmada', 'cancelada'].includes(item.estado) ? <button type="button" onClick={() => void cancelPrematricula(item)} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-red-200 bg-red-50 px-4 text-sm font-black text-red-700">Cancelar</button> : null}{item.signed_at ? <span className="inline-flex min-h-11 items-center rounded-xl border border-[#cde995] bg-[#f3fadf] px-4 text-sm font-black text-[#4f6900]">Firmada</span> : null}</div></DirectorPanel>)}{!recent.length ? <DirectorPanel className="col-span-full p-10 text-center text-sm text-[#697468]">Aún no hay pre-matrículas registradas.</DirectorPanel> : null}</div>
+      <div className="mt-4 grid gap-4 lg:grid-cols-2">{recent.map((item) => <DirectorPanel key={item.id} className="p-5"><div className="flex items-start justify-between gap-3"><div><h3 className="font-black text-[#111711]">{item.jugador_payload?.nombre || 'Alumno'}</h3><p className="mt-1 text-xs font-semibold text-[#697468]">{item.tutor_payload?.nombre_completo || 'Apoderado'} · {item.tutor_payload?.email || 'Sin correo'}</p>{item.jugador_payload?.numero_camiseta ? <p className="mt-1 text-xs font-black text-[#5e751d]">Dorsal reservado #{item.jugador_payload.numero_camiseta}</p> : null}</div><span className={`rounded-full border px-2.5 py-1 text-[10px] font-black uppercase ${statusTone(item.estado)}`}>{item.estado}</span></div><div className="mt-4 grid grid-cols-2 gap-2 text-xs"><div className="rounded-[13px] border border-[#e1e6df] bg-[#f8faf6] p-3"><p className="font-black uppercase text-[#7c867b]">Matrícula</p><p className="mt-1 font-black text-[#111711]">{money(item.finanzas_payload?.monto_matricula || 0)}</p></div><div className="rounded-[13px] border border-[#e1e6df] bg-[#f8faf6] p-3"><p className="font-black uppercase text-[#7c867b]">Mensualidad</p><p className="mt-1 font-black text-[#111711]">{money(item.finanzas_payload?.monto_mensualidad || 0)}</p></div></div><div className="mt-4 flex flex-wrap gap-2">{!['firmada', 'cancelada'].includes(item.estado) ? <button type="button" onClick={() => startEdit(item)} className={DIRECTOR_BUTTON_GHOST}>Editar</button> : null}{!['firmada', 'cancelada'].includes(item.estado) ? <button type="button" onClick={() => void cancelPrematricula(item)} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-red-200 bg-red-50 px-4 text-sm font-black text-red-700">Cancelar</button> : null}{item.signed_at ? <span className="inline-flex min-h-11 items-center rounded-xl border border-[#cde995] bg-[#f3fadf] px-4 text-sm font-black text-[#4f6900]">Firmada</span> : null}</div></DirectorPanel>)}{!recent.length ? <DirectorPanel className="col-span-full p-10 text-center text-sm text-[#697468]">Aún no hay pre-matrículas registradas.</DirectorPanel> : null}</div>
     </section>
   </DirectorPage>;
 };
