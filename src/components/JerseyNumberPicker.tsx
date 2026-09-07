@@ -4,6 +4,7 @@ import api from '../api/axiosConfig';
 
 type JerseyStatus = 'available' | 'reserved' | 'occupied';
 type JerseyPerson = { id?: string | null; name?: string | null };
+type JerseyMapPlayer = { id: string; name: string; jerseyNumber: number | null };
 type JerseyEntry = {
   number: number;
   status: JerseyStatus;
@@ -13,6 +14,7 @@ type JerseyEntry = {
 type JerseyMap = {
   numbers: JerseyEntry[];
   summary: { total: number; available: number; occupied: number; reserved: number };
+  players?: JerseyMapPlayer[];
   scope?: {
     rama?: { id: string; nombre: string; disciplina?: string | null } | null;
     categoria?: { id: string; nombre: string } | null;
@@ -193,5 +195,5 @@ const JerseyNumberPicker: React.FC<Props> = ({
   );
 };
 
-export type { JerseyEntry, JerseyMap, JerseyStatus };
+export type { JerseyEntry, JerseyMap, JerseyMapPlayer, JerseyStatus };
 export default JerseyNumberPicker;
