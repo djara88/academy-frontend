@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import JerseyNumberPicker from '../components/JerseyNumberPicker';
 import {
-  DIRECTOR_BUTTON_DARK,
   DIRECTOR_BUTTON_GHOST,
   DIRECTOR_FIELD,
   DirectorHero,
@@ -21,7 +20,6 @@ type Student = { id: string; nombre: string; numero_camiseta?: number | null; in
 
 const JerseyNumbers: React.FC = () => {
   const { notify } = useAcademyMessages();
-  const [sites, setSites] = useState<Site[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [branchId, setBranchId] = useState('');
   const [categories, setCategories] = useState<Category[]>([]);
@@ -36,7 +34,6 @@ const JerseyNumbers: React.FC = () => {
     void api.get('/api/estructura')
       .then((response) => {
         const nextSites = (response.data?.data || []) as Site[];
-        setSites(nextSites);
         const nextBranches = nextSites.flatMap((site) => site.ramas || []).filter((branch) => branch.activa !== false);
         setBranches(nextBranches);
         const preferred = nextBranches.find((branch) => branch.principal) || nextBranches[0];
@@ -66,7 +63,6 @@ const JerseyNumbers: React.FC = () => {
   }, [branchId]);
 
   const selectedStudent = students.find((student) => student.id === studentId) || null;
-  const selectedBranch = branches.find((branch) => branch.id === branchId) || null;
   const selectedCategory = categories.find((category) => category.id === categoryId) || null;
 
   const studentsForScope = useMemo(() => {
