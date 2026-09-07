@@ -61,6 +61,7 @@ const directorGroups: NavGroup[] = [
       { to: '/finanzas', label: 'Finanzas', icon: BanknotesIcon, feature: 'finanzas' },
       { to: '/comunicaciones', label: 'Comunicaciones', icon: ChatBubbleLeftRightIcon, feature: 'apoderados', badge: 'ADD-ON' },
       { to: '/uniformes', label: 'Uniformes', icon: ShoppingBagIcon, feature: 'uniformes' },
+      { to: '/uniformes/dorsales', label: 'Mapa de dorsales', icon: TrophyIcon, feature: 'uniformes' },
       { to: '/configuracion', label: 'Configuración', icon: Cog6ToothIcon },
       { to: '/privacidad', label: 'Privacidad', icon: ShieldCheckIcon },
     ],

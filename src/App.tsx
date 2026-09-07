@@ -55,6 +55,7 @@ const Asistencias = lazy(() => import('./pages/AsistenciasMultirama'));
 const Configuracion = lazy(() => import('./pages/Configuracion'));
 const PerfilAcademia = lazy(() => import('./pages/PerfilAcademia'));
 const Uniformes = lazy(() => import('./pages/UniformesMultirama'));
+const JerseyNumbers = lazy(() => import('./pages/JerseyNumbers'));
 const Finanzas = lazy(() => import('./pages/FinanzasCompat'));
 const Profesores = lazy(() => import('./pages/ProfesoresMultirama'));
 const ProfesorPortal = lazy(() => import('./pages/ProfesorPortal'));
@@ -232,7 +233,7 @@ const App = () => (
                       <Route path="/puesta-en-marcha" element={<AcademySetup />} />
                       <Route path="/dashboard" element={<Dashboard />} /><Route path="/profesores" element={<Profesores />} /><Route path="/apoderados" element={<Apoderados />} /><Route path="/apoderados-pro" element={<ApoderadosPro />} />
                       <Route path="/comunicaciones" element={<CommunicationsHub />} /><Route path="/comunicaciones/grupos" element={<WhatsAppGroups />} /><Route path="/alumnos" element={<Alumnos />} /><Route path="/jugadores" element={<Navigate to="/alumnos" replace />} />
-                      <Route path="/solicitudes" element={<AdmissionRequests />} /><Route path="/matricula" element={<Matricula />} /><Route path="/inscripciones" element={<InscripcionesDeportivas />} /><Route path="/importacion" element={<Importacion />} /><Route path="/asistencias" element={<Asistencias />} /><Route path="/uniformes" element={<Uniformes />} />
+                      <Route path="/solicitudes" element={<AdmissionRequests />} /><Route path="/matricula" element={<Matricula />} /><Route path="/inscripciones" element={<InscripcionesDeportivas />} /><Route path="/importacion" element={<Importacion />} /><Route path="/asistencias" element={<Asistencias />} /><Route path="/uniformes" element={<Uniformes />} /><Route path="/uniformes/dorsales" element={<JerseyNumbers />} />
                       <Route path="/amistosos" element={<Amistosos />} />
                       <Route path="/torneos" element={<Torneos />} /><Route path="/torneos/almacen" element={<TorneosArchivados />} /><Route path="/nuevo-torneo" element={<NuevoTorneo />} /><Route path="/torneos/:id" element={<GestionarTorneo />} />
                       <Route path="/partidos" element={<EventosRendimiento />} /><Route path="/rendimiento" element={<Navigate to="/partidos" replace />} /><Route path="/rendimiento/analitica" element={<RendimientoAnalytics />} /><Route path="/salud-deportiva" element={<SaludDisponibilidad />} />
