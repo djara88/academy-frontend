@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowLeftIcon, CheckBadgeIcon, UserIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 import api from '../api/axiosConfig';
-import JerseyNumberPicker from '../components/JerseyNumberPicker';
+import JerseyNumberPicker, { type JerseyMap } from '../components/JerseyNumberPicker';
 import {
   DIRECTOR_BUTTON_GHOST,
   DIRECTOR_FIELD,
@@ -15,8 +15,7 @@ import { useAcademyMessages } from '../hooks/useAcademyMessages';
 type Branch = { id: string; sede_id: string; nombre: string; disciplina: string; principal?: boolean; activa?: boolean };
 type Site = { id: string; nombre: string; principal?: boolean; activa?: boolean; ramas?: Branch[] };
 type Category = { id: string; nombre: string; rama_id: string };
-type Enrollment = { id: string; rama_id: string; categoria_id?: string | null; estado?: string };
-type Student = { id: string; nombre: string; numero_camiseta?: number | null; inscripciones?: Enrollment[] };
+type Student = { id: string; nombre: string; numero_camiseta?: number | null };
 
 const JerseyNumbers: React.FC = () => {
   const { notify } = useAcademyMessages();
@@ -45,34 +44,36 @@ const JerseyNumbers: React.FC = () => {
   useEffect(() => {
     setCategoryId('');
     setStudentId('');
+    setStudents([]);
     if (!branchId) {
       setCategories([]);
-      setStudents([]);
       return;
     }
     setError('');
-    void Promise.all([
-      api.get('/api/categorias', { params: { rama_id: branchId } }),
-      api.get('/api/uniformes', { params: { rama_id: branchId } }),
-    ])
-      .then(([categoryResponse, uniformsResponse]) => {
-        setCategories(categoryResponse.data?.data || []);
-        setStudents(uniformsResponse.data?.data?.alumnos || []);
-      })
-      .catch((requestError: any) => setError(requestError?.response?.data?.error || 'No fue posible cargar alumnos y categorías.'));
+    void api.get('/api/categorias', { params: { rama_id: branchId } })
+      .then((response) => setCategories(response.data?.data || []))
+      .catch((requestError: any) => setError(requestError?.response?.data?.error || 'No fue posible cargar las categorías.'));
   }, [branchId]);
+
+  useEffect(() => {
+    setStudentId('');
+    setStudents([]);
+  }, [categoryId]);
 
   const selectedStudent = students.find((student) => student.id === studentId) || null;
   const selectedCategory = categories.find((category) => category.id === categoryId) || null;
 
-  const studentsForScope = useMemo(() => {
-    if (!categoryId) return students;
-    return students.filter((student) => (student.inscripciones || []).some((enrollment) => String(enrollment.categoria_id || '') === String(categoryId)));
-  }, [students, categoryId]);
-
   useEffect(() => {
-    if (studentId && !studentsForScope.some((student) => student.id === studentId)) setStudentId('');
-  }, [studentsForScope, studentId]);
+    if (studentId && !students.some((student) => student.id === studentId)) setStudentId('');
+  }, [students, studentId]);
+
+  const syncScopedStudents = (map: JerseyMap) => {
+    setStudents((map.players || []).map((player) => ({
+      id: player.id,
+      nombre: player.name,
+      numero_camiseta: player.jerseyNumber,
+    })));
+  };
 
   const assign = async (number: number | null) => {
     if (!studentId || !branchId || saving) return;
@@ -115,12 +116,12 @@ const JerseyNumbers: React.FC = () => {
         <div className="grid gap-4 md:grid-cols-3">
           <label className="block"><span className="mb-1.5 block text-[11px] font-black uppercase tracking-[.08em] text-[#697468]">Rama deportiva</span><select className={DIRECTOR_FIELD} value={branchId} onChange={(event) => setBranchId(event.target.value)}><option value="">Seleccionar</option>{branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.disciplina} · {branch.nombre}</option>)}</select></label>
           <label className="block"><span className="mb-1.5 block text-[11px] font-black uppercase tracking-[.08em] text-[#697468]">Categoría</span><select className={DIRECTOR_FIELD} value={categoryId} onChange={(event) => setCategoryId(event.target.value)} disabled={!branchId}><option value="">Toda la rama</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.nombre}</option>)}</select></label>
-          <label className="block"><span className="mb-1.5 block text-[11px] font-black uppercase tracking-[.08em] text-[#697468]">Alumno para asignar</span><select className={DIRECTOR_FIELD} value={studentId} onChange={(event) => setStudentId(event.target.value)} disabled={!branchId}><option value="">Solo revisar disponibilidad</option>{studentsForScope.map((student) => <option key={student.id} value={student.id}>{student.nombre}{student.numero_camiseta ? ` · #${student.numero_camiseta}` : ''}</option>)}</select></label>
+          <label className="block"><span className="mb-1.5 block text-[11px] font-black uppercase tracking-[.08em] text-[#697468]">Alumno para asignar</span><select className={DIRECTOR_FIELD} value={studentId} onChange={(event) => setStudentId(event.target.value)} disabled={!branchId}><option value="">Solo revisar disponibilidad</option>{students.map((student) => <option key={student.id} value={student.id}>{student.nombre}{student.numero_camiseta ? ` · #${student.numero_camiseta}` : ''}</option>)}</select></label>
         </div>
 
         <div className="mt-4 grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
           <div className="rounded-2xl border border-[#e0e5de] bg-[#f8faf7] p-4">
-            {selectedStudent ? <div className="flex items-center gap-3"><div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#edf4d8] text-[#5e751d]"><UserIcon aria-hidden="true" className="h-5 w-5" /></div><div><p className="font-black text-[#161a17]">{selectedStudent.nombre}</p><p className="text-sm text-[#687068]">{selectedStudent.numero_camiseta ? `Dorsal actual #${selectedStudent.numero_camiseta}` : 'Todavía sin dorsal asignado'}{selectedCategory ? ` · ${selectedCategory.nombre}` : ''}</p></div></div> : <p className="text-sm font-bold text-[#687068]">Selecciona un alumno sólo si quieres asignar un número. También puedes usar este mapa como consulta junto a la familia.</p>}
+            {selectedStudent ? <div className="flex items-center gap-3"><div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#edf4d8] text-[#5e751d]"><UserIcon aria-hidden="true" className="h-5 w-5" /></div><div><p className="font-black text-[#161a17]">{selectedStudent.nombre}</p><p className="text-sm text-[#687068]">{selectedStudent.numero_camiseta ? `Dorsal actual #${selectedStudent.numero_camiseta}` : 'Todavía sin dorsal asignado'}{selectedCategory ? ` · ${selectedCategory.nombre}` : ''}</p></div></div> : <p className="text-sm font-bold text-[#687068]">Selecciona un alumno sólo si quieres asignar un número. El listado respeta la pertenencia real a la rama y categoría elegidas.</p>}
           </div>
           {selectedStudent?.numero_camiseta ? <button type="button" disabled={saving} onClick={() => void assign(null)} className={DIRECTOR_BUTTON_GHOST}>Liberar #{selectedStudent.numero_camiseta}</button> : null}
         </div>
@@ -137,6 +138,7 @@ const JerseyNumbers: React.FC = () => {
         refreshKey={refreshKey}
         title={selectedStudent ? `Dorsal para ${selectedStudent.nombre}` : 'Disponibilidad de dorsales'}
         description={selectedStudent ? 'Toca una camiseta disponible para asignarla. El servidor vuelve a validar antes de guardar.' : 'Consulta el mapa junto al apoderado o alumno. Selecciona un alumno arriba para habilitar la asignación.'}
+        onLoaded={syncScopedStudents}
         onSelect={(number) => void assign(number)}
       />
 
