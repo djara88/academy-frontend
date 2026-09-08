@@ -5,9 +5,9 @@ import { DirectorHero, DirectorPage } from '../components/director/DirectorModul
 export default function EventosRendimientoEnhanced() {
   return <DirectorPage className="max-w-[1500px]">
     <DirectorHero
-      eyebrow="Operación deportiva"
-      title="Partidos y eventos"
-      description="Planifica la actividad, envía la citación y registra el resultado o rendimiento desde un mismo flujo."
+      eyebrow="Match Command · Competencia"
+      title="Preparar, competir y cerrar"
+      description="Trabaja cada encuentro como una operación deportiva: contexto, citación, llegada, resultado y rendimiento permanecen unidos en la misma secuencia."
     />
     <div className="events-performance-scope">
       <EventosRendimiento />
