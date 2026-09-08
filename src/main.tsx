@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './index.css';
 import './portal-visibility.css';
+import './training-session-v2.css';
 import './readability-contract.css';
 import './setup-v2.css';
 import './subscription-v2.css';
