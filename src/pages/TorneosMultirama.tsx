@@ -7,10 +7,7 @@ import {
   DIRECTOR_BUTTON_DARK,
   DIRECTOR_BUTTON_GHOST,
   DIRECTOR_FIELD,
-  DirectorHero,
   DirectorPage,
-  DirectorPanel,
-  DirectorStat,
 } from '../components/director/DirectorModule';
 
 type Branch={id:string;nombre:string;disciplina:string;sede_id:string;sedes?:{id:string;nombre:string}|null};
@@ -141,109 +138,83 @@ export default function TorneosMultirama(){
   };
 
   return (
-    <DirectorPage>
-      <DirectorHero
-        eyebrow="Competencias oficiales"
-        title="Campeonatos y competencias"
-        description="Define primero quiénes participarán en cada competencia. La convocatoria del torneo es independiente de sus partidos, duelos o pruebas posteriores."
-        actions={
-          <>
-            <Link to="/partidos" className={DIRECTOR_BUTTON_GHOST}>Eventos y resultados</Link>
-            <Link to="/torneos/almacen" className={DIRECTOR_BUTTON_DARK}>Almacén</Link>
-            <Link to="/nuevo-torneo" className={DIRECTOR_BUTTON}>+ Nueva competencia</Link>
-          </>
-        }
-      />
-
-      <section className="grid gap-3 md:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(160px,.5fr))]">
-        <DirectorPanel className="p-4">
-          <label className="block">
-            <span className={labelClass}>Filtrar rama</span>
-            <select value={branchId} onChange={(event)=>setBranchId(event.target.value)} className={DIRECTOR_FIELD}>
-              <option value="">Todas las ramas</option>
-              {branches.map((branch)=><option key={branch.id} value={branch.id}>{branch.disciplina} · {branch.nombre}{branch.sedes?.nombre?` · ${branch.sedes.nombre}`:''}</option>)}
-            </select>
-          </label>
-        </DirectorPanel>
-        <DirectorStat label="Total" value={counts.total}/>
-        <DirectorStat label="Activas" value={counts.activas} tone="lime"/>
-        <DirectorStat label="Con inscripción" value={counts.conCosto} tone="dark"/>
+    <DirectorPage className="competition-record max-w-[1450px]">
+      <section className="competition-record-command" aria-labelledby="competition-record-title">
+        <div className="competition-record-command-copy">
+          <p className="competition-record-kicker">Competition Record</p>
+          <h1 id="competition-record-title">Temporada y competencias oficiales</h1>
+          <p>Una competencia reúne su contexto, participantes y compromiso económico. Los partidos, duelos o pruebas se registran después dentro de ese mismo historial deportivo.</p>
+        </div>
+        <div className="competition-record-actions">
+          <Link to="/partidos" className={DIRECTOR_BUTTON_GHOST}>Eventos y resultados</Link>
+          <Link to="/torneos/almacen" className={DIRECTOR_BUTTON_DARK}>Almacén histórico</Link>
+          <Link to="/nuevo-torneo" className={DIRECTOR_BUTTON}>+ Nueva competencia</Link>
+        </div>
       </section>
 
-      {error?<div className="rounded-[18px] border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700">{error}</div>:null}
+      <section className="competition-record-toolbar" aria-label="Alcance de competencias">
+        <label className="block">
+          <span className={labelClass}>Rama / disciplina</span>
+          <select value={branchId} onChange={(event)=>setBranchId(event.target.value)} className={DIRECTOR_FIELD}>
+            <option value="">Todas las ramas</option>
+            {branches.map((branch)=><option key={branch.id} value={branch.id}>{branch.disciplina} · {branch.nombre}{branch.sedes?.nombre?` · ${branch.sedes.nombre}`:''}</option>)}
+          </select>
+        </label>
+        <div className="competition-record-summary" aria-label="Resumen del registro">
+          <span><small>Competencias</small><strong>{counts.total}</strong></span>
+          <span className="is-active"><small>Activas</small><strong>{counts.activas}</strong></span>
+          <span><small>Con inscripción</small><strong>{counts.conCosto}</strong></span>
+        </div>
+      </section>
+
+      {error?<div className="competition-record-error" role="alert">{error}</div>:null}
 
       {loading?(
-        <DirectorPanel className="p-10 text-center text-sm font-bold text-[#697468]">Cargando competencias...</DirectorPanel>
+        <section className="competition-record-ledger"><div className="competition-record-loading">Verificando competencias y participación…</div></section>
       ):(
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <section className="competition-record-ledger" aria-label="Registro de competencias">
+          <div className="competition-record-ledger-head" aria-hidden="true"><span>Competencia</span><span>Fechas</span><span>Participación</span><span>Inscripción</span><span>Acciones</span></div>
           {items.map((tournament)=>{
             const roster=participation[tournament.id]||emptyParticipation;
             return (
-              <DirectorPanel key={tournament.id} className="overflow-hidden p-5 transition hover:-translate-y-0.5 hover:border-[#a8ba9f]">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap gap-2">
-                      <span className="rounded-full border border-[#cde995] bg-[#f3fadf] px-2.5 py-1 text-[10px] font-black uppercase text-[#5f7900]">{tournament.ramas?.disciplina||'Competencia'}</span>
-                      <span className="rounded-full border border-[#dce2d8] bg-[#f4f6f2] px-2.5 py-1 text-[10px] font-black uppercase text-[#697468]">Seguimiento Lestra</span>
-                    </div>
-                    <h2 className="mt-3 text-xl font-black tracking-[-.03em] text-[#111711]">{tournament.nombre}</h2>
-                    <p className="mt-1 text-xs text-[#697468]">{tournament.ramas?.nombre||'Sin rama asociada'}{tournament.sedes?.nombre?` · ${tournament.sedes.nombre}`:''}</p>
-                    {tournament.organizador?<p className="mt-1 text-xs text-[#7a8477]">Organiza: {tournament.organizador}</p>:null}
-                  </div>
-                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#111711] text-lg">🏆</div>
+              <article key={tournament.id} className="competition-record-row">
+                <div className="competition-record-identity">
+                  <div className="competition-record-tags"><span>{tournament.ramas?.disciplina||'Competencia'}</span><span>{tournament.ramas?.nombre||'Sin rama'}{tournament.sedes?.nombre?` · ${tournament.sedes.nombre}`:''}</span></div>
+                  <h2>{tournament.nombre}</h2>
+                  <p>{tournament.organizador?`Organiza ${tournament.organizador}`:'Organizador no informado'}{tournament.ubicacion?` · ${tournament.ubicacion}`:''}</p>
                 </div>
 
-                <div className="mt-4 rounded-[16px] border border-[#dfe5dc] bg-[#f5f7f3] p-3">
-                  <p className="text-[9px] font-black uppercase tracking-[.12em] text-[#748073]">Gestión de la academia</p>
-                  <p className="mt-1 text-sm font-black text-[#111711]">Participación · eventos · resultados</p>
-                  <p className="mt-1 text-[11px] leading-4 text-[#697468]">La participación se confirma a nivel de torneo y no necesita partidos programados.</p>
+                <div className="competition-record-dates">
+                  <small>Calendario</small>
+                  <strong>{tournament.fecha_inicio||'Por definir'}{tournament.fecha_fin&&tournament.fecha_fin!==tournament.fecha_inicio?` → ${tournament.fecha_fin}`:''}</strong>
                 </div>
 
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <div className="rounded-[16px] border border-[#e0e5dd] bg-white p-3">
-                    <p className="text-[10px] font-black uppercase text-[#748073]">Fechas</p>
-                    <p className="mt-1 text-sm font-black text-[#111711]">{tournament.fecha_inicio||'Por definir'}{tournament.fecha_fin&&tournament.fecha_fin!==tournament.fecha_inicio?` → ${tournament.fecha_fin}`:''}</p>
-                  </div>
-                  <div className="rounded-[16px] border border-[#cde995] bg-[#f3fadf] p-3">
-                    <p className="text-[10px] font-black uppercase text-[#6a7d35]">Inscripción</p>
-                    <p className="mt-1 text-sm font-black text-[#4f6900]">{Number(tournament.costo_inscripcion)>0?money(tournament.costo_inscripcion):'Gratuito'}</p>
-                  </div>
-                </div>
-
-                <div className="tournament-payment-summary mt-3 rounded-[14px] bg-[#111711] px-3 py-2 text-xs font-bold text-white">
-                  {tournament.permite_cuotas?`Pago en hasta ${tournament.max_cuotas} cuotas`:'Pago único'}
-                </div>
-
-                <div className="mt-3 rounded-[16px] border border-[#dfe5dc] bg-[#f8faf6] p-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#687667]">Participación del torneo</p>
-                    <span className="text-[10px] font-black text-[#111711]">{roster.total} alumno{roster.total===1?'':'s'}</span>
-                  </div>
+                <div className="competition-record-participation">
+                  <small>Participación · {roster.total} deportista{roster.total===1?'':'s'}</small>
                   {roster.total?(
-                    <div className="mt-2 grid grid-cols-3 gap-1.5 text-center">
-                      <div className="rounded-xl border border-[#cde995] bg-[#f3fadf] px-2 py-2"><p className="text-sm font-black text-[#4f6900]">{roster.confirmados}</p><p className="text-[9px] font-bold text-[#5f7900]">Confirmados</p></div>
-                      <div className="rounded-xl border border-amber-200 bg-amber-50 px-2 py-2"><p className="text-sm font-black text-amber-800">{roster.pendientes}</p><p className="text-[9px] font-bold text-amber-700">Pendientes</p></div>
-                      <div className="rounded-xl border border-red-200 bg-red-50 px-2 py-2"><p className="text-sm font-black text-red-800">{roster.rechazados}</p><p className="text-[9px] font-bold text-red-700">No van</p></div>
+                    <div className="competition-record-participation-line">
+                      <span className="is-confirmed"><strong>{roster.confirmados}</strong><small>Confirmados</small></span>
+                      <span className="is-pending"><strong>{roster.pendientes}</strong><small>Pendientes</small></span>
+                      <span className="is-out"><strong>{roster.rechazados}</strong><small>No van</small></span>
                     </div>
-                  ):(
-                    <p className="mt-2 text-[11px] font-semibold leading-4 text-[#697468]">Aún sin convocatoria. Puedes definir participantes ahora, aunque todavía no exista ningún evento.</p>
-                  )}
+                  ):<p className="competition-record-participation-empty">Aún sin convocatoria. Puedes definir el equipo aunque no exista ningún evento.</p>}
                 </div>
 
-                <div className="mt-4 grid grid-cols-3 gap-2 border-t border-[#e3e8e0] pt-4">
-                  <Link to={`/torneos/${tournament.id}`} className={`${DIRECTOR_BUTTON} min-h-10 px-3 text-xs`}>{roster.total?'Gestionar':'Definir equipo'}</Link>
-                  <button onClick={()=>openEdit(tournament)} className={`${DIRECTOR_BUTTON_GHOST} min-h-10 px-3 text-xs`}>Editar</button>
-                  <button disabled={busyId===tournament.id} onClick={()=>void archive(tournament)} className={`${DIRECTOR_BUTTON_DARK} min-h-10 px-3 text-xs`}>{busyId===tournament.id?'...':'Archivar'}</button>
+                <div className="competition-record-cost">
+                  <small>Inscripción</small>
+                  <strong>{Number(tournament.costo_inscripcion)>0?money(tournament.costo_inscripcion):'Gratuito'}</strong>
+                  <span>{tournament.permite_cuotas?`Hasta ${tournament.max_cuotas} cuotas`:'Pago único'}</span>
                 </div>
-              </DirectorPanel>
+
+                <div className="competition-record-row-actions">
+                  <Link to={`/torneos/${tournament.id}`} className={DIRECTOR_BUTTON}>{roster.total?'Gestionar':'Definir equipo'}</Link>
+                  <button onClick={()=>openEdit(tournament)} className={DIRECTOR_BUTTON_GHOST}>Editar</button>
+                  <button disabled={busyId===tournament.id} onClick={()=>void archive(tournament)} className={DIRECTOR_BUTTON_DARK}>{busyId===tournament.id?'...':'Archivar'}</button>
+                </div>
+              </article>
             );
           })}
-          {!items.length?(
-            <DirectorPanel className="col-span-full p-10 text-center">
-              <p className="text-sm font-black text-[#111711]">No hay competencias activas.</p>
-              <p className="mt-2 text-xs text-[#697468]">Crea una nueva competencia o revisa el Almacén si buscas una anterior.</p>
-            </DirectorPanel>
-          ):null}
+          {!items.length?<div className="competition-record-empty"><strong>No hay competencias activas.</strong><span>Crea una nueva competencia o revisa el Almacén si buscas una temporada anterior.</span></div>:null}
         </section>
       )}
 
@@ -256,7 +227,7 @@ export default function TorneosMultirama(){
                 <h2 className="mt-1 text-2xl font-black tracking-[-.03em] text-[#111711]">{editing.nombre}</h2>
                 <p className="mt-1 text-xs leading-5 text-[#697468]">Corrige los mismos datos definidos al crearla. Si ya tiene convocados o eventos, la rama queda protegida por el backend.</p>
               </div>
-              <button onClick={()=>setEditing(null)} className={`${DIRECTOR_BUTTON_GHOST} min-h-10 px-3`}>✕</button>
+              <button type="button" onClick={()=>setEditing(null)} className={`${DIRECTOR_BUTTON_GHOST} min-h-10 px-3`} aria-label="Cerrar edición">✕</button>
             </div>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -275,8 +246,8 @@ export default function TorneosMultirama(){
             </div>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <button onClick={()=>setEditing(null)} className={DIRECTOR_BUTTON_DARK}>Cancelar</button>
-              <button disabled={savingEdit} onClick={()=>void saveEdit()} className={DIRECTOR_BUTTON}>{savingEdit?'Guardando...':'Guardar cambios'}</button>
+              <button type="button" onClick={()=>setEditing(null)} className={DIRECTOR_BUTTON_DARK}>Cancelar</button>
+              <button type="button" disabled={savingEdit} onClick={()=>void saveEdit()} className={DIRECTOR_BUTTON}>{savingEdit?'Guardando...':'Guardar cambios'}</button>
             </div>
           </div>
         </div>
