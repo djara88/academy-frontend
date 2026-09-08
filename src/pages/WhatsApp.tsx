@@ -13,7 +13,7 @@ import {
   DirectorStat,
 } from '../components/director/DirectorModule';
 
-type ConnectionState = 'loading' | 'disconnected' | 'qr' | 'connected' | 'error';
+type ConnectionState = 'loading' | 'disconnected' | 'connecting' | 'qr' | 'connected' | 'error';
 type ConnectionPayload = {
   conectado?: boolean;
   estado?: string;
@@ -34,6 +34,8 @@ const phoneLabel = (value?: string | null) => {
   return digits ? `+${digits}` : '';
 };
 
+const normalizeBridgeState = (value?: string) => String(value || '').trim().toLowerCase();
+
 const WhatsApp: React.FC = () => {
   const { user } = useAuth();
   const { confirmAction, notify } = useAppDialog();
@@ -47,7 +49,8 @@ const WhatsApp: React.FC = () => {
   const [busy, setBusy] = useState<'connect' | 'disconnect' | 'change' | 'refresh' | null>(null);
 
   const applyPayload = (data: ConnectionPayload, preserveQr = false) => {
-    if (data.conectado) {
+    const bridgeState = normalizeBridgeState(data.estado);
+    if (data.conectado || bridgeState === 'open') {
       setEstado('connected');
       setQrCode('');
       setNumero(phoneLabel(data.numero));
@@ -58,6 +61,13 @@ const WhatsApp: React.FC = () => {
       setQrCode(qrImageOf(data.qrCode));
       setNumero('');
       setEstado('qr');
+      setMensajeError('');
+      return;
+    }
+    if (bridgeState === 'connecting') {
+      setQrCode('');
+      setNumero('');
+      setEstado('connecting');
       setMensajeError('');
       return;
     }
@@ -73,13 +83,16 @@ const WhatsApp: React.FC = () => {
     try {
       if (showLoading) {
         setBusy('refresh');
-        if (estado !== 'qr') setEstado('loading');
+        if (estado !== 'qr' && estado !== 'connecting') setEstado('loading');
       }
       setMensajeError('');
       const response = await api.get(`/api/whatsapp-bridge/connection/${academyId}`);
       applyPayload(response.data, !showLoading && estado === 'qr');
     } catch (error: any) {
-      if (!showLoading && estado === 'qr') return;
+      // Un fallo puntual durante el polling no debe transformar una vinculación
+      // activa en un falso estado de error/desconexión. La comprobación manual sí
+      // expone el error completo al director.
+      if (!showLoading && (estado === 'qr' || estado === 'connecting')) return;
       setEstado('error');
       setMensajeError(error?.response?.data?.error || 'No fue posible verificar la conexión de WhatsApp.');
     } finally {
@@ -149,12 +162,17 @@ const WhatsApp: React.FC = () => {
 
   useEffect(() => { void checkWhatsAppStatus(true); }, [academyId]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (estado !== 'qr' || !academyId) return;
+    if ((estado !== 'qr' && estado !== 'connecting') || !academyId) return;
     const timer = window.setInterval(() => { void checkWhatsAppStatus(false); }, 4000);
     return () => window.clearInterval(timer);
   }, [estado, academyId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const stateLabel = estado === 'connected' ? 'Conectado' : estado === 'qr' ? 'QR activo' : estado === 'loading' ? 'Verificando' : estado === 'error' ? 'Revisar' : 'Desconectado';
+  const stateLabel = estado === 'connected' ? 'Conectado'
+    : estado === 'qr' ? 'QR activo'
+      : estado === 'connecting' ? 'Conectando'
+        : estado === 'loading' ? 'Verificando'
+          : estado === 'error' ? 'Revisar'
+            : 'Desconectado';
 
   return (
     <DirectorPage>
@@ -167,7 +185,7 @@ const WhatsApp: React.FC = () => {
           <div className="rounded-[20px] border border-white/15 bg-white/[.055] p-5">
             <p className="text-[10px] font-black uppercase tracking-[.14em] text-[#b7ff00]">Estado</p>
             <p className="mt-2 text-xl font-black text-white">{stateLabel}</p>
-            <p className="mt-1 text-xs font-semibold text-[#c7d0c8]">{numero ? `Número ${numero}` : estado === 'qr' ? 'Esperando escaneo' : 'Canal configurable por el director'}</p>
+            <p className="mt-1 text-xs font-semibold text-[#c7d0c8]">{numero ? `Número ${numero}` : estado === 'qr' ? 'Esperando escaneo' : estado === 'connecting' ? 'Preparando código QR' : 'Canal configurable por el director'}</p>
           </div>
         }
       />
@@ -184,9 +202,9 @@ const WhatsApp: React.FC = () => {
             <p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">Estado de vinculación</p>
             <div className="mt-2 flex flex-wrap items-center gap-3">
               <h2 className="text-2xl font-black tracking-[-.03em] text-[#111711]">
-                {estado === 'connected' ? 'WhatsApp conectado' : estado === 'qr' ? 'Esperando vinculación' : estado === 'loading' ? 'Verificando…' : estado === 'error' ? 'No pudimos completar la acción' : 'WhatsApp desconectado'}
+                {estado === 'connected' ? 'WhatsApp conectado' : estado === 'qr' ? 'Esperando vinculación' : estado === 'connecting' ? 'Preparando vinculación' : estado === 'loading' ? 'Verificando…' : estado === 'error' ? 'No pudimos completar la acción' : 'WhatsApp desconectado'}
               </h2>
-              <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-wide ${estado === 'connected' ? 'border-[#cde995] bg-[#f3fadf] text-[#5f7900]' : estado === 'qr' ? 'border-[#d8ded4] bg-[#f5f7f3] text-[#111711]' : estado === 'error' ? 'border-red-200 bg-red-50 text-red-700' : 'border-[#d8ded4] bg-[#f5f7f3] text-[#697468]'}`}>{stateLabel}</span>
+              <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-wide ${estado === 'connected' ? 'border-[#cde995] bg-[#f3fadf] text-[#5f7900]' : estado === 'qr' || estado === 'connecting' ? 'border-[#d8ded4] bg-[#f5f7f3] text-[#111711]' : estado === 'error' ? 'border-red-200 bg-red-50 text-red-700' : 'border-[#d8ded4] bg-[#f5f7f3] text-[#697468]'}`}>{stateLabel}</span>
             </div>
             {numero ? <p className="mt-2 text-sm text-[#697468]">Número vinculado: <strong className="text-[#111711]">{numero}</strong></p> : null}
           </div>
@@ -202,6 +220,17 @@ const WhatsApp: React.FC = () => {
         <div className="min-h-[390px] p-5 sm:p-8">
           {estado === 'loading' ? (
             <div className="grid min-h-[320px] place-items-center text-center"><div><div className="mx-auto h-11 w-11 animate-spin rounded-full border-4 border-[#e1e6df] border-t-[#9fcf00]"/><p className="mt-4 text-sm font-bold text-[#697468]">Verificando la conexión…</p></div></div>
+          ) : null}
+
+          {estado === 'connecting' ? (
+            <div className="grid min-h-[320px] place-items-center text-center" role="status" aria-live="polite">
+              <div className="max-w-lg">
+                <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-[#e1e6df] border-t-[#9fcf00]"/>
+                <h3 className="mt-5 text-2xl font-black text-[#111711]">Preparando el código QR</h3>
+                <p className="mt-3 text-sm leading-6 text-[#697468]">La instancia de WhatsApp ya se está iniciando. Esta pantalla seguirá consultando el estado automáticamente y mostrará el QR apenas esté disponible.</p>
+                <button type="button" disabled={Boolean(busy)} onClick={() => void checkWhatsAppStatus(true)} className={`${DIRECTOR_BUTTON_GHOST} mt-5`}>Comprobar ahora</button>
+              </div>
+            </div>
           ) : null}
 
           {estado === 'disconnected' ? (
