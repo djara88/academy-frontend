@@ -137,7 +137,6 @@ if (financeDesk) {
 if (financeDeskContract && !financeDeskContract.includes('.academy-finance-desk')) violations.push('src/finance-desk-v2.css: falta contrato visual Academy Finance Desk.');
 if (mainEntry && !mainEntry.includes("import './finance-desk-v2.css';")) violations.push('src/main.tsx: Academy Finance Desk V2 debe cargarse desde la entrada principal.');
 
-// Family communication must remain athlete/family-contextual, not revert to CRM stats.
 const communicationsHub = await requiredSource('src/pages/CommunicationsHub.tsx');
 const familyTouchpoint = await requiredSource('src/pages/ChatCenterOmnichannel.tsx');
 const familyTouchpointContract = await requiredSource('src/family-touchpoint-v2.css');
@@ -153,6 +152,20 @@ if (familyTouchpoint) {
 }
 if (familyTouchpointContract && !familyTouchpointContract.includes('.family-touchpoint-workspace')) violations.push('src/family-touchpoint-v2.css: falta contrato visual Family Touchpoint.');
 if (mainEntry && !mainEntry.includes("import './family-touchpoint-v2.css';")) violations.push('src/main.tsx: Family Touchpoint V2 debe cargarse desde la entrada principal.');
+
+// Matrícula must remain a controlled academy-to-family handoff with explicit
+// sports context and signature boundary, not revert to a generic stepper/cards flow.
+const enrollmentHandoff = await requiredSource('src/pages/MatriculaPreparacion.tsx');
+const enrollmentHandoffContract = await requiredSource('src/enrollment-handoff-v2.css');
+if (enrollmentHandoff) {
+  if (!enrollmentHandoff.includes('Matrícula Handoff')) violations.push('src/pages/MatriculaPreparacion.tsx: falta la firma Matrícula Handoff.');
+  if (!enrollmentHandoff.includes('enrollment-handoff-progress')) violations.push('src/pages/MatriculaPreparacion.tsx: el flujo debe conservar su carril de preparación y firma.');
+  if (!enrollmentHandoff.includes('JerseyNumberPicker')) violations.push('src/pages/MatriculaPreparacion.tsx: matrícula debe conservar reserva visual de dorsal.');
+  if (!enrollmentHandoff.includes("api.post('/api/prematriculas'")) violations.push('src/pages/MatriculaPreparacion.tsx: no alterar el contrato de creación de pre-matrícula.');
+  if (enrollmentHandoff.includes('DirectorStat')) violations.push('src/pages/MatriculaPreparacion.tsx: valores de matrícula no deben volver a StatCards genéricas.');
+}
+if (enrollmentHandoffContract && !enrollmentHandoffContract.includes('.enrollment-handoff-workbench')) violations.push('src/enrollment-handoff-v2.css: falta contrato visual Matrícula Handoff.');
+if (mainEntry && !mainEntry.includes("import './enrollment-handoff-v2.css';")) violations.push('src/main.tsx: Matrícula Handoff V2 debe cargarse desde la entrada principal.');
 
 const liveMatch = await requiredSource('src/components/profesor/LiveMatchPanel.tsx');
 if (liveMatch) {
