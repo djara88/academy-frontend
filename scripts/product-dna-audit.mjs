@@ -125,6 +125,42 @@ if (rosterStrip) {
   }
 }
 
+// Professor attendance is a Training Session, not a stack of generic player cards.
+// Preserve the offline/verified roster logic in the page and the domain interaction
+// pattern in AttendanceLineup.
+const professorPortal = await requiredSource('src/pages/ProfesorPortal.tsx');
+const attendanceLineup = await requiredSource('src/components/profesor/AttendanceLineup.tsx');
+const trainingSessionContract = await requiredSource('src/training-session-v2.css');
+const mainEntry = await requiredSource('src/main.tsx');
+if (professorPortal) {
+  if (!professorPortal.includes('<AttendanceLineup')) {
+    violations.push('src/pages/ProfesorPortal.tsx: Asistencia de Profesor debe conservar AttendanceLineup.');
+  }
+  if (!professorPortal.includes("rosterState === 'verified'")) {
+    violations.push('src/pages/ProfesorPortal.tsx: el lineup no puede habilitarse sin lista verificada.');
+  }
+  if (!professorPortal.includes('draftKey') || !professorPortal.includes('writeAttendanceDraft')) {
+    violations.push('src/pages/ProfesorPortal.tsx: asistencia debe conservar borrador local aislado por contexto.');
+  }
+}
+if (attendanceLineup) {
+  for (const signature of ['Training Session', 'Attendance Lineup']) {
+    if (!attendanceLineup.includes(signature)) violations.push(`src/components/profesor/AttendanceLineup.tsx: falta firma ${signature}.`);
+  }
+  if (!attendanceLineup.includes('aria-pressed')) {
+    violations.push('src/components/profesor/AttendanceLineup.tsx: estados de asistencia deben exponerse semánticamente con aria-pressed.');
+  }
+  if (/#[0-9a-fA-F]{3,8}\b/.test(attendanceLineup)) {
+    violations.push('src/components/profesor/AttendanceLineup.tsx: componente de dominio no debe usar hexadecimales directos.');
+  }
+}
+if (trainingSessionContract && !trainingSessionContract.includes('.attendance-lineup')) {
+  violations.push('src/training-session-v2.css: falta contrato visual de AttendanceLineup.');
+}
+if (mainEntry && !mainEntry.includes("import './training-session-v2.css';")) {
+  violations.push('src/main.tsx: Training Session V2 debe cargarse desde la entrada principal.');
+}
+
 // Integrity contracts for high-risk production surfaces. These are intentionally
 // narrow: they prevent regressions into the exact classes of failures already
 // observed without pretending to replace real end-to-end QA.
