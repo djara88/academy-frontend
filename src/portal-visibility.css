@@ -124,6 +124,29 @@
   color: #687d88 !important;
 }
 
+/* Estados operacionales anunciados con aria-live deben seguir siendo legibles
+   cuando el portal convierte sus superficies a modo sol. El significado se
+   comunica con texto explícito, no depende solamente del color. */
+.court-bright .lestra-portal-content section[aria-live="polite"] {
+  background: #f7faf8 !important;
+  border-color: #b7c8c4 !important;
+  color: #20343b !important;
+}
+
+.court-bright .lestra-portal-content section[aria-live="polite"] p {
+  color: #354a52 !important;
+}
+
+.court-bright .lestra-portal-content section[aria-live="polite"] p:first-child {
+  color: #0b5f61 !important;
+}
+
+.court-bright .lestra-portal-content section[aria-live="polite"] span {
+  background: #e8efed !important;
+  border-color: #b9c9c5 !important;
+  color: #263d43 !important;
+}
+
 /* El encabezado de la jornada conserva identidad atlética incluso en modo sol. */
 .court-bright .lestra-portal-content > div > section:first-child {
   background:
@@ -157,6 +180,23 @@
 .court-bright .lestra-portal-content nav[aria-label="Funciones del profesor"] button:not([aria-current="page"]) {
   color: #405661 !important;
   background: #f2f6f7 !important;
+}
+
+.court-bright .lestra-portal-content nav[aria-label="Funciones del profesor"] button[aria-current="page"] {
+  background: #0d6667 !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+.court-bright .lestra-portal-content .btn-primary {
+  background: #0d6667 !important;
+  color: #fff !important;
+  border-color: #0d6667 !important;
+}
+
+.court-bright .lestra-portal-content .btn-primary:hover {
+  background: #0a5557 !important;
+  border-color: #0a5557 !important;
 }
 
 .lestra-court-shell .lestra-portal-content nav[aria-label="Funciones del profesor"] button {
