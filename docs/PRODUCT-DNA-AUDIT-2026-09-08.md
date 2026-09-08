@@ -195,6 +195,87 @@ Deployment: **READY** y asociado a `deportivo.lestra.app`.
 
 Estado: **CORREGIDO/REVIEW**. Antes de PASS deben probarse en dispositivo real: modo avión manteniendo una lista ya verificada, cambio de categoría offline, cambio de fecha offline, reconexión, respuestas fuera de orden, error `5xx`, reintento manual, borrador recuperado, envío correcto, Modo sol/noche y mobile táctil.
 
+## Auditoría P0/P1 — Profesor: agenda y casos no pueden mentir con estados vacíos
+
+Se detectaron tres variantes del mismo patrón de integridad de presentación:
+
+1. `ProfessorAgendaPanel` convertía un error de `/me/agenda` en una lista vacía aparentemente válida.
+2. `ProfessorTodayPanel` cargaba agenda + casos con `Promise.all`; la caída del servicio de casos podía hacer fallar también una agenda sana y mostrar `0` actividades.
+3. `ProfessorCasesPanel` podía presentar “No tienes casos pendientes” si la consulta había fallado y, al responder un caso, podía informar “No fue posible enviar” cuando el `POST` sí había sido confirmado pero fallaba el `GET` de refresco posterior.
+
+Correcciones:
+
+- vacío real y **no verificado** son estados diferentes;
+- agenda y casos se verifican de forma independiente;
+- una cifra no verificada se representa como `—`, no como cero;
+- si existe una carga anterior puede mantenerse como referencia, claramente rotulada como potencialmente desactualizada;
+- las acciones operativas de agenda se bloquean cuando la fuente correspondiente no está verificada;
+- el selector opcional de alumno en un caso distingue `Sin alumno específico` de `Alumnos no verificados` y ofrece reintento;
+- una respuesta de caso confirmada por `POST` nunca vuelve a comunicarse como “fallida” por un error de refresco posterior;
+- creación de caso confirmada + fallo al recargar bandeja conserva la verdad del side effect y deja la bandeja en estado no verificado;
+- el diálogo de conversación recibió semántica `role="dialog"`, `aria-modal` y nombres accesibles básicos.
+
+Commits:
+
+- `a8dd4ce82f60f6e5fd36be29816afe5fef0a0cff` — agenda sin falsos vacíos;
+- `a64aa69ac3ce30a294fc9a653907df8ee81f831b` — jornada desacoplada de casos;
+- `644eb8e1ad9ed6e64b3fadd369181fe0a76c003b` — casos, selector de alumno y verdad de mutaciones.
+
+Los deployments correspondientes quedaron **READY** en producción. Frontend CI para `a64aa69...` y `644eb8e...` concluyó correctamente.
+
+Estado: **CORREGIDO/REVIEW**. Falta QA con `404/500/timeout`, datos previos en caché de estado React, creación de caso, refresco fallido después de creación, respuesta confirmada + GET fallido, teclado completo del diálogo y lector de pantalla.
+
+## Auditoría P0 — Profesor: bitácora y preparación no abren formularios vacíos si falla la lectura
+
+`TrainingLogPanel` y `MatchPreparationPanel` compartían un riesgo de pérdida de información: si el `GET` inicial fallaba, el estado por defecto (`EMPTY_LOG` / `EMPTY_FORM`) quedaba visible y editable después del loading. Un `PUT` posterior podía sustituir información existente por un formulario vacío o incompleto.
+
+Corrección:
+
+- el editor solo existe después de una lectura válida del servidor;
+- error inicial muestra **Bitácora no verificada** o **Preparación no verificada**, con volver/reintentar;
+- no se exponen controles de escritura sobre un estado desconocido;
+- una preparación finalizada, cancelada o pasada queda visible solo para consulta;
+- ante un error ambiguo de `PUT`, el frontend realiza un `GET` de verificación y compara el contenido enviado antes de recomendar reintentar;
+- si el servidor ya contiene exactamente el payload, la interfaz informa que la operación quedó guardada y evita duplicar el envío;
+- si tampoco puede verificarse el estado posterior, el formulario local permanece intacto y la interfaz no inventa éxito ni fracaso.
+
+Commits:
+
+- `3fe9d9b088d07e76c818fa5dc98fedc430a987fe` — bitácora protegida;
+- `d1670f64d9f7409a3373f84cb9127f76206894b8` — preparación protegida.
+
+Ambos cambios tienen deployment **READY** en producción y el último deployment incluye la cadena completa de cambios anteriores.
+
+Estado: **CORREGIDO/REVIEW**. Falta QA de bitácora existente/nueva, timeout después de commit, preparación existente/nueva, partido pasado/cancelado/jugado, roster sin alumnos, borrador, estado `Lista` y navegación mobile.
+
+## Auditoría P0/P1 — Profesor: modo en vivo falla seguro cuando pierde verificación
+
+El modo en vivo mantenía datos antiguos y controles activos cuando fallaba un polling silencioso. Además varios side effects seguían el patrón `mutación → GET`; si la mutación quedaba confirmada pero el GET fallaba, el operador podía quedar mirando un estado viejo y repetir una acción. También el polling podía reemplazar texto de etapa o métricas que el profesor aún estaba editando.
+
+Corrección frontend:
+
+- el estado del encuentro pasa a **no verificado** si falla una lectura del servidor;
+- marcador, etapa, estadísticas, inicio y cierre quedan bloqueados hasta recuperar una lectura válida;
+- el fallo inicial ya no deja una pantalla de “Abriendo cancha…” infinita: presenta error explícito, volver y reintentar;
+- polling exitoso vuelve a habilitar la operación;
+- texto de etapa con cambios locales no es sobrescrito por polling;
+- métricas individuales con cambios locales tampoco son reemplazadas por una actualización periódica;
+- después de una mutación confirmada se aplica la respuesta autoritativa antes de refrescar la vista completa;
+- si falla solo el refresco posterior, se comunica que **la operación sí fue guardada** y se bloquea hasta sincronizar;
+- si `iniciar`, `actualizar`, guardar estadísticas o `finalizar` arrojan un error ambiguo, se intenta leer el servidor antes de afirmar que la operación falló;
+- si la lectura posterior demuestra que el resultado esperado ya existe, no se invita al usuario a repetir el side effect.
+
+Commit: `4015279dc0342b64639f45ed0f6e78a6624d479d`.
+Deployment: **READY** en producción.
+
+### Pendiente P0 de concurrencia real
+
+El backend actual actualiza marcador/etapa mediante valores absolutos y todavía no exige una versión esperada (`live_updated_at`) en la escritura. Dos operadores o dos dispositivos podrían leer el mismo marcador y emitir escrituras concurrentes; en ese escenario sigue existiendo riesgo de **last-write-wins** aunque el frontend ya se bloquee cuando detecta pérdida de verificación.
+
+No se marca este flujo como PASS hasta implementar y probar control optimista de concurrencia o una operación atómica equivalente en servidor.
+
+Estado: **CORREGIDO parcialmente / REVIEW con P0 backend pendiente**.
+
 ## Matriz inicial de rutas
 
 | Ruta / flujo | Prioridad actual | Estado | Motivo |
@@ -209,7 +290,7 @@ Estado: **CORREGIDO/REVIEW**. Antes de PASS deben probarse en dispositivo real: 
 | `/alumnos` evaluación | P0 | CORREGIDO/REVIEW | Fix desplegado; falta certificación de interacción completa. |
 | `/asistencias` | P1 | REVIEW | Flujo de alta frecuencia y uso de terreno; mobile/targets/estados son críticos. |
 | `/profesores` | P1 | REVIEW | `product-design-v2-1.css` contiene tratamiento específico; revisar propiedad y coherencia. |
-| `/profesor` | P0/P1 | CORREGIDO/REVIEW | Aislamiento de roster/borrador y contraste operacional reforzados; falta QA real offline/reconexión, mobile y ambos modos de visibilidad. |
+| `/profesor` | P0/P1 | CORREGIDO/REVIEW · P0 backend pendiente | Asistencia, estados degradados, casos, bitácora, preparación y modo en vivo endurecidos; falta concurrencia atómica/versionada del marcador y QA real en dispositivo. |
 | `/apoderados` | P1 | REVIEW | Validar jerarquía familia → estado → acción y flujos sensibles. |
 | `/apoderado` | P1 | REVIEW | Portal privado; revisar mobile, estados y separación real de rol. |
 | `/partidos` | P1 | REVIEW | Diálogos/portales y flujo operativo complejo. |
