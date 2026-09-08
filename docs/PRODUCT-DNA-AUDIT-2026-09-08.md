@@ -61,6 +61,38 @@ Los editores manuales relacionados con evaluación/reconocimientos utilizaban el
 
 Estado: **corrección aplicada; QA funcional/visual completo pendiente**.
 
+## Auditoría activa P0 — Pre-matrícula pública
+
+Ruta: `/prematricula/:token`.
+
+### Contraste corregido
+
+Se detectaron labels y textos auxiliares pequeños con `text-slate-500` sobre superficies oscuras. En el fondo principal `#07111f`, el contraste aproximado era **3.98:1**, insuficiente para texto normal bajo WCAG AA.
+
+Se migraron esos textos a `text-slate-400`, cuyo contraste aproximado sobre el mismo fondo es **7.39:1**. La corrección incluye etiquetas del apoderado/alumno, resumen financiero, campos de firma, ayuda de firma y evidencia final.
+
+Commit: `3b874c8396b2fe35b4b43f5356c8c23d6faba5d3`.
+
+### Bloqueador de accesibilidad pendiente
+
+La firma actual depende de dibujar en un `<canvas>` mediante eventos de puntero. Un usuario que opere únicamente con teclado no puede completar ese requisito y, por tanto, no puede formalizar la matrícula.
+
+Estado: **P0 para accesibilidad**. No se declarará PASS hasta definir e implementar una alternativa de firma accesible que preserve la evidencia e integridad del flujo.
+
+### Pruebas aún pendientes
+
+- enlace válido;
+- token expirado/inválido;
+- foto autorizada/no autorizada;
+- error de carga de foto;
+- decisiones obligatorias/opcionales;
+- firma;
+- envío;
+- éxito/documento final;
+- mobile real;
+- keyboard completo;
+- estados de backend lento/indisponible.
+
 ## Matriz inicial de rutas
 
 | Ruta / flujo | Prioridad actual | Estado | Motivo |
@@ -69,7 +101,7 @@ Estado: **corrección aplicada; QA funcional/visual completo pendiente**.
 | `/puesta-en-marcha` | P1 | REVIEW | Flujo crítico de activación; contrato propio de estilos. Validar todos los pasos y mobile. |
 | `/dashboard` | P1 | REVIEW | Debe pasar Anti-AI Review y comprobar que las métricas correspondan a decisiones. |
 | `/matricula` | P1 | REVIEW | Flujo crítico de 4 pasos + dorsal + evaluación inicial + envío. Validar legibilidad completa. |
-| `/prematricula/:token` | P0 | REVIEW | Flujo público contractual. Debe probar enlace, expiración, errores, firma y mobile. |
+| `/prematricula/:token` | P0 | EN AUDITORÍA | Contraste secundario corregido. Firma por canvas sigue bloqueando operación exclusivamente por teclado. |
 | `/alumnos` lista | P1 | REVIEW | Validar búsqueda, filtros, estados y jerarquía sin depender de overrides. |
 | `/alumnos` ficha | P0/P1 | REVIEW | Ya produjo un P0 de contraste. Requiere recorrido exhaustivo de ficha completa. |
 | `/alumnos` evaluación | P0 | CORREGIDO/REVIEW | Fix desplegado; falta certificación de interacción completa. |
