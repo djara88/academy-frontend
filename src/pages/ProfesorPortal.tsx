@@ -9,10 +9,10 @@ import ProfessorTacticalBoard from '../components/profesor/ProfessorTacticalBoar
 import LiveMatchPanel from '../components/profesor/LiveMatchPanel';
 import TrainingLogPanel from '../components/profesor/TrainingLogPanel';
 import MatchPreparationPanel from '../components/profesor/MatchPreparationPanel';
+import AttendanceLineup, { type AttendanceState } from '../components/profesor/AttendanceLineup';
 
 type Category = { id: string; nombre: string; descripcion?: string | null; rama_id?: string | null; sede_id?: string | null; ramas?: { id: string; nombre: string; disciplina: string } | null; sedes?: { id: string; nombre: string } | null };
 type Player = { id: string; nombre: string; posicion_cancha?: string | null; posicion_principal?: string | null; rol_especialidad?: string | null; foto_url?: string | null; avatar_url?: string | null; alerta_medica?: string | null; telefono_emergencia?: string | null; estado_asistencia?: AttendanceState | null };
-type AttendanceState = 'Presente' | 'Ausente' | 'Justificado';
 type Profile = { profesor: { id: string; nombre: string }; academia: { id: string; nombre: string }; categorias: Category[] };
 type PortalTab = 'hoy' | 'asistencia' | 'entrenamientos' | 'partidos' | 'pizarra' | 'casos';
 type ActiveTool = { type: 'training' | 'preparation' | 'live'; id: string } | null;
@@ -20,7 +20,6 @@ type RosterState = 'idle' | 'loading' | 'verified' | 'unavailable';
 
 const ATTENDANCE_STATES = new Set<AttendanceState>(['Presente', 'Ausente', 'Justificado']);
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santiago', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
-const phoneHref = (phone: string) => phone.replace(/[^\d+]/g, '');
 const isAttendanceState = (value: unknown): value is AttendanceState => ATTENDANCE_STATES.has(value as AttendanceState);
 
 const readAttendanceDraft = (key: string): Record<string, AttendanceState> => {
@@ -59,7 +58,6 @@ const ProfesorPortal = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [online, setOnline] = useState(navigator.onLine);
-  const [emergencyPlayerId, setEmergencyPlayerId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<PortalTab>('hoy');
   const [activeTool, setActiveTool] = useState<ActiveTool>(null);
   const [rosterState, setRosterState] = useState<RosterState>('idle');
@@ -92,7 +90,6 @@ const ProfesorPortal = () => {
     attendanceRequestRef.current += 1;
     setPlayers([]);
     setAttendance({});
-    setEmergencyPlayerId(null);
     setRosterState('idle');
     setRosterContext('');
     setRosterMessage('');
@@ -108,7 +105,6 @@ const ProfesorPortal = () => {
     const localDraftCount = Object.keys(localDraft).length;
 
     setLoading(true);
-    setEmergencyPlayerId(null);
     setPlayers([]);
     setAttendance({});
     setRosterContext(requestedContext);
@@ -218,14 +214,6 @@ const ProfesorPortal = () => {
     setActiveTab('asistencia');
   };
 
-  const counts = useMemo(() => players.reduce((result, player) => {
-    const status = attendance[player.id];
-    if (status === 'Presente') result.presente += 1;
-    if (status === 'Ausente') result.ausente += 1;
-    if (status === 'Justificado') result.justificado += 1;
-    return result;
-  }, { presente: 0, ausente: 0, justificado: 0 }), [attendance, players]);
-
   const registeredCount = useMemo(() => players.filter((player) => isAttendanceState(attendance[player.id])).length, [attendance, players]);
   const currentRosterVerified = rosterState === 'verified' && rosterContext === contextKey;
   const rosterStatusLabel = rosterState === 'loading'
@@ -244,7 +232,12 @@ const ProfesorPortal = () => {
     <div className="space-y-5 pb-28">
       <section className="overflow-hidden rounded-3xl border border-[#289E9D]/35 bg-[radial-gradient(circle_at_top_right,rgba(49,87,255,.14),transparent_38%),linear-gradient(135deg,#163334,#161b22_55%,#10141c)] p-5 sm:p-7">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div><p className="text-xs font-black uppercase tracking-[0.2em] text-[#48d8d0]">Cabina de cancha</p><h1 className="mt-2 text-3xl font-black">Hola, {profile?.profesor.nombre?.split(' ')[0] || 'Profesor'}</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-[#b1bac4]">Tu jornada, tus categorías y las acciones que necesitas en terreno. Dirección mantiene el control de permisos; aquí tú ejecutas.</p><div className="mt-3 flex flex-wrap gap-2">{profile?.categorias.slice(0, 6).map((category) => <span key={category.id} className="rounded-full border border-white/10 bg-black/15 px-2.5 py-1 text-[10px] font-black text-[#c7d1dc]">{category.ramas?.disciplina ? `${category.ramas.disciplina} · ` : ''}{category.nombre}</span>)}</div></div>
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-[#48d8d0]">Cabina de cancha</p>
+            <h1 className="mt-2 text-3xl font-black">Hola, {profile?.profesor.nombre?.split(' ')[0] || 'Profesor'}</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#b1bac4]">Tu jornada, tus categorías y las acciones que necesitas en terreno. Dirección mantiene el control de permisos; aquí tú ejecutas.</p>
+            <div className="mt-3 flex flex-wrap gap-2">{profile?.categorias.slice(0, 6).map((category) => <span key={category.id} className="rounded-full border border-white/10 bg-black/15 px-2.5 py-1 text-[10px] font-black text-[#c7d1dc]">{category.ramas?.disciplina ? `${category.ramas.disciplina} · ` : ''}{category.nombre}</span>)}</div>
+          </div>
           <span className={`w-fit rounded-full px-3 py-1.5 text-xs font-bold ${online ? 'bg-emerald-500/15 text-emerald-300' : 'bg-orange-500/15 text-orange-300'}`}>{online ? '● En línea' : '● Sin conexión · borradores quedan locales'}</span>
         </div>
       </section>
@@ -261,17 +254,22 @@ const ProfesorPortal = () => {
       </nav>
 
       {activeTab === 'hoy' ? <ProfessorTodayPanel academyName={profile?.academia.nombre} onAttendance={openAttendance} onTrainingLog={(id) => setActiveTool({ type: 'training', id })} onMatchPreparation={(id) => setActiveTool({ type: 'preparation', id })} onLiveMatch={(id) => setActiveTool({ type: 'live', id })} onCases={() => setActiveTab('casos')} /> : null}
-
       {activeTab === 'casos' ? <ProfessorCasesPanel categories={profile?.categorias || []} academyName={profile?.academia.nombre} /> : null}
-
       {activeTab === 'pizarra' ? <ProfessorTacticalBoard categories={profile?.categorias || []} academyName={profile?.academia.nombre} /> : null}
-
       {activeTab === 'entrenamientos' || activeTab === 'partidos' ? <ProfessorAgendaPanel mode={activeTab} academyName={profile?.academia.nombre} onLiveMatch={(id) => setActiveTool({ type: 'live', id })} onAttendance={openAttendance} /> : null}
 
-      {activeTab === 'asistencia' ? !profile?.categorias.length ? <section className="card border-dashed p-8 text-center"><div className="text-5xl">📋</div><h2 className="mt-4 text-xl font-black">Sin categorías asignadas</h2><p className="mt-2 text-sm text-[#8b949e]">La dirección debe asignarte una categoría antes de comenzar.</p></section> : (
+      {activeTab === 'asistencia' ? !profile?.categorias.length ? (
+        <section className="card border-dashed p-8 text-center"><div className="text-5xl">📋</div><h2 className="mt-4 text-xl font-black">Sin categorías asignadas</h2><p className="mt-2 text-sm text-[#8b949e]">La dirección debe asignarte una categoría antes de comenzar.</p></section>
+      ) : (
         <>
           <section className="card p-4 sm:p-5">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"><div className="grid flex-1 gap-4 sm:grid-cols-2"><label><span className="label">Categoría / rama</span><select className="w-full" value={categoryId} onChange={(event) => { resetRosterForContextChange(); setCategoryId(event.target.value); }}>{profile.categorias.map((category) => <option key={category.id} value={category.id}>{category.ramas?.disciplina ? `${category.ramas.disciplina} · ` : ''}{category.nombre}</option>)}</select></label><label><span className="label">Fecha</span><input className="w-full" type="date" value={date} onChange={(event) => { resetRosterForContextChange(); setDate(event.target.value); }} max={today()} /></label></div><button type="button" disabled={rosterState === 'loading'} onClick={() => void loadAttendance()} className="min-h-11 rounded-xl border border-[#30363d] px-4 text-sm font-black text-[#b1bac4] disabled:opacity-50">{rosterState === 'loading' ? 'Verificando…' : 'Actualizar lista'}</button></div>
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div className="grid flex-1 gap-4 sm:grid-cols-2">
+                <label><span className="label">Categoría / rama</span><select className="w-full" value={categoryId} onChange={(event) => { resetRosterForContextChange(); setCategoryId(event.target.value); }}>{profile.categorias.map((category) => <option key={category.id} value={category.id}>{category.ramas?.disciplina ? `${category.ramas.disciplina} · ` : ''}{category.nombre}</option>)}</select></label>
+                <label><span className="label">Fecha</span><input className="w-full" type="date" value={date} onChange={(event) => { resetRosterForContextChange(); setDate(event.target.value); }} max={today()} /></label>
+              </div>
+              <button type="button" disabled={rosterState === 'loading'} onClick={() => void loadAttendance()} className="min-h-11 rounded-xl border border-[#30363d] px-4 text-sm font-black text-[#b1bac4] disabled:opacity-50">{rosterState === 'loading' ? 'Verificando…' : 'Actualizar lista'}</button>
+            </div>
           </section>
 
           <section aria-live="polite" className={`rounded-2xl border p-4 ${currentRosterVerified ? online ? 'border-emerald-500/25 bg-emerald-500/10' : 'border-orange-500/30 bg-orange-500/10' : 'border-orange-500/30 bg-orange-500/10'}`}>
@@ -281,27 +279,19 @@ const ProfesorPortal = () => {
             </div>
           </section>
 
-          <section className="grid grid-cols-3 gap-2 sm:gap-4">
-            <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/10 p-3 text-center"><p className="text-2xl font-black text-emerald-300">{counts.presente}</p><p className="text-xs text-emerald-200/70">Presentes</p></div>
-            <div className="rounded-2xl border border-red-500/25 bg-red-500/10 p-3 text-center"><p className="text-2xl font-black text-red-300">{counts.ausente}</p><p className="text-xs text-red-200/70">Ausentes</p></div>
-            <div className="rounded-2xl border border-orange-500/25 bg-orange-500/10 p-3 text-center"><p className="text-2xl font-black text-orange-300">{counts.justificado}</p><p className="text-xs text-orange-200/70">Justificados</p></div>
-          </section>
-
-          <div className="flex items-center justify-between gap-3"><div><h2 className="text-xl font-black">Lista del entrenamiento</h2><p className="text-sm text-[#8b949e]">{currentRosterVerified ? `${players.length} alumnos · lista verificada para la categoría seleccionada` : 'La lista se mostrará solo después de verificar la categoría seleccionada'}</p></div><button type="button" onClick={markAllPresent} disabled={!players.length || rosterContext !== contextKey || loading} className="rounded-lg border border-emerald-500/40 px-3 py-2 text-sm font-bold text-emerald-300 hover:bg-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-40">Todos presentes</button></div>
-
           {loading ? <div className="card p-8 text-center text-[#8b949e]">Verificando lista de esta categoría...</div> : null}
           {!loading && currentRosterVerified && !players.length ? <div className="card p-8 text-center text-[#8b949e]">No hay alumnos asignados a esta categoría.</div> : null}
           {!loading && rosterState === 'unavailable' ? <div className="card border-orange-500/25 p-8 text-center"><p className="font-black text-orange-200">Lista no disponible</p><p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#9da8b3]">{rosterMessage}</p>{online ? <button type="button" onClick={() => void loadAttendance()} className="mt-4 min-h-11 rounded-xl border border-[#289E9D]/45 bg-[#289E9D]/10 px-4 text-sm font-black text-[#70e4df]">Reintentar verificación</button> : null}</div> : null}
-          <section className="space-y-3">
-            {players.map((player) => {
-              const status = attendance[player.id];
-              const photo = player.foto_url || player.avatar_url;
-              const hasEmergencyInfo = Boolean(player.alerta_medica || player.telefono_emergencia);
-              const emergencyOpen = emergencyPlayerId === player.id;
-              const emergencyId = `emergencia-${player.id}`;
-              return <article key={player.id} className="card p-4"><div className="mb-4 flex items-center gap-3">{photo ? <img src={photo} alt="" className="h-11 w-11 rounded-full object-cover" /> : <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#289E9D]/15 font-black text-[#48d8d0]">{player.nombre.slice(0, 1)}</div>}<div className="min-w-0"><h3 className="truncate font-black">{player.nombre}</h3><p className="text-xs text-[#8b949e]">{player.rol_especialidad || player.posicion_principal || player.posicion_cancha || 'Sin posición registrada'}</p></div></div><div className="grid grid-cols-3 gap-2">{(['Presente', 'Ausente', 'Justificado'] as AttendanceState[]).map((option) => <button key={option} type="button" onClick={() => setStatus(player.id, option)} className={`min-h-11 rounded-xl border px-2 py-2 text-xs font-bold sm:text-sm ${status === option ? option === 'Presente' ? 'border-emerald-400 bg-emerald-500/20 text-emerald-200' : option === 'Ausente' ? 'border-red-400 bg-red-500/20 text-red-200' : 'border-orange-400 bg-orange-500/20 text-orange-200' : 'border-[#30363d] bg-[#0d1117] text-[#8b949e]'}`}>{option}</button>)}</div>{hasEmergencyInfo ? <div className="mt-3 border-t border-[#30363d] pt-3"><button type="button" aria-expanded={emergencyOpen} aria-controls={emergencyId} onClick={() => setEmergencyPlayerId(emergencyOpen ? null : player.id)} className={`flex min-h-11 w-full items-center justify-between rounded-xl border px-3 py-2 text-left text-sm font-black transition-colors ${player.alerta_medica ? 'border-red-500/40 bg-red-500/10 text-red-200 hover:bg-red-500/15' : 'border-[#289E9D]/40 bg-[#289E9D]/10 text-[#70e4df] hover:bg-[#289E9D]/15'}`}><span>{player.alerta_medica ? '⚕ Alerta médica' : '☎ Contacto de emergencia'}</span><span className="text-xs font-bold opacity-80">{emergencyOpen ? 'Ocultar' : 'Ver'}</span></button>{emergencyOpen ? <div id={emergencyId} role="region" aria-label={`Información de emergencia de ${player.nombre}`} className="mt-2 rounded-xl border border-[#30363d] bg-[#0d1117] p-3">{player.alerta_medica ? <div><p className="text-xs font-black uppercase tracking-wide text-red-300">Alerta médica</p><p className="mt-1 text-sm text-[#f0f6fc]">{player.alerta_medica}</p></div> : null}{player.telefono_emergencia ? <a href={`tel:${phoneHref(player.telefono_emergencia)}`} className={`flex min-h-11 items-center justify-center rounded-lg border border-[#289E9D]/40 bg-[#289E9D]/10 px-3 py-2 text-sm font-black text-[#70e4df] hover:bg-[#289E9D]/20 ${player.alerta_medica ? 'mt-3' : ''}`}>☎ Llamar al {player.telefono_emergencia}</a> : <p className="mt-3 text-xs text-[#8b949e]">No hay un teléfono de emergencia registrado.</p>}</div> : null}</div> : null}</article>;
-            })}
-          </section>
+
+          {!loading && currentRosterVerified && players.length ? (
+            <AttendanceLineup
+              players={players}
+              attendance={attendance}
+              onSetStatus={setStatus}
+              onMarkAllPresent={markAllPresent}
+              disabled={rosterContext !== contextKey}
+            />
+          ) : null}
 
           {players.length ? <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[#30363d] bg-[#161b22]/95 p-3 backdrop-blur"><div className="mx-auto flex max-w-5xl items-center gap-3"><p className="hidden flex-1 text-sm text-[#8b949e] sm:block">{registeredCount}/{players.length} registrados{draftSavedCount ? ' · borrador local activo' : ''}</p><button type="button" onClick={() => void save()} disabled={saving || !online || !currentRosterVerified} className="btn-primary w-full py-4 text-base sm:w-auto sm:min-w-64 disabled:cursor-not-allowed disabled:opacity-50">{saving ? 'Guardando...' : !online ? 'Borrador guardado localmente' : !currentRosterVerified ? 'Lista no verificada' : 'Guardar asistencia'}</button></div></div> : null}
         </>
