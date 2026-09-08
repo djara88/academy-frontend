@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import api from '../api/axiosConfig';
 import { useAcademyMessages } from '../hooks/useAcademyMessages';
 import FinanceSchoolDashboard from '../components/FinanceSchoolDashboard';
@@ -26,6 +26,11 @@ type Tab = 'dashboard' | 'cuentas' | 'validacion' | 'pagos' | 'egresos' | 'flujo
 const money = (value: number) => `$${Math.round(Number(value) || 0).toLocaleString('es-CL')}`;
 const emptyMeta: AccountMeta = { page: 1, page_size: 25, total: 0, pages: 0 };
 const labelClass = 'mb-1.5 block text-[10px] font-black uppercase tracking-[.08em] text-[#697468]';
+const operationKey = (prefix: string) => {
+  const random = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  return `${prefix}-${random}`;
+};
+const requestErrorMessage = (error: any, fallback: string) => error?.response?.data?.error || error?.message || fallback;
 
 export default function FinanzasMultirama() {
   const { confirmAction, notify } = useAcademyMessages();
@@ -38,10 +43,16 @@ export default function FinanzasMultirama() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [flow, setFlow] = useState<FlowRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [baseVerified, setBaseVerified] = useState(false);
+  const [baseError, setBaseError] = useState('');
+  const baseRequestRef = useRef(0);
 
   const [collectionAccounts, setCollectionAccounts] = useState<CollectionAccount[]>([]);
   const [accountMeta, setAccountMeta] = useState<AccountMeta>(emptyMeta);
   const [accountLoading, setAccountLoading] = useState(false);
+  const [accountVerified, setAccountVerified] = useState(false);
+  const [accountError, setAccountError] = useState('');
+  const accountRequestRef = useRef(0);
   const [accountSearchInput, setAccountSearchInput] = useState('');
   const [accountSearch, setAccountSearch] = useState('');
   const [accountStatus, setAccountStatus] = useState('todos');
@@ -52,9 +63,15 @@ export default function FinanzasMultirama() {
   const [reportedPayments, setReportedPayments] = useState<ReportedPayment[]>([]);
   const [reportedFilter, setReportedFilter] = useState('Pendiente');
   const [reportedLoading, setReportedLoading] = useState(false);
+  const [reportedVerified, setReportedVerified] = useState(false);
+  const [reportedError, setReportedError] = useState('');
+  const reportedRequestRef = useRef(0);
   const [validationBusyId, setValidationBusyId] = useState<string | null>(null);
   const [collectionConfig, setCollectionConfig] = useState<CollectionConfig | null>(null);
   const [notifications, setNotifications] = useState<CollectionNotification[]>([]);
+  const [collectionVerified, setCollectionVerified] = useState(false);
+  const [collectionError, setCollectionError] = useState('');
+  const collectionRequestRef = useRef(0);
   const [collectionSaving, setCollectionSaving] = useState(false);
   const [collectionSending, setCollectionSending] = useState(false);
 
@@ -62,16 +79,28 @@ export default function FinanzasMultirama() {
   const [expenseModal, setExpenseModal] = useState(false);
   const [paymentCharge, setPaymentCharge] = useState<FinanceCharge | null>(null);
   const [saving, setSaving] = useState(false);
-  const [chargeForm, setChargeForm] = useState({ jugador_id: '', concepto: '', tipo_concepto: 'Otro', monto: '0', fecha_vencimiento: new Date().toISOString().slice(0, 10), observaciones: '' });
-  const [expenseForm, setExpenseForm] = useState({ concepto: '', categoria_gasto: 'Otros', centro_costo: '', monto: '0', metodo_pago: 'Transferencia', fecha_gasto: new Date().toISOString().slice(0, 10), observaciones: '' });
+  const [chargeForm, setChargeForm] = useState({ jugador_id: '', concepto: '', tipo_concepto: 'Otro', monto: '0', fecha_vencimiento: new Date().toISOString().slice(0, 10), observaciones: '', idempotency_key: '' });
+  const [expenseForm, setExpenseForm] = useState({ concepto: '', categoria_gasto: 'Otros', centro_costo: '', monto: '0', metodo_pago: 'Transferencia', fecha_gasto: new Date().toISOString().slice(0, 10), observaciones: '', idempotency_key: '' });
   const [paymentForm, setPaymentForm] = useState({ monto_abono: '0', metodo_pago: 'Transferencia', observaciones: '', idempotency_key: '' });
 
   const params = useMemo(() => branchId ? { rama_id: branchId } : undefined, [branchId]);
   const branch = branches.find((item) => item.id === branchId) || null;
-  const pendingValidationCount = reportedFilter === 'Pendiente' ? reportedPayments.length : 0;
+  const pendingValidationCount = reportedVerified && reportedFilter === 'Pendiente' ? reportedPayments.length : 0;
+
+  const clearBaseData = useCallback(() => {
+    setSummary(null);
+    setLegacyAccounts([]);
+    setPayments([]);
+    setExpenses([]);
+    setFlow([]);
+  }, []);
 
   const loadBase = useCallback(async () => {
+    const requestId = ++baseRequestRef.current;
     setLoading(true);
+    setBaseVerified(false);
+    setBaseError('');
+    clearBaseData();
     try {
       const [primaryResponse, summaryResponse, accountsResponse, paymentsResponse, expensesResponse, flowResponse] = await Promise.all([
         api.get('/api/academias/rama-principal'),
@@ -81,49 +110,100 @@ export default function FinanzasMultirama() {
         api.get('/api/finanzas/egresos', { params }),
         api.get('/api/finanzas/flujo-caja', { params }),
       ]);
+      if (requestId !== baseRequestRef.current) return;
+      const nextSummary = summaryResponse.data.data as Summary | null | undefined;
+      if (!nextSummary) throw new Error('El servicio no devolvió un resumen financiero verificable.');
       setBranches(primaryResponse.data.data?.ramas || []);
-      setSummary(summaryResponse.data.data || null);
+      setSummary(nextSummary);
       setLegacyAccounts(accountsResponse.data.data || []);
       setPayments(paymentsResponse.data.data || []);
       setExpenses(expensesResponse.data.data || []);
       setFlow(flowResponse.data.data || []);
+      setBaseVerified(true);
     } catch (error: any) {
-      await notify(error.response?.data?.error || 'No fue posible cargar Finanzas.');
-    } finally { setLoading(false); }
-  }, [params, notify]);
+      if (requestId !== baseRequestRef.current) return;
+      const message = requestErrorMessage(error, 'No fue posible verificar el estado financiero.');
+      clearBaseData();
+      setBaseVerified(false);
+      setBaseError(message);
+      await notify(message);
+    } finally {
+      if (requestId === baseRequestRef.current) setLoading(false);
+    }
+  }, [params, notify, clearBaseData]);
 
   const loadAccounts = useCallback(async () => {
+    const requestId = ++accountRequestRef.current;
     setAccountLoading(true);
+    setAccountVerified(false);
+    setAccountError('');
+    setCollectionAccounts([]);
+    setAccountMeta({ ...emptyMeta, page: accountPage, page_size: accountPageSize });
     try {
       const response = await api.get('/api/finanzas/cobranza/cuentas', { params: {
         ...(branchId ? { rama_id: branchId } : {}), q: accountSearch || undefined, estado: accountStatus, page: accountPage, page_size: accountPageSize,
       } });
+      if (requestId !== accountRequestRef.current) return;
       setCollectionAccounts(response.data.data || []);
       setAccountMeta(response.data.meta || { ...emptyMeta, page: accountPage, page_size: accountPageSize });
+      setAccountVerified(true);
     } catch (error: any) {
-      await notify(error.response?.data?.error || 'No fue posible cargar las cuentas corrientes.');
-    } finally { setAccountLoading(false); }
+      if (requestId !== accountRequestRef.current) return;
+      const message = requestErrorMessage(error, 'No fue posible verificar las cuentas corrientes.');
+      setCollectionAccounts([]);
+      setAccountVerified(false);
+      setAccountError(message);
+      await notify(message);
+    } finally {
+      if (requestId === accountRequestRef.current) setAccountLoading(false);
+    }
   }, [branchId, accountSearch, accountStatus, accountPage, accountPageSize, notify]);
 
   const loadReported = useCallback(async () => {
+    const requestId = ++reportedRequestRef.current;
     setReportedLoading(true);
+    setReportedVerified(false);
+    setReportedError('');
+    setReportedPayments([]);
     try {
       const response = await api.get('/api/finanzas/cobranza/pagos-informados', { params: { estado: reportedFilter } });
+      if (requestId !== reportedRequestRef.current) return;
       setReportedPayments(response.data.data || []);
+      setReportedVerified(true);
     } catch (error: any) {
-      await notify(error.response?.data?.error || 'No fue posible cargar los pagos informados.');
-    } finally { setReportedLoading(false); }
+      if (requestId !== reportedRequestRef.current) return;
+      const message = requestErrorMessage(error, 'No fue posible verificar los pagos informados.');
+      setReportedPayments([]);
+      setReportedVerified(false);
+      setReportedError(message);
+      await notify(message);
+    } finally {
+      if (requestId === reportedRequestRef.current) setReportedLoading(false);
+    }
   }, [reportedFilter, notify]);
 
   const loadCollection = useCallback(async () => {
+    const requestId = ++collectionRequestRef.current;
+    setCollectionVerified(false);
+    setCollectionError('');
+    setCollectionConfig(null);
+    setNotifications([]);
     try {
       const [configResponse, notificationResponse] = await Promise.all([
         api.get('/api/finanzas/cobranza/configuracion'), api.get('/api/finanzas/cobranza/notificaciones'),
       ]);
+      if (requestId !== collectionRequestRef.current) return;
       setCollectionConfig(configResponse.data.data || null);
       setNotifications(notificationResponse.data.data || []);
+      setCollectionVerified(true);
     } catch (error: any) {
-      await notify(error.response?.data?.error || 'No fue posible cargar la configuración de cobranza.');
+      if (requestId !== collectionRequestRef.current) return;
+      const message = requestErrorMessage(error, 'No fue posible verificar la configuración de cobranza.');
+      setCollectionConfig(null);
+      setNotifications([]);
+      setCollectionVerified(false);
+      setCollectionError(message);
+      await notify(message);
     }
   }, [notify]);
 
@@ -135,48 +215,69 @@ export default function FinanzasMultirama() {
   }, [accountSearchInput]);
   useEffect(() => { setAccountPage(1); setSelectedTutorIds(new Set()); }, [branchId, accountStatus, accountPageSize]);
 
-  const openCharge = () => {
+  const requireBaseVerified = async (message = 'El estado financiero no está verificado. Sincroniza antes de registrar movimientos.') => {
+    if (baseVerified) return true;
+    await notify(message);
+    return false;
+  };
+
+  const openCharge = async () => {
+    if (!await requireBaseVerified()) return;
     if (!branchId) return void notify('Selecciona una rama antes de asignar un cobro manual; así el cargo queda asociado a la inscripción deportiva correcta.');
-    setChargeForm({ jugador_id: '', concepto: '', tipo_concepto: 'Otro', monto: '0', fecha_vencimiento: new Date().toISOString().slice(0, 10), observaciones: '' });
+    setChargeForm({ jugador_id: '', concepto: '', tipo_concepto: 'Otro', monto: '0', fecha_vencimiento: new Date().toISOString().slice(0, 10), observaciones: '', idempotency_key: operationKey('charge') });
     setChargeModal(true);
+  };
+
+  const openExpense = async () => {
+    if (!await requireBaseVerified()) return;
+    setExpenseForm({ concepto: '', categoria_gasto: 'Otros', centro_costo: branch?.nombre || '', monto: '0', metodo_pago: 'Transferencia', fecha_gasto: new Date().toISOString().slice(0, 10), observaciones: '', idempotency_key: operationKey('expense') });
+    setExpenseModal(true);
   };
 
   const saveCharge = async (event: FormEvent) => {
     event.preventDefault();
-    if (!branchId) return;
+    if (!branchId || !await requireBaseVerified()) return;
     setSaving(true);
     try {
-      await api.post('/api/finanzas/cobros', { ...chargeForm, rama_id: branchId, monto: Number(chargeForm.monto) || 0 });
+      const response = await api.post('/api/finanzas/cobros', { ...chargeForm, rama_id: branchId, monto: Number(chargeForm.monto) || 0 });
       setChargeModal(false);
       await Promise.all([loadBase(), loadAccounts()]);
-      await notify('Cobro creado en la inscripción deportiva seleccionada.');
+      await notify(response.data?.idempotent ? 'El cobro ya había sido registrado; se confirmó la misma operación sin duplicarla.' : 'Cobro creado en la inscripción deportiva seleccionada.');
     } catch (error: any) {
-      await notify(error.response?.data?.error || 'No fue posible crear el cobro.');
+      await notify(requestErrorMessage(error, 'No fue posible crear el cobro. La misma operación puede reintentarse sin duplicarla.'));
     } finally { setSaving(false); }
   };
 
   const saveExpense = async (event: FormEvent) => {
     event.preventDefault();
+    if (!await requireBaseVerified()) return;
     setSaving(true);
     try {
-      await api.post('/api/finanzas/egresos', { ...expenseForm, rama_id: branchId || undefined, monto: Number(expenseForm.monto) || 0, centro_costo: expenseForm.centro_costo || branch?.nombre || 'General' });
+      const response = await api.post('/api/finanzas/egresos', { ...expenseForm, rama_id: branchId || undefined, monto: Number(expenseForm.monto) || 0, centro_costo: expenseForm.centro_costo || branch?.nombre || 'General' });
       setExpenseModal(false);
       await loadBase();
-      await notify(branchId ? 'Egreso registrado en la rama.' : 'Egreso general registrado.');
+      await notify(response.data?.idempotent ? 'El egreso ya había sido registrado; se confirmó la misma operación sin duplicarla.' : branchId ? 'Egreso registrado en la rama.' : 'Egreso general registrado.');
     } catch (error: any) {
-      await notify(error.response?.data?.error || 'No fue posible registrar el egreso.');
+      await notify(requestErrorMessage(error, 'No fue posible registrar el egreso. La misma operación puede reintentarse sin duplicarla.'));
     } finally { setSaving(false); }
   };
 
-  const openPayment = (charge: FinanceCharge) => {
+  const openPayment = async (charge: FinanceCharge) => {
+    if (!baseVerified || !accountVerified) {
+      await notify('Las cuentas financieras no están verificadas. Sincroniza antes de registrar un pago real.');
+      return;
+    }
     const pending = Math.max(Number(charge.monto || 0) - Number(charge.monto_pagado || 0), 0);
     setPaymentCharge(charge);
-    setPaymentForm({ monto_abono: String(pending), metodo_pago: 'Transferencia', observaciones: '', idempotency_key: `finance-${charge.id}-${Date.now()}` });
+    setPaymentForm({ monto_abono: String(pending), metodo_pago: 'Transferencia', observaciones: '', idempotency_key: operationKey(`payment-${charge.id}`) });
   };
 
   const savePayment = async (event: FormEvent) => {
     event.preventDefault();
-    if (!paymentCharge) return;
+    if (!paymentCharge || !baseVerified || !accountVerified) {
+      await notify('El pago no puede enviarse hasta volver a verificar la cuenta y el estado financiero.');
+      return;
+    }
     setSaving(true);
     try {
       await api.put(`/api/finanzas/cobros/${paymentCharge.id}/pagar`, { ...paymentForm, monto_abono: Number(paymentForm.monto_abono) || 0 });
@@ -184,22 +285,27 @@ export default function FinanzasMultirama() {
       await Promise.all([loadBase(), loadAccounts(), loadReported()]);
       await notify('Pago registrado y distribuido sobre las cuotas pendientes.');
     } catch (error: any) {
-      await notify(error.response?.data?.error || 'No fue posible registrar el pago.');
+      await notify(requestErrorMessage(error, 'No fue posible confirmar el pago. Puedes reintentar la misma operación sin duplicar el ingreso.'));
     } finally { setSaving(false); }
   };
 
   const removeExpense = async (expense: Expense) => {
+    if (!await requireBaseVerified('El listado financiero no está verificado. Sincroniza antes de anular un egreso.')) return;
     const accepted = await confirmAction(`¿Anular el egreso “${expense.concepto}”?`);
     if (!accepted) return;
     try {
       await api.delete(`/api/finanzas/egresos/${expense.id}`);
       await loadBase();
     } catch (error: any) {
-      await notify(error.response?.data?.error || 'No fue posible anular el egreso.');
+      await notify(requestErrorMessage(error, 'No fue posible anular el egreso.'));
     }
   };
 
   const validateReported = async (id: string) => {
+    if (!baseVerified || !reportedVerified) {
+      await notify('Los pagos informados o el estado financiero no están verificados. Sincroniza antes de validar una transferencia.');
+      return;
+    }
     const accepted = await confirmAction('¿Validar esta transferencia? Se registrará inmediatamente como ingreso real y descontará la deuda.');
     if (!accepted) return;
     setValidationBusyId(id);
@@ -208,22 +314,30 @@ export default function FinanzasMultirama() {
       await Promise.all([loadReported(), loadBase(), loadAccounts()]);
       await notify(response.data.message || 'Pago validado.');
     } catch (error: any) {
-      await notify(error.response?.data?.error || 'No fue posible validar el pago.');
+      await notify(requestErrorMessage(error, 'No fue posible validar el pago.'));
     } finally { setValidationBusyId(null); }
   };
 
   const rejectReported = async (id: string, reason: string) => {
+    if (!reportedVerified) {
+      await notify('Los pagos informados no están verificados. Sincroniza antes de rechazar una transferencia.');
+      return;
+    }
     setValidationBusyId(id);
     try {
       const response = await api.patch(`/api/finanzas/cobranza/pagos-informados/${id}/rechazar`, { motivo: reason });
       await loadReported();
       await notify(response.data.message || 'Pago rechazado.');
     } catch (error: any) {
-      await notify(error.response?.data?.error || 'No fue posible rechazar el pago.');
+      await notify(requestErrorMessage(error, 'No fue posible rechazar el pago.'));
     } finally { setValidationBusyId(null); }
   };
 
   const sendReminders = async (tutorIds: string[], onlyOverdue: boolean, channels: string[] = ['email', 'whatsapp']) => {
+    if (!baseVerified || !accountVerified) {
+      await notify('Las cuentas corrientes no están verificadas. Sincroniza antes de enviar cobranza.');
+      return;
+    }
     const scope = tutorIds.length ? `${tutorIds.length} apoderado(s) seleccionado(s)` : 'todas las familias con saldo';
     const accepted = await confirmAction(`¿Enviar ${onlyOverdue ? 'recordatorio de deuda vencida' : 'estado de cuenta'} a ${scope} por ${channels.join(' + ')}?`);
     if (!accepted) return;
@@ -234,18 +348,22 @@ export default function FinanzasMultirama() {
       await loadCollection();
       await notify(response.data.message || 'Cobranza enviada.');
     } catch (error: any) {
-      await notify(error.response?.data?.error || 'No fue posible enviar la cobranza.');
+      await notify(requestErrorMessage(error, 'No fue posible enviar la cobranza.'));
     } finally { setCollectionSending(false); }
   };
 
   const saveCollectionConfig = async (value: CollectionConfig) => {
+    if (!collectionVerified) {
+      await notify('La configuración actual de cobranza no está verificada. Sincroniza antes de modificarla.');
+      return;
+    }
     setCollectionSaving(true);
     try {
       const response = await api.patch('/api/finanzas/cobranza/configuracion', value);
       setCollectionConfig(response.data.data || value);
       await notify(response.data.message || 'Configuración guardada.');
     } catch (error: any) {
-      await notify(error.response?.data?.error || 'No fue posible guardar la automatización.');
+      await notify(requestErrorMessage(error, 'No fue posible guardar la automatización.'));
     } finally { setCollectionSaving(false); }
   };
 
@@ -263,32 +381,32 @@ export default function FinanzasMultirama() {
     <DirectorPanel className="p-3 sm:p-4">
       <label className="block">
         <span className={labelClass}>Alcance financiero</span>
-        <select value={branchId} onChange={(event) => setBranchId(event.target.value)} className={DIRECTOR_FIELD}>
+        <select value={branchId} onChange={(event) => setBranchId(event.target.value)} className={DIRECTOR_FIELD} disabled={saving}>
           <option value="">Vista consolidada · toda la academia</option>
           {branches.map((item) => <option key={item.id} value={item.id}>{item.disciplina} · {item.nombre}{item.sedes?.nombre ? ` · ${item.sedes.nombre}` : ''}</option>)}
         </select>
       </label>
     </DirectorPanel>
 
-    {loading ? <DirectorPanel className="p-10 text-center text-sm font-bold text-[#697468]">Cargando estado financiero…</DirectorPanel> : <>
+    {loading ? <DirectorPanel className="p-10 text-center text-sm font-bold text-[#697468]" role="status">Verificando estado financiero…</DirectorPanel> : !baseVerified ? <VerificationPanel title="Estado financiero no verificado" message={baseError || 'No pudimos confirmar las cifras de este alcance. No mostraremos ceros ni datos anteriores como si fueran actuales.'} onRetry={() => void loadBase()} /> : <>
       <section className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-        <DirectorStat label="Recaudado" value={<span className="text-emerald-700">{money(summary?.totalIngresosReales || 0)}</span>} detail="Ingresos reales validados" />
-        <DirectorStat label="Por cobrar" value={<span className="text-amber-700">{money(summary?.totalPorCobrar || 0)}</span>} detail="Saldo pendiente total" />
-        <DirectorStat label="Vencido" value={<span className="text-rose-700">{money(summary?.totalVencido || 0)}</span>} detail="Deuda que requiere atención" />
-        <DirectorStat label={branch ? `Balance · ${branch.nombre}` : 'Balance consolidado'} value={<span className={(summary?.balanceNeto || 0) >= 0 ? 'text-emerald-700' : 'text-rose-700'}>{money(summary?.balanceNeto || 0)}</span>} detail="Ingresos menos egresos" />
+        <DirectorStat label="Recaudado" value={<span className="text-emerald-700">{money(summary!.totalIngresosReales)}</span>} detail="Ingresos reales validados" />
+        <DirectorStat label="Por cobrar" value={<span className="text-amber-700">{money(summary!.totalPorCobrar)}</span>} detail="Saldo pendiente total" />
+        <DirectorStat label="Vencido" value={<span className="text-rose-700">{money(summary!.totalVencido)}</span>} detail="Deuda que requiere atención" />
+        <DirectorStat label={branch ? `Balance · ${branch.nombre}` : 'Balance consolidado'} value={<span className={summary!.balanceNeto >= 0 ? 'text-emerald-700' : 'text-rose-700'}>{money(summary!.balanceNeto)}</span>} detail="Ingresos menos egresos" />
       </section>
 
       <section className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <MiniFact label="Alumnos" value={String(summary?.totalAlumnos || 0)} />
-        <MiniFact label="Con mora" value={String(summary?.alumnosMorosos || 0)} tone="danger" />
-        <MiniFact label="Morosidad" value={`${summary?.tasaMorosidad || 0}%`} tone="pending" />
-        <MiniFact label="Por revisar" value={reportedFilter === 'Pendiente' ? String(reportedPayments.length) : '—'} tone="pending" />
+        <MiniFact label="Alumnos" value={String(summary!.totalAlumnos)} />
+        <MiniFact label="Con mora" value={String(summary!.alumnosMorosos)} tone="danger" />
+        <MiniFact label="Morosidad" value={`${summary!.tasaMorosidad}%`} tone="pending" />
+        <MiniFact label="Por revisar" value={reportedVerified && reportedFilter === 'Pendiente' ? String(reportedPayments.length) : '—'} tone="pending" />
       </section>
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={openCharge} className={DIRECTOR_BUTTON}>+ Crear cobro</button>
-          <button type="button" onClick={() => setExpenseModal(true)} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-rose-200 bg-white px-4 text-sm font-black text-rose-800 transition hover:bg-rose-50">− Registrar egreso</button>
+          <button type="button" onClick={() => void openCharge()} className={DIRECTOR_BUTTON}>+ Crear cobro</button>
+          <button type="button" onClick={() => void openExpense()} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-rose-200 bg-white px-4 text-sm font-black text-rose-800 transition hover:bg-rose-50">− Registrar egreso</button>
         </div>
         {!branchId ? <span className="text-xs font-semibold text-[#697468]">Selecciona una rama para crear un cobro manual. Los egresos pueden ser generales.</span> : null}
       </div>
@@ -300,45 +418,49 @@ export default function FinanzasMultirama() {
       </div>
 
       {activeTab === 'dashboard' ? <FinanceSchoolDashboard summary={summary} accounts={legacyAccounts} payments={payments} expenses={expenses} flow={flow} branches={branches} branchId={branchId} /> : null}
-      {activeTab === 'cuentas' ? <CollectionAccountsTable accounts={collectionAccounts} meta={accountMeta} loading={accountLoading} search={accountSearchInput} status={accountStatus} pageSize={accountPageSize} selectedTutorIds={selectedTutorIds} onSearch={setAccountSearchInput} onStatus={(value) => { setAccountStatus(value); setAccountPage(1); }} onPage={setAccountPage} onPageSize={(value) => { setAccountPageSize(value); setAccountPage(1); }} onSelection={setSelectedTutorIds} onPayment={openPayment} onReminder={(ids, overdue) => void sendReminders(ids, overdue)} /> : null}
-      {activeTab === 'validacion' ? <PaymentValidationPanel rows={reportedPayments} filter={reportedFilter} loading={reportedLoading} busyId={validationBusyId} onFilter={setReportedFilter} onValidate={(id) => void validateReported(id)} onReject={(id, reason) => void rejectReported(id, reason)} /> : null}
+      {activeTab === 'cuentas' ? accountLoading ? <DirectorPanel className="p-8 text-center text-sm font-bold text-[#697468]" role="status">Verificando cuentas corrientes…</DirectorPanel> : accountVerified ? <CollectionAccountsTable accounts={collectionAccounts} meta={accountMeta} loading={false} search={accountSearchInput} status={accountStatus} pageSize={accountPageSize} selectedTutorIds={selectedTutorIds} onSearch={setAccountSearchInput} onStatus={(value) => { setAccountStatus(value); setAccountPage(1); }} onPage={setAccountPage} onPageSize={(value) => { setAccountPageSize(value); setAccountPage(1); }} onSelection={setSelectedTutorIds} onPayment={(charge) => void openPayment(charge)} onReminder={(ids, overdue) => void sendReminders(ids, overdue)} /> : <VerificationPanel title="Cuentas no verificadas" message={accountError || 'No pudimos confirmar las cuentas corrientes.'} onRetry={() => void loadAccounts()} /> : null}
+      {activeTab === 'validacion' ? reportedLoading ? <DirectorPanel className="p-8 text-center text-sm font-bold text-[#697468]" role="status">Verificando transferencias informadas…</DirectorPanel> : reportedVerified ? <PaymentValidationPanel rows={reportedPayments} filter={reportedFilter} loading={false} busyId={validationBusyId} onFilter={setReportedFilter} onValidate={(id) => void validateReported(id)} onReject={(id, reason) => void rejectReported(id, reason)} /> : <VerificationPanel title="Pagos informados no verificados" message={reportedError || 'No pudimos confirmar la bandeja de transferencias.'} onRetry={() => void loadReported()} /> : null}
       {activeTab === 'pagos' ? <PaymentsTable rows={payments} /> : null}
       {activeTab === 'egresos' ? <ExpensesTable rows={expenses} onRemove={(item) => void removeExpense(item)} /> : null}
       {activeTab === 'flujo' ? <CashFlowTable rows={flow} /> : null}
-      {activeTab === 'cobranza' ? <CollectionAutomationPanel config={collectionConfig} notifications={notifications} dueDay={summary?.calendarioMensual?.dueDay} warningDays={summary?.calendarioMensual?.warningDays} saving={collectionSaving} sending={collectionSending} onSave={(value) => void saveCollectionConfig(value)} onSendAll={(overdue, channels) => void sendReminders([], overdue, channels)} /> : null}
+      {activeTab === 'cobranza' ? collectionVerified ? <CollectionAutomationPanel config={collectionConfig} notifications={notifications} dueDay={summary!.calendarioMensual?.dueDay} warningDays={summary!.calendarioMensual?.warningDays} saving={collectionSaving} sending={collectionSending} onSave={(value) => void saveCollectionConfig(value)} onSendAll={(overdue, channels) => void sendReminders([], overdue, channels)} /> : <VerificationPanel title="Cobranza no verificada" message={collectionError || 'No pudimos confirmar la configuración y sus notificaciones.'} onRetry={() => void loadCollection()} /> : null}
     </>}
 
-    {chargeModal ? <FinanceModal title={`Nuevo cobro · ${branch?.nombre || 'Rama'}`} description="El cobro quedará asociado a la inscripción deportiva seleccionada." onClose={() => setChargeModal(false)}>
+    {chargeModal ? <FinanceModal title={`Nuevo cobro · ${branch?.nombre || 'Rama'}`} description="El cobro quedará asociado a la inscripción deportiva seleccionada." onClose={() => { if (!saving) setChargeModal(false); }}>
       <form onSubmit={saveCharge} className="grid gap-3">
         <label><span className={labelClass}>Alumno</span><select required value={chargeForm.jugador_id} onChange={(event) => setChargeForm({ ...chargeForm, jugador_id: event.target.value })} className={DIRECTOR_FIELD}><option value="">Selecciona alumno</option>{legacyAccounts.map((account: any) => <option key={account.id} value={account.id}>{account.nombre}</option>)}</select></label>
         <label><span className={labelClass}>Concepto</span><input required value={chargeForm.concepto} onChange={(event) => setChargeForm({ ...chargeForm, concepto: event.target.value })} className={DIRECTOR_FIELD} placeholder="Ej. Matrícula extraordinaria" /></label>
         <div className="grid gap-3 sm:grid-cols-2"><label><span className={labelClass}>Monto</span><input required type="number" min="1" value={chargeForm.monto} onChange={(event) => setChargeForm({ ...chargeForm, monto: event.target.value })} className={DIRECTOR_FIELD} /></label><label><span className={labelClass}>Vencimiento</span><input type="date" value={chargeForm.fecha_vencimiento} onChange={(event) => setChargeForm({ ...chargeForm, fecha_vencimiento: event.target.value })} className={DIRECTOR_FIELD} /></label></div>
         <label><span className={labelClass}>Observaciones</span><textarea value={chargeForm.observaciones} onChange={(event) => setChargeForm({ ...chargeForm, observaciones: event.target.value })} className={`${DIRECTOR_FIELD} min-h-24 py-3`} placeholder="Opcional" /></label>
-        <div className="mt-1 flex flex-wrap justify-end gap-2"><button type="button" onClick={() => setChargeModal(false)} className={DIRECTOR_BUTTON_GHOST}>Cancelar</button><button disabled={saving} className={DIRECTOR_BUTTON}>{saving ? 'Guardando…' : 'Crear cobro'}</button></div>
+        <div className="mt-1 flex flex-wrap justify-end gap-2"><button type="button" disabled={saving} onClick={() => setChargeModal(false)} className={DIRECTOR_BUTTON_GHOST}>Cancelar</button><button disabled={saving} className={DIRECTOR_BUTTON}>{saving ? 'Guardando…' : 'Crear cobro'}</button></div>
       </form>
     </FinanceModal> : null}
 
-    {expenseModal ? <FinanceModal title="Registrar egreso" description="Este movimiento reduce el balance financiero del alcance seleccionado." onClose={() => setExpenseModal(false)} tone="danger">
+    {expenseModal ? <FinanceModal title="Registrar egreso" description="Este movimiento reduce el balance financiero del alcance seleccionado." onClose={() => { if (!saving) setExpenseModal(false); }} tone="danger">
       <form onSubmit={saveExpense} className="grid gap-3">
         <label><span className={labelClass}>Concepto</span><input required value={expenseForm.concepto} onChange={(event) => setExpenseForm({ ...expenseForm, concepto: event.target.value })} className={DIRECTOR_FIELD} /></label>
         <div className="grid gap-3 sm:grid-cols-2"><label><span className={labelClass}>Monto</span><input required type="number" min="1" value={expenseForm.monto} onChange={(event) => setExpenseForm({ ...expenseForm, monto: event.target.value })} className={DIRECTOR_FIELD} /></label><label><span className={labelClass}>Fecha</span><input type="date" value={expenseForm.fecha_gasto} onChange={(event) => setExpenseForm({ ...expenseForm, fecha_gasto: event.target.value })} className={DIRECTOR_FIELD} /></label></div>
         <label><span className={labelClass}>Categoría</span><input value={expenseForm.categoria_gasto} onChange={(event) => setExpenseForm({ ...expenseForm, categoria_gasto: event.target.value })} className={DIRECTOR_FIELD} placeholder="Otros" /></label>
         <label><span className={labelClass}>Centro de costo</span><input value={expenseForm.centro_costo} onChange={(event) => setExpenseForm({ ...expenseForm, centro_costo: event.target.value })} className={DIRECTOR_FIELD} placeholder={branch?.nombre || 'General'} /></label>
         <label><span className={labelClass}>Observaciones</span><textarea value={expenseForm.observaciones} onChange={(event) => setExpenseForm({ ...expenseForm, observaciones: event.target.value })} className={`${DIRECTOR_FIELD} min-h-24 py-3`} placeholder="Opcional" /></label>
-        <div className="mt-1 flex flex-wrap justify-end gap-2"><button type="button" onClick={() => setExpenseModal(false)} className={DIRECTOR_BUTTON_GHOST}>Cancelar</button><button disabled={saving} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-rose-700 bg-rose-700 px-4 text-sm font-black text-white transition hover:bg-rose-800 disabled:opacity-40">{saving ? 'Guardando…' : 'Registrar egreso'}</button></div>
+        <div className="mt-1 flex flex-wrap justify-end gap-2"><button type="button" disabled={saving} onClick={() => setExpenseModal(false)} className={DIRECTOR_BUTTON_GHOST}>Cancelar</button><button disabled={saving} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-rose-700 bg-rose-700 px-4 text-sm font-black text-white transition hover:bg-rose-800 disabled:opacity-40">{saving ? 'Guardando…' : 'Registrar egreso'}</button></div>
       </form>
     </FinanceModal> : null}
 
-    {paymentCharge ? <FinanceModal title="Registrar pago real" description={`${paymentCharge.concepto}. El monto se aplicará primero a la cuota pendiente más antigua.`} onClose={() => setPaymentCharge(null)}>
+    {paymentCharge ? <FinanceModal title="Registrar pago real" description={`${paymentCharge.concepto}. El monto se aplicará primero a la cuota pendiente más antigua.`} onClose={() => { if (!saving) setPaymentCharge(null); }}>
       <form onSubmit={savePayment} className="grid gap-3">
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900"><strong>Impacto contable:</strong> este registro sí ingresará a caja y descontará deuda.</div>
         <label><span className={labelClass}>Monto a abonar</span><input required type="number" min="1" max={Math.max(Number(paymentCharge.monto) - Number(paymentCharge.monto_pagado), 0)} value={paymentForm.monto_abono} onChange={(event) => setPaymentForm({ ...paymentForm, monto_abono: event.target.value })} className={DIRECTOR_FIELD} /></label>
         <label><span className={labelClass}>Método</span><select value={paymentForm.metodo_pago} onChange={(event) => setPaymentForm({ ...paymentForm, metodo_pago: event.target.value })} className={DIRECTOR_FIELD}><option>Transferencia</option><option>Efectivo</option><option>Tarjeta</option><option>Otro</option></select></label>
         <label><span className={labelClass}>Observaciones</span><textarea value={paymentForm.observaciones} onChange={(event) => setPaymentForm({ ...paymentForm, observaciones: event.target.value })} className={`${DIRECTOR_FIELD} min-h-24 py-3`} placeholder="Opcional" /></label>
-        <div className="mt-1 flex flex-wrap justify-end gap-2"><button type="button" onClick={() => setPaymentCharge(null)} className={DIRECTOR_BUTTON_GHOST}>Cancelar</button><button disabled={saving} className={DIRECTOR_BUTTON_DARK}>{saving ? 'Registrando…' : 'Confirmar pago real'}</button></div>
+        <div className="mt-1 flex flex-wrap justify-end gap-2"><button type="button" disabled={saving} onClick={() => setPaymentCharge(null)} className={DIRECTOR_BUTTON_GHOST}>Cancelar</button><button disabled={saving} className={DIRECTOR_BUTTON_DARK}>{saving ? 'Registrando…' : 'Confirmar pago real'}</button></div>
       </form>
     </FinanceModal> : null}
   </div>;
+}
+
+function VerificationPanel({ title, message, onRetry }: { title: string; message: string; onRetry: () => void }) {
+  return <DirectorPanel className="border-amber-200 bg-amber-50 p-6" role="status" aria-live="polite"><p className="text-[10px] font-black uppercase tracking-[.12em] text-amber-800">Verificación requerida</p><h2 className="mt-1 text-lg font-black text-[#111711]">{title}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-[#596456]">{message}</p><p className="mt-2 text-xs font-semibold text-amber-900">No se muestran cifras anteriores ni ceros sustitutos mientras el servidor no confirme este alcance.</p><button type="button" onClick={onRetry} className={`${DIRECTOR_BUTTON_DARK} mt-4`}>Sincronizar ahora</button></DirectorPanel>;
 }
 
 function MiniFact({ label, value, tone = 'default' }: { label: string; value: string; tone?: 'default' | 'danger' | 'pending' }) {
