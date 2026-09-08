@@ -1,0 +1,221 @@
+/* Lestra Deportivo — Performance Canvas V2
+ * Domain-owned visual language for the selected athlete inside Plantel.
+ * This intentionally turns the legacy profile composition into a sports
+ * performance surface while its JSX is progressively decomposed into domain components.
+ */
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 {
+  --pc-dark: var(--ls-sidebar);
+  --pc-surface: var(--ls-surface);
+  --pc-soft: var(--ls-surface-soft);
+  --pc-sage: color-mix(in srgb, var(--ls-accent) 9%, var(--ls-surface));
+  --pc-warm: color-mix(in srgb, var(--ls-warning) 5%, var(--ls-surface));
+  --pc-line: var(--ls-line);
+  --pc-ink: var(--ls-ink);
+  --pc-muted: var(--ls-muted);
+  --pc-shadow: var(--ls-shadow);
+  max-width: 1360px !important;
+  gap: 18px !important;
+}
+
+/* Context return/action row behaves as a slim command rail. */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > div:first-child {
+  min-height: 50px;
+  align-items: center !important;
+  padding-inline: 2px;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > div:first-child :is(button,a) {
+  border-color: var(--pc-line) !important;
+  background: transparent !important;
+  color: var(--pc-muted) !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > div:first-child :is(button,a):hover {
+  background: var(--pc-surface) !important;
+  color: var(--pc-ink) !important;
+}
+
+/* Athlete identity becomes the dark anchor of the Performance Canvas. */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type {
+  position: relative;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--ls-accent) 22%, transparent) !important;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--ls-accent) 8%, transparent), transparent 32%),
+    var(--pc-dark) !important;
+  color: white !important;
+  box-shadow: 0 18px 38px color-mix(in srgb, var(--pc-dark) 18%, transparent) !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6px;
+  background: var(--ls-accent);
+  content: '';
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type :is(h1,h2,h3),
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type [class*="text-white"] {
+  color: white !important;
+  -webkit-text-fill-color: white !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type p {
+  color: color-mix(in srgb, white 62%, transparent) !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type img,
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type div[class*="h-28"][class*="w-28"] {
+  width: 96px !important;
+  height: 96px !important;
+  border: 2px solid color-mix(in srgb, var(--ls-accent) 58%, white 10%) !important;
+  background: color-mix(in srgb, var(--ls-accent) 10%, var(--pc-dark)) !important;
+  color: var(--ls-accent-on-dark) !important;
+  box-shadow: 0 12px 26px color-mix(in srgb, black 28%, transparent) !important;
+}
+
+/* Metadata is a technical strip, not a cloud of decorative pills. */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type span[class*="rounded-full"] {
+  border-color: color-mix(in srgb, white 13%, transparent) !important;
+  background: color-mix(in srgb, white 5%, transparent) !important;
+  color: color-mix(in srgb, white 70%, transparent) !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type [class*="text-[#70e4df]"] {
+  color: var(--ls-accent-on-dark) !important;
+  -webkit-text-fill-color: var(--ls-accent-on-dark) !important;
+}
+
+/* Discipline selector works like a season/context switcher. */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type button[class*="rounded-xl"] {
+  border-color: color-mix(in srgb, white 12%, transparent) !important;
+  background: color-mix(in srgb, white 4%, transparent) !important;
+  color: color-mix(in srgb, white 66%, transparent) !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type button[class*="bg-violet-500/20"] {
+  border-color: color-mix(in srgb, var(--ls-accent) 60%, transparent) !important;
+  background: color-mix(in srgb, var(--ls-accent) 16%, transparent) !important;
+  color: var(--ls-accent-on-dark) !important;
+}
+
+/* Compact facts on the identity surface are separated by lines, not floating cards. */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type > div > div:last-child {
+  gap: 0 !important;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, white 10%, transparent);
+  border-radius: 16px;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type > div > div:last-child > div {
+  border: 0 !important;
+  border-right: 1px solid color-mix(in srgb, white 9%, transparent) !important;
+  border-radius: 0 !important;
+  background: color-mix(in srgb, white 3%, transparent) !important;
+  color: white !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type > div > div:last-child > div:last-child {
+  border-right: 0 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type > div > div:last-child > div p:first-child {
+  color: color-mix(in srgb, white 42%, transparent) !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type > div > div:last-child > div p:last-child {
+  color: white !important;
+  -webkit-text-fill-color: white !important;
+}
+
+/* Deep canvas: asymmetric materiality so every section is not another white card. */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(2) > div:first-child {
+  border-color: var(--pc-line) !important;
+  background: var(--pc-sage) !important;
+  box-shadow: var(--pc-shadow) !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(2) > div:last-child {
+  border-color: color-mix(in srgb, var(--ls-warning) 22%, var(--pc-line)) !important;
+  background: var(--pc-warm) !important;
+  box-shadow: var(--pc-shadow) !important;
+}
+
+/* Performance area gives radar visual priority over the supporting record. */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(3) {
+  grid-template-columns: minmax(0, 1.35fr) minmax(340px, .65fr) !important;
+  align-items: start;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(3) > div:first-child {
+  border-color: var(--pc-line) !important;
+  background: var(--pc-surface) !important;
+  box-shadow: var(--pc-shadow) !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(3) > div:last-child > div:first-child {
+  border-color: color-mix(in srgb, var(--ls-warning) 18%, var(--pc-line)) !important;
+  background: var(--pc-warm) !important;
+  box-shadow: var(--pc-shadow) !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(3) > div:last-child > div:last-child {
+  border-color: color-mix(in srgb, var(--ls-success) 18%, var(--pc-line)) !important;
+  background: color-mix(in srgb, var(--ls-success) 4%, var(--pc-surface)) !important;
+  box-shadow: var(--pc-shadow) !important;
+}
+
+/* Recognition history is treated as the season trophy wall, with a dark header. */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(4) {
+  border-color: var(--pc-line) !important;
+  background: var(--pc-surface) !important;
+  box-shadow: var(--pc-shadow) !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(4) > div:first-child {
+  border-color: transparent !important;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--ls-warning) 9%, transparent), transparent 36%),
+    var(--pc-dark) !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(4) > div:first-child :is(h2,p),
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(4) > div:first-child [class*="text-white"] {
+  color: white !important;
+  -webkit-text-fill-color: white !important;
+}
+
+/* Finance is context at the end of the athlete story, not a dashboard block. */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(5) {
+  border-color: var(--pc-line) !important;
+  background: var(--pc-sage) !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 1279px) {
+  .lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:nth-of-type(3) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 {
+    gap: 14px !important;
+  }
+
+  .lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type {
+    padding: 18px !important;
+  }
+
+  .lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type > div > div:last-child {
+    width: 100%;
+  }
+
+  .lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type img,
+  .lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > section:first-of-type div[class*="h-28"][class*="w-28"] {
+    width: 78px !important;
+    height: 78px !important;
+  }
+}
