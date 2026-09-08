@@ -140,7 +140,7 @@ export default function LiveMatchPanel({ matchId, academyName, onBack, onFinishe
     return refreshed;
   };
 
-  const handleConcurrencyConflict = async (error: unknown, fallback: string) => {
+  const handleConcurrencyConflict = async (error: unknown) => {
     if (!isLiveConflict(error)) return false;
     const currentFromConflict = (error as ApiFailure).response?.data?.data;
     if (currentFromConflict) applyMatchResponse(currentFromConflict);
@@ -191,7 +191,7 @@ export default function LiveMatchPanel({ matchId, academyName, onBack, onFinishe
       applyMatchResponse(response.data?.data as Partial<LiveMatch> | undefined);
       await refreshAfterConfirmedMutation('El cambio fue guardado.');
     } catch (error: unknown) {
-      if (await handleConcurrencyConflict(error, 'El encuentro cambió en otro dispositivo.')) {
+      if (await handleConcurrencyConflict(error)) {
         setBusy(false);
         return;
       }
@@ -275,7 +275,7 @@ export default function LiveMatchPanel({ matchId, academyName, onBack, onFinishe
       onFinished?.();
       onBack();
     } catch (error: unknown) {
-      if (await handleConcurrencyConflict(error, 'El encuentro cambió antes de finalizar.')) {
+      if (await handleConcurrencyConflict(error)) {
         setBusy(false);
         return;
       }
