@@ -73,11 +73,21 @@ Se migraron esos textos a `text-slate-400`, cuyo contraste aproximado sobre el m
 
 Commit: `3b874c8396b2fe35b4b43f5356c8c23d6faba5d3`.
 
-### Bloqueador de accesibilidad pendiente
+### Bloqueador de accesibilidad P0 — corregido en implementación
 
-La firma actual depende de dibujar en un `<canvas>` mediante eventos de puntero. Un usuario que opere únicamente con teclado no puede completar ese requisito y, por tanto, no puede formalizar la matrícula.
+La firma dependía exclusivamente de dibujar en un `<canvas>` mediante eventos de puntero. Un usuario que operara solo con teclado no podía completar la matrícula.
 
-Estado: **P0 para accesibilidad**. No se declarará PASS hasta definir e implementar una alternativa de firma accesible que preserve la evidencia e integridad del flujo.
+Se incorporó una segunda vía nativa y navegable por teclado:
+
+- selección mediante radios entre **Dibujar mi firma** y **Firmar con teclado**;
+- declaración explícita mediante la frase `ACEPTO Y FIRMO`;
+- generación local de una evidencia PNG que contiene nombre, documento y la declaración;
+- el backend conserva el mismo contrato de firma existente, por lo que se mantienen token, nombre, documento, fecha, IP, user-agent, huellas SHA-256 y documento final;
+- el canvas deja de ser un requisito exclusivo para formalizar la matrícula.
+
+Commit de implementación: `f39e9fbc496332b48f05a9a4dd17ed4dfa0809c0`.
+
+Estado: **P0 corregido en código / REVIEW hasta QA real de teclado y lector de pantalla**. No se marcará PASS solo por build exitoso.
 
 ### Pruebas aún pendientes
 
@@ -86,11 +96,13 @@ Estado: **P0 para accesibilidad**. No se declarará PASS hasta definir e impleme
 - foto autorizada/no autorizada;
 - error de carga de foto;
 - decisiones obligatorias/opcionales;
-- firma;
+- firma dibujada;
+- firma con teclado;
 - envío;
 - éxito/documento final;
 - mobile real;
-- keyboard completo;
+- recorrido completo solo teclado;
+- lector de pantalla en controles de firma;
 - estados de backend lento/indisponible.
 
 ## Matriz inicial de rutas
@@ -101,7 +113,7 @@ Estado: **P0 para accesibilidad**. No se declarará PASS hasta definir e impleme
 | `/puesta-en-marcha` | P1 | REVIEW | Flujo crítico de activación; contrato propio de estilos. Validar todos los pasos y mobile. |
 | `/dashboard` | P1 | REVIEW | Debe pasar Anti-AI Review y comprobar que las métricas correspondan a decisiones. |
 | `/matricula` | P1 | REVIEW | Flujo crítico de 4 pasos + dorsal + evaluación inicial + envío. Validar legibilidad completa. |
-| `/prematricula/:token` | P0 | EN AUDITORÍA | Contraste secundario corregido. Firma por canvas sigue bloqueando operación exclusivamente por teclado. |
+| `/prematricula/:token` | P0 | CORREGIDO/REVIEW | Contraste y alternativa de firma por teclado implementados; falta QA real del flujo completo y tecnologías de asistencia. |
 | `/alumnos` lista | P1 | REVIEW | Validar búsqueda, filtros, estados y jerarquía sin depender de overrides. |
 | `/alumnos` ficha | P0/P1 | REVIEW | Ya produjo un P0 de contraste. Requiere recorrido exhaustivo de ficha completa. |
 | `/alumnos` evaluación | P0 | CORREGIDO/REVIEW | Fix desplegado; falta certificación de interacción completa. |
@@ -118,63 +130,3 @@ Estado: **P0 para accesibilidad**. No se declarará PASS hasta definir e impleme
 | `/configuracion/perfil` | P2/P1 | REVIEW | Markup más cercano al contrato V2; falta QA real. |
 | `/configuracion/estructura` | P1 | REVIEW | Flujo estructural crítico para multi-sede/multirrama. |
 | `/whatsapp` | P0/P1 | REVIEW | Integración externa y estados de conexión; no puede depender de color ni presentar estados ambiguos. |
-| `/comunicaciones` | P1 | REVIEW | Verificar que comunicación sea contextual, no un módulo genérico desconectado. |
-| `/uniformes` + dorsales | P1 | REVIEW | Interacción operacional y nueva selección visual requieren QA mobile y estados ocupados/reservados. |
-| `/salud-deportiva` | P0/P1 | REVIEW | Información sensible; claridad y estados obligatorios. |
-| `/privacidad` | P0/P1 | REVIEW | Flujo legal/privacidad; exactitud y legibilidad tienen prioridad sobre estética. |
-| `/admin/*` | P1 | REVIEW | Superadmin separado del Director; revisar sin heredar normalizaciones del producto. |
-
-## Orden de auditoría operativo
-
-### Lote A — P0 / flujos que pueden causar daño o bloqueo
-
-1. Pre-matrícula pública completa.
-2. Ficha de alumno + evaluación + categorías + salud.
-3. Finanzas.
-4. WhatsApp/estado de conexión.
-5. Privacidad y datos sensibles.
-6. Profesor en cancha.
-
-### Lote B — alta frecuencia
-
-1. Matrícula.
-2. Asistencia.
-3. Dashboard Director.
-4. Profesores.
-5. Partidos/eventos.
-
-### Lote C — estructura y administración secundaria
-
-1. Configuración/estructura.
-2. Torneos.
-3. Uniformes/dorsales.
-4. Suscripción.
-5. Comunicaciones.
-
-## Checklist por ruta
-
-No cambiar el estado a PASS sin evidencia de:
-
-- [ ] carga inicial;
-- [ ] datos reales;
-- [ ] empty state;
-- [ ] error state;
-- [ ] disabled state;
-- [ ] success state;
-- [ ] destructive action cuando exista;
-- [ ] desktop;
-- [ ] mobile;
-- [ ] keyboard;
-- [ ] focus-visible;
-- [ ] WCAG AA;
-- [ ] sin overflow/cortes;
-- [ ] vocabulario de dominio;
-- [ ] acción primaria inequívoca;
-- [ ] Anti-AI Review;
-- [ ] sin conflicto evidente entre contrato visual y markup legacy.
-
-## Criterio de avance
-
-No se harán rediseños decorativos aislados mientras existan P0 de legibilidad u operación. Los cambios se agrupan por flujo completo y se corrigen en el componente/contrato propietario.
-
-El producto solo recuperará el estado “visualmente certificado” cuando las rutas críticas hayan sido recorridas con el artefacto de producción vigente.
