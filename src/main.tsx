@@ -15,6 +15,7 @@ import './student-profile-v2.css';
 import './visual-readability-final.css';
 import './visual-system-v2.css';
 import './operational-workflows-v2.css';
+import './performance-canvas-v2.css';
 import './sports-dialogs-v2.css';
 import './product-design-v2-1.css';
 import './mobile-dock-v2-1-fix.css';
