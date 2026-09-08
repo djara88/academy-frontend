@@ -54,6 +54,32 @@ for (const requiredPath of ['AGENTS.md', 'docs/PRODUCT-DNA-DEPORTIVO.md']) {
   }
 }
 
+// Director navigation deliberately abandons the generic SaaS sidebar for a
+// sports-domain command ribbon. Keep that architectural decision explicit.
+const directorLayout = await requiredSource('src/layouts/Layout.tsx');
+const directorNavigation = await requiredSource('src/components/navigation/DirectorCommandBar.tsx');
+if (directorLayout) {
+  if (!directorLayout.includes('DirectorCommandBar')) {
+    violations.push('src/layouts/Layout.tsx: Director debe usar DirectorCommandBar en vez de volver al sidebar SaaS genérico.');
+  }
+  if (directorLayout.includes('directorGroups')) {
+    violations.push('src/layouts/Layout.tsx: no reintroducir la navegación lateral legacy del Director.');
+  }
+}
+if (directorNavigation) {
+  for (const zone of ['Jornada', 'Plantel', 'Competir', 'Operación', 'Academia']) {
+    if (!directorNavigation.includes(`label: '${zone}'`)) {
+      violations.push(`src/components/navigation/DirectorCommandBar.tsx: falta la zona de trabajo ${zone}.`);
+    }
+  }
+  if (!directorNavigation.includes('<dialog')) {
+    violations.push('src/components/navigation/DirectorCommandBar.tsx: navegación móvil expandida debe conservar un diálogo/bottom sheet accesible.');
+  }
+  if (!directorNavigation.includes('Mapa de trabajo')) {
+    violations.push('src/components/navigation/DirectorCommandBar.tsx: falta el mapa contextual de navegación móvil.');
+  }
+}
+
 // Director home is the first migrated Product DNA surface. Protect the design
 // direction itself, not a screenshot: sports-domain hierarchy, semantic tokens,
 // no return to the generic KPI-card composition that the redesign replaced.
