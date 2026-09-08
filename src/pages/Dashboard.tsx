@@ -82,61 +82,33 @@ const shortDate = (value: string) => new Intl.DateTimeFormat('es-CL', {
   month: 'short',
 }).format(new Date(`${value}T12:00:00`));
 
+const longToday = () => new Intl.DateTimeFormat('es-CL', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+}).format(new Date());
+
 const clampPercent = (value: number) => Math.min(100, Math.max(0, Math.round(value || 0)));
 
-const MetricCard = ({
-  label,
-  value,
-  detail,
-  to,
-}: {
-  label: string;
-  value: string | number;
-  detail: string;
-  to: string;
-}) => (
-  <Link
-    to={to}
-    className="group rounded-2xl border border-[#dde3db] bg-white p-4 hover:border-[#c6cec3] hover:bg-[#fbfcfa] sm:p-5"
-  >
-    <div className="flex items-start justify-between gap-4">
-      <div className="min-w-0">
-        <p className="text-[11px] font-black uppercase tracking-[.08em] text-[#707970]">{label}</p>
-        <p className="mt-2 text-2xl font-black tracking-[-.04em] text-[#151a16] sm:text-3xl [font-variant-numeric:tabular-nums]">{value}</p>
-        <p className="mt-1 text-xs leading-5 text-[#788078]">{detail}</p>
-      </div>
-      <ArrowRightIcon aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-[#a4aba3] group-hover:text-[#485147]" />
-    </div>
-  </Link>
-);
-
-const QuickAction = ({
+const DirectorAction = ({
   to,
   label,
-  detail,
   icon: Icon,
   primary = false,
 }: {
   to: string;
   label: string;
-  detail: string;
   icon: typeof PlusIcon;
   primary?: boolean;
 }) => (
   <Link
     to={to}
-    className={`group flex min-h-24 items-center gap-4 rounded-2xl border p-4 ${primary
-      ? 'border-[#a8d900] bg-[#b8ee13] text-[#151a16] hover:bg-[#c3f52f]'
-      : 'border-[#dde3db] bg-white text-[#151a16] hover:border-[#c6cec3] hover:bg-[#fbfcfa]'}`}
+    className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-black transition ${primary
+      ? 'border-[var(--ls-accent-strong)] bg-[var(--ls-accent)] text-[var(--ls-ink)] hover:bg-[var(--ls-accent-strong)]'
+      : 'border-[var(--ls-line-strong)] bg-[var(--ls-surface)] text-[var(--ls-ink)] hover:bg-[var(--ls-surface-soft)]'}`}
   >
-    <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${primary ? 'bg-[#151a16] text-white' : 'bg-[#f0f2ed] text-[#4f584f]'}`}>
-      <Icon aria-hidden="true" className="h-5 w-5" />
-    </span>
-    <span className="min-w-0 flex-1">
-      <span className="block font-black">{label}</span>
-      <span className={`mt-0.5 block text-xs leading-5 ${primary ? 'text-[#465133]' : 'text-[#788078]'}`}>{detail}</span>
-    </span>
-    <ArrowRightIcon aria-hidden="true" className="h-4 w-4 shrink-0 opacity-45 group-hover:opacity-100" />
+    <Icon aria-hidden="true" className="h-4 w-4" />
+    {label}
   </Link>
 );
 
@@ -172,8 +144,8 @@ const Dashboard = () => {
     return (
       <div className="grid min-h-[62vh] place-items-center" role="status" aria-live="polite">
         <div className="text-center">
-          <div aria-hidden="true" className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#d9ded4] border-t-[#8fb900]" />
-          <p className="mt-4 font-black text-[#596057]">Preparando tu centro de control…</p>
+          <div aria-hidden="true" className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[var(--ls-line)] border-t-[var(--ls-accent-strong)]" />
+          <p className="mt-4 font-black text-[var(--ls-muted)]">Preparando la jornada deportiva…</p>
         </div>
       </div>
     );
@@ -181,12 +153,12 @@ const Dashboard = () => {
 
   if (error || !data) {
     return (
-      <section className="mx-auto max-w-xl rounded-2xl border border-[#e0e4dc] bg-white p-7 text-center">
-        <ExclamationTriangleIcon aria-hidden="true" className="mx-auto h-9 w-9 text-[#d93643]" />
-        <h1 className="mt-3 text-xl font-black text-[#151a16]">No pudimos abrir tu resumen</h1>
-        <p className="mt-2 text-sm text-[#6f776f]">Revisa tu conexión e intenta cargar la información nuevamente.</p>
-        <button type="button" onClick={() => void refetch()} className="mt-5 min-h-11 rounded-xl bg-[#151a16] px-5 text-sm font-black text-white hover:bg-[#2a312b]">
-          Intentar nuevamente
+      <section className="mx-auto max-w-xl rounded-[var(--ls-radius-lg)] border border-[var(--ls-line)] bg-[var(--ls-surface)] p-7 text-center">
+        <ExclamationTriangleIcon aria-hidden="true" className="mx-auto h-9 w-9 text-[var(--ls-danger)]" />
+        <h1 className="mt-3 text-xl font-black text-[var(--ls-ink)]">No pudimos abrir la jornada</h1>
+        <p className="mt-2 text-sm text-[var(--ls-muted)]">No mostraremos información anterior como si estuviera actualizada. Revisa tu conexión e intenta nuevamente.</p>
+        <button type="button" onClick={() => void refetch()} className="mt-5 min-h-11 rounded-xl bg-[var(--ls-ink)] px-5 text-sm font-black text-white hover:opacity-90">
+          Sincronizar jornada
         </button>
       </section>
     );
@@ -197,194 +169,255 @@ const Dashboard = () => {
     + data.prioridades.alertas_asistencia.length
     + data.prioridades.categorias_sin_profesor.length
     + data.kpis.uniformes_pendientes;
+  const nextMatch = data.proximos_partidos[0] || null;
+  const remainingMatches = data.proximos_partidos.slice(1, 5);
+  const professorCapacity = data.kpis.profesores.limite > 0
+    ? `${data.kpis.profesores.activos}/${data.kpis.profesores.limite}`
+    : String(data.kpis.profesores.activos);
 
   const structureReady = Boolean(structure?.some((site) => site.activa !== false && site.ramas?.some((branch) => branch.activa !== false)));
   const onboardingSteps = [
-    { code: 'structure', label: 'Configura tu academia', detail: 'Agrega una sede y una disciplina.', done: structureReady, to: '/configuracion/estructura', icon: BuildingOffice2Icon },
-    { code: 'category', label: 'Crea una categoría', detail: 'Organiza a tus deportistas.', done: data.kpis.categorias > 0, to: '/alumnos', icon: UserGroupIcon },
-    { code: 'player', label: 'Agrega un deportista', detail: 'Completa su matrícula.', done: data.kpis.jugadores > 0, to: '/matricula', icon: UsersIcon },
-    { code: 'professor', label: 'Suma a un profesor', detail: 'Asigna responsables técnicos.', done: data.kpis.profesores.activos > 0, to: '/profesores', icon: AcademicCapIcon },
-    { code: 'attendance', label: 'Registra asistencia', detail: 'Comienza el historial del equipo.', done: data.kpis.asistencia_mes !== null, to: '/asistencias', icon: ClipboardDocumentCheckIcon },
+    { code: 'structure', label: 'Estructura deportiva', detail: 'Agrega una sede y una disciplina.', done: structureReady, to: '/configuracion/estructura', icon: BuildingOffice2Icon },
+    { code: 'category', label: 'Categorías', detail: 'Organiza a tus deportistas.', done: data.kpis.categorias > 0, to: '/alumnos', icon: UserGroupIcon },
+    { code: 'player', label: 'Plantel', detail: 'Completa la primera matrícula.', done: data.kpis.jugadores > 0, to: '/matricula', icon: UsersIcon },
+    { code: 'professor', label: 'Cuerpo técnico', detail: 'Asigna responsables por categoría.', done: data.kpis.profesores.activos > 0, to: '/profesores', icon: AcademicCapIcon },
+    { code: 'attendance', label: 'Primera jornada', detail: 'Registra asistencia y comienza el historial.', done: data.kpis.asistencia_mes !== null, to: '/asistencias', icon: ClipboardDocumentCheckIcon },
   ];
   const completedOnboarding = onboardingSteps.filter((step) => step.done).length;
   const showOnboarding = !structureLoading && !structureError && completedOnboarding < onboardingSteps.length;
 
   return (
-    <div className="mx-auto max-w-[1380px] space-y-4 pb-12 sm:space-y-5">
-      <header className="rounded-[22px] border border-[#dde3db] bg-white p-5 sm:p-7">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="min-w-0">
-            <p className="text-[11px] font-black uppercase tracking-[.1em] text-[#727b72]">Centro de control</p>
-            <h1 className="mt-2 text-pretty text-3xl font-black tracking-[-.045em] text-[#151a16] sm:text-4xl lg:text-5xl">{data.academia.nombre}</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#697169] sm:text-base">Lo importante de hoy, sin ruido. Revisa pendientes, próximos encuentros y mueve la operación desde aquí.</p>
+    <main className="mx-auto max-w-[1440px] space-y-5 pb-14" aria-labelledby="director-day-title">
+      <section className="overflow-hidden rounded-[var(--ls-radius-lg)] border border-[var(--ls-line)] bg-[var(--ls-surface)]">
+        <div className="border-l-[6px] border-l-[var(--ls-accent)] px-5 py-5 sm:px-7 sm:py-6">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-[.15em] text-[var(--ls-muted)]">Jornada · <span className="capitalize">{longToday()}</span></p>
+              <h1 id="director-day-title" className="mt-2 text-3xl font-black tracking-[-.04em] text-[var(--ls-ink)] sm:text-4xl">{data.academia.nombre}</h1>
+              <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-semibold text-[var(--ls-muted)]">
+                <span>{data.kpis.jugadores} deportistas</span>
+                <span>{data.kpis.categorias} categorías</span>
+                <span>{data.kpis.profesores.activos} profesores activos</span>
+                <span className={attentionCount ? 'font-black text-[var(--ls-warning)]' : 'font-black text-[var(--ls-success)]'}>{attentionCount ? `${attentionCount} asuntos requieren atención` : 'Operación sin pendientes críticos'}</span>
+              </div>
+            </div>
+            <nav className="flex flex-wrap gap-2" aria-label="Acciones de la jornada">
+              <DirectorAction to="/asistencias" label="Pasar asistencia" icon={ClipboardDocumentCheckIcon} primary />
+              <DirectorAction to="/matricula" label="Matricular" icon={PlusIcon} />
+              <DirectorAction to="/partidos" label="Programar partido" icon={TrophyIcon} />
+            </nav>
           </div>
-          <div className={`inline-flex w-fit items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-black ${attentionCount ? 'border-[#efd99b] bg-[#fff8e8] text-[#765000]' : 'border-[#cfe7d8] bg-[#eff9f2] text-[#106742]'}`}>
-            <span aria-hidden="true" className={`h-2 w-2 rounded-full ${attentionCount ? 'bg-[#d99a00]' : 'bg-[#17a66a]'}`} />
-            {attentionCount ? `${attentionCount} pendientes por revisar` : 'Todo al día'}
-          </div>
-        </div>
-
-        <div className="mt-6 grid gap-2 sm:grid-cols-3">
-          <QuickAction to="/matricula" label="Nueva matrícula" detail="Agrega un deportista" icon={PlusIcon} primary />
-          <QuickAction to="/asistencias" label="Registrar asistencia" detail="Actualiza la lista de hoy" icon={ClipboardDocumentCheckIcon} />
-          <QuickAction to="/partidos" label="Programar encuentro" detail="Agenda competencia o amistoso" icon={TrophyIcon} />
-        </div>
-      </header>
-
-      <section aria-labelledby="dashboard-summary-title">
-        <h2 id="dashboard-summary-title" className="sr-only">Resumen operativo</h2>
-        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-          <MetricCard label="Deportistas" value={data.kpis.jugadores} detail={`${data.kpis.categorias} categorías activas`} to="/alumnos" />
-          <MetricCard label="Asistencia del mes" value={data.kpis.asistencia_mes === null ? 'Sin datos' : `${attendance}%`} detail="Promedio registrado" to="/asistencias" />
-          <MetricCard label="Por cobrar" value={money(data.kpis.por_cobrar)} detail={`${data.kpis.cobros_vencidos} pagos vencidos`} to="/finanzas" />
-          <MetricCard label="Próximos encuentros" value={data.kpis.proximos_partidos} detail={`${data.kpis.profesores.activos} profesores activos`} to="/partidos" />
         </div>
       </section>
 
-      <div className="grid gap-4 xl:grid-cols-[1.05fr_.95fr]">
-        <section className="rounded-2xl border border-[#dde3db] bg-white p-5 sm:p-6" aria-labelledby="attention-title">
-          <div className="flex items-center justify-between gap-4">
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,.65fr)]">
+        <section className="overflow-hidden rounded-[var(--ls-radius-lg)] border border-[var(--ls-line)] bg-[var(--ls-surface)]" aria-labelledby="next-match-title">
+          <header className="flex items-center justify-between gap-4 border-b border-[var(--ls-line)] px-5 py-4 sm:px-6">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7a827a]">Prioridad</p>
-              <h2 id="attention-title" className="mt-1 text-xl font-black tracking-[-.03em] text-[#151a16]">Para revisar hoy</h2>
+              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--ls-accent-text)]">Match Command</p>
+              <h2 id="next-match-title" className="mt-1 text-xl font-black tracking-[-.03em] text-[var(--ls-ink)]">Próximo hito deportivo</h2>
             </div>
-            <span className="rounded-full bg-[#f1f3ee] px-3 py-1 text-xs font-black text-[#5e665e] [font-variant-numeric:tabular-nums]">{attentionCount}</span>
-          </div>
+            <Link to="/partidos" className="inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3 text-xs font-black text-[var(--ls-muted)] hover:bg-[var(--ls-surface-soft)] hover:text-[var(--ls-ink)]">Agenda completa <ArrowRightIcon aria-hidden="true" className="h-4 w-4" /></Link>
+          </header>
 
-          <div className="mt-4 divide-y divide-[#edf0eb]">
+          {nextMatch ? (
+            <div className="p-5 sm:p-6">
+              <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-stretch">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 text-xs font-black text-[var(--ls-muted)]">
+                    <span className="rounded-full border border-[var(--ls-line)] bg-[var(--ls-surface-soft)] px-3 py-1.5">{nextMatch.categorias?.nombre || 'Categoría por confirmar'}</span>
+                    {nextMatch.condicion ? <span className="rounded-full border border-[var(--ls-line)] px-3 py-1.5">{nextMatch.condicion}</span> : null}
+                  </div>
+                  <div className="mt-5 flex items-end gap-4">
+                    <div className="min-w-0">
+                      <p className="text-xs font-black uppercase tracking-[.12em] text-[var(--ls-muted)]">Rival</p>
+                      <p className="mt-1 truncate text-3xl font-black tracking-[-.045em] text-[var(--ls-ink)] sm:text-4xl">{nextMatch.rival}</p>
+                    </div>
+                  </div>
+                  <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                    <MatchFact label="Fecha" value={shortDate(nextMatch.fecha)} />
+                    <MatchFact label="Citación" value={nextMatch.hora_citacion?.slice(0, 5) || 'Por confirmar'} />
+                    <MatchFact label="Inicio" value={nextMatch.hora?.slice(0, 5) || 'Por confirmar'} />
+                  </div>
+                  <p className="mt-5 text-sm font-semibold text-[var(--ls-muted)]">{nextMatch.ubicacion || 'Ubicación por confirmar'}</p>
+                </div>
+
+                <div className="flex flex-col justify-between rounded-[var(--ls-radius)] bg-[var(--ls-ink)] p-5 text-white">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[.13em] text-[var(--ls-accent-on-dark)]">Preparación</p>
+                    <p className="mt-2 text-lg font-black leading-tight">La próxima decisión está en el encuentro.</p>
+                    <p className="mt-2 text-xs leading-5 text-white/70">Revisa convocatoria, citación, plantel y detalles antes de salir a cancha.</p>
+                  </div>
+                  <Link to="/partidos" className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--ls-accent)] px-4 text-sm font-black text-[var(--ls-ink)] hover:bg-[var(--ls-accent-strong)]">Abrir preparación <ArrowRightIcon aria-hidden="true" className="h-4 w-4" /></Link>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="grid min-h-[300px] place-items-center p-6 text-center">
+              <div className="max-w-md">
+                <TrophyIcon aria-hidden="true" className="mx-auto h-9 w-9 text-[var(--ls-muted)]" />
+                <p className="mt-4 text-lg font-black text-[var(--ls-ink)]">La temporada no tiene un próximo encuentro programado</p>
+                <p className="mt-2 text-sm leading-6 text-[var(--ls-muted)]">Programa el siguiente partido o amistoso cuando esté confirmado. No inventaremos una agenda que todavía no existe.</p>
+                <DirectorAction to="/partidos" label="Programar encuentro" icon={TrophyIcon} primary />
+              </div>
+            </div>
+          )}
+        </section>
+
+        <section className="rounded-[var(--ls-radius-lg)] border border-[var(--ls-line)] bg-[var(--ls-surface)]" aria-labelledby="attention-title">
+          <header className="border-b border-[var(--ls-line)] px-5 py-4">
+            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--ls-warning)]">Decisiones</p>
+            <div className="mt-1 flex items-center justify-between gap-3">
+              <h2 id="attention-title" className="text-xl font-black tracking-[-.03em] text-[var(--ls-ink)]">Requiere atención</h2>
+              <span className="text-sm font-black tabular-nums text-[var(--ls-muted)]">{attentionCount}</span>
+            </div>
+          </header>
+          <div className="divide-y divide-[var(--ls-line)] px-5">
             {data.kpis.cobros_vencidos > 0 ? (
-              <Link to="/finanzas" className="group flex items-center gap-3 py-3.5">
-                <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#d93643]" />
-                <div className="min-w-0 flex-1"><p className="font-black text-[#1b201c]">{data.kpis.cobros_vencidos} pagos vencidos</p><p className="mt-0.5 text-xs text-[#798179]">Revisa familias con cobros pendientes.</p></div>
-                <ArrowRightIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-[#a2aaa2] group-hover:text-[#4f584f]" />
-              </Link>
+              <AttentionLink to="/finanzas" tone="danger" title={`${data.kpis.cobros_vencidos} pagos vencidos`} detail="Familias con deuda que requiere seguimiento." />
             ) : null}
 
             {data.prioridades.alertas_asistencia.slice(0, 3).map((alert) => (
-              <div key={alert.id} className="flex items-center gap-3 py-3.5">
-                <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#d99a00]" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-black text-[#1b201c]">{alert.jugadores?.nombre || 'Deportista'} · {alert.racha} ausencias</p>
-                  <p className="mt-0.5 truncate text-xs text-[#798179]">{alert.categorias?.nombre || 'Categoría'} necesita seguimiento.</p>
+              <div key={alert.id} className="py-4">
+                <div className="flex items-start gap-3">
+                  <span aria-hidden="true" className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[var(--ls-warning)]" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-black text-[var(--ls-ink)]">{alert.jugadores?.nombre || 'Deportista'} · {alert.racha} ausencias</p>
+                    <p className="mt-1 truncate text-xs leading-5 text-[var(--ls-muted)]">{alert.categorias?.nombre || 'Categoría'} necesita seguimiento técnico.</p>
+                    <button type="button" onClick={() => void reviewAlert(alert.id)} className="mt-2 min-h-9 rounded-lg border border-[var(--ls-line-strong)] px-3 text-xs font-black text-[var(--ls-ink)] hover:bg-[var(--ls-surface-soft)]">Marcar revisado</button>
+                  </div>
                 </div>
-                <button type="button" onClick={() => void reviewAlert(alert.id)} className="shrink-0 rounded-lg border border-[#d9ded6] px-3 py-2 text-xs font-black text-[#4d554d] hover:bg-[#f5f7f3]">Marcar revisado</button>
               </div>
             ))}
 
             {data.prioridades.categorias_sin_profesor.length > 0 ? (
-              <Link to="/profesores" className="group flex items-center gap-3 py-3.5">
-                <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#3157ff]" />
-                <div className="min-w-0 flex-1"><p className="font-black text-[#1b201c]">{data.prioridades.categorias_sin_profesor.length} categorías sin profesor</p><p className="mt-0.5 truncate text-xs text-[#798179]">{data.prioridades.categorias_sin_profesor.map((item) => item.nombre).join(', ')}</p></div>
-                <ArrowRightIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-[#a2aaa2] group-hover:text-[#4f584f]" />
-              </Link>
+              <AttentionLink to="/profesores" tone="info" title={`${data.prioridades.categorias_sin_profesor.length} categorías sin profesor`} detail={data.prioridades.categorias_sin_profesor.map((item) => item.nombre).join(', ')} />
             ) : null}
 
             {data.kpis.uniformes_pendientes > 0 ? (
-              <Link to="/uniformes" className="group flex items-center gap-3 py-3.5">
-                <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#7c55d9]" />
-                <div className="min-w-0 flex-1"><p className="font-black text-[#1b201c]">{data.kpis.uniformes_pendientes} uniformes pendientes</p><p className="mt-0.5 text-xs text-[#798179]">Hay entregas o solicitudes por resolver.</p></div>
-                <ArrowRightIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-[#a2aaa2] group-hover:text-[#4f584f]" />
-              </Link>
+              <AttentionLink to="/uniformes" tone="default" title={`${data.kpis.uniformes_pendientes} uniformes pendientes`} detail="Entregas o solicitudes aún sin resolver." />
             ) : null}
 
             {!attentionCount ? (
-              <div className="py-8 text-center">
-                <CheckCircleIcon aria-hidden="true" className="mx-auto h-8 w-8 text-[#158a59]" />
-                <p className="mt-3 font-black text-[#1b201c]">No hay pendientes importantes</p>
-                <p className="mt-1 text-sm text-[#798179]">Puedes concentrarte en la operación del día.</p>
+              <div className="py-10 text-center">
+                <CheckCircleIcon aria-hidden="true" className="mx-auto h-8 w-8 text-[var(--ls-success)]" />
+                <p className="mt-3 font-black text-[var(--ls-ink)]">Sin pendientes críticos</p>
+                <p className="mt-1 text-sm text-[var(--ls-muted)]">La jornada puede concentrarse en plantel y cancha.</p>
               </div>
             ) : null}
-          </div>
-        </section>
-
-        <section className="rounded-2xl border border-[#dde3db] bg-white p-5 sm:p-6" aria-labelledby="upcoming-title">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7a827a]">Agenda</p>
-              <h2 id="upcoming-title" className="mt-1 text-xl font-black tracking-[-.03em] text-[#151a16]">Próximos encuentros</h2>
-            </div>
-            <Link to="/partidos" className="text-xs font-black text-[#4f584f] hover:text-[#151a16]">Ver agenda</Link>
-          </div>
-
-          <div className="mt-4 divide-y divide-[#edf0eb]">
-            {data.proximos_partidos.length ? data.proximos_partidos.slice(0, 5).map((match) => (
-              <Link key={match.id} to="/partidos" className="group flex items-center gap-3 py-3.5">
-                <div className="w-14 shrink-0 text-center">
-                  <p className="text-xs font-black capitalize text-[#535b53]">{shortDate(match.fecha).split(' ')[0]}</p>
-                  <p className="mt-0.5 text-sm font-black text-[#1b201c] [font-variant-numeric:tabular-nums]">{shortDate(match.fecha).split(' ').slice(1).join(' ')}</p>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-black text-[#1b201c]">vs {match.rival}</p>
-                  <p className="mt-0.5 truncate text-xs text-[#798179]">{match.categorias?.nombre || 'Sin categoría'} · {match.ubicacion || 'Lugar por confirmar'}</p>
-                  <p className="mt-1 text-xs font-bold text-[#596259]">{match.hora_citacion ? `Citación ${match.hora_citacion.slice(0, 5)} · ` : ''}Inicio {match.hora?.slice(0, 5)}</p>
-                </div>
-                <ArrowRightIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-[#a2aaa2] group-hover:text-[#4f584f]" />
-              </Link>
-            )) : (
-              <div className="py-8 text-center">
-                <ClockIcon aria-hidden="true" className="mx-auto h-8 w-8 text-[#879087]" />
-                <p className="mt-3 font-black text-[#1b201c]">No hay encuentros programados</p>
-                <Link to="/partidos" className="mt-2 inline-flex items-center gap-1 text-sm font-black text-[#4d5745] hover:text-[#151a16]">Programar encuentro <ArrowRightIcon aria-hidden="true" className="h-4 w-4" /></Link>
-              </div>
-            )}
           </div>
         </section>
       </div>
 
-      <section className="rounded-2xl border border-[#dde3db] bg-white p-5 sm:p-6" aria-labelledby="finance-title">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7a827a]">Finanzas</p>
-            <h2 id="finance-title" className="mt-1 text-xl font-black tracking-[-.03em] text-[#151a16]">Movimiento del mes</h2>
+      <section className="rounded-[var(--ls-radius-lg)] border border-[var(--ls-line)] bg-[var(--ls-surface)]" aria-labelledby="roster-pulse-title">
+        <div className="grid lg:grid-cols-[240px_minmax(0,1fr)]">
+          <header className="border-b border-[var(--ls-line)] p-5 lg:border-b-0 lg:border-r">
+            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--ls-accent-text)]">Plantel</p>
+            <h2 id="roster-pulse-title" className="mt-1 text-xl font-black tracking-[-.03em] text-[var(--ls-ink)]">Pulso operativo</h2>
+            <p className="mt-2 text-xs leading-5 text-[var(--ls-muted)]">Contexto técnico para decidir, no métricas decorativas.</p>
+          </header>
+          <div className="grid divide-y divide-[var(--ls-line)] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+            <PulseLink to="/alumnos" label="Plantel activo" value={`${data.kpis.jugadores} deportistas`} detail={`${data.kpis.categorias} categorías`} icon={UsersIcon} />
+            <PulseLink to="/profesores" label="Cuerpo técnico" value={`${professorCapacity} profesores`} detail={data.kpis.profesores.limite > 0 ? 'activos / capacidad del plan' : 'profesores activos'} icon={AcademicCapIcon} />
+            <PulseLink to="/asistencias" label="Asistencia" value={data.kpis.asistencia_mes === null ? 'Sin registro mensual' : `${attendance}% este mes`} detail={data.kpis.asistencia_mes === null ? 'Registra la primera jornada' : attendance < 75 ? 'Conviene revisar continuidad' : 'Seguimiento mensual'} icon={ClipboardDocumentCheckIcon} progress={data.kpis.asistencia_mes === null ? undefined : attendance} />
           </div>
-          <Link to="/finanzas" className="inline-flex items-center gap-1 text-xs font-black text-[#4f584f] hover:text-[#151a16]">Abrir finanzas <ArrowRightIcon aria-hidden="true" className="h-4 w-4" /></Link>
-        </div>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            ['Ingresos', money(data.kpis.ingresos_mes)],
-            ['Egresos', money(data.kpis.egresos_mes)],
-            ['Saldo', money(data.kpis.saldo_mes)],
-            ['Por cobrar', money(data.kpis.por_cobrar)],
-          ].map(([label, value]) => (
-            <div key={label} className="rounded-xl bg-[#f4f6f1] p-4">
-              <p className="text-[10px] font-black uppercase tracking-[.08em] text-[#7a827a]">{label}</p>
-              <p className={`mt-2 text-xl font-black tracking-[-.03em] [font-variant-numeric:tabular-nums] ${label === 'Saldo' && data.kpis.saldo_mes < 0 ? 'text-[#c5303d]' : 'text-[#1b201c]'}`}>{value}</p>
-            </div>
-          ))}
         </div>
       </section>
 
-      {showOnboarding ? (
-        <section className="rounded-2xl border border-[#dfe4dc] bg-[#fbfcfa] p-5 sm:p-6" aria-labelledby="onboarding-title">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="flex items-start gap-3">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#b8ee13] text-[#151a16]"><RocketLaunchIcon aria-hidden="true" className="h-5 w-5" /></span>
-              <div><p className="text-[10px] font-black uppercase tracking-[.1em] text-[#7a827a]">Configuración inicial</p><h2 id="onboarding-title" className="mt-1 text-xl font-black tracking-[-.03em] text-[#151a16]">Deja tu academia lista para operar</h2><p className="mt-1 text-sm text-[#737b73]">Completa sólo lo que falta.</p></div>
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(300px,.75fr)]">
+        <section className="rounded-[var(--ls-radius-lg)] border border-[var(--ls-line)] bg-[var(--ls-surface)]" aria-labelledby="season-timeline-title">
+          <header className="flex items-center justify-between gap-4 border-b border-[var(--ls-line)] px-5 py-4 sm:px-6">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--ls-accent-text)]">Season Timeline</p>
+              <h2 id="season-timeline-title" className="mt-1 text-xl font-black tracking-[-.03em] text-[var(--ls-ink)]">Lo que viene en competencia</h2>
             </div>
-            <p className="text-xs font-black text-[#656e65] [font-variant-numeric:tabular-nums]">{completedOnboarding} de {onboardingSteps.length} pasos listos</p>
+            <CalendarDaysIcon aria-hidden="true" className="h-5 w-5 text-[var(--ls-muted)]" />
+          </header>
+          <div className="px-5 py-2 sm:px-6">
+            {nextMatch ? <TimelineMatch match={nextMatch} active /> : null}
+            {remainingMatches.map((match) => <TimelineMatch key={match.id} match={match} />)}
+            {!nextMatch ? (
+              <div className="py-10 text-center text-sm font-semibold text-[var(--ls-muted)]">No hay encuentros en la línea de temporada.</div>
+            ) : null}
           </div>
-          <div className="mt-5 grid gap-2 md:grid-cols-2 xl:grid-cols-5">
-            {onboardingSteps.map(({ code, label, detail, done, to, icon: Icon }) => (
-              <Link key={code} to={to} className={`rounded-xl border p-4 ${done ? 'border-[#d8e8dd] bg-[#f2faf5]' : 'border-[#e0e4dc] bg-white hover:border-[#c9d1c7]'}`}>
-                <div className="flex items-center justify-between"><Icon aria-hidden="true" className="h-5 w-5 text-[#4d554b]" />{done ? <CheckCircleIcon aria-hidden="true" className="h-5 w-5 text-[#158a59]" /> : <ArrowRightIcon aria-hidden="true" className="h-4 w-4 text-[#7b8179]" />}</div>
-                <p className="mt-4 text-sm font-black text-[#151a16]">{label}</p>
-                <p className="mt-1 text-xs leading-5 text-[#737b73]">{done ? 'Listo' : detail}</p>
+        </section>
+
+        <section className="rounded-[var(--ls-radius-lg)] border border-[var(--ls-line)] bg-[var(--ls-surface)]" aria-labelledby="finance-title">
+          <header className="border-b border-[var(--ls-line)] px-5 py-4">
+            <p className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--ls-muted)]">Soporte a la operación</p>
+            <h2 id="finance-title" className="mt-1 text-xl font-black tracking-[-.03em] text-[var(--ls-ink)]">Caja de la academia</h2>
+          </header>
+          <div className="px-5 py-3">
+            <LedgerRow label="Ingresos del mes" value={money(data.kpis.ingresos_mes)} tone="success" />
+            <LedgerRow label="Egresos del mes" value={money(data.kpis.egresos_mes)} tone="danger" />
+            <LedgerRow label="Saldo del mes" value={money(data.kpis.saldo_mes)} tone={data.kpis.saldo_mes < 0 ? 'danger' : 'default'} strong />
+            <LedgerRow label="Por cobrar" value={money(data.kpis.por_cobrar)} tone={data.kpis.cobros_vencidos ? 'warning' : 'default'} />
+          </div>
+          <div className="border-t border-[var(--ls-line)] p-4">
+            <Link to="/finanzas" className="inline-flex min-h-11 w-full items-center justify-between rounded-xl px-3 text-sm font-black text-[var(--ls-ink)] hover:bg-[var(--ls-surface-soft)]">Abrir mesa financiera <ArrowRightIcon aria-hidden="true" className="h-4 w-4" /></Link>
+          </div>
+        </section>
+      </div>
+
+      {showOnboarding ? (
+        <section className="rounded-[var(--ls-radius-lg)] border border-[var(--ls-line)] bg-[var(--ls-surface)]" aria-labelledby="onboarding-title">
+          <div className="flex flex-col gap-4 border-b border-[var(--ls-line)] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div className="flex items-start gap-3">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--ls-accent)] text-[var(--ls-ink)]"><RocketLaunchIcon aria-hidden="true" className="h-5 w-5" /></span>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[.14em] text-[var(--ls-muted)]">Puesta en marcha</p>
+                <h2 id="onboarding-title" className="mt-1 text-xl font-black tracking-[-.03em] text-[var(--ls-ink)]">Deja la academia lista para operar en cancha</h2>
+              </div>
+            </div>
+            <p className="text-xs font-black tabular-nums text-[var(--ls-muted)]">{completedOnboarding} / {onboardingSteps.length} listo</p>
+          </div>
+          <div className="divide-y divide-[var(--ls-line)] px-5 sm:px-6">
+            {onboardingSteps.map(({ code, label, detail, done, to, icon: Icon }, index) => (
+              <Link key={code} to={to} className="group grid grid-cols-[28px_36px_minmax(0,1fr)_auto] items-center gap-3 py-3.5">
+                <span className="text-center text-[10px] font-black tabular-nums text-[var(--ls-muted)]">{String(index + 1).padStart(2, '0')}</span>
+                <span className={`grid h-9 w-9 place-items-center rounded-full border ${done ? 'border-[var(--ls-success)] text-[var(--ls-success)]' : 'border-[var(--ls-line-strong)] text-[var(--ls-muted)]'}`}>
+                  {done ? <CheckCircleIcon aria-hidden="true" className="h-5 w-5" /> : <Icon aria-hidden="true" className="h-4 w-4" />}
+                </span>
+                <div className="min-w-0"><p className="font-black text-[var(--ls-ink)]">{label}</p><p className="mt-0.5 text-xs text-[var(--ls-muted)]">{done ? 'Listo para operar' : detail}</p></div>
+                <ArrowRightIcon aria-hidden="true" className="h-4 w-4 text-[var(--ls-muted)] group-hover:text-[var(--ls-ink)]" />
               </Link>
             ))}
           </div>
         </section>
       ) : null}
 
-      <footer className="flex flex-wrap items-center justify-between gap-3 px-1 text-xs text-[#7c847c]">
+      <footer className="flex flex-wrap items-center justify-between gap-3 px-1 text-xs font-semibold text-[var(--ls-muted)]">
         <p>{data.plan.plan.trial ? 'Prueba Full activa' : `Plan ${data.plan.plan.name}`}</p>
-        <div className="flex items-center gap-4">
-          <Link to="/profesores" className="inline-flex items-center gap-1 hover:text-[#151a16]"><AcademicCapIcon aria-hidden="true" className="h-4 w-4" />{data.kpis.profesores.activos} profesores</Link>
-          <Link to="/partidos" className="inline-flex items-center gap-1 hover:text-[#151a16]"><CalendarDaysIcon aria-hidden="true" className="h-4 w-4" />Agenda</Link>
-          <Link to="/finanzas" className="inline-flex items-center gap-1 hover:text-[#151a16]"><BanknotesIcon aria-hidden="true" className="h-4 w-4" />Finanzas</Link>
+        <div className="flex flex-wrap items-center gap-4">
+          <Link to="/profesores" className="inline-flex items-center gap-1.5 hover:text-[var(--ls-ink)]"><AcademicCapIcon aria-hidden="true" className="h-4 w-4" />Cuerpo técnico</Link>
+          <Link to="/partidos" className="inline-flex items-center gap-1.5 hover:text-[var(--ls-ink)]"><CalendarDaysIcon aria-hidden="true" className="h-4 w-4" />Temporada</Link>
+          <Link to="/finanzas" className="inline-flex items-center gap-1.5 hover:text-[var(--ls-ink)]"><BanknotesIcon aria-hidden="true" className="h-4 w-4" />Finanzas</Link>
         </div>
       </footer>
-    </div>
+    </main>
   );
 };
+
+function MatchFact({ label, value }: { label: string; value: string }) {
+  return <div className="border-l-2 border-l-[var(--ls-line-strong)] pl-3"><p className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--ls-muted)]">{label}</p><p className="mt-1 text-sm font-black capitalize tabular-nums text-[var(--ls-ink)]">{value}</p></div>;
+}
+
+function AttentionLink({ to, tone, title, detail }: { to: string; tone: 'danger' | 'info' | 'default'; title: string; detail: string }) {
+  const dot = tone === 'danger' ? 'bg-[var(--ls-danger)]' : tone === 'info' ? 'bg-[var(--ls-blue)]' : 'bg-[var(--ls-muted)]';
+  return <Link to={to} className="group flex items-start gap-3 py-4"><span aria-hidden="true" className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${dot}`} /><div className="min-w-0 flex-1"><p className="text-sm font-black text-[var(--ls-ink)]">{title}</p><p className="mt-1 line-clamp-2 text-xs leading-5 text-[var(--ls-muted)]">{detail}</p></div><ArrowRightIcon aria-hidden="true" className="mt-1 h-4 w-4 shrink-0 text-[var(--ls-muted)] group-hover:text-[var(--ls-ink)]" /></Link>;
+}
+
+function PulseLink({ to, label, value, detail, icon: Icon, progress }: { to: string; label: string; value: string; detail: string; icon: typeof UsersIcon; progress?: number }) {
+  return <Link to={to} className="group min-w-0 p-5 hover:bg-[var(--ls-surface-soft)]"><div className="flex items-start gap-3"><Icon aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-[var(--ls-muted)]" /><div className="min-w-0 flex-1"><p className="text-[10px] font-black uppercase tracking-[.1em] text-[var(--ls-muted)]">{label}</p><p className="mt-1 text-lg font-black tracking-[-.025em] text-[var(--ls-ink)]">{value}</p><p className="mt-1 text-xs leading-5 text-[var(--ls-muted)]">{detail}</p>{typeof progress === 'number' ? <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[var(--ls-line)]"><div className="h-full rounded-full bg-[var(--ls-accent-strong)]" style={{ width: `${clampPercent(progress)}%` }} /></div> : null}</div><ArrowRightIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-[var(--ls-muted)] opacity-0 transition group-hover:opacity-100" /></div></Link>;
+}
+
+function TimelineMatch({ match, active = false }: { match: Match; active?: boolean }) {
+  return <Link to="/partidos" className="group grid grid-cols-[82px_16px_minmax(0,1fr)_auto] items-stretch gap-3 py-3.5"><div className="self-center text-right"><p className="text-xs font-black capitalize text-[var(--ls-ink)]">{shortDate(match.fecha)}</p><p className="mt-1 text-[11px] font-semibold tabular-nums text-[var(--ls-muted)]">{match.hora?.slice(0, 5) || '—'}</p></div><div className="relative flex justify-center"><span className={`relative z-10 mt-2 h-2.5 w-2.5 rounded-full ${active ? 'bg-[var(--ls-accent-strong)]' : 'bg-[var(--ls-line-strong)]'}`} /><span aria-hidden="true" className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-[var(--ls-line)]" /></div><div className="min-w-0 self-center"><p className="truncate font-black text-[var(--ls-ink)]">{match.categorias?.nombre || 'Categoría'} · vs {match.rival}</p><p className="mt-1 truncate text-xs text-[var(--ls-muted)]">{match.ubicacion || 'Lugar por confirmar'}{match.condicion ? ` · ${match.condicion}` : ''}</p></div><ArrowRightIcon aria-hidden="true" className="h-4 w-4 self-center text-[var(--ls-muted)] group-hover:text-[var(--ls-ink)]" /></Link>;
+}
+
+function LedgerRow({ label, value, tone = 'default', strong = false }: { label: string; value: string; tone?: 'default' | 'success' | 'warning' | 'danger'; strong?: boolean }) {
+  const valueTone = tone === 'success' ? 'text-[var(--ls-success)]' : tone === 'warning' ? 'text-[var(--ls-warning)]' : tone === 'danger' ? 'text-[var(--ls-danger)]' : 'text-[var(--ls-ink)]';
+  return <div className={`flex items-center justify-between gap-4 border-b border-[var(--ls-line)] py-3 last:border-b-0 ${strong ? 'font-black' : ''}`}><span className="text-sm text-[var(--ls-muted)]">{label}</span><strong className={`text-sm tabular-nums ${valueTone}`}>{value}</strong></div>;
+}
 
 export default Dashboard;
