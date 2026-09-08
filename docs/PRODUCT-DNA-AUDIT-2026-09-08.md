@@ -165,6 +165,36 @@ Deployment de producción: **READY** y asociado a `deportivo.lestra.app`.
 
 Estado: **CORREGIDO/REVIEW**. Falta prueba real contra Evolution de ciclo desconectado → connecting → QR → open, cambio de número, desconexión y caída temporal del bridge.
 
+## Auditoría P0/P1 — Profesor: asistencia offline aislada por contexto
+
+Ruta: `/profesor`.
+Flujo: Asistencia → cambio de categoría/fecha → pérdida de red / error del backend → borrador local → reconexión.
+
+Se detectó un riesgo operativo real: al cambiar de categoría o fecha, `ProfesorPortal` podía conservar en memoria el roster anterior mientras intentaba cargar el nuevo. Si esa petición fallaba, el selector podía indicar una categoría mientras la pantalla todavía contenía alumnos de otra. El backend ya rechazaba jugadores ajenos a la categoría asignada, por lo que existía defensa de integridad del lado servidor, pero la UX podía inducir a error y contaminar el borrador local.
+
+Corrección aplicada:
+
+- cada carga de asistencia queda identificada por **categoría + fecha**;
+- al cambiar cualquiera de esos datos se invalida la petición anterior y se retira inmediatamente el roster previo;
+- respuestas HTTP antiguas no pueden sobrescribir un contexto más nuevo;
+- una falla de red nunca usa alumnos de otra categoría como fallback;
+- el borrador local se filtra contra el roster que el servidor acaba de verificar antes de mezclarse con la asistencia remota;
+- los contadores se calculan únicamente sobre los alumnos del roster vigente;
+- sin conexión o con una lista no verificada, Lestra conserva el borrador pero bloquea el envío;
+- al recuperar conexión se vuelve a verificar la lista antes de permitir guardar;
+- los borradores persistentes continúan almacenando solo `jugador_id → estado de asistencia`: no se agregó caché persistente de nombres, fotografías, alertas médicas ni teléfonos de emergencia;
+- el estado de sincronización se comunica con texto explícito y `aria-live`, no solamente con color.
+
+Commit funcional: `b68942baf1ea743ef70efdb8f91f5c59110c1ae0`.
+Deployment funcional: **READY** en producción.
+
+Durante la revisión del mismo flujo se comprobó además que el modo cancha claro convertía varias superficies a blanco, mientras ciertos controles operativos conservaban colores pensados para dark mode. Se reforzó el contrato propietario `portal-visibility.css` para que los estados anunciados con `aria-live`, el CTA primario y la pestaña activa tengan contraste fuerte en **Modo sol**. El teal original `#289E9D` con texto blanco tenía un contraste aproximado de **3.25:1**; para esos controles del modo claro se utiliza ahora `#0d6667`, con contraste aproximado de **6.74:1** frente a blanco.
+
+Commit de contraste: `12a62e5993b614064ab02cf3a51fff2beeda5019`.
+Deployment: **READY** y asociado a `deportivo.lestra.app`.
+
+Estado: **CORREGIDO/REVIEW**. Antes de PASS deben probarse en dispositivo real: modo avión manteniendo una lista ya verificada, cambio de categoría offline, cambio de fecha offline, reconexión, respuestas fuera de orden, error `5xx`, reintento manual, borrador recuperado, envío correcto, Modo sol/noche y mobile táctil.
+
 ## Matriz inicial de rutas
 
 | Ruta / flujo | Prioridad actual | Estado | Motivo |
@@ -179,7 +209,7 @@ Estado: **CORREGIDO/REVIEW**. Falta prueba real contra Evolution de ciclo descon
 | `/alumnos` evaluación | P0 | CORREGIDO/REVIEW | Fix desplegado; falta certificación de interacción completa. |
 | `/asistencias` | P1 | REVIEW | Flujo de alta frecuencia y uso de terreno; mobile/targets/estados son críticos. |
 | `/profesores` | P1 | REVIEW | `product-design-v2-1.css` contiene tratamiento específico; revisar propiedad y coherencia. |
-| `/profesor` | P0/P1 | REVIEW | Uso de cancha, modos de visibilidad, estado offline y mobile requieren QA real bajo condiciones de terreno. |
+| `/profesor` | P0/P1 | CORREGIDO/REVIEW | Aislamiento de roster/borrador y contraste operacional reforzados; falta QA real offline/reconexión, mobile y ambos modos de visibilidad. |
 | `/apoderados` | P1 | REVIEW | Validar jerarquía familia → estado → acción y flujos sensibles. |
 | `/apoderado` | P1 | REVIEW | Portal privado; revisar mobile, estados y separación real de rol. |
 | `/partidos` | P1 | REVIEW | Diálogos/portales y flujo operativo complejo. |
