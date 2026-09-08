@@ -1,0 +1,567 @@
+/* Lestra Deportivo — Family Touchpoint V2
+ * Communication begins from athlete/family context. Portal and WhatsApp are
+ * delivery channels of the same relationship, not separate CRM modules.
+ */
+
+.family-touchpoint {
+  --ft-dark: var(--ls-sidebar);
+  --ft-surface: var(--ls-surface);
+  --ft-soft: var(--ls-surface-soft);
+  --ft-line: var(--ls-line);
+  --ft-line-strong: var(--ls-line-strong);
+  --ft-ink: var(--ls-ink);
+  --ft-muted: var(--ls-muted);
+  --ft-sage: color-mix(in srgb, var(--ls-accent) 8%, var(--ls-surface));
+  --ft-message: color-mix(in srgb, var(--ls-accent) 5%, var(--ls-surface));
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.family-touchpoint-command {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--ls-accent) 20%, transparent);
+  border-radius: 20px;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--ls-accent) 7%, transparent), transparent 32%),
+    var(--ft-dark);
+  color: white;
+  box-shadow: 0 16px 36px color-mix(in srgb, var(--ft-dark) 15%, transparent);
+}
+
+.family-touchpoint-command-copy {
+  min-width: 0;
+  padding: 17px 20px;
+  border-left: 5px solid var(--ls-accent);
+}
+
+.family-touchpoint-command-copy > p {
+  margin: 0;
+  color: var(--ls-accent-on-dark);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+.family-touchpoint-command-copy h2 {
+  margin: 4px 0 0;
+  color: white !important;
+  font-size: clamp(1.25rem, 2.2vw, 1.65rem);
+  font-weight: 900;
+  letter-spacing: -.035em;
+}
+
+.family-touchpoint-command-copy > span {
+  display: block;
+  margin-top: 5px;
+  max-width: 720px;
+  color: color-mix(in srgb, white 58%, transparent);
+  font-size: .76rem;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.family-touchpoint-command-rail {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(76px, 1fr));
+  align-self: stretch;
+  border-left: 1px solid color-mix(in srgb, white 8%, transparent);
+}
+
+.family-touchpoint-command-rail > span {
+  display: grid;
+  min-width: 88px;
+  place-content: center;
+  padding: 10px 14px;
+  border-right: 1px solid color-mix(in srgb, white 8%, transparent);
+  text-align: center;
+}
+
+.family-touchpoint-command-rail small {
+  color: color-mix(in srgb, white 38%, transparent);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.family-touchpoint-command-rail strong {
+  margin-top: 3px;
+  color: white;
+  font-size: 1.15rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.family-touchpoint-command-rail strong.is-warning {
+  color: color-mix(in srgb, var(--ls-warning) 72%, white);
+}
+
+.family-touchpoint-new {
+  display: inline-flex;
+  min-height: 48px;
+  align-self: center;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: 0 16px;
+  border: 1px solid var(--ls-accent-strong);
+  border-radius: 12px;
+  background: var(--ls-accent);
+  color: var(--ls-ink);
+  padding: 9px 14px;
+  font-size: .72rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.family-touchpoint-new svg {
+  width: 16px;
+  height: 16px;
+}
+
+.family-touchpoint-workspace {
+  display: grid;
+  grid-template-columns: minmax(280px, 330px) minmax(0, 1fr);
+  min-height: 650px;
+  overflow: hidden;
+  border: 1px solid var(--ft-line);
+  border-radius: 22px;
+  background: var(--ft-surface);
+  box-shadow: var(--ls-shadow);
+}
+
+.family-touchpoint-list {
+  min-width: 0;
+  border-right: 1px solid var(--ft-line);
+  background: var(--ft-soft);
+}
+
+.family-touchpoint-search {
+  display: flex;
+  gap: 7px;
+  padding: 12px;
+  border-bottom: 1px solid var(--ft-line);
+  background: var(--ft-surface);
+}
+
+.family-touchpoint-search label {
+  position: relative;
+  min-width: 0;
+  flex: 1;
+}
+
+.family-touchpoint-search label > svg {
+  position: absolute;
+  top: 13px;
+  left: 12px;
+  width: 18px;
+  height: 18px;
+  color: var(--ft-muted);
+  pointer-events: none;
+}
+
+.family-touchpoint-search input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--ft-line-strong) !important;
+  border-radius: 11px !important;
+  background: var(--ft-surface) !important;
+  color: var(--ft-ink) !important;
+  padding: 8px 10px 8px 38px !important;
+  font-size: .76rem;
+  font-weight: 750;
+}
+
+.family-touchpoint-search > button {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--ls-accent) 45%, var(--ft-line));
+  border-radius: 11px;
+  background: var(--ft-dark);
+  color: var(--ls-accent-on-dark);
+}
+
+.family-touchpoint-search > button svg { width: 18px; height: 18px; }
+
+.family-touchpoint-thread-list {
+  max-height: 680px;
+  overflow-y: auto;
+}
+
+.family-touchpoint-thread {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 10px;
+  width: 100%;
+  padding: 13px 12px;
+  border: 0;
+  border-bottom: 1px solid var(--ft-line);
+  border-left: 4px solid transparent;
+  background: transparent;
+  color: var(--ft-ink);
+  text-align: left;
+}
+
+.family-touchpoint-thread:hover {
+  background: color-mix(in srgb, var(--ls-accent) 4%, var(--ft-surface));
+}
+
+.family-touchpoint-thread[aria-current="true"] {
+  border-left-color: var(--ls-accent);
+  background: var(--ft-surface);
+}
+
+.family-touchpoint-avatar,
+.family-touchpoint-context-mark {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ft-line-strong);
+  background: var(--ft-surface);
+  color: var(--ft-muted);
+}
+
+.family-touchpoint-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+}
+
+.family-touchpoint-thread[aria-current="true"] .family-touchpoint-avatar {
+  border-color: color-mix(in srgb, var(--ls-accent) 38%, var(--ft-line));
+  background: var(--ft-dark);
+  color: var(--ls-accent-on-dark);
+}
+
+.family-touchpoint-avatar svg { width: 27px; height: 27px; }
+.family-touchpoint-thread-copy { min-width: 0; }
+
+.family-touchpoint-thread-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+}
+
+.family-touchpoint-thread-heading strong {
+  overflow: hidden;
+  color: var(--ft-ink);
+  font-size: .76rem;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.family-touchpoint-thread-heading b {
+  display: grid;
+  min-width: 19px;
+  height: 19px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--ft-dark);
+  color: var(--ls-accent-on-dark);
+  padding-inline: 5px;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.family-touchpoint-family,
+.family-touchpoint-preview,
+.family-touchpoint-thread-meta {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.family-touchpoint-family {
+  margin-top: 2px;
+  color: var(--ls-accent-text);
+  font-size: .63rem;
+  font-weight: 850;
+}
+
+.family-touchpoint-preview {
+  margin-top: 5px;
+  color: var(--ft-muted);
+  font-size: .7rem;
+  font-weight: 650;
+}
+
+.family-touchpoint-thread-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+  color: var(--ft-muted);
+  font-size: .59rem;
+}
+
+.family-touchpoint-thread-meta em {
+  color: var(--ls-accent-text);
+  font-style: normal;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.family-touchpoint-conversation {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  background: var(--ft-surface);
+}
+
+.family-touchpoint-context {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(180px, .85fr) auto;
+  gap: 14px;
+  align-items: center;
+  min-height: 76px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ft-line);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--ls-accent) 5%, transparent), transparent 45%),
+    var(--ft-surface);
+}
+
+.family-touchpoint-context-main {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 9px;
+}
+
+.family-touchpoint-back {
+  display: none;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  place-items: center;
+  border: 1px solid var(--ft-line);
+  border-radius: 10px;
+  background: var(--ft-surface);
+  color: var(--ft-muted);
+}
+
+.family-touchpoint-back svg { width: 18px; height: 18px; }
+
+.family-touchpoint-context-mark {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: 13px;
+  background: var(--ft-dark);
+  color: var(--ls-accent-on-dark);
+}
+
+.family-touchpoint-context-mark svg { width: 29px; height: 29px; }
+.family-touchpoint-context-copy { min-width: 0; }
+.family-touchpoint-context-copy small { display: block; color: var(--ls-accent-text); font-size: .58rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.family-touchpoint-context-copy strong { display: block; overflow: hidden; margin-top: 2px; color: var(--ft-ink); font-size: .9rem; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
+.family-touchpoint-context-copy span { display: block; overflow: hidden; margin-top: 2px; color: var(--ft-muted); font-size: .66rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+
+.family-touchpoint-context-status {
+  min-width: 0;
+  padding-left: 14px;
+  border-left: 1px solid var(--ft-line);
+}
+.family-touchpoint-context-status span,
+.family-touchpoint-context-status small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.family-touchpoint-context-status span { color: var(--ft-ink); font-size: .72rem; font-weight: 900; }
+.family-touchpoint-context-status small { margin-top: 3px; color: var(--ft-muted); font-size: .62rem; font-weight: 700; }
+
+.family-touchpoint-close {
+  min-height: 40px;
+  border: 1px solid color-mix(in srgb, var(--ls-danger) 24%, var(--ft-line));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ls-danger) 6%, var(--ft-surface));
+  color: var(--ls-danger);
+  padding: 7px 10px;
+  font-size: .68rem;
+  font-weight: 900;
+}
+
+.family-touchpoint-messages {
+  flex: 1;
+  min-height: 470px;
+  max-height: 650px;
+  overflow-y: auto;
+  padding: 18px clamp(14px, 3vw, 28px);
+  background:
+    linear-gradient(color-mix(in srgb, var(--ls-accent) 2%, transparent), color-mix(in srgb, var(--ls-accent) 2%, transparent)),
+    var(--ft-soft);
+}
+
+.family-touchpoint-message-row {
+  display: flex;
+  margin-bottom: 10px;
+}
+.family-touchpoint-message-row.is-mine { justify-content: flex-end; }
+.family-touchpoint-message-row.is-theirs { justify-content: flex-start; }
+
+.family-touchpoint-message {
+  max-width: min(76%, 720px);
+  border: 1px solid var(--ft-line);
+  border-radius: 16px;
+  background: var(--ft-surface);
+  color: var(--ft-ink);
+  padding: 10px 13px;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--ft-dark) 5%, transparent);
+}
+
+.family-touchpoint-message-row.is-mine .family-touchpoint-message {
+  border-color: color-mix(in srgb, var(--ft-dark) 70%, transparent);
+  border-bottom-right-radius: 5px;
+  background: var(--ft-dark);
+  color: white;
+}
+.family-touchpoint-message-row.is-theirs .family-touchpoint-message { border-bottom-left-radius: 5px; }
+
+.family-touchpoint-message > p {
+  margin: 0;
+  color: inherit !important;
+  font-size: .8rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.family-touchpoint-message footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-top: 5px;
+  color: var(--ft-muted);
+  font-size: .56rem;
+}
+.family-touchpoint-message-row.is-mine .family-touchpoint-message footer { color: color-mix(in srgb, white 56%, transparent); }
+.family-touchpoint-message footer span { display: inline-flex; align-items: center; gap: 3px; color: var(--ls-accent-text); font-weight: 800; }
+.family-touchpoint-message-row.is-mine .family-touchpoint-message footer span { color: var(--ls-accent-on-dark); }
+.family-touchpoint-message footer span.is-failed { color: var(--ls-danger); }
+.family-touchpoint-message footer svg { width: 12px; height: 12px; }
+.family-touchpoint-error { display: block; margin-top: 4px; color: var(--ls-danger); font-size: .58rem; }
+
+.family-touchpoint-composer {
+  padding: 11px 13px;
+  border-top: 1px solid var(--ft-line);
+  background: var(--ft-surface);
+}
+
+.family-touchpoint-compose-row {
+  display: flex;
+  align-items: end;
+  gap: 7px;
+}
+
+.family-touchpoint-compose-row textarea {
+  width: 100%;
+  min-height: 48px !important;
+  max-height: 132px;
+  resize: vertical;
+  border: 1px solid var(--ft-line-strong) !important;
+  border-radius: 12px !important;
+  background: var(--ft-surface) !important;
+  color: var(--ft-ink) !important;
+  padding: 11px 12px !important;
+  font-size: .8rem;
+  line-height: 1.45;
+}
+
+.family-touchpoint-compose-row button {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  place-items: center;
+  border: 1px solid var(--ls-accent-strong);
+  border-radius: 12px;
+  background: var(--ft-dark);
+  color: var(--ls-accent-on-dark);
+}
+.family-touchpoint-compose-row button:disabled { opacity: .38; }
+.family-touchpoint-compose-row button svg { width: 19px; height: 19px; }
+.family-touchpoint-composer > p { display: flex; align-items: center; gap: 4px; margin: 6px 0 0; color: var(--ls-accent-text); font-size: .62rem; font-weight: 750; }
+.family-touchpoint-composer > p svg { width: 14px; height: 14px; }
+.family-touchpoint-closed { justify-content: center; min-height: 44px; border: 1px solid var(--ft-line); border-radius: 11px; background: var(--ft-soft); color: var(--ft-muted) !important; }
+
+.family-touchpoint-empty {
+  padding: 32px 16px;
+  color: var(--ft-muted);
+  font-size: .76rem;
+  font-weight: 700;
+  text-align: center;
+}
+.family-touchpoint-empty.is-large { display: grid; min-height: 420px; place-content: center; justify-items: center; gap: 5px; }
+.family-touchpoint-empty.is-large svg { width: 42px; height: 42px; color: color-mix(in srgb, var(--ft-muted) 55%, transparent); }
+.family-touchpoint-empty.is-large strong { margin-top: 5px; color: var(--ft-ink); font-size: .95rem; font-weight: 900; }
+.family-touchpoint-empty.is-large span { max-width: 320px; color: var(--ft-muted); font-size: .72rem; }
+.family-touchpoint-loading { padding: 30px; color: var(--ft-muted) !important; font-size: .76rem; text-align: center; }
+
+/* Guardian uses the same domain language without the Director command strip. */
+.family-touchpoint.is-guardian .family-touchpoint-workspace {
+  min-height: 600px;
+}
+
+@media (max-width: 1050px) {
+  .family-touchpoint-command {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .family-touchpoint-command-rail {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    border-top: 1px solid color-mix(in srgb, white 8%, transparent);
+    border-left: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .family-touchpoint-command {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .family-touchpoint-command-copy { padding: 15px 16px; }
+  .family-touchpoint-new { margin: 0 14px 14px; }
+  .family-touchpoint-command-rail { grid-column: 1; grid-row: auto; }
+
+  .family-touchpoint-workspace {
+    display: block;
+    min-height: 620px;
+    border-radius: 18px;
+  }
+
+  .family-touchpoint-list {
+    display: block;
+    min-height: 600px;
+    border-right: 0;
+  }
+  .family-touchpoint-list.has-selection { display: none; }
+  .family-touchpoint-conversation { display: none; min-height: 600px; }
+  .family-touchpoint-conversation.has-selection { display: flex; }
+  .family-touchpoint-back { display: grid; }
+
+  .family-touchpoint-context {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 10px;
+  }
+  .family-touchpoint-context-status {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    padding: 8px 0 0;
+    border-top: 1px solid var(--ft-line);
+    border-left: 0;
+  }
+  .family-touchpoint-close { grid-column: 2; grid-row: 1; }
+  .family-touchpoint-message { max-width: 88%; }
+  .family-touchpoint-messages { min-height: 420px; padding: 14px 10px; }
+}
