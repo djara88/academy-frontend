@@ -57,11 +57,20 @@ type Props = {
   onFinished?: () => void;
 };
 
+type ApiFailure = {
+  response?: { status?: number; data?: { error?: string; code?: string; data?: Partial<LiveMatch> } };
+  message?: string;
+};
+
 const time = (value?: string | null) => String(value || '').slice(0, 5) || '—';
 const metricStep = (decimals?: number) => decimals && decimals > 0 ? 1 / (10 ** decimals) : 1;
 const requestMessage = (error: unknown, fallback: string) => {
-  const requestError = error as { response?: { data?: { error?: string } }; message?: string };
+  const requestError = error as ApiFailure;
   return requestError.response?.data?.error || requestError.message || fallback;
+};
+const isLiveConflict = (error: unknown) => {
+  const requestError = error as ApiFailure;
+  return requestError.response?.status === 409 && requestError.response?.data?.code === 'LIVE_STATE_CONFLICT';
 };
 
 export default function LiveMatchPanel({ matchId, academyName, onBack, onFinished }: Props) {
@@ -131,11 +140,27 @@ export default function LiveMatchPanel({ matchId, academyName, onBack, onFinishe
     return refreshed;
   };
 
+  const handleConcurrencyConflict = async (error: unknown, fallback: string) => {
+    if (!isLiveConflict(error)) return false;
+    const currentFromConflict = (error as ApiFailure).response?.data?.data;
+    if (currentFromConflict) applyMatchResponse(currentFromConflict);
+    const refreshed = await load(true);
+    setVerified(Boolean(refreshed));
+    setSyncError(refreshed ? '' : 'El encuentro cambió en otro dispositivo y todavía no pudimos sincronizar la nueva versión.');
+    await notify(
+      refreshed
+        ? 'El encuentro cambió en otro dispositivo. Sincronizamos la versión más reciente y no sobrescribimos ese cambio.'
+        : 'El encuentro cambió en otro dispositivo. No sobrescribimos la información; sincroniza nuevamente antes de continuar.',
+      { title: academyName },
+    );
+    return true;
+  };
+
   const start = async () => {
     if (!verified) return;
     setBusy(true);
     try {
-      const response = await api.post(`/api/profesores/me/partidos/${matchId}/en-vivo/iniciar`, { etapa: stage || 'En juego' });
+      const response = await api.post(`/api/profesores/me/partidos/${matchId}/en-vivo-v2/iniciar`, { etapa: stage || 'En juego' });
       applyMatchResponse(response.data?.data as Partial<LiveMatch> | undefined);
       await refreshAfterConfirmedMutation('El encuentro fue iniciado.');
     } catch (error: unknown) {
@@ -150,12 +175,26 @@ export default function LiveMatchPanel({ matchId, academyName, onBack, onFinishe
 
   const patchLive = async (payload: Record<string, unknown>) => {
     if (!data?.partido.en_vivo || !verified) return;
+    const expectedVersion = data.partido.live_updated_at;
+    if (!expectedVersion) {
+      setVerified(false);
+      setSyncError('La versión del encuentro no está disponible. Debemos sincronizar antes de modificar marcador o etapa.');
+      await load(true);
+      return;
+    }
     setBusy(true);
     try {
-      const response = await api.patch(`/api/profesores/me/partidos/${matchId}/en-vivo`, payload);
+      const response = await api.patch(`/api/profesores/me/partidos/${matchId}/en-vivo-v2`, {
+        ...payload,
+        expected_live_updated_at: expectedVersion,
+      });
       applyMatchResponse(response.data?.data as Partial<LiveMatch> | undefined);
       await refreshAfterConfirmedMutation('El cambio fue guardado.');
     } catch (error: unknown) {
+      if (await handleConcurrencyConflict(error, 'El encuentro cambió en otro dispositivo.')) {
+        setBusy(false);
+        return;
+      }
       const current = await load(true);
       const expectedFavor = payload.resultado_favor;
       const expectedContra = payload.resultado_contra;
@@ -217,16 +256,29 @@ export default function LiveMatchPanel({ matchId, academyName, onBack, onFinishe
   };
 
   const finish = async () => {
-    if (!verified) return;
+    if (!verified || !data?.partido.live_updated_at) {
+      setVerified(false);
+      setSyncError('Debemos sincronizar la versión actual del encuentro antes de finalizarlo.');
+      await load(true);
+      return;
+    }
+    const expectedVersion = data.partido.live_updated_at;
     const accepted = await confirmAction('¿Finalizar el encuentro? El marcador y las estadísticas quedarán guardados para revisión de dirección.', { title: academyName, confirmLabel: 'Finalizar encuentro', tone: 'danger' });
     if (!accepted) return;
     setBusy(true);
     try {
-      await api.post(`/api/profesores/me/partidos/${matchId}/en-vivo/finalizar`, { etapa: 'Finalizado' });
+      await api.post(`/api/profesores/me/partidos/${matchId}/en-vivo-v2/finalizar`, {
+        etapa: 'Finalizado',
+        expected_live_updated_at: expectedVersion,
+      });
       await notify('Encuentro finalizado y resultado guardado.', { title: academyName });
       onFinished?.();
       onBack();
     } catch (error: unknown) {
+      if (await handleConcurrencyConflict(error, 'El encuentro cambió antes de finalizar.')) {
+        setBusy(false);
+        return;
+      }
       const current = await load(true);
       if (current && current.partido.estado === 'Jugado' && !current.partido.en_vivo) {
         await notify('El servidor confirma que el encuentro ya quedó finalizado y guardado.', { title: academyName });
@@ -245,17 +297,18 @@ export default function LiveMatchPanel({ matchId, academyName, onBack, onFinishe
   const { partido, sport_profile: profile } = data;
   const favor = Number(partido.goles_favor) || 0;
   const contra = Number(partido.goles_contra) || 0;
-  const canOperate = verified && !busy;
+  const hasWriteVersion = !partido.en_vivo || Boolean(partido.live_updated_at);
+  const canOperate = verified && hasWriteVersion && !busy;
 
   return (
     <div className="space-y-5 pb-8">
       <button type="button" onClick={onBack} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#30363d] bg-[#161b22] px-4 text-sm font-black text-[#d0d7de]"><ArrowLeftIcon className="h-4 w-4"/>Volver al portal</button>
 
-      {!verified ? <section role="status" className="rounded-2xl border border-orange-500/35 bg-orange-500/10 p-4"><p className="text-sm font-black text-orange-100">Estado en vivo no verificado</p><p className="mt-1 text-sm leading-6 text-[#b1bac4]">{syncError || 'Perdimos temporalmente la verificación con el servidor.'} El marcador, etapa, estadísticas y cierre quedan bloqueados para evitar operar sobre datos desactualizados.</p><button type="button" disabled={loading} onClick={() => void load()} className="mt-3 min-h-11 rounded-xl border border-orange-400/40 px-4 text-sm font-black text-orange-100 disabled:opacity-50">{loading ? 'Sincronizando…' : 'Sincronizar ahora'}</button></section> : null}
+      {!verified || !hasWriteVersion ? <section role="status" className="rounded-2xl border border-orange-500/35 bg-orange-500/10 p-4"><p className="text-sm font-black text-orange-100">Estado en vivo no verificado</p><p className="mt-1 text-sm leading-6 text-[#b1bac4]">{syncError || (!hasWriteVersion ? 'Falta la versión de concurrencia del encuentro.' : 'Perdimos temporalmente la verificación con el servidor.')} El marcador, etapa, estadísticas y cierre quedan bloqueados para evitar operar sobre datos desactualizados.</p><button type="button" disabled={loading} onClick={() => void load()} className="mt-3 min-h-11 rounded-xl border border-orange-400/40 px-4 text-sm font-black text-orange-100 disabled:opacity-50">{loading ? 'Sincronizando…' : 'Sincronizar ahora'}</button></section> : null}
 
       <section className={`overflow-hidden rounded-3xl border p-5 sm:p-7 ${partido.en_vivo ? 'border-red-400/40 bg-[radial-gradient(circle_at_top_right,rgba(239,68,68,.16),transparent_38%),#161b22]' : 'border-[#30363d] bg-[#161b22]'}`}>
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div><div className="flex flex-wrap items-center gap-2"><span className="text-2xl">{profile.icon}</span><span className="rounded-full bg-violet-500/15 px-3 py-1 text-[10px] font-black uppercase text-violet-300">{profile.label}</span>{partido.en_vivo ? <span className="rounded-full bg-red-500/20 px-3 py-1 text-[10px] font-black uppercase text-red-300">● En vivo</span> : null}{!verified ? <span className="rounded-full border border-orange-400/35 bg-orange-500/10 px-3 py-1 text-[10px] font-black uppercase text-orange-200">No verificado</span> : null}</div><h1 className="mt-3 text-2xl font-black text-white sm:text-3xl">{partido.rival}</h1><p className="mt-1 text-sm text-[#8b949e]">{partido.categorias?.nombre || 'Categoría'} · {partido.fecha} · {time(partido.hora)}{partido.ubicacion ? ` · ${partido.ubicacion}` : ''}</p></div>
+          <div><div className="flex flex-wrap items-center gap-2"><span className="text-2xl">{profile.icon}</span><span className="rounded-full bg-violet-500/15 px-3 py-1 text-[10px] font-black uppercase text-violet-300">{profile.label}</span>{partido.en_vivo ? <span className="rounded-full bg-red-500/20 px-3 py-1 text-[10px] font-black uppercase text-red-300">● En vivo</span> : null}{!verified || !hasWriteVersion ? <span className="rounded-full border border-orange-400/35 bg-orange-500/10 px-3 py-1 text-[10px] font-black uppercase text-orange-200">No verificado</span> : null}</div><h1 className="mt-3 text-2xl font-black text-white sm:text-3xl">{partido.rival}</h1><p className="mt-1 text-sm text-[#8b949e]">{partido.categorias?.nombre || 'Categoría'} · {partido.fecha} · {time(partido.hora)}{partido.ubicacion ? ` · ${partido.ubicacion}` : ''}</p></div>
           <span className="rounded-xl border border-[#30363d] bg-[#0d1117] px-3 py-2 text-xs font-black text-[#b1bac4]">{partido.estado || 'Programado'}</span>
         </div>
 
@@ -268,7 +321,7 @@ export default function LiveMatchPanel({ matchId, academyName, onBack, onFinishe
         ) : <div className="mt-6 rounded-2xl border border-[#289E9D]/25 bg-[#289E9D]/10 p-4 text-sm text-[#c7fffb]">Esta disciplina no usa un marcador cabeza a cabeza. El modo en vivo registra la etapa y permite actualizar métricas individuales durante la competencia.</div>}
 
         <div className="mt-6 grid gap-3 sm:grid-cols-[1fr_auto]">
-          <label><span className="mb-1 block text-xs font-black uppercase text-[#8b949e]">Periodo / etapa</span><input value={stage} onChange={(event) => { setStage(event.target.value); setStageDirty(true); }} maxLength={60} disabled={!partido.en_vivo || !verified} placeholder="Ej.: 1er tiempo, Set 2, Serie final" className="w-full"/></label>
+          <label><span className="mb-1 block text-xs font-black uppercase text-[#8b949e]">Periodo / etapa</span><input value={stage} onChange={(event) => { setStage(event.target.value); setStageDirty(true); }} maxLength={60} disabled={!partido.en_vivo || !canOperate} placeholder="Ej.: 1er tiempo, Set 2, Serie final" className="w-full"/></label>
           {partido.en_vivo ? <button type="button" disabled={!canOperate || !stageDirty} onClick={() => void patchLive({ etapa: stage })} className="min-h-11 self-end rounded-xl border border-[#289E9D]/40 bg-[#289E9D]/10 px-4 text-sm font-black text-[#70e4df] disabled:opacity-50">Guardar etapa</button> : null}
         </div>
 
@@ -282,11 +335,11 @@ export default function LiveMatchPanel({ matchId, academyName, onBack, onFinishe
             {data.jugadores.map((player) => <button key={player.id} type="button" onClick={() => { setPlayerDraftDirty(false); setSelectedPlayerId(player.id); }} className={`flex min-w-[155px] items-center gap-2 rounded-xl border p-2 text-left ${selectedPlayerId === player.id ? 'border-[#289E9D] bg-[#289E9D]/10' : 'border-[#30363d] bg-[#0d1117]'}`}>{player.foto_url || player.avatar_url ? <img src={player.foto_url || player.avatar_url || ''} alt="" className="h-9 w-9 rounded-lg object-cover"/> : <div className="grid h-9 w-9 place-items-center rounded-lg bg-[#21262d] font-black">{player.nombre.slice(0,1)}</div>}<div className="min-w-0"><p className="truncate text-xs font-black text-white">{player.nombre}</p><p className="truncate text-[10px] text-[#8b949e]">{player.rol_plan || player.posicion || 'Plantel'}</p></div></button>)}
           </div>
 
-          {selectedPlayer ? <div className="mt-3 rounded-2xl border border-[#30363d] bg-[#0d1117] p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="font-black text-white">{selectedPlayer.nombre}</p><p className="text-xs text-[#8b949e]">{selectedPlayer.posicion || selectedPlayer.rol_plan || 'Sin posición registrada'}</p></div><button type="button" disabled={!verified} onClick={() => { setMvpDraft((value) => !value); setPlayerDraftDirty(true); }} className={`inline-flex min-h-10 items-center gap-1 rounded-xl border px-3 text-xs font-black disabled:opacity-45 ${mvpDraft ? 'border-amber-400/40 bg-amber-500/15 text-amber-200' : 'border-[#30363d] text-[#8b949e]'}`}><StarIcon className="h-4 w-4"/>{mvpDraft ? 'Destacado/a' : 'Marcar destacado/a'}</button></div>
+          {selectedPlayer ? <div className="mt-3 rounded-2xl border border-[#30363d] bg-[#0d1117] p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="font-black text-white">{selectedPlayer.nombre}</p><p className="text-xs text-[#8b949e]">{selectedPlayer.posicion || selectedPlayer.rol_plan || 'Sin posición registrada'}</p></div><button type="button" disabled={!canOperate} onClick={() => { setMvpDraft((value) => !value); setPlayerDraftDirty(true); }} className={`inline-flex min-h-10 items-center gap-1 rounded-xl border px-3 text-xs font-black disabled:opacity-45 ${mvpDraft ? 'border-amber-400/40 bg-amber-500/15 text-amber-200' : 'border-[#30363d] text-[#8b949e]'}`}><StarIcon className="h-4 w-4"/>{mvpDraft ? 'Destacado/a' : 'Marcar destacado/a'}</button></div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{profile.metrics.map((metric) => {
               const step = metricStep(metric.decimals);
               const value = Number(metricDraft[metric.code] || 0);
-              return <div key={metric.code} className="rounded-xl border border-[#30363d] bg-[#161b22] p-3"><p className="text-xs font-black text-[#b1bac4]">{metric.label}</p><div className="mt-2 grid grid-cols-[40px_1fr_40px] gap-2"><button type="button" disabled={!verified} onClick={() => { setMetricDraft((current) => ({ ...current, [metric.code]: Math.max(0, Number(current[metric.code] || 0) - step) })); setPlayerDraftDirty(true); }} className="grid h-10 place-items-center rounded-lg border border-[#30363d] disabled:opacity-40"><MinusIcon className="h-4 w-4"/></button><input type="number" min="0" step={step} disabled={!verified} value={value} onChange={(event) => { setMetricDraft((current) => ({ ...current, [metric.code]: Math.max(0, Number(event.target.value) || 0) })); setPlayerDraftDirty(true); }} className="h-10 min-w-0 text-center"/><button type="button" disabled={!verified} onClick={() => { setMetricDraft((current) => ({ ...current, [metric.code]: Number(current[metric.code] || 0) + step })); setPlayerDraftDirty(true); }} className="grid h-10 place-items-center rounded-lg bg-[#289E9D] text-white disabled:opacity-40"><PlusIcon className="h-4 w-4"/></button></div></div>;
+              return <div key={metric.code} className="rounded-xl border border-[#30363d] bg-[#161b22] p-3"><p className="text-xs font-black text-[#b1bac4]">{metric.label}</p><div className="mt-2 grid grid-cols-[40px_1fr_40px] gap-2"><button type="button" disabled={!canOperate} onClick={() => { setMetricDraft((current) => ({ ...current, [metric.code]: Math.max(0, Number(current[metric.code] || 0) - step) })); setPlayerDraftDirty(true); }} className="grid h-10 place-items-center rounded-lg border border-[#30363d] disabled:opacity-40"><MinusIcon className="h-4 w-4"/></button><input type="number" min="0" step={step} disabled={!canOperate} value={value} onChange={(event) => { setMetricDraft((current) => ({ ...current, [metric.code]: Math.max(0, Number(event.target.value) || 0) })); setPlayerDraftDirty(true); }} className="h-10 min-w-0 text-center"/><button type="button" disabled={!canOperate} onClick={() => { setMetricDraft((current) => ({ ...current, [metric.code]: Number(current[metric.code] || 0) + step })); setPlayerDraftDirty(true); }} className="grid h-10 place-items-center rounded-lg bg-[#289E9D] text-white disabled:opacity-40"><PlusIcon className="h-4 w-4"/></button></div></div>;
             })}</div>
             <button type="button" disabled={!canOperate || !playerDraftDirty} onClick={() => void savePlayerStats()} className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#289E9D]/40 bg-[#289E9D]/10 px-4 text-sm font-black text-[#70e4df] disabled:opacity-50"><CheckCircleIcon className="h-5 w-5"/>{!verified ? 'Estado no verificado' : playerDraftDirty ? `Guardar estadísticas de ${selectedPlayer.nombre.split(' ')[0]}` : 'Estadísticas sin cambios'}</button>
           </div> : null}
