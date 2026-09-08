@@ -153,8 +153,6 @@ if (familyTouchpoint) {
 if (familyTouchpointContract && !familyTouchpointContract.includes('.family-touchpoint-workspace')) violations.push('src/family-touchpoint-v2.css: falta contrato visual Family Touchpoint.');
 if (mainEntry && !mainEntry.includes("import './family-touchpoint-v2.css';")) violations.push('src/main.tsx: Family Touchpoint V2 debe cargarse desde la entrada principal.');
 
-// Matrícula must remain a controlled academy-to-family handoff with explicit
-// sports context and signature boundary, not revert to a generic stepper/cards flow.
 const enrollmentHandoff = await requiredSource('src/pages/MatriculaPreparacion.tsx');
 const enrollmentHandoffContract = await requiredSource('src/enrollment-handoff-v2.css');
 if (enrollmentHandoff) {
@@ -166,6 +164,19 @@ if (enrollmentHandoff) {
 }
 if (enrollmentHandoffContract && !enrollmentHandoffContract.includes('.enrollment-handoff-workbench')) violations.push('src/enrollment-handoff-v2.css: falta contrato visual Matrícula Handoff.');
 if (mainEntry && !mainEntry.includes("import './enrollment-handoff-v2.css';")) violations.push('src/main.tsx: Matrícula Handoff V2 debe cargarse desde la entrada principal.');
+
+// Official competitions are a Competition Record ledger, not a gallery of generic cards.
+const competitionRecord = await requiredSource('src/pages/TorneosMultirama.tsx');
+const competitionRecordContract = await requiredSource('src/competition-record-v2.css');
+if (competitionRecord) {
+  if (!competitionRecord.includes('Competition Record')) violations.push('src/pages/TorneosMultirama.tsx: falta la firma Competition Record.');
+  if (!competitionRecord.includes('competition-record-ledger')) violations.push('src/pages/TorneosMultirama.tsx: competencias deben conservar el ledger de temporada.');
+  if (!competitionRecord.includes('/participantes')) violations.push('src/pages/TorneosMultirama.tsx: el registro debe conservar lectura de participación del torneo.');
+  if (!competitionRecord.includes('/archivar')) violations.push('src/pages/TorneosMultirama.tsx: no perder el contrato de archivo histórico.');
+  if (competitionRecord.includes('DirectorStat')) violations.push('src/pages/TorneosMultirama.tsx: competencias no pueden volver a StatCards genéricas.');
+}
+if (competitionRecordContract && !competitionRecordContract.includes('.competition-record-row')) violations.push('src/competition-record-v2.css: falta contrato visual Competition Record.');
+if (mainEntry && !mainEntry.includes("import './competition-record-v2.css';")) violations.push('src/main.tsx: Competition Record V2 debe cargarse desde la entrada principal.');
 
 const liveMatch = await requiredSource('src/components/profesor/LiveMatchPanel.tsx');
 if (liveMatch) {
