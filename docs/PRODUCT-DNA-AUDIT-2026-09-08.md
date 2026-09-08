@@ -122,6 +122,49 @@ Estado: **P0 corregido en código / REVIEW hasta QA real de teclado y lector de 
 - lector de pantalla en controles de firma;
 - estados de backend lento/indisponible.
 
+## Auditoría P0 — Finanzas: degradación silenciosa corregida
+
+Ruta: `/finanzas`.
+
+`FinanzasCompat` usaba la disponibilidad de `/api/finanzas/cobranza/configuracion` para decidir entre el módulo avanzado y el legado. Antes de la corrección, cualquier error distinto de 401/403 —incluidos `500`, timeout o caída de red— podía enviar automáticamente al director a la vista financiera legacy.
+
+En un dominio monetario esto es peligroso: una indisponibilidad temporal no debe convertirse en una interfaz aparentemente válida pero potencialmente incompleta.
+
+Corrección:
+
+- el modo legacy queda reservado para `404/405`, que representan backend sin ese módulo;
+- `401/403` conserva el flujo avanzado y deja que el control de acceso real responda;
+- errores de red y `5xx` muestran **Estado no verificado**;
+- no se muestran cifras alternativas mientras no pueda verificarse el servicio principal;
+- se incorporó reintento explícito y el mensaje aclara que no se modificó ningún dato.
+
+Commit: `a4e3ad8c3cb9cc6004e4c2147df7192bc90a4650`.
+Deployment de producción: **READY**.
+
+Estado: **P0 de integridad de presentación corregido / REVIEW**. Falta QA de todos los tabs, operaciones monetarias, doble envío, idempotencia de cobros/egresos y estados de backend degradado.
+
+## Auditoría P0/P1 — WhatsApp: estado intermedio corregido
+
+Ruta: `/whatsapp`.
+
+El backend ya expone el estado real de Evolution (`estado`) y distingue `open`, `connecting`, `not_created`, etc. El frontend, sin embargo, solo reconocía conectado o QR; una instancia en `connecting` sin QR podía ser mostrada como **Desconectado**. Además el polling automático solo continuaba mientras existiera QR.
+
+Consecuencia potencial: durante el arranque técnico de la instancia, el director podía recibir un estado falso, volver a pulsar conectar o no llegar a ver el QR cuando apareciera.
+
+Corrección:
+
+- nuevo estado explícito `connecting`;
+- `applyPayload` respeta `estado=connecting`;
+- el polling continúa tanto en `connecting` como en `qr`;
+- un error puntual de polling no convierte inmediatamente una vinculación en un falso error/desconexión;
+- la interfaz comunica **Preparando código QR** y mantiene actualización manual disponible;
+- conectado, QR, conectando, desconectado y error tienen texto explícito, no solo color.
+
+Commit: `b642506f36b8daf10f4e4db6cee6629f5c829097`.
+Deployment de producción: **READY** y asociado a `deportivo.lestra.app`.
+
+Estado: **CORREGIDO/REVIEW**. Falta prueba real contra Evolution de ciclo desconectado → connecting → QR → open, cambio de número, desconexión y caída temporal del bridge.
+
 ## Matriz inicial de rutas
 
 | Ruta / flujo | Prioridad actual | Estado | Motivo |
@@ -136,14 +179,14 @@ Estado: **P0 corregido en código / REVIEW hasta QA real de teclado y lector de 
 | `/alumnos` evaluación | P0 | CORREGIDO/REVIEW | Fix desplegado; falta certificación de interacción completa. |
 | `/asistencias` | P1 | REVIEW | Flujo de alta frecuencia y uso de terreno; mobile/targets/estados son críticos. |
 | `/profesores` | P1 | REVIEW | `product-design-v2-1.css` contiene tratamiento específico; revisar propiedad y coherencia. |
-| `/profesor` | P0/P1 | REVIEW | Uso de cancha, modos de visibilidad y mobile requieren QA real bajo condiciones de terreno. |
+| `/profesor` | P0/P1 | REVIEW | Uso de cancha, modos de visibilidad, estado offline y mobile requieren QA real bajo condiciones de terreno. |
 | `/apoderados` | P1 | REVIEW | Validar jerarquía familia → estado → acción y flujos sensibles. |
 | `/apoderado` | P1 | REVIEW | Portal privado; revisar mobile, estados y separación real de rol. |
 | `/partidos` | P1 | REVIEW | Diálogos/portales y flujo operativo complejo. |
 | `/torneos` + gestión | P1 | REVIEW | Validar colecciones, creación, gestión, equipos y destructivos. |
-| `/finanzas` | P0/P1 | REVIEW | Información monetaria: contraste, jerarquía, estados y destructivos requieren máxima claridad. |
+| `/finanzas` | P0/P1 | CORREGIDO/REVIEW | Degradación silenciosa corregida; falta idempotencia de cobros/egresos y QA monetario completo. |
 | `/suscripcion` | P1 | REVIEW | Contrato visual propio; validar planes, cambios, bloqueo y copy. |
 | `/configuracion` | P1 | REVIEW | Contiene múltiples subexperiencias con posible mezcla de estilos legacy. |
 | `/configuracion/perfil` | P2/P1 | REVIEW | Markup más cercano al contrato V2; falta QA real. |
 | `/configuracion/estructura` | P1 | REVIEW | Flujo estructural crítico para multi-sede/multirrama. |
-| `/whatsapp` | P0/P1 | REVIEW | Integración externa y estados de conexión; no puede depender de color ni presentar estados ambiguos. |
+| `/whatsapp` | P0/P1 | CORREGIDO/REVIEW | Estado `connecting` y polling corregidos; falta ciclo real completo contra Evolution. |
