@@ -222,17 +222,29 @@ export default function LiveMatchPanel({ matchId, academyName, onBack, onFinishe
   };
 
   const savePlayerStats = async () => {
-    if (!selectedPlayer || !verified) return;
+    if (!selectedPlayer || !verified || !data?.partido.live_updated_at) {
+      setVerified(false);
+      setSyncError('Debemos sincronizar la versión actual del encuentro antes de guardar estadísticas.');
+      await load(true);
+      return;
+    }
     const playerId = selectedPlayer.id;
     const playerName = selectedPlayer.nombre;
     const submittedMetrics = { ...metricDraft };
     const submittedMvp = mvpDraft;
+    const expectedVersion = data.partido.live_updated_at;
     setBusy(true);
     try {
-      const response = await api.put(`/api/profesores/me/partidos/${matchId}/en-vivo/estadisticas/${playerId}`, { metricas: submittedMetrics, es_mvp: submittedMvp });
+      const response = await api.put(`/api/profesores/me/partidos/${matchId}/en-vivo-v2/estadisticas/${playerId}`, {
+        metricas: submittedMetrics,
+        es_mvp: submittedMvp,
+        expected_live_updated_at: expectedVersion,
+      });
       const savedMetrics = response.data?.data?.metricas || submittedMetrics;
+      const savedVersion = response.data?.live_updated_at as string | undefined;
       setData((current) => current ? {
         ...current,
+        partido: savedVersion ? { ...current.partido, live_updated_at: savedVersion } : current.partido,
         jugadores: current.jugadores.map((player) => player.id === playerId
           ? { ...player, metricas: savedMetrics, es_mvp: submittedMvp }
           : submittedMvp ? { ...player, es_mvp: false } : player),
@@ -243,6 +255,10 @@ export default function LiveMatchPanel({ matchId, academyName, onBack, onFinishe
       const refreshed = await refreshAfterConfirmedMutation(`Las estadísticas de ${playerName} fueron guardadas.`);
       if (refreshed) await notify(`Estadísticas de ${playerName} actualizadas.`, { title: academyName });
     } catch (error: unknown) {
+      if (await handleConcurrencyConflict(error)) {
+        setBusy(false);
+        return;
+      }
       const current = await load(true);
       const serverPlayer = current?.jugadores.find((player) => player.id === playerId);
       const metricsMatch = serverPlayer && Object.entries(submittedMetrics).every(([key, value]) => Number(serverPlayer.metricas?.[key] || 0) === Number(value));
