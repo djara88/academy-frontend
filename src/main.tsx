@@ -20,6 +20,7 @@ import './match-command-v2.css';
 import './finance-desk-v2.css';
 import './family-touchpoint-v2.css';
 import './enrollment-handoff-v2.css';
+import './competition-record-v2.css';
 import './sports-dialogs-v2.css';
 import './product-design-v2-1.css';
 import './mobile-dock-v2-1-fix.css';
