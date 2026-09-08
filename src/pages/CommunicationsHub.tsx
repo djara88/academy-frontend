@@ -9,9 +9,9 @@ const CommunicationsHub = () => {
 
   return <DirectorPage className="max-w-[1500px]">
     <DirectorHero
-      eyebrow="Comunicaciones"
-      title="Centro de contacto"
-      description="Atiende conversaciones individuales o coordina grupos operativos de WhatsApp desde un mismo lugar."
+      eyebrow="Family Touchpoint · Comunicación"
+      title="Familias, contexto y conversación"
+      description="Cada contacto debe partir de una situación real de la academia: un deportista, una categoría, una citación, asistencia, pago o seguimiento. Portal y WhatsApp funcionan como canales de la misma relación."
     />
 
     <DirectorTabs className="grid-cols-2">
@@ -19,11 +19,11 @@ const CommunicationsHub = () => {
         <span className="inline-flex items-center gap-2"><ChatBubbleLeftRightIcon aria-hidden="true" className="h-5 w-5" />Conversaciones</span>
       </DirectorTabButton>
       <DirectorTabButton active={tab === 'grupos'} onClick={() => setTab('grupos')}>
-        <span className="inline-flex items-center gap-2"><UserGroupIcon aria-hidden="true" className="h-5 w-5" />Grupos WhatsApp</span>
+        <span className="inline-flex items-center gap-2"><UserGroupIcon aria-hidden="true" className="h-5 w-5" />Grupos de categoría</span>
       </DirectorTabButton>
     </DirectorTabs>
 
-    <div className="min-w-0">{tab === 'conversaciones' ? <ChatCenter /> : <WhatsAppGroups />}</div>
+    <div className="family-touchpoint-scope min-w-0">{tab === 'conversaciones' ? <ChatCenter /> : <WhatsAppGroups />}</div>
   </DirectorPage>;
 };
 
