@@ -1,0 +1,286 @@
+/* Lestra Deportivo — Academy Finance Desk V2
+ * Finance is a decision desk for an academy, not a KPI dashboard.
+ */
+
+.lestra-director-main[data-route="/finanzas"] {
+  --fd-dark: var(--ls-sidebar);
+  --fd-surface: var(--ls-surface);
+  --fd-soft: var(--ls-surface-soft);
+  --fd-line: var(--ls-line);
+  --fd-ink: var(--ls-ink);
+  --fd-muted: var(--ls-muted);
+  --fd-sage: color-mix(in srgb, var(--ls-accent) 8%, var(--ls-surface));
+  --fd-warm: color-mix(in srgb, var(--ls-warning) 5%, var(--ls-surface));
+}
+
+/* Existing summary primitives become a compact ledger strip rather than KPI cards. */
+.lestra-director-main[data-route="/finanzas"] .app-content > div.mx-auto.max-w-7xl.space-y-4.pb-16 > section.grid.sm\:grid-cols-2.xl\:grid-cols-4 {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+  overflow: hidden;
+  border: 1px solid var(--fd-line);
+  border-radius: 18px;
+  background: var(--fd-surface);
+  box-shadow: var(--ls-shadow);
+}
+
+.lestra-director-main[data-route="/finanzas"] .app-content > div.mx-auto.max-w-7xl.space-y-4.pb-16 > section.grid.sm\:grid-cols-2.xl\:grid-cols-4 > .director-stat {
+  min-height: 112px;
+  border: 0 !important;
+  border-right: 1px solid var(--fd-line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 16px !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .app-content > div.mx-auto.max-w-7xl.space-y-4.pb-16 > section.grid.sm\:grid-cols-2.xl\:grid-cols-4 > .director-stat:last-child {
+  border-right: 0 !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .director-stat-value {
+  font-size: clamp(1.15rem, 2vw, 1.6rem) !important;
+}
+
+/* Secondary finance facts read as one context rail. */
+.lestra-director-main[data-route="/finanzas"] .app-content > div.mx-auto.max-w-7xl.space-y-4.pb-16 > section.grid.grid-cols-2.sm\:grid-cols-4 {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 0 !important;
+  overflow: hidden;
+  border: 1px solid var(--fd-line);
+  border-radius: 14px;
+  background: var(--fd-soft);
+}
+
+.lestra-director-main[data-route="/finanzas"] .app-content > div.mx-auto.max-w-7xl.space-y-4.pb-16 > section.grid.grid-cols-2.sm\:grid-cols-4 > div {
+  min-width: 130px;
+  flex: 1 1 160px;
+  border: 0 !important;
+  border-right: 1px solid var(--fd-line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 10px 14px !important;
+  text-align: left !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .app-content > div.mx-auto.max-w-7xl.space-y-4.pb-16 > section.grid.grid-cols-2.sm\:grid-cols-4 > div:last-child {
+  border-right: 0 !important;
+}
+
+/* Tabs become a finance workflow rail, not a pill collection. */
+.lestra-director-main[data-route="/finanzas"] .director-module-page + * {
+  min-width: 0;
+}
+
+.lestra-director-main[data-route="/finanzas"] .director-module-page,
+.lestra-director-main[data-route="/finanzas"] .app-content > div.mx-auto.max-w-7xl.space-y-4.pb-16 {
+  max-width: 1440px !important;
+}
+
+.lestra-director-main[data-route="/finanzas"] .director-module-panel:first-child {
+  box-shadow: none !important;
+}
+
+/* Academy Finance Desk domain component */
+.academy-finance-desk {
+  display: grid;
+  gap: 16px;
+}
+
+.finance-desk-command {
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--ls-accent) 18%, transparent);
+  border-radius: 22px;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--ls-accent) 7%, transparent), transparent 34%),
+    var(--fd-dark);
+  color: white;
+  box-shadow: 0 18px 40px color-mix(in srgb, var(--fd-dark) 16%, transparent);
+}
+
+.finance-desk-command-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, .65fr);
+  gap: 18px;
+  padding: 22px;
+  border-left: 6px solid var(--ls-accent);
+}
+
+.finance-desk-kicker {
+  color: var(--ls-accent-on-dark);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+.finance-desk-command h2 {
+  margin-top: 5px;
+  color: white !important;
+  font-size: clamp(1.55rem, 3vw, 2.25rem);
+  font-weight: 900;
+  letter-spacing: -.04em;
+}
+
+.finance-desk-command-copy {
+  margin-top: 8px;
+  max-width: 720px;
+  color: color-mix(in srgb, white 60%, transparent);
+  font-size: .86rem;
+  line-height: 1.6;
+}
+
+.finance-desk-balance {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-left: 1px solid color-mix(in srgb, white 10%, transparent);
+  padding-left: 20px;
+}
+
+.finance-desk-balance span {
+  color: color-mix(in srgb, white 45%, transparent);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.finance-desk-balance strong {
+  margin-top: 5px;
+  color: white;
+  font-size: clamp(1.65rem, 3vw, 2.5rem);
+  font-weight: 900;
+  letter-spacing: -.045em;
+  font-variant-numeric: tabular-nums;
+}
+
+.finance-desk-balance small {
+  margin-top: 5px;
+  color: color-mix(in srgb, white 52%, transparent);
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.finance-desk-rail {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid color-mix(in srgb, white 8%, transparent);
+  background: color-mix(in srgb, black 9%, transparent);
+}
+
+.finance-desk-rail > div {
+  min-height: 72px;
+  padding: 13px 16px;
+  border-right: 1px solid color-mix(in srgb, white 8%, transparent);
+}
+
+.finance-desk-rail > div:last-child { border-right: 0; }
+.finance-desk-rail span { display: block; color: color-mix(in srgb, white 42%, transparent); font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+.finance-desk-rail strong { display: block; margin-top: 5px; color: white; font-size: 1rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.finance-desk-rail strong.is-warning { color: color-mix(in srgb, var(--ls-warning) 72%, white); }
+.finance-desk-rail strong.is-danger { color: color-mix(in srgb, var(--ls-danger) 70%, white); }
+.finance-desk-rail strong.is-success { color: color-mix(in srgb, var(--ls-success) 70%, white); }
+
+.finance-desk-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(360px, .95fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.finance-desk-section {
+  overflow: hidden;
+  border: 1px solid var(--fd-line);
+  border-radius: 20px;
+  background: var(--fd-surface);
+  box-shadow: var(--ls-shadow);
+}
+
+.finance-desk-section.is-attention { background: var(--fd-warm); }
+.finance-desk-section.is-activity { background: var(--fd-sage); }
+
+.finance-desk-section > header {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--fd-line);
+}
+
+.finance-desk-section > header p {
+  color: var(--fd-muted);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.finance-desk-section > header h3 {
+  margin-top: 3px;
+  color: var(--fd-ink);
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: -.02em;
+}
+
+.finance-debtor-row,
+.finance-flow-row,
+.finance-branch-row {
+  display: grid;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--fd-line);
+}
+.finance-debtor-row:last-child,
+.finance-flow-row:last-child,
+.finance-branch-row:last-child { border-bottom: 0; }
+
+.finance-debtor-row { grid-template-columns: 28px minmax(0, 1fr) auto; }
+.finance-flow-row { grid-template-columns: minmax(0, 1fr) auto; }
+.finance-branch-row { grid-template-columns: minmax(0, 1fr) auto; }
+
+.finance-row-index { color: var(--fd-muted); font-size: 10px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.finance-row-copy { min-width: 0; }
+.finance-row-copy strong { display: block; overflow: hidden; color: var(--fd-ink); font-size: .82rem; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
+.finance-row-copy small { display: block; overflow: hidden; margin-top: 2px; color: var(--fd-muted); font-size: .68rem; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.finance-row-value { color: var(--fd-ink); font-size: .8rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.finance-row-value.is-danger { color: var(--ls-danger); }
+.finance-row-value.is-success { color: var(--ls-success); }
+
+.finance-desk-trend {
+  overflow: hidden;
+  border: 1px solid var(--fd-line);
+  border-radius: 20px;
+  background: var(--fd-surface);
+}
+
+.finance-desk-trend > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px 8px;
+}
+.finance-desk-trend h3 { color: var(--fd-ink); font-size: 1rem; font-weight: 900; }
+.finance-desk-trend p { margin-top: 2px; color: var(--fd-muted); font-size: .7rem; }
+.finance-desk-rate { border: 1px solid var(--fd-line); border-radius: 999px; background: var(--fd-soft); padding: 5px 9px; color: var(--fd-ink); font-size: .68rem; font-weight: 900; white-space: nowrap; }
+.finance-desk-chart { height: 220px; padding: 4px 10px 12px; }
+.finance-desk-empty { display: grid; min-height: 110px; place-items: center; padding: 20px; color: var(--fd-muted); font-size: .76rem; font-weight: 750; text-align: center; }
+
+@media (max-width: 900px) {
+  .finance-desk-command-inner,
+  .finance-desk-grid { grid-template-columns: minmax(0, 1fr); }
+  .finance-desk-balance { border-top: 1px solid color-mix(in srgb, white 10%, transparent); border-left: 0; padding-top: 14px; padding-left: 0; }
+  .finance-desk-rail { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .finance-desk-rail > div:nth-child(2) { border-right: 0; }
+  .finance-desk-rail > div:nth-child(-n+2) { border-bottom: 1px solid color-mix(in srgb, white 8%, transparent); }
+}
+
+@media (max-width: 700px) {
+  .lestra-director-main[data-route="/finanzas"] .app-content > div.mx-auto.max-w-7xl.space-y-4.pb-16 > section.grid.sm\:grid-cols-2.xl\:grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .lestra-director-main[data-route="/finanzas"] .app-content > div.mx-auto.max-w-7xl.space-y-4.pb-16 > section.grid.sm\:grid-cols-2.xl\:grid-cols-4 > .director-stat:nth-child(2) { border-right: 0 !important; }
+  .lestra-director-main[data-route="/finanzas"] .app-content > div.mx-auto.max-w-7xl.space-y-4.pb-16 > section.grid.sm\:grid-cols-2.xl\:grid-cols-4 > .director-stat:nth-child(-n+2) { border-bottom: 1px solid var(--fd-line) !important; }
+  .finance-desk-command-inner { padding: 18px; }
+}
