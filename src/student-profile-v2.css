@@ -9,6 +9,71 @@
   gap: 16px !important;
 }
 
+/* Lista de alumnos: esta vista todavía conserva markup dark histórico, pero su
+   contrato visual pertenece a este archivo. Se normaliza aquí para evitar que
+   la conversión global dark → light deje textos blancos o chips débiles sobre
+   superficies claras. No se crea una capa correctiva adicional. */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(2) {
+  border-color: #dce2d8 !important;
+  background: #fff !important;
+  color: #151a16 !important;
+  box-shadow: none !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(2) [class*="bg-[#0d1117]"] {
+  border-color: #dce2d8 !important;
+  background: #f5f7f3 !important;
+  color: #151a16 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button {
+  border-color: #dce2d8 !important;
+  background: #fff !important;
+  color: #151a16 !important;
+  box-shadow: 0 5px 18px rgba(18,24,19,.035) !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button:hover {
+  border-color: #b9c7b4 !important;
+  background: #fbfcfa !important;
+  box-shadow: 0 10px 26px rgba(18,24,19,.07) !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button :is(h2,[class*="text-white"]) {
+  color: #151a16 !important;
+  -webkit-text-fill-color: #151a16 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button :is([class*="text-[#7f8c9c]"],[class*="text-[#697586]"],[class*="text-[#596575]"]) {
+  color: #646e64 !important;
+  -webkit-text-fill-color: #646e64 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button [class*="text-violet-200"] {
+  border-color: #ddd6fe !important;
+  background: #f5f3ff !important;
+  color: #5b21b6 !important;
+  -webkit-text-fill-color: #5b21b6 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button [class*="text-amber-200"] {
+  border-color: #fde3a7 !important;
+  background: #fff8e8 !important;
+  color: #8a4b08 !important;
+  -webkit-text-fill-color: #8a4b08 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-16 > section:nth-of-type(3) > button [class*="text-[#D8BE87]"] {
+  color: #76531b !important;
+  -webkit-text-fill-color: #76531b !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-16 > div[class*="text-center"][class*="text-[#7f8c9c]"] {
+  border-color: #dce2d8 !important;
+  background: #fff !important;
+  color: #646e64 !important;
+}
+
 /* Navegación contextual */
 .lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > div:first-child :is(button,a) {
   min-height: 44px;
