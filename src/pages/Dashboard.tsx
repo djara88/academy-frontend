@@ -8,7 +8,6 @@ import {
   CalendarDaysIcon,
   CheckCircleIcon,
   ClipboardDocumentCheckIcon,
-  ClockIcon,
   ExclamationTriangleIcon,
   PlusIcon,
   RocketLaunchIcon,
