@@ -165,7 +165,6 @@ if (enrollmentHandoff) {
 if (enrollmentHandoffContract && !enrollmentHandoffContract.includes('.enrollment-handoff-workbench')) violations.push('src/enrollment-handoff-v2.css: falta contrato visual Matrícula Handoff.');
 if (mainEntry && !mainEntry.includes("import './enrollment-handoff-v2.css';")) violations.push('src/main.tsx: Matrícula Handoff V2 debe cargarse desde la entrada principal.');
 
-// Official competitions are a Competition Record ledger, not a gallery of generic cards.
 const competitionRecord = await requiredSource('src/pages/TorneosMultirama.tsx');
 const competitionRecordContract = await requiredSource('src/competition-record-v2.css');
 if (competitionRecord) {
@@ -177,6 +176,19 @@ if (competitionRecord) {
 }
 if (competitionRecordContract && !competitionRecordContract.includes('.competition-record-row')) violations.push('src/competition-record-v2.css: falta contrato visual Competition Record.');
 if (mainEntry && !mainEntry.includes("import './competition-record-v2.css';")) violations.push('src/main.tsx: Competition Record V2 debe cargarse desde la entrada principal.');
+
+// Advanced analytics is an Evolution Board: changes, season context and athlete
+// progression must dominate instead of generic KPI cards.
+const evolutionBoard = await requiredSource('src/pages/RendimientoAnalytics.tsx');
+const evolutionBoardContract = await requiredSource('src/evolution-board-v2.css');
+if (evolutionBoard) {
+  if (!evolutionBoard.includes('Evolution Board · Alto Rendimiento')) violations.push('src/pages/RendimientoAnalytics.tsx: falta la firma Evolution Board.');
+  if (!evolutionBoard.includes('Season Timeline')) violations.push('src/pages/RendimientoAnalytics.tsx: la analítica debe conservar lectura temporal de temporada.');
+  if (!evolutionBoard.includes('/api/rendimiento/analitica')) violations.push('src/pages/RendimientoAnalytics.tsx: no alterar el contrato de analítica deportiva.');
+  if (evolutionBoard.includes('DirectorStat')) violations.push('src/pages/RendimientoAnalytics.tsx: analítica no puede volver al resumen de StatCards genéricas.');
+}
+if (evolutionBoardContract && !evolutionBoardContract.includes('.evolution-board-discipline')) violations.push('src/evolution-board-v2.css: falta contrato visual Evolution Board.');
+if (mainEntry && !mainEntry.includes("import './evolution-board-v2.css';")) violations.push('src/main.tsx: Evolution Board V2 debe cargarse desde la entrada principal.');
 
 const liveMatch = await requiredSource('src/components/profesor/LiveMatchPanel.tsx');
 if (liveMatch) {
