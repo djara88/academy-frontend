@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '../../api/axiosConfig';
-import { useAppDialog } from '../../contexts/DialogContext';
 import MatchPreparationPanel from './MatchPreparationPanel';
 import TrainingLogPanel from './TrainingLogPanel';
 import type { ProfessorAgendaEvent } from './types';
@@ -18,9 +17,10 @@ const formatDate = (date: string) => new Intl.DateTimeFormat('es-CL', { weekday:
 const todayChile = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santiago', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 
 const ProfessorAgendaPanel = ({ mode, academyName, onLiveMatch, onAttendance }: Props) => {
-  const { notify } = useAppDialog();
   const [events, setEvents] = useState<ProfessorAgendaEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [verified, setVerified] = useState(false);
+  const [loadError, setLoadError] = useState('');
   const [selectedTrainingId, setSelectedTrainingId] = useState<string | null>(null);
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
   const [trainingView, setTrainingView] = useState<TrainingView>('proximos');
@@ -28,15 +28,18 @@ const ProfessorAgendaPanel = ({ mode, academyName, onLiveMatch, onAttendance }: 
 
   const load = useCallback(async () => {
     setLoading(true);
+    setLoadError('');
     try {
       const response = await api.get('/api/profesores/me/agenda');
-      setEvents(response.data.data || []);
+      setEvents(Array.isArray(response.data?.data) ? response.data.data : []);
+      setVerified(true);
     } catch (error: any) {
-      await notify(error.response?.data?.error || 'No fue posible cargar tus actividades.', { title: academyName });
+      setVerified(false);
+      setLoadError(error.response?.data?.error || 'No fue posible verificar tus actividades.');
     } finally {
       setLoading(false);
     }
-  }, [academyName, notify]);
+  }, []);
 
   useEffect(() => { void load(); }, [load]);
   useEffect(() => { if (mode === 'entrenamientos') setTrainingView('proximos'); }, [mode]);
@@ -59,7 +62,7 @@ const ProfessorAgendaPanel = ({ mode, academyName, onLiveMatch, onAttendance }: 
 
   if (selectedTrainingId) return <TrainingLogPanel trainingId={selectedTrainingId} academyName={academyName} onBack={() => setSelectedTrainingId(null)} onSaved={() => void load()} />;
   if (selectedMatchId) return <MatchPreparationPanel matchId={selectedMatchId} academyName={academyName} onBack={() => setSelectedMatchId(null)} onSaved={() => void load()} />;
-  if (loading) return <div className="card p-8 text-center text-[#8b949e]">Cargando actividades...</div>;
+  if (loading && !events.length) return <div className="card p-8 text-center text-[#8b949e]">Verificando actividades...</div>;
 
   const title = mode === 'entrenamientos' ? 'Entrenamientos' : 'Encuentros';
   const empty = mode === 'partidos'
@@ -77,6 +80,10 @@ const ProfessorAgendaPanel = ({ mode, academyName, onLiveMatch, onAttendance }: 
         <p className="mt-1 text-sm text-[#8b949e]">{mode === 'entrenamientos' ? 'Planifica tu operación: próximos entrenamientos, bitácoras que debes cerrar e historial real de tus categorías.' : 'Encuentros de las categorías que tienes asignadas y sus acciones disponibles.'}</p>
       </div>
 
+      {loadError ? <div role="status" className="rounded-2xl border border-orange-500/35 bg-orange-500/10 p-4"><p className="text-sm font-black text-orange-200">Agenda no verificada</p><p className="mt-1 text-sm leading-6 text-[#b1bac4]">{loadError} {events.length ? 'Las actividades visibles corresponden a la última carga disponible y pueden estar desactualizadas.' : 'No mostraremos una agenda vacía como si significara que no existen actividades.'}</p><button type="button" onClick={() => void load()} disabled={loading} className="mt-3 min-h-11 rounded-xl border border-orange-400/40 px-4 text-sm font-black text-orange-200 disabled:opacity-50">{loading ? 'Verificando…' : 'Reintentar'}</button></div> : null}
+
+      {loading && events.length ? <div role="status" className="rounded-xl border border-[#30363d] bg-[#161b22] px-4 py-3 text-xs font-bold text-[#8b949e]">Actualizando la agenda sin ocultar la última carga disponible…</div> : null}
+
       {mode === 'entrenamientos' ? (
         <nav aria-label="Vistas de entrenamientos" className="grid grid-cols-3 gap-2 rounded-2xl border border-[#30363d] bg-[#161b22] p-2">
           {([
@@ -89,7 +96,7 @@ const ProfessorAgendaPanel = ({ mode, academyName, onLiveMatch, onAttendance }: 
         </nav>
       ) : null}
 
-      {!visibleEvents.length ? <div className="card border-dashed p-8 text-center text-[#8b949e]">{empty}</div> : null}
+      {verified && !visibleEvents.length ? <div className="card border-dashed p-8 text-center text-[#8b949e]">{empty}</div> : null}
       <div className="space-y-3">
         {visibleEvents.map((event) => {
           const isTraining = event.tipo === 'Entrenamiento';
