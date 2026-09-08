@@ -1,0 +1,407 @@
+/* Lestra Deportivo — Training Session V2
+ * Domain-owned visual contract for Professor attendance in court conditions.
+ * It intentionally avoids generic person cards and keeps the roster scannable.
+ */
+
+.lestra-court-shell {
+  --court-line: rgba(255,255,255,.11);
+  --court-line-strong: rgba(255,255,255,.18);
+  --court-surface: #121b23;
+  --court-surface-soft: #0d151c;
+  --court-ink: #f7fbfc;
+  --court-muted: #8ea1ad;
+  --court-accent: #48d8d0;
+  --court-accent-strong: #289e9d;
+  --court-success: #62d99b;
+  --court-warning: #f4b860;
+  --court-danger: #f47a83;
+  --court-shadow: 0 14px 34px rgba(0,0,0,.16);
+}
+
+.lestra-court-shell.court-bright {
+  --court-line: #d2dfe2;
+  --court-line-strong: #b9cdd1;
+  --court-surface: #ffffff;
+  --court-surface-soft: #eef5f5;
+  --court-ink: #10202a;
+  --court-muted: #536974;
+  --court-accent: #0d6667;
+  --court-accent-strong: #095456;
+  --court-success: #087a4b;
+  --court-warning: #9a5f00;
+  --court-danger: #a92b38;
+  --court-shadow: 0 12px 28px rgba(20,46,58,.09);
+}
+
+.attendance-lineup {
+  overflow: hidden;
+  border: 1px solid var(--court-line);
+  border-radius: 22px;
+  background: var(--court-surface);
+  color: var(--court-ink);
+  box-shadow: var(--court-shadow);
+}
+
+.attendance-lineup-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.05rem 1.15rem;
+  border-bottom: 1px solid var(--court-line);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--court-accent) 9%, transparent), transparent 42%),
+    var(--court-surface);
+}
+
+.attendance-lineup-kicker {
+  margin: 0;
+  color: var(--court-accent);
+  font-size: .62rem;
+  font-weight: 900;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+.attendance-lineup-header h2 {
+  margin: .18rem 0 0;
+  color: var(--court-ink) !important;
+  font-size: clamp(1.3rem, 2.3vw, 1.75rem);
+  font-weight: 900;
+  letter-spacing: -.035em;
+}
+
+.attendance-lineup-header p:last-child {
+  margin: .28rem 0 0;
+  color: var(--court-muted);
+  font-size: .77rem;
+  font-weight: 700;
+}
+
+.attendance-lineup-all-present {
+  flex: 0 0 auto;
+  min-height: 48px !important;
+  border: 1px solid color-mix(in srgb, var(--court-success) 45%, var(--court-line));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--court-success) 10%, transparent);
+  color: var(--court-success);
+  padding: .65rem .9rem;
+  font-size: .78rem;
+  font-weight: 900;
+}
+
+.attendance-lineup-all-present:disabled {
+  opacity: .4;
+}
+
+.attendance-lineup-score {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-bottom: 1px solid var(--court-line);
+  background: var(--court-surface-soft);
+}
+
+.attendance-lineup-score > span {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  border-right: 1px solid var(--court-line);
+  color: var(--court-muted);
+  font-size: .69rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.attendance-lineup-score > span:last-child {
+  border-right: 0;
+}
+
+.attendance-lineup-score strong {
+  color: var(--court-ink);
+  font-size: 1rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.attendance-lineup-column-head {
+  display: grid;
+  grid-template-columns: 40px minmax(200px, 1.05fr) minmax(160px, .75fr) minmax(330px, 1.2fr);
+  gap: .75rem;
+  padding: .55rem 1rem;
+  border-bottom: 1px solid var(--court-line);
+  color: var(--court-muted);
+  font-size: .58rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.attendance-lineup-list {
+  display: block;
+}
+
+.attendance-lineup-row {
+  display: grid;
+  grid-template-columns: 40px minmax(200px, 1.05fr) minmax(160px, .75fr) minmax(330px, 1.2fr);
+  gap: .75rem;
+  align-items: center;
+  padding: .8rem 1rem;
+  border-bottom: 1px solid var(--court-line);
+  background: var(--court-surface);
+}
+
+.attendance-lineup-row:last-child {
+  border-bottom: 0;
+}
+
+.attendance-lineup-row:focus-within {
+  background: color-mix(in srgb, var(--court-accent) 5%, var(--court-surface));
+}
+
+.attendance-lineup-number {
+  color: var(--court-muted);
+  font-size: .69rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.attendance-lineup-player {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: .7rem;
+}
+
+.attendance-lineup-player img,
+.attendance-lineup-avatar {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border: 1px solid var(--court-line-strong);
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.attendance-lineup-avatar {
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--court-accent) 12%, var(--court-surface-soft));
+  color: var(--court-accent);
+  font-weight: 900;
+}
+
+.attendance-lineup-player-copy {
+  min-width: 0;
+}
+
+.attendance-lineup-player-copy strong,
+.attendance-lineup-player-copy small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attendance-lineup-player-copy strong {
+  color: var(--court-ink);
+  font-size: .91rem;
+  font-weight: 900;
+}
+
+.attendance-lineup-player-copy small {
+  margin-top: .18rem;
+  color: var(--court-muted);
+  font-size: .7rem;
+  font-weight: 700;
+}
+
+.attendance-lineup-alert,
+.attendance-lineup-clear {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: .4rem;
+  border-radius: 10px;
+  font-size: .69rem;
+  font-weight: 900;
+}
+
+.attendance-lineup-alert {
+  border: 1px solid var(--court-line-strong);
+  background: var(--court-surface-soft);
+  color: var(--court-muted);
+  padding: .45rem .6rem;
+}
+
+.attendance-lineup-alert svg {
+  width: 16px;
+  height: 16px;
+}
+
+.attendance-lineup-alert.is-medical {
+  border-color: color-mix(in srgb, var(--court-danger) 40%, var(--court-line));
+  background: color-mix(in srgb, var(--court-danger) 9%, transparent);
+  color: var(--court-danger);
+}
+
+.attendance-lineup-clear {
+  color: var(--court-muted);
+}
+
+.attendance-lineup-clear::before {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--court-success);
+  content: '';
+}
+
+.attendance-lineup-status {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .4rem;
+}
+
+.attendance-lineup-status button {
+  min-height: 46px !important;
+  border: 1px solid var(--court-line-strong);
+  border-radius: 11px;
+  background: var(--court-surface-soft);
+  color: var(--court-muted);
+  padding: .45rem .35rem;
+  font-size: .7rem;
+  font-weight: 900;
+}
+
+.attendance-lineup-status button[aria-pressed="true"][data-status="presente"] {
+  border-color: color-mix(in srgb, var(--court-success) 60%, var(--court-line));
+  background: color-mix(in srgb, var(--court-success) 14%, transparent);
+  color: var(--court-success);
+}
+
+.attendance-lineup-status button[aria-pressed="true"][data-status="ausente"] {
+  border-color: color-mix(in srgb, var(--court-danger) 60%, var(--court-line));
+  background: color-mix(in srgb, var(--court-danger) 14%, transparent);
+  color: var(--court-danger);
+}
+
+.attendance-lineup-status button[aria-pressed="true"][data-status="justificado"] {
+  border-color: color-mix(in srgb, var(--court-warning) 60%, var(--court-line));
+  background: color-mix(in srgb, var(--court-warning) 14%, transparent);
+  color: var(--court-warning);
+}
+
+.attendance-lineup-emergency {
+  grid-column: 2 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-top: .15rem;
+  padding: .7rem .8rem;
+  border: 1px solid color-mix(in srgb, var(--court-danger) 28%, var(--court-line));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--court-danger) 6%, var(--court-surface-soft));
+}
+
+.attendance-lineup-emergency strong {
+  color: var(--court-danger);
+  font-size: .68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.attendance-lineup-emergency p {
+  margin: .2rem 0 0;
+  color: var(--court-ink);
+  font-size: .78rem;
+}
+
+.attendance-lineup-emergency a {
+  display: inline-flex;
+  min-height: 44px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: .35rem;
+  border: 1px solid color-mix(in srgb, var(--court-accent) 45%, var(--court-line));
+  border-radius: 10px;
+  color: var(--court-accent);
+  padding: .5rem .7rem;
+  font-size: .72rem;
+  font-weight: 900;
+}
+
+.attendance-lineup-emergency a svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 767px) {
+  .attendance-lineup {
+    border-radius: 18px;
+  }
+
+  .attendance-lineup-header {
+    align-items: stretch;
+    flex-direction: column;
+    padding: .9rem;
+  }
+
+  .attendance-lineup-all-present {
+    width: 100%;
+  }
+
+  .attendance-lineup-score {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .attendance-lineup-score > span:nth-child(2) {
+    border-right: 0;
+  }
+
+  .attendance-lineup-score > span:nth-child(-n+2) {
+    border-bottom: 1px solid var(--court-line);
+  }
+
+  .attendance-lineup-column-head {
+    display: none;
+  }
+
+  .attendance-lineup-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: .7rem;
+    padding: .9rem;
+  }
+
+  .attendance-lineup-number {
+    display: none;
+  }
+
+  .attendance-lineup-context {
+    order: 3;
+  }
+
+  .attendance-lineup-status {
+    order: 2;
+  }
+
+  .attendance-lineup-emergency {
+    grid-column: 1;
+    order: 4;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .attendance-lineup-emergency a {
+    justify-content: center;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1100px) {
+  .attendance-lineup-column-head,
+  .attendance-lineup-row {
+    grid-template-columns: 36px minmax(190px, 1fr) minmax(130px, .65fr) minmax(300px, 1.2fr);
+  }
+}
