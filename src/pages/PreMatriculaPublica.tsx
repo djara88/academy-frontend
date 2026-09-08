@@ -15,11 +15,45 @@ interface PreData {
   signed_at?: string | null;
 }
 
+type SignatureMode = 'draw' | 'typed';
+
 const money = (value: any) => `$${Math.round(Number(value) || 0).toLocaleString('es-CL')}`;
 const date = (value: any) => value ? new Date(value).toLocaleDateString('es-CL') : '-';
 const ACCEPTED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SOURCE_PHOTO_BYTES = 12 * 1024 * 1024;
 const MAX_PHOTO_DATA_URL_CHARS = 1_600_000;
+const TYPED_SIGNATURE_CONFIRMATION = 'ACEPTO Y FIRMO';
+
+const buildTypedSignatureDataUrl = (name: string, document: string) => {
+  const canvas = window.document.createElement('canvas');
+  canvas.width = 1200;
+  canvas.height = 420;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('No fue posible preparar la firma con teclado.');
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = '#cbd5e1';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(3, 3, canvas.width - 6, canvas.height - 6);
+
+  ctx.fillStyle = '#0f172a';
+  ctx.font = '700 46px Arial, sans-serif';
+  ctx.fillText('Firma electrónica mediante teclado', 60, 92);
+  ctx.font = '700 58px Arial, sans-serif';
+  ctx.fillText(name.slice(0, 80), 60, 190);
+  ctx.font = '32px Arial, sans-serif';
+  ctx.fillStyle = '#334155';
+  ctx.fillText(`Documento: ${document.slice(0, 60)}`, 60, 252);
+  ctx.font = '700 30px Arial, sans-serif';
+  ctx.fillStyle = '#0f172a';
+  ctx.fillText(TYPED_SIGNATURE_CONFIRMATION, 60, 326);
+  ctx.font = '24px Arial, sans-serif';
+  ctx.fillStyle = '#64748b';
+  ctx.fillText('Declaración generada por la persona firmante como alternativa accesible a la firma dibujada.', 60, 372);
+
+  return canvas.toDataURL('image/png');
+};
 
 const compressStudentPhoto = (file: File): Promise<string> => new Promise((resolve, reject) => {
   if (!ACCEPTED_PHOTO_TYPES.includes(file.type)) {
@@ -89,6 +123,8 @@ const PreMatriculaPublica: React.FC = () => {
   const [document, setDocument] = useState('');
   const [studentPhoto, setStudentPhoto] = useState('');
   const [hasSignature, setHasSignature] = useState(false);
+  const [signatureMode, setSignatureMode] = useState<SignatureMode>('draw');
+  const [typedConfirmation, setTypedConfirmation] = useState('');
 
   useEffect(() => {
     api.get(`/api/prematriculas/public/${token}`)
@@ -106,6 +142,7 @@ const PreMatriculaPublica: React.FC = () => {
   }, [token]);
 
   useEffect(() => {
+    if (signatureMode !== 'draw') return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const resize = () => {
@@ -130,7 +167,7 @@ const PreMatriculaPublica: React.FC = () => {
     resize();
     window.addEventListener('resize', resize);
     return () => window.removeEventListener('resize', resize);
-  }, [hasSignature]);
+  }, [hasSignature, signatureMode]);
 
   const coords = (event: React.PointerEvent<HTMLCanvasElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -186,22 +223,28 @@ const PreMatriculaPublica: React.FC = () => {
   const total = useMemo(() => Number(data?.finanzas?.monto_matricula || 0) + Number(data?.jugador?.monto_camiseta_apoderado || 0), [data]);
   const requiredAccepted = useMemo(() => (data?.privacy?.items || []).filter((item) => item.obligatorio).every((item) => decisions[item.tipo] === true), [data, decisions]);
   const internalPhotoAuthorized = decisions.imagen_interna === true;
+  const typedSignatureReady = typedConfirmation.trim().toUpperCase() === TYPED_SIGNATURE_CONFIRMATION;
 
   const submit = async () => {
     setError('');
     if (!acceptTerms || !requiredAccepted) return setError('Debes aceptar las condiciones de matrícula y confirmar los avisos obligatorios.');
     if (internalPhotoAuthorized && !studentPhoto) return setError('Como autorizaste la imagen para uso interno, agrega la foto del alumno antes de firmar.');
     if (!name.trim() || !document.trim()) return setError('Confirma tu nombre y documento de identidad.');
-    if (!hasSignature || !canvasRef.current) return setError('Debes firmar en el recuadro antes de confirmar.');
+    if (signatureMode === 'draw' && (!hasSignature || !canvasRef.current)) return setError('Debes firmar en el recuadro o elegir la alternativa de firma con teclado.');
+    if (signatureMode === 'typed' && !typedSignatureReady) return setError(`Para firmar con teclado escribe exactamente “${TYPED_SIGNATURE_CONFIRMATION}”.`);
     setSubmitting(true);
     try {
-      const firma = canvasRef.current.toDataURL('image/png');
+      const firma = signatureMode === 'typed'
+        ? buildTypedSignatureDataUrl(name.trim(), document.trim())
+        : canvasRef.current!.toDataURL('image/png');
       const response = await api.post(`/api/prematriculas/public/${token}/firmar`, {
         acepta_terminos: true,
         decisiones: decisions,
         firmante_nombre: name.trim(),
         firmante_documento: document.trim(),
         firma_data_url: firma,
+        firma_metodo: signatureMode === 'typed' ? 'declaracion_teclado' : 'manuscrita_canvas',
+        firma_declaracion: signatureMode === 'typed' ? TYPED_SIGNATURE_CONFIRMATION : '',
         foto_alumno_data_url: internalPhotoAuthorized ? studentPhoto : '',
       });
       setSuccess({ folio: response.data?.folio || 'Matrícula formalizada', url: response.data?.url });
@@ -223,7 +266,7 @@ const PreMatriculaPublica: React.FC = () => {
       <div className="mx-auto max-w-xl rounded-[32px] border border-emerald-500/30 bg-white/5 p-8 text-center shadow-2xl backdrop-blur">
         <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-emerald-400 text-3xl text-emerald-950">✓</div>
         <h1 className="mt-5 text-3xl font-black">Matrícula formalizada</h1>
-        <p className="mt-3 text-slate-300">Tu aceptación, la fotografía autorizada y la firma quedaron registradas. La academia conservará la evidencia asociada a esta matrícula.</p>
+        <p className="mt-3 text-slate-300">Tu aceptación, la fotografía autorizada y la firma electrónica quedaron registradas. La academia conservará la evidencia asociada a esta matrícula.</p>
         {success?.folio && <p className="mt-5 font-bold text-amber-300">{success.folio}</p>}
         {success?.url && <button onClick={() => window.open(success.url, '_blank', 'noopener,noreferrer')} className="mt-6 rounded-xl bg-amber-400 px-5 py-3 font-black text-slate-950">Abrir documento final</button>}
       </div>
@@ -299,14 +342,42 @@ const PreMatriculaPublica: React.FC = () => {
             <div className="mt-6 rounded-2xl border border-sky-400/15 bg-sky-400/5 p-4 text-sm leading-6 text-slate-400">No autorizaste la fotografía para uso interno, por lo que no solicitaremos ni guardaremos una foto del alumno. Esto no impide completar la matrícula.</div>
           )}
 
-          <div className="mt-6 grid gap-4 md:grid-cols-2"><div><label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">Nombre del firmante</label><input value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 outline-none focus:border-amber-400" /></div><div><label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">RUT / documento</label><input value={document} onChange={(e) => setDocument(e.target.value)} className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 outline-none focus:border-amber-400" /></div></div>
-          <div className="mt-5 overflow-hidden rounded-2xl border border-slate-300 bg-white"><canvas ref={canvasRef} onPointerDown={startDraw} onPointerMove={draw} onPointerUp={stopDraw} onPointerCancel={stopDraw} onPointerLeave={stopDraw} className="h-[180px] w-full touch-none cursor-crosshair" /></div>
-          <div className="mt-2 flex items-center justify-between gap-4"><p className="text-xs text-slate-400">Firma dentro del recuadro con el dedo, mouse o lápiz.</p><button type="button" onClick={clearSignature} className="shrink-0 text-xs font-bold text-amber-300">Limpiar firma</button></div>
+          <div className="mt-6 grid gap-4 md:grid-cols-2"><div><label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">Nombre del firmante</label><input value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30" /></div><div><label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-400">RUT / documento</label><input value={document} onChange={(e) => setDocument(e.target.value)} className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30" /></div></div>
+
+          <fieldset className="mt-6">
+            <legend className="text-sm font-black text-white">Elige cómo quieres firmar</legend>
+            <p className="mt-1 text-sm text-slate-400">Ambas opciones quedan asociadas a tu nombre, documento, fecha y evidencia técnica de esta matrícula.</p>
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              <label className={`flex cursor-pointer gap-3 rounded-2xl border p-4 ${signatureMode === 'draw' ? 'border-amber-300/50 bg-amber-300/[.07]' : 'border-white/10 bg-black/20'}`}>
+                <input type="radio" name="signatureMode" value="draw" checked={signatureMode === 'draw'} onChange={() => setSignatureMode('draw')} className="mt-1 h-5 w-5 accent-amber-400" />
+                <span><b className="text-white">Dibujar mi firma</b><span className="mt-1 block text-xs leading-5 text-slate-400">Usa dedo, mouse o lápiz sobre el recuadro.</span></span>
+              </label>
+              <label className={`flex cursor-pointer gap-3 rounded-2xl border p-4 ${signatureMode === 'typed' ? 'border-amber-300/50 bg-amber-300/[.07]' : 'border-white/10 bg-black/20'}`}>
+                <input type="radio" name="signatureMode" value="typed" checked={signatureMode === 'typed'} onChange={() => setSignatureMode('typed')} className="mt-1 h-5 w-5 accent-amber-400" />
+                <span><b className="text-white">Firmar con teclado</b><span className="mt-1 block text-xs leading-5 text-slate-400">Alternativa accesible: confirma una declaración escrita sin necesidad de dibujar.</span></span>
+              </label>
+            </div>
+          </fieldset>
+
+          {signatureMode === 'draw' ? (
+            <div className="mt-5">
+              <div className="overflow-hidden rounded-2xl border border-slate-300 bg-white"><canvas ref={canvasRef} aria-label="Área para dibujar la firma manuscrita" aria-describedby="draw-signature-help" onPointerDown={startDraw} onPointerMove={draw} onPointerUp={stopDraw} onPointerCancel={stopDraw} onPointerLeave={stopDraw} className="h-[180px] w-full touch-none cursor-crosshair" /></div>
+              <div className="mt-2 flex items-center justify-between gap-4"><p id="draw-signature-help" className="text-xs text-slate-400">Firma dentro del recuadro con el dedo, mouse o lápiz. Si no puedes usar este control, selecciona “Firmar con teclado”.</p><button type="button" onClick={clearSignature} className="shrink-0 rounded-lg px-2 py-1 text-xs font-bold text-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-300">Limpiar firma</button></div>
+            </div>
+          ) : (
+            <div className="mt-5 rounded-2xl border border-amber-300/25 bg-amber-300/[.05] p-5">
+              <p className="font-black text-white">Declaración de firma electrónica</p>
+              <p className="mt-2 text-sm leading-6 text-slate-300">Al completar esta alternativa declaras que eres la persona indicada en los campos anteriores y que confirmas las condiciones y decisiones seleccionadas en esta pre-matrícula.</p>
+              <label htmlFor="typed-signature-confirmation" className="mt-4 block text-xs font-bold uppercase tracking-wider text-slate-400">Escribe exactamente: {TYPED_SIGNATURE_CONFIRMATION}</label>
+              <input id="typed-signature-confirmation" value={typedConfirmation} onChange={(e) => setTypedConfirmation(e.target.value)} autoComplete="off" aria-describedby="typed-signature-status" className="mt-2 w-full rounded-xl border border-white/15 bg-black/25 px-4 py-3 font-bold uppercase tracking-wide text-white outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30" />
+              <p id="typed-signature-status" aria-live="polite" className={`mt-3 text-sm font-semibold ${typedSignatureReady ? 'text-emerald-300' : 'text-slate-400'}`}>{typedSignatureReady ? 'Declaración confirmada. La firma con teclado está lista.' : 'La firma quedará lista cuando la frase coincida exactamente.'}</p>
+            </div>
+          )}
         </section>
 
-        {error && <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm font-semibold text-red-200">{error}</div>}
-        <button type="button" disabled={submitting || processingPhoto} onClick={submit} className="w-full rounded-2xl bg-gradient-to-r from-amber-300 to-amber-500 px-6 py-4 text-lg font-black text-slate-950 shadow-xl disabled:opacity-50">{submitting ? 'Formalizando matrícula...' : 'Firmar y confirmar matrícula'}</button>
-        <p className="pb-8 text-center text-xs leading-5 text-slate-400">La fotografía autorizada, firma y decisiones quedan asociadas a esta pre-matrícula junto con fecha, versión de textos y evidencia técnica de integridad.</p>
+        {error && <div role="alert" className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm font-semibold text-red-200">{error}</div>}
+        <button type="button" disabled={submitting || processingPhoto} onClick={submit} className="w-full rounded-2xl bg-gradient-to-r from-amber-300 to-amber-500 px-6 py-4 text-lg font-black text-slate-950 shadow-xl focus:outline-none focus:ring-4 focus:ring-amber-200/40 disabled:opacity-50">{submitting ? 'Formalizando matrícula...' : 'Firmar y confirmar matrícula'}</button>
+        <p className="pb-8 text-center text-xs leading-5 text-slate-400">La fotografía autorizada, el método de firma y las decisiones quedan asociados a esta pre-matrícula junto con fecha, versión de textos y evidencia técnica de integridad.</p>
       </main>
     </div>
   );
