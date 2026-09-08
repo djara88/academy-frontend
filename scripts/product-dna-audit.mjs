@@ -98,6 +98,33 @@ if (directorHome) {
   }
 }
 
+// Plantel is the second migrated surface. Its identity is a roster, not a grid
+// of generic person cards. Protect both the page integration and the domain component.
+const studentsPage = await requiredSource('src/pages/Alumnos.tsx');
+const rosterStrip = await requiredSource('src/components/roster/RosterStrip.tsx');
+if (studentsPage) {
+  if (!studentsPage.includes('<RosterStrip')) {
+    violations.push('src/pages/Alumnos.tsx: Plantel debe conservar la firma de dominio RosterStrip.');
+  }
+  if (!studentsPage.includes('categoryFilter') || !studentsPage.includes('disciplineFilter')) {
+    violations.push('src/pages/Alumnos.tsx: el roster debe poder leerse dentro de disciplina y categoría.');
+  }
+  if (!studentsPage.includes('Plantel · vista operativa')) {
+    violations.push('src/pages/Alumnos.tsx: falta el contexto operativo del plantel.');
+  }
+}
+if (rosterStrip) {
+  if (!rosterStrip.includes('Roster Strip')) {
+    violations.push('src/components/roster/RosterStrip.tsx: falta la firma textual Roster Strip.');
+  }
+  if (!rosterStrip.includes('Contexto deportivo')) {
+    violations.push('src/components/roster/RosterStrip.tsx: cada fila debe mostrar contexto deportivo, no solo identidad personal.');
+  }
+  if (/#[0-9a-fA-F]{3,8}\b/.test(rosterStrip)) {
+    violations.push('src/components/roster/RosterStrip.tsx: el componente de dominio debe usar tokens semánticos, no hexadecimales directos.');
+  }
+}
+
 // Integrity contracts for high-risk production surfaces. These are intentionally
 // narrow: they prevent regressions into the exact classes of failures already
 // observed without pretending to replace real end-to-end QA.
