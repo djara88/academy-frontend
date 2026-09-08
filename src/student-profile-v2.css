@@ -198,6 +198,52 @@
   background: #fff1f2 !important;
 }
 
+/* Evaluación del alumno: este overlay vive dentro de .app-content. Las utilidades
+   oscuras históricas quedan convertidas a superficies claras por Visual System V2,
+   por lo que también hay que normalizar explícitamente su tipografía descendiente. */
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > div.fixed.inset-0:has(input[type="range"]) > div {
+  border-color: #d8dfd5 !important;
+  background: #fff !important;
+  color: #151a16 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > div.fixed.inset-0:has(input[type="range"]) :is(h1,h2,h3,[class*="text-white"]) {
+  color: #151a16 !important;
+  -webkit-text-fill-color: #151a16 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > div.fixed.inset-0:has(input[type="range"]) :is([class*="text-[#8995a4]"],[class*="text-[#c3ccd6]"]) {
+  color: #596359 !important;
+  -webkit-text-fill-color: #596359 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > div.fixed.inset-0:has(input[type="range"]) [class*="text-[#70e4df]"] {
+  color: #536f00 !important;
+  -webkit-text-fill-color: #536f00 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > div.fixed.inset-0:has(input[type="range"]) label[class*="bg-[#0d1117]"] {
+  border-color: #dce2d8 !important;
+  background: #f7f9f5 !important;
+  color: #151a16 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > div.fixed.inset-0:has(input[type="range"]) input[type="range"] {
+  accent-color: #6f8700 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > div.fixed.inset-0:has(input[type="range"]) textarea {
+  border-color: #d4dbd1 !important;
+  background: #fff !important;
+  color: #151a16 !important;
+  -webkit-text-fill-color: #151a16 !important;
+}
+
+.lestra-director-main[data-route="/alumnos"] .app-content > div.mx-auto.max-w-7xl.space-y-6.pb-20 > div.fixed.inset-0:has(input[type="range"]) textarea::placeholder {
+  color: #737d74 !important;
+  -webkit-text-fill-color: #737d74 !important;
+}
+
 /* StudentReportCard ya gobierna su propio modal; sólo conserva integración de la tarjeta. */
 .student-report-card {
   border-color: #dce2d8 !important;
