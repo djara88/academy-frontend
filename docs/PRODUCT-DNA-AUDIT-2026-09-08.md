@@ -55,6 +55,23 @@ Problema observado en producción: fondo convertido a claro mientras el nombre d
 
 Estado: **CORREGIDO**, pero la ruta completa sigue en REVIEW hasta validar todos los estados y vistas.
 
+## Hallazgo corregido P1/P0 potencial — lista de alumnos
+
+La lista principal de `/alumnos` utiliza todavía el contrato histórico `panel` con `bg-[#151b25]` y campos `bg-[#0d1117]`. Como `visual-system-v2.css` transforma esas superficies a claro dentro del workspace Director, las tarjetas conservaban descendientes como `text-white`, grises de dark mode y chips claros de violeta/ámbar con riesgo real de legibilidad.
+
+La corrección se realizó dentro del contrato propietario existente `student-profile-v2.css`, sin crear otra hoja `fix`:
+
+- tarjetas de alumno con superficie clara y texto oscuro explícito;
+- metadatos secundarios normalizados;
+- chips de disciplina y estado con fondo/texto compatibles en light mode;
+- resumen de filtros y estado vacío legibles;
+- hover conservado sin depender del antiguo dark mode.
+
+Commit: `8e4097fa6ec094e0bb9b676e4557ca38bf8eb08b`.
+Deployment de producción: **READY** y asociado a `deportivo.lestra.app`.
+
+Estado: **CORREGIDO/REVIEW**. Falta recorrido visual real desktop/mobile, búsqueda, filtros, cero resultados y selección de alumno antes de PASS.
+
 ## Hallazgo ya corregido P0/P1 — editor de criterios y reconocimientos
 
 Los editores manuales relacionados con evaluación/reconocimientos utilizaban el mismo lenguaje dark histórico. Fueron migrados para eliminar el riesgo inmediato de legibilidad.
@@ -114,7 +131,7 @@ Estado: **P0 corregido en código / REVIEW hasta QA real de teclado y lector de 
 | `/dashboard` | P1 | REVIEW | Debe pasar Anti-AI Review y comprobar que las métricas correspondan a decisiones. |
 | `/matricula` | P1 | REVIEW | Flujo crítico de 4 pasos + dorsal + evaluación inicial + envío. Validar legibilidad completa. |
 | `/prematricula/:token` | P0 | CORREGIDO/REVIEW | Contraste y alternativa de firma por teclado implementados; falta QA real del flujo completo y tecnologías de asistencia. |
-| `/alumnos` lista | P1 | REVIEW | Validar búsqueda, filtros, estados y jerarquía sin depender de overrides. |
+| `/alumnos` lista | P1/P0 potencial | CORREGIDO/REVIEW | Riesgo dark→light corregido en contrato propietario; falta QA real de búsqueda, filtros, tarjetas y responsive. |
 | `/alumnos` ficha | P0/P1 | REVIEW | Ya produjo un P0 de contraste. Requiere recorrido exhaustivo de ficha completa. |
 | `/alumnos` evaluación | P0 | CORREGIDO/REVIEW | Fix desplegado; falta certificación de interacción completa. |
 | `/asistencias` | P1 | REVIEW | Flujo de alta frecuencia y uso de terreno; mobile/targets/estados son críticos. |
