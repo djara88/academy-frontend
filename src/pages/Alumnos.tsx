@@ -8,7 +8,6 @@ import {
   BanknotesIcon,
   ChartBarIcon,
   CheckCircleIcon,
-  ChevronRightIcon,
   ClipboardDocumentCheckIcon,
   ExclamationTriangleIcon,
   MagnifyingGlassIcon,
@@ -31,6 +30,7 @@ import api from '../api/axiosConfig';
 import EvaluationCriteriaEditor from '../components/EvaluationCriteriaEditor';
 import RecognitionCatalogEditor, { type RecognitionDefinition } from '../components/RecognitionCatalogEditor';
 import EnrollmentCategoryManager from '../components/EnrollmentCategoryManager';
+import RosterStrip, { type RosterStripPlayer } from '../components/roster/RosterStrip';
 
 type Branch = { id: string; nombre: string; disciplina: string };
 type Site = { id: string; nombre: string };
@@ -165,6 +165,7 @@ export default function Alumnos() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [disciplineFilter, setDisciplineFilter] = useState('Todas');
+  const [categoryFilter, setCategoryFilter] = useState('Todas');
   const [selectedStudentId, setSelectedStudentId] = useState('');
   const [selectedBranchId, setSelectedBranchId] = useState('');
   const [compareMode, setCompareMode] = useState<CompareMode>('anterior');
@@ -213,14 +214,60 @@ export default function Alumnos() {
     return [...names].sort((a, b) => a.localeCompare(b, 'es'));
   }, [studentsQuery.data]);
 
+  const categories = useMemo(() => {
+    const names = new Set<string>();
+    for (const student of studentsQuery.data || []) {
+      for (const item of student.inscripciones) {
+        if (!item.categoria?.nombre) continue;
+        if (disciplineFilter !== 'Todas' && item.rama?.disciplina !== disciplineFilter) continue;
+        names.add(item.categoria.nombre);
+      }
+    }
+    return [...names].sort((a, b) => a.localeCompare(b, 'es'));
+  }, [studentsQuery.data, disciplineFilter]);
+
   const filteredStudents = useMemo(() => {
     const text = search.trim().toLowerCase();
     return (studentsQuery.data || []).filter((student) => {
       const matchesText = !text || student.nombre.toLowerCase().includes(text) || String(student.documento || student.rut || '').toLowerCase().includes(text);
-      const matchesDiscipline = disciplineFilter === 'Todas' || student.inscripciones.some((item) => item.rama?.disciplina === disciplineFilter);
-      return matchesText && matchesDiscipline;
+      const matchesContext = student.inscripciones.some((item) => {
+        const matchesDiscipline = disciplineFilter === 'Todas' || item.rama?.disciplina === disciplineFilter;
+        const matchesCategory = categoryFilter === 'Todas' || item.categoria?.nombre === categoryFilter;
+        return matchesDiscipline && matchesCategory;
+      });
+      return matchesText && matchesContext;
     });
-  }, [studentsQuery.data, search, disciplineFilter]);
+  }, [studentsQuery.data, search, disciplineFilter, categoryFilter]);
+
+  const rosterPlayers = useMemo<RosterStripPlayer[]>(() => filteredStudents.map((student) => ({
+    id: student.id,
+    name: student.nombre,
+    document: student.documento || student.rut,
+    age: ageFrom(student.fecha_nacimiento),
+    photo: photoOf(student),
+    medicalAlert: student.alerta_medica,
+    financialState: student.estado_financiero,
+    recognitionCount: student.reconocimientos_total || 0,
+    enrollments: student.inscripciones
+      .filter((item) => item.estado === 'Activa')
+      .map((item) => ({
+        id: item.id,
+        discipline: item.rama?.disciplina || item.rama?.nombre || 'Disciplina',
+        category: item.categoria?.nombre,
+        primary: item.es_principal,
+      })),
+  })), [filteredStudents]);
+
+  const rosterTitle = categoryFilter !== 'Todas'
+    ? categoryFilter
+    : disciplineFilter !== 'Todas'
+      ? disciplineFilter
+      : 'Plantel general';
+  const rosterContext = categoryFilter !== 'Todas'
+    ? `${disciplineFilter !== 'Todas' ? disciplineFilter : 'Todas las disciplinas'} · categoría ${categoryFilter}`
+    : disciplineFilter !== 'Todas'
+      ? `${disciplineFilter} · todas las categorías`
+      : 'Todos los deportistas activos y su contexto multideporte';
 
   const compatibleEvaluations = useMemo(() => {
     if (!evaluationProfile || !detail) return [];
@@ -251,6 +298,11 @@ export default function Alumnos() {
     setSelectedStudentId(student.id);
     setSelectedBranchId(chooseDefaultBranch(student));
     setCompareMode('anterior');
+  };
+
+  const selectRosterPlayer = (playerId: string) => {
+    const student = (studentsQuery.data || []).find((item) => item.id === playerId);
+    if (student) selectStudent(student);
   };
 
   const refreshDetail = async () => {
@@ -336,48 +388,44 @@ export default function Alumnos() {
     setEvaluationOpen(true);
   };
 
-  if (studentsQuery.isLoading) return <div className="grid min-h-[50vh] place-items-center text-sm font-bold text-[#70e4df]">Cargando alumnos...</div>;
-  if (studentsQuery.isError) return <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-5 text-red-200">No fue posible cargar los alumnos.</div>;
+  if (studentsQuery.isLoading) return <div className="grid min-h-[50vh] place-items-center" role="status"><div className="text-center"><div aria-hidden="true" className="mx-auto h-9 w-9 animate-spin rounded-full border-4 border-[var(--ls-line)] border-t-[var(--ls-accent-strong)]"/><p className="mt-3 text-sm font-black text-[var(--ls-muted)]">Preparando el plantel…</p></div></div>;
+  if (studentsQuery.isError) return <section className="rounded-[var(--ls-radius-lg)] border border-[var(--ls-line)] bg-[var(--ls-surface)] p-7 text-center"><ExclamationTriangleIcon aria-hidden="true" className="mx-auto h-8 w-8 text-[var(--ls-danger)]"/><h1 className="mt-3 text-xl font-black text-[var(--ls-ink)]">No pudimos abrir el plantel</h1><p className="mt-2 text-sm text-[var(--ls-muted)]">No mostraremos una lista anterior como si estuviera actualizada.</p><button type="button" onClick={() => void studentsQuery.refetch()} className="mt-4 min-h-11 rounded-xl bg-[var(--ls-ink)] px-5 text-sm font-black text-white">Reintentar</button></section>;
 
   if (!selectedStudentId) {
-    return <div className="mx-auto max-w-7xl space-y-6 pb-16">
-      <section className="overflow-hidden rounded-[30px] border border-[#289E9D]/25 bg-[radial-gradient(circle_at_top_right,rgba(40,158,157,.19),transparent_38%),linear-gradient(135deg,#172530,#101620)] p-6 sm:p-8">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[.18em] text-[#70e4df]">Ficha multideporte</p>
-            <h1 className="mt-2 text-3xl font-black text-white sm:text-4xl">Alumnos</h1>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-[#9aa6b5]">Una persona, todas sus disciplinas. Cada rama conserva sus propias aptitudes, radar, estadísticas, asistencia, especialidad y reconocimientos sin duplicar la ficha personal.</p>
-          </div>
-          <Link to="/inscripciones" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#289E9D] px-5 text-sm font-black text-white hover:bg-[#35b8b5]"><PlusCircleIcon className="h-5 w-5"/>Inscribir alumno en otra disciplina</Link>
-        </div>
-      </section>
-
-      <section className={`${panel} p-4 sm:p-5`}>
-        <div className="grid gap-3 md:grid-cols-[1fr_260px_auto]">
-          <label className="relative"><MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-3.5 h-5 w-5 text-[#697586]"/><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar por nombre o documento" className={`${field} pl-10`}/></label>
-          <select value={disciplineFilter} onChange={(event) => setDisciplineFilter(event.target.value)} className={field}><option>Todas</option>{disciplines.map((discipline) => <option key={discipline}>{discipline}</option>)}</select>
-          <div className="flex min-h-11 items-center justify-center rounded-xl border border-white/10 bg-[#0d1117] px-4 text-sm font-black text-[#b9c3cf]">{filteredStudents.length} alumnos</div>
-        </div>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {filteredStudents.map((student) => {
-          const active = student.inscripciones.filter((item) => item.estado === 'Activa');
-          const photo = photoOf(student);
-          const age = ageFrom(student.fecha_nacimiento);
-          return <button key={student.id} onClick={() => selectStudent(student)} className={`${panel} group overflow-hidden p-5 text-left transition hover:-translate-y-0.5 hover:border-[#289E9D]/40 hover:shadow-xl hover:shadow-black/20`}>
-            <div className="flex items-start gap-4">
-              {photo ? <img src={photo} alt="" className="h-16 w-16 shrink-0 rounded-2xl border border-white/10 object-cover"/> : <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl border border-[#289E9D]/25 bg-[#289E9D]/10 text-2xl font-black text-[#70e4df]">{student.nombre.slice(0, 1).toUpperCase()}</div>}
-              <div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-2"><div className="min-w-0"><h2 className="truncate text-lg font-black text-white">{student.nombre}</h2><p className="mt-1 text-xs text-[#7f8c9c]">{student.documento || 'Sin documento'}{age !== null ? ` · ${age} años` : ''}</p></div><ChevronRightIcon className="h-5 w-5 shrink-0 text-[#596575] transition group-hover:translate-x-1 group-hover:text-[#70e4df]"/></div>
-                <div className="mt-3 flex flex-wrap gap-1.5">{active.length ? active.map((item) => <span key={item.id} className="rounded-full border border-violet-400/20 bg-violet-500/10 px-2.5 py-1 text-[10px] font-black text-violet-200">{item.rama?.disciplina || item.rama?.nombre || 'Disciplina'}{item.categoria?.nombre ? ` · ${item.categoria.nombre}` : ''}</span>) : <span className="rounded-full border border-amber-400/20 bg-amber-500/10 px-2.5 py-1 text-[10px] font-black text-amber-200">Sin inscripción activa</span>}</div>
-              </div>
+    return <main className="mx-auto max-w-[1440px] space-y-5 pb-16" aria-labelledby="roster-page-title">
+      <section className="overflow-hidden rounded-[var(--ls-radius-lg)] border border-[var(--ls-line)] bg-[var(--ls-sidebar)] text-white shadow-[var(--ls-shadow-strong)]">
+        <div className="border-l-[6px] border-l-[var(--ls-accent)] px-5 py-6 sm:px-7 sm:py-7">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-[.16em] text-[var(--ls-accent-on-dark)]">Plantel · vista operativa</p>
+              <h1 id="roster-page-title" className="mt-2 text-3xl font-black tracking-[-.04em] text-white sm:text-4xl">Roster de la academia</h1>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-white/62">Trabaja con deportistas dentro de su disciplina y categoría. La ficha personal sigue siendo única; el contexto deportivo cambia con cada rama sin duplicar al alumno.</p>
             </div>
-            <div className="mt-4 grid grid-cols-3 gap-2 border-t border-white/10 pt-4 text-center"><div><p className="text-[10px] uppercase text-[#697586]">Disciplinas</p><p className="mt-1 font-black text-white">{active.length}</p></div><div><p className="text-[10px] uppercase text-[#697586]">Reconocim.</p><p className="mt-1 font-black text-[#D8BE87]">{student.reconocimientos_total || 0}</p></div><div><p className="text-[10px] uppercase text-[#697586]">Finanzas</p><p className={`mt-1 text-xs font-black ${student.estado_financiero === 'Al Día' ? 'text-emerald-300' : 'text-amber-300'}`}>{student.estado_financiero || 'Sin estado'}</p></div></div>
-          </button>;
-        })}
+            <Link to="/inscripciones" className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--ls-accent)] px-5 text-sm font-black text-[var(--ls-ink)] hover:bg-[var(--ls-accent-strong)]"><PlusCircleIcon aria-hidden="true" className="h-5 w-5"/>Inscribir deportista</Link>
+          </div>
+        </div>
       </section>
-      {!filteredStudents.length ? <div className={`${panel} p-10 text-center text-sm text-[#7f8c9c]`}>No encontramos alumnos con esos filtros.</div> : null}
-    </div>;
+
+      <section className="rounded-[var(--ls-radius-lg)] border border-[var(--ls-line)] bg-[var(--ls-surface)] p-4 shadow-[var(--ls-shadow)] sm:p-5" aria-label="Contexto del plantel">
+        <div className="grid gap-3 lg:grid-cols-[minmax(260px,1fr)_220px_220px_auto] lg:items-end">
+          <label className="block">
+            <span className="mb-1.5 block text-[10px] font-black uppercase tracking-[.1em] text-[var(--ls-muted)]">Buscar deportista</span>
+            <span className="relative block"><MagnifyingGlassIcon aria-hidden="true" className="pointer-events-none absolute left-3 top-3 h-5 w-5 text-[var(--ls-muted)]"/><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Nombre o documento" className="min-h-11 w-full rounded-xl border border-[var(--ls-line-strong)] bg-[var(--ls-surface)] pl-10 pr-3 text-sm font-semibold text-[var(--ls-ink)]"/></span>
+          </label>
+          <label className="block">
+            <span className="mb-1.5 block text-[10px] font-black uppercase tracking-[.1em] text-[var(--ls-muted)]">Disciplina</span>
+            <select value={disciplineFilter} onChange={(event) => { setDisciplineFilter(event.target.value); setCategoryFilter('Todas'); }} className="min-h-11 w-full rounded-xl border border-[var(--ls-line-strong)] bg-[var(--ls-surface)] px-3 text-sm font-black text-[var(--ls-ink)]"><option>Todas</option>{disciplines.map((discipline) => <option key={discipline}>{discipline}</option>)}</select>
+          </label>
+          <label className="block">
+            <span className="mb-1.5 block text-[10px] font-black uppercase tracking-[.1em] text-[var(--ls-muted)]">Categoría</span>
+            <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)} className="min-h-11 w-full rounded-xl border border-[var(--ls-line-strong)] bg-[var(--ls-surface)] px-3 text-sm font-black text-[var(--ls-ink)]"><option>Todas</option>{categories.map((category) => <option key={category}>{category}</option>)}</select>
+          </label>
+          <div className="flex min-h-11 items-center justify-center border-l-2 border-[var(--ls-accent)] px-4 text-sm font-black text-[var(--ls-ink)] lg:justify-start">{filteredStudents.length} en esta vista</div>
+        </div>
+      </section>
+
+      <RosterStrip title={rosterTitle} context={rosterContext} players={rosterPlayers} onSelect={selectRosterPlayer} />
+    </main>;
   }
 
   if (profileQuery.isLoading || !detail || !selectedListStudent) return <div className="grid min-h-[50vh] place-items-center"><div className="flex items-center gap-3 text-sm font-bold text-[#70e4df]"><ArrowPathIcon className="h-5 w-5 animate-spin"/>Cargando ficha del alumno...</div></div>;
