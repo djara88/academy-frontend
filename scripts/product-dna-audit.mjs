@@ -54,6 +54,8 @@ for (const requiredPath of ['AGENTS.md', 'docs/PRODUCT-DNA-DEPORTIVO.md']) {
   }
 }
 
+const mainEntry = await requiredSource('src/main.tsx');
+
 // Director navigation deliberately abandons the generic SaaS sidebar for a
 // sports-domain command ribbon. Keep that architectural decision explicit.
 const directorLayout = await requiredSource('src/layouts/Layout.tsx');
@@ -125,13 +127,22 @@ if (rosterStrip) {
   }
 }
 
+// Selected athlete owns a Performance Canvas material contract while its legacy
+// JSX is progressively decomposed into smaller domain components.
+const performanceCanvas = await requiredSource('src/performance-canvas-v2.css');
+if (performanceCanvas) {
+  if (!performanceCanvas.includes('Performance Canvas V2')) violations.push('src/performance-canvas-v2.css: falta identidad Performance Canvas.');
+  if (!performanceCanvas.includes('--pc-dark') || !performanceCanvas.includes('--pc-sage')) violations.push('src/performance-canvas-v2.css: Performance Canvas debe conservar tokens locales de materialidad.');
+}
+if (mainEntry && !mainEntry.includes("import './performance-canvas-v2.css';")) {
+  violations.push('src/main.tsx: Performance Canvas V2 debe cargarse desde la entrada principal.');
+}
+
 // Professor attendance is a Training Session, not a stack of generic player cards.
-// Preserve the offline/verified roster logic in the page and the domain interaction
-// pattern in AttendanceLineup.
+// Preserve the offline/verified roster logic in the page and the domain interaction pattern.
 const professorPortal = await requiredSource('src/pages/ProfesorPortal.tsx');
 const attendanceLineup = await requiredSource('src/components/profesor/AttendanceLineup.tsx');
 const trainingSessionContract = await requiredSource('src/training-session-v2.css');
-const mainEntry = await requiredSource('src/main.tsx');
 if (professorPortal) {
   if (!professorPortal.includes('<AttendanceLineup')) {
     violations.push('src/pages/ProfesorPortal.tsx: Asistencia de Profesor debe conservar AttendanceLineup.');
@@ -161,17 +172,45 @@ if (mainEntry && !mainEntry.includes("import './training-session-v2.css';")) {
   violations.push('src/main.tsx: Training Session V2 debe cargarse desde la entrada principal.');
 }
 
-// Integrity contracts for high-risk production surfaces. These are intentionally
-// narrow: they prevent regressions into the exact classes of failures already
-// observed without pretending to replace real end-to-end QA.
+// Competition is a Match Command fixture board, not a two-column event-card grid.
+const matchWorkspace = await requiredSource('src/pages/EventosRendimientoEnhanced.tsx');
+const matchCommandContract = await requiredSource('src/match-command-v2.css');
+if (matchWorkspace && !matchWorkspace.includes('Match Command · Competencia')) {
+  violations.push('src/pages/EventosRendimientoEnhanced.tsx: falta la firma Match Command.');
+}
+if (matchCommandContract && !matchCommandContract.includes('fixture board')) {
+  violations.push('src/match-command-v2.css: el contrato debe conservar la arquitectura de fixture board.');
+}
+if (mainEntry && !mainEntry.includes("import './match-command-v2.css';")) {
+  violations.push('src/main.tsx: Match Command V2 debe cargarse desde la entrada principal.');
+}
+
+// Finance keeps its safety contracts and now owns an Academy Finance Desk domain surface.
 const finance = await requiredSource('src/pages/FinanzasMultirama.tsx');
+const financeDesk = await requiredSource('src/components/FinanceSchoolDashboard.tsx');
+const financeDeskContract = await requiredSource('src/finance-desk-v2.css');
 if (finance) {
   if (!finance.includes('baseVerified')) violations.push('src/pages/FinanzasMultirama.tsx: Finanzas debe distinguir lectura verificada de estado desconocido.');
   if (!finance.includes('Estado financiero no verificado')) violations.push('src/pages/FinanzasMultirama.tsx: falta estado explícito de finanzas no verificadas.');
   if (!finance.includes('idempotency_key')) violations.push('src/pages/FinanzasMultirama.tsx: movimientos manuales deben conservar clave idempotente durante reintentos.');
   if (/summary\?\.totalIngresosReales\s*\|\|\s*0/.test(finance)) violations.push('src/pages/FinanzasMultirama.tsx: estado financiero desconocido no puede convertirse en $0.');
 }
+if (financeDesk) {
+  if (!financeDesk.includes('Academy Finance Desk') || !financeDesk.includes('Caja y cobranza de hoy')) {
+    violations.push('src/components/FinanceSchoolDashboard.tsx: falta la firma Academy Finance Desk.');
+  }
+  if (financeDesk.includes('DirectorPanel')) {
+    violations.push('src/components/FinanceSchoolDashboard.tsx: la superficie principal no debe volver a depender de paneles genéricos DirectorPanel.');
+  }
+}
+if (financeDeskContract && !financeDeskContract.includes('.academy-finance-desk')) {
+  violations.push('src/finance-desk-v2.css: falta contrato visual Academy Finance Desk.');
+}
+if (mainEntry && !mainEntry.includes("import './finance-desk-v2.css';")) {
+  violations.push('src/main.tsx: Academy Finance Desk V2 debe cargarse desde la entrada principal.');
+}
 
+// Integrity contracts for concurrent live match writes remain mandatory.
 const liveMatch = await requiredSource('src/components/profesor/LiveMatchPanel.tsx');
 if (liveMatch) {
   if (!liveMatch.includes('expected_live_updated_at')) violations.push('src/components/profesor/LiveMatchPanel.tsx: escrituras en vivo deben transportar versión de concurrencia.');
