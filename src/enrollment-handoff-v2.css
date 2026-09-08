@@ -1,0 +1,480 @@
+/* Lestra Deportivo — Enrollment Handoff V2
+ * Matrícula is a controlled handoff from academy preparation to family signature.
+ * The surface must read like an admission lane, not a generic multi-step SaaS form.
+ */
+
+.enrollment-handoff {
+  --eh-dark: var(--ls-sidebar);
+  --eh-ink: var(--ls-ink);
+  --eh-muted: var(--ls-muted);
+  --eh-line: var(--ls-line);
+  --eh-line-strong: var(--ls-line-strong);
+  --eh-surface: var(--ls-surface);
+  --eh-soft: var(--ls-surface-soft);
+  --eh-accent: var(--ls-accent);
+  --eh-accent-strong: var(--ls-accent-strong);
+  --eh-success: var(--ls-success);
+  --eh-warning: var(--ls-warning);
+  --eh-danger: var(--ls-danger);
+}
+
+.enrollment-handoff-command {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(250px, .42fr);
+  overflow: hidden;
+  border: 1px solid var(--eh-line);
+  border-radius: 24px;
+  background: var(--eh-dark);
+  color: white;
+  box-shadow: var(--ls-shadow-strong);
+}
+
+.enrollment-handoff-command-main {
+  position: relative;
+  padding: clamp(22px, 3vw, 34px);
+}
+
+.enrollment-handoff-command-main::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 6px;
+  background: var(--eh-accent);
+  content: '';
+}
+
+.enrollment-handoff-kicker,
+.enrollment-handoff-queue-kicker,
+.enrollment-handoff-section-kicker {
+  margin: 0;
+  color: var(--ls-accent-on-dark);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+.enrollment-handoff-command h1 {
+  margin: 8px 0 0;
+  max-width: 850px;
+  color: white;
+  font-size: clamp(2rem, 4vw, 3.45rem);
+  font-weight: 950;
+  line-height: 1;
+  letter-spacing: -.045em;
+}
+
+.enrollment-handoff-command-copy {
+  margin: 12px 0 0;
+  max-width: 760px;
+  color: rgba(255,255,255,.68);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.enrollment-handoff-route {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.enrollment-handoff-route span {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 999px;
+  padding: 0 12px;
+  background: rgba(255,255,255,.055);
+  color: rgba(255,255,255,.8);
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.enrollment-handoff-route i {
+  color: var(--eh-accent);
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 950;
+}
+
+.enrollment-handoff-command-side {
+  display: grid;
+  align-content: stretch;
+  border-left: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.025);
+}
+
+.enrollment-handoff-command-side > div {
+  display: grid;
+  align-content: center;
+  min-height: 116px;
+  padding: 20px 24px;
+}
+
+.enrollment-handoff-command-side > div + div {
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+
+.enrollment-handoff-command-side small {
+  color: rgba(255,255,255,.48);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.enrollment-handoff-command-side strong {
+  margin-top: 5px;
+  color: white;
+  font-size: 27px;
+  font-weight: 950;
+  letter-spacing: -.04em;
+}
+
+.enrollment-handoff-command-side span {
+  margin-top: 3px;
+  color: var(--ls-accent-on-dark);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.enrollment-handoff-success,
+.enrollment-handoff-editing {
+  border: 1px solid var(--eh-line);
+  border-left-width: 5px;
+  border-radius: 18px;
+  background: var(--eh-surface);
+  padding: 16px 18px;
+}
+
+.enrollment-handoff-success { border-left-color: var(--eh-success); }
+.enrollment-handoff-editing { border-left-color: var(--ls-blue); }
+
+.enrollment-handoff-success > p:first-child,
+.enrollment-handoff-editing > div > p:first-child {
+  margin: 0;
+  color: var(--eh-muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.enrollment-handoff-success > p:nth-child(2),
+.enrollment-handoff-editing > div > p:nth-child(2) {
+  margin: 5px 0 0;
+  color: var(--eh-ink);
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.55;
+}
+
+.enrollment-handoff-editing {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.enrollment-handoff-workbench {
+  overflow: hidden;
+  border: 1px solid var(--eh-line);
+  border-radius: 24px;
+  background: var(--eh-surface);
+  box-shadow: var(--ls-shadow);
+}
+
+.enrollment-handoff-progress {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-bottom: 1px solid var(--eh-line);
+  background: var(--eh-soft);
+}
+
+.enrollment-handoff-progress::before {
+  position: absolute;
+  top: 25px;
+  right: 12.5%;
+  left: 12.5%;
+  height: 2px;
+  background: var(--eh-line-strong);
+  content: '';
+}
+
+.enrollment-handoff-step {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-height: 74px;
+  border: 0;
+  border-right: 1px solid var(--eh-line);
+  background: transparent;
+  padding: 12px 14px;
+  color: var(--eh-muted);
+  text-align: left;
+}
+
+.enrollment-handoff-step:last-child { border-right: 0; }
+.enrollment-handoff-step:disabled { cursor: default; }
+
+.enrollment-handoff-step-number {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 2px solid var(--eh-line-strong);
+  border-radius: 50%;
+  background: var(--eh-surface);
+  color: var(--eh-muted);
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.enrollment-handoff-step-copy small {
+  display: block;
+  color: inherit;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.enrollment-handoff-step-copy strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--eh-ink);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.enrollment-handoff-step[data-state='done'] .enrollment-handoff-step-number {
+  border-color: var(--eh-accent-strong);
+  background: var(--eh-accent);
+  color: var(--eh-ink);
+}
+
+.enrollment-handoff-step[data-state='current'] {
+  background: var(--eh-dark);
+  color: var(--ls-accent-on-dark);
+}
+
+.enrollment-handoff-step[data-state='current'] .enrollment-handoff-step-number {
+  border-color: var(--eh-accent);
+  background: var(--eh-accent);
+  color: var(--eh-ink);
+}
+
+.enrollment-handoff-step[data-state='current'] .enrollment-handoff-step-copy strong { color: white; }
+
+.enrollment-handoff-form {
+  padding: clamp(20px, 3vw, 30px);
+}
+
+.enrollment-handoff-form-body {
+  min-height: 320px;
+}
+
+.enrollment-handoff-error {
+  margin-bottom: 20px;
+  border: 1px solid color-mix(in srgb, var(--eh-danger) 28%, transparent);
+  border-left: 5px solid var(--eh-danger);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--eh-danger) 7%, var(--eh-surface));
+  padding: 14px 16px;
+  color: var(--eh-danger);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.enrollment-handoff-section-title h2 {
+  margin: 4px 0 0;
+  color: var(--eh-ink);
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  font-weight: 950;
+  letter-spacing: -.035em;
+}
+
+.enrollment-handoff-section-title p:last-child {
+  margin: 7px 0 0;
+  max-width: 800px;
+  color: var(--eh-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.enrollment-handoff-finance-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 20px;
+  overflow: hidden;
+  border: 1px solid var(--eh-line);
+  border-radius: 16px;
+  background: var(--eh-soft);
+}
+
+.enrollment-handoff-finance-summary > div {
+  min-width: 0;
+  padding: 14px 16px;
+}
+
+.enrollment-handoff-finance-summary > div + div { border-left: 1px solid var(--eh-line); }
+.enrollment-handoff-finance-summary small { display: block; color: var(--eh-muted); font-size: 9px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+.enrollment-handoff-finance-summary strong { display: block; margin-top: 4px; color: var(--eh-ink); font-size: 20px; font-weight: 950; letter-spacing: -.03em; }
+.enrollment-handoff-finance-summary span { display: block; margin-top: 2px; color: var(--eh-muted); font-size: 10px; font-weight: 700; }
+.enrollment-handoff-finance-summary .is-balance { background: var(--eh-dark); }
+.enrollment-handoff-finance-summary .is-balance small,
+.enrollment-handoff-finance-summary .is-balance span { color: rgba(255,255,255,.58); }
+.enrollment-handoff-finance-summary .is-balance strong { color: var(--ls-accent-on-dark); }
+
+.enrollment-handoff-review-note {
+  margin-top: 18px;
+  border-left: 4px solid var(--eh-accent-strong);
+  background: var(--eh-soft);
+  padding: 13px 15px;
+  color: var(--eh-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.enrollment-handoff-review-note strong { color: var(--eh-ink); }
+
+.enrollment-handoff-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 26px;
+  border-top: 1px solid var(--eh-line);
+  padding-top: 18px;
+}
+
+.enrollment-handoff-queue {
+  overflow: hidden;
+  border: 1px solid var(--eh-line);
+  border-radius: 22px;
+  background: var(--eh-surface);
+}
+
+.enrollment-handoff-queue-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid var(--eh-line);
+  padding: 18px 20px;
+}
+
+.enrollment-handoff-queue-kicker { color: var(--ls-accent-text); }
+.enrollment-handoff-queue-header h2 { margin: 4px 0 0; color: var(--eh-ink); font-size: 22px; font-weight: 950; letter-spacing: -.03em; }
+.enrollment-handoff-queue-header > p { margin: 0; color: var(--eh-muted); font-size: 12px; }
+
+.enrollment-handoff-queue-columns,
+.enrollment-handoff-queue-row {
+  display: grid;
+  grid-template-columns: minmax(210px, 1.35fr) minmax(150px, .8fr) 120px 120px minmax(170px, auto);
+  align-items: center;
+  gap: 12px;
+}
+
+.enrollment-handoff-queue-columns {
+  border-bottom: 1px solid var(--eh-line);
+  background: var(--eh-soft);
+  padding: 9px 18px;
+  color: var(--eh-muted);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.enrollment-handoff-queue-row {
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--eh-line);
+}
+.enrollment-handoff-queue-row:last-child { border-bottom: 0; }
+.enrollment-handoff-queue-row:hover { background: color-mix(in srgb, var(--eh-accent) 5%, var(--eh-surface)); }
+
+.enrollment-handoff-person { min-width: 0; }
+.enrollment-handoff-person strong { display: block; overflow: hidden; color: var(--eh-ink); font-size: 13px; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
+.enrollment-handoff-person span { display: block; overflow: hidden; margin-top: 2px; color: var(--eh-muted); font-size: 10px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.enrollment-handoff-dorsal { color: var(--ls-accent-text); font-size: 11px; font-weight: 900; }
+.enrollment-handoff-money { color: var(--eh-ink); font-size: 12px; font-weight: 900; }
+
+.enrollment-handoff-status {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 28px;
+  align-items: center;
+  border: 1px solid var(--eh-line-strong);
+  border-radius: 999px;
+  padding: 0 10px;
+  background: var(--eh-soft);
+  color: var(--eh-muted);
+  font-size: 9px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+.enrollment-handoff-status[data-status='firmada'] { border-color: color-mix(in srgb, var(--eh-success) 25%, var(--eh-line)); background: color-mix(in srgb, var(--eh-success) 8%, var(--eh-surface)); color: var(--eh-success); }
+.enrollment-handoff-status[data-status='abierta'] { border-color: color-mix(in srgb, var(--ls-blue) 25%, var(--eh-line)); color: var(--ls-blue); }
+.enrollment-handoff-status[data-status='enviada'] { border-color: color-mix(in srgb, var(--eh-warning) 28%, var(--eh-line)); color: var(--eh-warning); }
+.enrollment-handoff-status[data-status='cancelada'] { opacity: .7; }
+
+.enrollment-handoff-row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.enrollment-handoff-row-actions button,
+.enrollment-handoff-signed {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--eh-line-strong);
+  border-radius: 10px;
+  background: var(--eh-surface);
+  padding: 0 11px;
+  color: var(--eh-ink);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.enrollment-handoff-row-actions button.is-danger { border-color: color-mix(in srgb, var(--eh-danger) 28%, var(--eh-line)); color: var(--eh-danger); }
+.enrollment-handoff-signed { border-color: color-mix(in srgb, var(--eh-success) 25%, var(--eh-line)); color: var(--eh-success); }
+.enrollment-handoff-empty { padding: 46px 20px; color: var(--eh-muted); text-align: center; font-size: 13px; font-weight: 750; }
+
+@media (max-width: 900px) {
+  .enrollment-handoff-command { grid-template-columns: 1fr; }
+  .enrollment-handoff-command-side { grid-template-columns: 1fr 1fr; border-top: 1px solid rgba(255,255,255,.08); border-left: 0; }
+  .enrollment-handoff-command-side > div + div { border-top: 0; border-left: 1px solid rgba(255,255,255,.08); }
+  .enrollment-handoff-progress { grid-template-columns: repeat(4, minmax(138px, 1fr)); overflow-x: auto; }
+  .enrollment-handoff-progress::before { display: none; }
+  .enrollment-handoff-queue-columns { display: none; }
+  .enrollment-handoff-queue-row { grid-template-columns: minmax(0, 1fr) auto; gap: 9px 12px; }
+  .enrollment-handoff-person { grid-column: 1; }
+  .enrollment-handoff-status { grid-column: 2; grid-row: 1; }
+  .enrollment-handoff-dorsal { grid-column: 1; }
+  .enrollment-handoff-money { grid-column: 2; text-align: right; }
+  .enrollment-handoff-row-actions { grid-column: 1 / -1; justify-content: flex-start; padding-top: 4px; }
+}
+
+@media (max-width: 639px) {
+  .enrollment-handoff-command h1 { font-size: 2rem; }
+  .enrollment-handoff-route { align-items: stretch; }
+  .enrollment-handoff-route span { flex: 1 1 calc(50% - 16px); justify-content: center; text-align: center; }
+  .enrollment-handoff-route i { align-self: center; }
+  .enrollment-handoff-command-side strong { font-size: 22px; }
+  .enrollment-handoff-form { padding: 16px; }
+  .enrollment-handoff-finance-summary { grid-template-columns: 1fr; }
+  .enrollment-handoff-finance-summary > div + div { border-top: 1px solid var(--eh-line); border-left: 0; }
+  .enrollment-handoff-actions { flex-direction: column-reverse; }
+  .enrollment-handoff-actions > * { width: 100%; }
+  .enrollment-handoff-queue-header { align-items: flex-start; flex-direction: column; }
+  .enrollment-handoff-editing { align-items: stretch; flex-direction: column; }
+}
