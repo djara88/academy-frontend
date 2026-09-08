@@ -54,6 +54,24 @@ for (const requiredPath of ['AGENTS.md', 'docs/PRODUCT-DNA-DEPORTIVO.md']) {
   }
 }
 
+// Director home is the first migrated Product DNA surface. Protect the design
+// direction itself, not a screenshot: sports-domain hierarchy, semantic tokens,
+// no return to the generic KPI-card composition that the redesign replaced.
+const directorHome = await requiredSource('src/pages/Dashboard.tsx');
+if (directorHome) {
+  if (directorHome.includes('MetricCard')) violations.push('src/pages/Dashboard.tsx: Inicio Director no puede volver al patrón MetricCard.');
+  if (directorHome.includes('QuickAction')) violations.push('src/pages/Dashboard.tsx: Inicio Director no puede volver a mosaicos QuickAction genéricos.');
+  if (!directorHome.includes('Match Command')) violations.push('src/pages/Dashboard.tsx: falta la firma deportiva Match Command en la zona dominante.');
+  if (!directorHome.includes('Season Timeline')) violations.push('src/pages/Dashboard.tsx: falta la firma deportiva Season Timeline.');
+  if (!directorHome.includes('Pulso operativo')) violations.push('src/pages/Dashboard.tsx: falta contexto de plantel orientado a operación.');
+  if (!directorHome.includes('var(--ls-surface)') || !directorHome.includes('var(--ls-ink)')) {
+    violations.push('src/pages/Dashboard.tsx: la superficie migrada debe usar tokens semánticos Lestra.');
+  }
+  if (/#[0-9a-fA-F]{3,8}\b/.test(directorHome)) {
+    violations.push('src/pages/Dashboard.tsx: no introducir colores hexadecimales directos en la superficie Product DNA migrada.');
+  }
+}
+
 // Integrity contracts for high-risk production surfaces. These are intentionally
 // narrow: they prevent regressions into the exact classes of failures already
 // observed without pretending to replace real end-to-end QA.
