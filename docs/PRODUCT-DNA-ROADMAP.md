@@ -20,6 +20,7 @@ Estados:
 - **Inicio Director** — `/dashboard`: Match Command, Season Timeline y pulso operativo.
 - **Plantel** — `/alumnos`: Roster Strip, filtros por disciplina/categoría y ficha deportiva con Performance Canvas.
 - **Profesor / asistencia de cancha** — `/profesor`: Training Session + Attendance Lineup con roster verificado, borrador local aislado y operación de cancha.
+- **Pizarra Profesor** — `/profesor` → `Pizarra`: Tactical Board con plantel real por categoría, mover/dibujar/flechas/borrar, deshacer/rehacer, formación inicial por disciplina, persistencia, borrado y exportación PNG. El contrato queda protegido por `professor-tactical-board-audit.mjs`.
 - **Partidos y eventos** — `/partidos`: Match Command / fixture board.
 - **Finanzas** — `/finanzas`: Academy Finance Desk, estados financieros verificables e idempotencia de movimientos.
 - **Comunicaciones** — `/comunicaciones`: Family Touchpoint con contexto deportista/familia y trazabilidad WhatsApp/portal.
@@ -53,26 +54,37 @@ Ruta: `/salud-deportiva`
 - `availability-board-audit.mjs` ejecutado en `prebuild`.
 - Build de producción verificado.
 
-### 🟡 3. Asistencia Director — EN CURSO
+### ✅ 3. Asistencia Director — OK
 Ruta: `/asistencias`
 
-Objetivo de cierre:
-- convertir el resumen administrativo en lectura de plantel/categoría/fecha;
-- distinguir roster/dato verificado de estado todavía no cargado;
-- conectar conceptualmente con Training Session sin duplicar lógica del Profesor;
-- preservar creación de sesión, lista, cancelación, recuperaciones, reportes y Excel.
+- `Attendance Command` convierte la asistencia en una lectura de sesión → rama → categoría → roster.
+- El roster diferencia carga, dato verificado y ausencia de información antes de permitir acciones operativas.
+- Preserva creación de sesión, asistencia individual, suspensión, recuperación, reportes mensuales y exportación Excel.
+- Mantiene la separación con `Training Session` del Profesor: Director administra y revisa; Profesor opera en cancha.
+- Contrato propietario en `attendance-command-v2.css`.
+- `attendance-command-audit.mjs` ejecutado en `prebuild`.
+- Build de producción verificado.
 
-### ⬜ 4. Profesores — PENDIENTE
+### ✅ 4. Profesores — OK
 Ruta: `/profesores`
 
-- `Staff Board` por rama/categoría/sede.
-- Carga, categorías asignadas, actividad reciente y permisos.
+- `Staff Board` ordena el equipo técnico por rama, categoría y sede.
+- Cobertura de categorías, asignaciones, cupos, acceso activo/desactivado y actividad reciente visibles como operación deportiva.
+- Creación, edición, exclusividad de categoría, restablecimiento de credenciales y seguimiento de casos preservados.
+- Contrato propietario en `staff-board-v2.css`.
+- `staff-board-audit.mjs` ejecutado en `prebuild`.
+- Build de producción verificado.
 
-### ⬜ 5. Apoderados — PENDIENTE
+### ✅ 5. Apoderados — OK
 Rutas: `/apoderados`, `/apoderados-pro`
 
-- Relación familia ↔ deportistas ↔ estado de acceso ↔ canal.
-- Evitar CRM de contactos; integrar naturalmente con Family Touchpoint.
+- `Family Access Board` usa como unidad principal la relación familia ↔ deportistas, evitando un CRM genérico de contactos.
+- Estado de acceso, canal, deportistas vinculados, edición, activación/desactivación y credenciales quedan preservados.
+- Conexión directa con `Family Touchpoint` para comunicaciones.
+- `Guardian License Board` mantiene la licencia por academia, catálogo, Mercado Pago y activación verificable por webhook.
+- Contrato propietario en `family-access-v2.css`.
+- `family-access-audit.mjs` ejecutado en `prebuild`.
+- Build de producción verificado.
 
 ### ⬜ 6. Uniformes y dorsales — PENDIENTE
 Rutas: `/uniformes`, `/uniformes/dorsales`
@@ -152,9 +164,9 @@ Ruta: `/suscripcion`
 ### ⬜ 19. Pruebas de producto reales — PENDIENTE
 
 - Director: jornada, plantel, partido, cobranza y matrícula.
-- Profesor: llegada a cancha, asistencia, entrenamiento y partido.
+- Profesor: llegada a cancha, asistencia, entrenamiento, partido y pizarra táctica con sesión autenticada real.
 - Familia: comunicación, evento, pago y firma.
 
 ## Orden de ejecución vigente
 
-`Asistencia Director` → `Profesores` → `Apoderados` → `Uniformes/Dorsales` → `Inscripciones/Solicitudes` → `Portal Apoderado` → `Academia pública/pagos` → `Configuración` → `Puesta en marcha/Suscripción` → `Consolidación CSS` → `QA responsive` → `Accesibilidad/estados` → `Regresión` → `Pruebas reales`.
+`Uniformes/Dorsales` → `Inscripciones/Solicitudes` → `Portal Apoderado` → `Academia pública/pagos` → `Configuración` → `Puesta en marcha/Suscripción` → `Consolidación CSS` → `QA responsive` → `Accesibilidad/estados` → `Regresión` → `Pruebas reales`.
