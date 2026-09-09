@@ -9,8 +9,9 @@
     "orphan:audit": "node scripts/orphan-audit.mjs",
     "product-dna:audit": "node scripts/product-dna-audit.mjs",
     "competition-cycle:audit": "node scripts/competition-cycle-audit.mjs",
+    "availability-board:audit": "node scripts/availability-board-audit.mjs",
     "version:write": "node scripts/write-build-version.mjs",
-    "prebuild": "npm run brand:audit && npm run orphan:audit && npm run product-dna:audit && npm run competition-cycle:audit && npm run version:write",
+    "prebuild": "npm run brand:audit && npm run orphan:audit && npm run product-dna:audit && npm run competition-cycle:audit && npm run availability-board:audit && npm run version:write",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
