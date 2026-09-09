@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import { useAppDialog } from '../contexts/DialogContext';
-import { DIRECTOR_BUTTON, DIRECTOR_BUTTON_DARK, DIRECTOR_BUTTON_GHOST, DIRECTOR_FIELD, DirectorHero, DirectorPage, DirectorPanel, DirectorStat } from '../components/director/DirectorModule';
+import { DIRECTOR_BUTTON, DIRECTOR_BUTTON_DARK, DIRECTOR_BUTTON_GHOST, DIRECTOR_FIELD, DirectorPage } from '../components/director/DirectorModule';
 
 type Branch={id:string;nombre:string;disciplina:string;sede_id:string;sedes?:{id:string;nombre:string}|null};
 type Tournament={id:string;nombre:string;fecha_inicio?:string|null;fecha_fin?:string|null;costo_inscripcion:number;permite_cuotas:boolean;max_cuotas:number;estado?:string|null;rama_id?:string|null;sede_id?:string|null;organizador?:string|null;ubicacion?:string|null;ramas?:{id:string;nombre:string;disciplina:string}|null;sedes?:{id:string;nombre:string}|null};
@@ -23,7 +23,7 @@ export default function TorneosArchivados(){
       const response=await api.get('/api/torneos',{params:{archivados:true,...(branchId?{rama_id:branchId}:{})}});
       setItems(response.data.data||[]);
       setBranches(response.data.ramas||[]);
-    }catch(err:any){setError(err.response?.data?.error||'No fue posible cargar el Almacén de competencias.');}
+    }catch(err:any){setError(err.response?.data?.error||'No fue posible cargar el historial de competencias.');}
     finally{setLoading(false);}
   };
   useEffect(()=>{void load();},[branchId]);
@@ -40,25 +40,33 @@ export default function TorneosArchivados(){
   const counts=useMemo(()=>({total:items.length,conCosto:items.filter(item=>Number(item.costo_inscripcion)>0).length}),[items]);
 
   return <DirectorPage>
-    <DirectorHero eyebrow="Almacén de competencias" title="Historial archivado" description="Consulta competencias fuera de la operación diaria sin perder convocatorias, cobros, eventos ni resultados. Puedes restaurarlas cuando corresponda." actions={<><Link to="/torneos" className={DIRECTOR_BUTTON_DARK}>← Competencias activas</Link><Link to="/partidos" className={DIRECTOR_BUTTON_GHOST}>Eventos y resultados</Link></>}/>
-
-    <section className="grid gap-3 md:grid-cols-[minmax(0,1.4fr)_repeat(2,minmax(170px,.45fr))]">
-      <DirectorPanel className="p-4"><select value={branchId} onChange={(event)=>setBranchId(event.target.value)} className={DIRECTOR_FIELD}><option value="">Todas las ramas</option>{branches.map(branch=><option key={branch.id} value={branch.id}>{branch.disciplina} · {branch.nombre}{branch.sedes?.nombre?` · ${branch.sedes.nombre}`:''}</option>)}</select></DirectorPanel>
-      <DirectorStat label="Archivadas" value={counts.total}/>
-      <DirectorStat label="Con inscripción" value={counts.conCosto} tone="lime"/>
-    </section>
-
-    {error?<div className="rounded-[18px] border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700">{error}</div>:null}
-    {loading?<DirectorPanel className="p-10 text-center text-sm font-bold text-[#697468]">Cargando Almacén...</DirectorPanel>:<section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {items.map(tournament=><DirectorPanel key={tournament.id} className="p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div><div className="flex flex-wrap gap-2"><span className="rounded-full border border-[#d9e0d6] bg-[#f5f7f3] px-2.5 py-1 text-[10px] font-black uppercase text-[#697468]">Archivado</span><span className="rounded-full border border-[#cde995] bg-[#f3fadf] px-2.5 py-1 text-[10px] font-black uppercase text-[#5f7900]">{tournament.ramas?.disciplina||'Competencia'}</span></div><h2 className="mt-3 text-xl font-black text-[#111711]">{tournament.nombre}</h2><p className="mt-1 text-xs text-[#697468]">{tournament.ramas?.nombre||'Sin rama asociada'}{tournament.sedes?.nombre?` · ${tournament.sedes.nombre}`:''}</p>{tournament.organizador?<p className="mt-1 text-xs text-[#758074]">Organiza: {tournament.organizador}</p>:null}</div>
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#111711] text-xl">📦</span>
+    <div className="competition-record competition-archive-ledger">
+      <header className="competition-record-command">
+        <div className="competition-record-command-copy">
+          <p className="competition-record-kicker">Competition Archive · Historial de temporada</p>
+          <h1>Competencias archivadas</h1>
+          <p>El archivo conserva la trazabilidad de la academia. Convocatorias, cobros, eventos y resultados permanecen disponibles sin ocupar la operación diaria.</p>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-2"><div className="rounded-[16px] border border-[#dfe5dc] bg-[#f6f8f4] p-3"><p className="text-[10px] font-black uppercase text-[#758074]">Fechas</p><p className="mt-1 text-sm font-black text-[#111711]">{tournament.fecha_inicio||'Por definir'}{tournament.fecha_fin&&tournament.fecha_fin!==tournament.fecha_inicio?` → ${tournament.fecha_fin}`:''}</p></div><div className="rounded-[16px] border border-[#cde995] bg-[#f3fadf] p-3"><p className="text-[10px] font-black uppercase text-[#6a7d35]">Inscripción alumno</p><p className="mt-1 text-sm font-black text-[#4f6900]">{Number(tournament.costo_inscripcion)>0?money(tournament.costo_inscripcion):'Gratuito'}</p></div></div>
-        <div className="mt-4 grid grid-cols-2 gap-2 border-t border-[#e2e7df] pt-4"><Link to={`/torneos/${tournament.id}`} className={`${DIRECTOR_BUTTON_GHOST} min-h-10 px-3 text-xs`}>Consultar</Link><button disabled={busyId===tournament.id} onClick={()=>void restore(tournament)} className={`${DIRECTOR_BUTTON} min-h-10 px-3 text-xs`}>{busyId===tournament.id?'Restaurando...':'Restaurar'}</button></div>
-      </DirectorPanel>)}
-      {!items.length?<DirectorPanel className="col-span-full p-10 text-center"><p className="text-sm font-black text-[#111711]">El Almacén está vacío.</p><p className="mt-2 text-xs text-[#697468]">Cuando archives una competencia aparecerá aquí.</p></DirectorPanel>:null}
-    </section>}
+        <div className="competition-record-actions"><Link to="/torneos" className={DIRECTOR_BUTTON_DARK}>← Temporada activa</Link><Link to="/partidos" className={DIRECTOR_BUTTON_GHOST}>Eventos y resultados</Link></div>
+      </header>
+
+      <section className="competition-record-toolbar">
+        <select value={branchId} onChange={(event)=>setBranchId(event.target.value)} className={DIRECTOR_FIELD}><option value="">Todas las ramas</option>{branches.map(branch=><option key={branch.id} value={branch.id}>{branch.disciplina} · {branch.nombre}{branch.sedes?.nombre?` · ${branch.sedes.nombre}`:''}</option>)}</select>
+        <div className="competition-record-summary"><span><small>Archivadas</small><strong>{counts.total}</strong></span><span className="is-active"><small>Con inscripción</small><strong>{counts.conCosto}</strong></span></div>
+      </section>
+
+      {error?<div className="competition-record-error">{error}</div>:null}
+      {loading?<div className="competition-record-loading">Cargando historial de temporada…</div>:<section className="competition-record-ledger">
+        <div className="competition-record-ledger-head"><span>Competencia</span><span>Fechas</span><span>Historial</span><span>Inscripción</span><span>Acciones</span></div>
+        {items.map(tournament=><article key={tournament.id} className="competition-record-row">
+          <div className="competition-record-identity"><div className="competition-record-tags"><span>Archivada</span><span>{tournament.ramas?.disciplina||'Competencia'}</span></div><h2>{tournament.nombre}</h2><p>{tournament.ramas?.nombre||'Sin rama asociada'}{tournament.sedes?.nombre?` · ${tournament.sedes.nombre}`:''}{tournament.organizador?` · ${tournament.organizador}`:''}</p></div>
+          <div className="competition-record-dates"><small>Periodo</small><strong>{tournament.fecha_inicio||'Por definir'}{tournament.fecha_fin&&tournament.fecha_fin!==tournament.fecha_inicio?` → ${tournament.fecha_fin}`:''}</strong></div>
+          <div className="competition-record-participation"><small>Estado</small><p className="competition-archive-note">Fuera de la operación diaria. Sus convocatorias, cobros, eventos y resultados siguen asociados a este registro.</p></div>
+          <div className="competition-record-cost"><small>Inscripción</small><strong>{Number(tournament.costo_inscripcion)>0?money(tournament.costo_inscripcion):'Gratuita'}</strong><span>{tournament.permite_cuotas?`Hasta ${tournament.max_cuotas} cuotas`:'Pago único'}</span></div>
+          <div className="competition-record-row-actions"><Link to={`/torneos/${tournament.id}`} className={DIRECTOR_BUTTON_GHOST}>Consultar</Link><button disabled={busyId===tournament.id} onClick={()=>void restore(tournament)} className={DIRECTOR_BUTTON}>{busyId===tournament.id?'Restaurando…':'Restaurar'}</button></div>
+        </article>)}
+        {!items.length?<div className="competition-record-empty"><strong>El historial archivado está vacío.</strong><span>Cuando archives una competencia aparecerá aquí sin perder su trazabilidad.</span></div>:null}
+      </section>}
+    </div>
   </DirectorPage>;
 }
