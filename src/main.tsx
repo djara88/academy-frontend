@@ -27,6 +27,7 @@ import './attendance-command-v2.css';
 import './staff-board-v2.css';
 import './family-access-v2.css';
 import './kit-room-v2.css';
+import './sport-enrollment-v2.css';
 import './sports-dialogs-v2.css';
 import './product-design-v2-1.css';
 import './mobile-dock-v2-1-fix.css';
