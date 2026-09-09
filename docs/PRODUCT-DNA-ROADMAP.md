@@ -1,6 +1,6 @@
 # Lestra Deportivo — Product DNA Roadmap
 
-Estado de referencia: **2026-09-08**
+Estado de referencia: **2026-09-09**
 
 Este documento ordena la convergencia visual/operacional de Deportivo. No reemplaza `PRODUCT-DNA-DEPORTIVO.md`; traduce ese contrato a rutas concretas del producto y mantiene el estado verificable de los 19 frentes pendientes.
 
@@ -11,12 +11,12 @@ Una ruta solo pasa a **✅ OK** cuando conserva la lógica existente, tiene cont
 Estados:
 
 - **✅ OK** — implementación terminada y verificada en build/deploy.
-- **🟡 EN CURSO** — trabajo iniciado, todavía no cumple la regla de cierre.
+- **🟡 EN CURSO / VALIDACIÓN** — trabajo iniciado, todavía no cumple la regla de cierre.
 - **⬜ PENDIENTE** — aún no iniciado dentro de esta fase.
 
 ## PASS previos / protegidos por Product DNA
 
-- **Navegación Director** — `DirectorCommandBar`: abandona sidebar SaaS genérico y organiza por Jornada, Plantel, Competir, Operación y Academia.
+- **Navegación Director** — `DirectorCommandBar`: abandona sidebar SaaS genérico y organiza la cinta táctica en Inicio, Equipo, Competencias, Gestión y Academia. Mobile validado favorablemente por usuario; desktop queda dentro del QA responsive formal del punto 15.
 - **Inicio Director** — `/dashboard`: Match Command, Season Timeline y pulso operativo.
 - **Plantel** — `/alumnos`: Roster Strip, filtros por disciplina/categoría y ficha deportiva con Performance Canvas.
 - **Profesor / asistencia de cancha** — `/profesor`: Training Session + Attendance Lineup con roster verificado, borrador local aislado y operación de cancha.
@@ -86,28 +86,47 @@ Rutas: `/apoderados`, `/apoderados-pro`
 - `family-access-audit.mjs` ejecutado en `prebuild`.
 - Build de producción verificado.
 
-### ⬜ 6. Uniformes y dorsales — PENDIENTE
+### 🟡 6. Uniformes y dorsales — EN VALIDACIÓN
 Rutas: `/uniformes`, `/uniformes/dorsales`
 
-- `Kit Room / Locker Board`.
-- Dorsal por rama/categoría, disponibilidad, reservas y conflictos visibles.
+- `Kit Room / Locker Board` implementado como espacio operativo de equipamiento.
+- Pedidos del plantel, catálogo, stock/taller, pago, entrega, WhatsApp y exportación Excel preservados.
+- Dorsales mantienen disponibilidad, reservas, ocupación y asignación validada por servidor dentro de rama/categoría.
+- Mutaciones de equipamiento bloqueadas cuando el estado no está verificado.
+- Contrato propietario `kit-room-v2.css` y auditoría `kit-room-audit.mjs` agregados.
+- Pendiente: build integrado + deployment READY del HEAD actual antes de pasar a ✅.
 
-### ⬜ 7. Inscripciones deportivas — PENDIENTE
+### 🟡 7. Inscripciones deportivas — EN VALIDACIÓN
 Ruta: `/inscripciones`
 
-- Incorporación a rama/categoría separada de identidad personal.
-- Complementar Matrícula Handoff sin competir con él.
+- `Sport Enrollment Board` separa identidad personal de pertenencia deportiva.
+- Flujo: ficha existente → nueva sede/rama/categoría → impacto financiero.
+- Conserva estructura multirrama, categorías, matrícula/abono/mensualidad y creación de cobros.
+- Impide duplicar una inscripción activa en la misma rama y bloquea creación sobre datos no verificados.
+- Contrato propietario `sport-enrollment-v2.css` y auditoría `sport-enrollment-audit.mjs` agregados.
+- Se retiró la implementación legacy que quedó huérfana tras la migración.
+- Pendiente: build integrado + deployment READY del HEAD actual antes de pasar a ✅.
 
-### ⬜ 8. Solicitudes / admisión — PENDIENTE
+### 🟡 8. Solicitudes / admisión — EN VALIDACIÓN
 Ruta: `/solicitudes`
 
-- `Admission Queue`: decisión, contexto, riesgo de duplicado y próximo paso.
+- `Admission Queue` implementada como cola de decisiones, no CRM de leads.
+- Lectura por deportista/familia → interés deportivo → estado → próximo paso.
+- Conserva contacto WhatsApp, revisión, archivo/restauración y conversión a pre-matrícula.
+- Conversión reutiliza datos recibidos y conserva correo, RUT, sede, rama, valores, enlace y estado de envío.
+- Decisiones bloqueadas cuando la bandeja no está verificada.
+- Contrato propietario `admission-queue-v2.css` y auditoría `admission-queue-audit.mjs` agregados.
+- Pendiente: build integrado + deployment READY del HEAD actual antes de pasar a ✅.
 
-### ⬜ 9. Portal Apoderado — PENDIENTE
+### 🟡 9. Portal Apoderado — EN VALIDACIÓN
 Ruta: `/apoderado`
 
-- Home familiar centrado en próximos eventos, asistencia, cobros, mensajes y cambios relevantes.
-- Mobile-first.
+- `Family Home` mobile-first implementado alrededor de “qué viene ahora” para la familia.
+- Prioriza próximo evento, deportistas vinculados, asistencia reciente, saldo, mensajes, confirmaciones y solicitudes deportivas.
+- Mantiene estado financiero familiar y componentes existentes de pagos, respuestas y solicitudes.
+- Mantiene solicitudes de privacidad y acceso a mensajería.
+- Contrato propietario `guardian-home-v2.css` y auditoría `guardian-home-audit.mjs` agregados.
+- Pendiente: build integrado, deployment y prueba responsive real antes de pasar a ✅.
 
 ### ⬜ 10. Academia pública y pagos — PENDIENTE
 Rutas: `/a/:slug`, `/a/:slug/pagos`, `/pagar/:token`
@@ -139,7 +158,7 @@ Ruta: `/suscripcion`
 
 ### ⬜ 15. QA responsive completo — PENDIENTE
 
-- 360/390 px, tablet y desktop.
+- 360/390 px, tablet y desktop (incluye verificación explícita de la nueva cinta de navegación en 1280/1440/1680 px).
 - Scroll horizontal solo cuando el modelo de información lo justifique.
 - Targets táctiles adecuados para operación de cancha.
 
@@ -169,4 +188,4 @@ Ruta: `/suscripcion`
 
 ## Orden de ejecución vigente
 
-`Uniformes/Dorsales` → `Inscripciones/Solicitudes` → `Portal Apoderado` → `Academia pública/pagos` → `Configuración` → `Puesta en marcha/Suscripción` → `Consolidación CSS` → `QA responsive` → `Accesibilidad/estados` → `Regresión` → `Pruebas reales`.
+`Cerrar validación 6–9` → `Academia pública/pagos` → `Configuración` → `Puesta en marcha/Suscripción` → `Consolidación CSS` → `QA responsive` → `Accesibilidad/estados` → `Regresión` → `Pruebas reales`.
