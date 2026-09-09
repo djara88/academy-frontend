@@ -252,7 +252,7 @@ export default function DirectorCommandBar({
           <div aria-hidden="true" className="mx-auto h-1 w-12 rounded-full bg-white/18" />
           <div className="mt-4 flex items-center justify-between gap-3 border-b border-white/[.08] pb-4">
             <div className="min-w-0">
-              <p className="text-[9px] font-black uppercase tracking-[.15em] text-[var(--ls-accent-on-dark)]">Navegación</p>
+              <p className="text-[9px] font-black uppercase tracking-[.15em] text-[var(--ls-accent-on-dark)]">Mapa de trabajo</p>
               <p className="mt-1 truncate text-lg font-black">{academyName}</p>
             </div>
             <button type="button" onClick={() => setMoreOpen(false)} className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 text-white/70" aria-label="Cerrar navegación"><XMarkIcon aria-hidden="true" className="h-5 w-5" /></button>
