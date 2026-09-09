@@ -30,6 +30,7 @@ import './kit-room-v2.css';
 import './sport-enrollment-v2.css';
 import './admission-queue-v2.css';
 import './guardian-home-v2.css';
+import './public-academy-v2.css';
 import './sports-dialogs-v2.css';
 import './product-design-v2-1.css';
 import './mobile-dock-v2-1-fix.css';
