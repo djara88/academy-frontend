@@ -1,0 +1,155 @@
+/* Lestra Deportivo — Attendance Command V2
+ * Director attendance is a verified Training Session record, not a KPI dashboard.
+ */
+
+.attendance-command {
+  --ac-dark: var(--ls-sidebar);
+  --ac-ink: var(--ls-ink);
+  --ac-muted: var(--ls-muted);
+  --ac-line: var(--ls-line);
+  --ac-line-strong: var(--ls-line-strong);
+  --ac-surface: var(--ls-surface);
+  --ac-soft: var(--ls-surface-soft);
+  --ac-accent: var(--ls-accent);
+  --ac-success: var(--ls-success);
+  --ac-warning: var(--ls-warning);
+  --ac-danger: var(--ls-danger);
+  display: grid;
+  gap: 14px;
+}
+
+.attendance-command-head {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 18px;
+  align-items: end;
+  border: 1px solid var(--ac-line);
+  border-radius: 24px;
+  background: var(--ac-dark);
+  padding: clamp(22px,3vw,31px);
+  color: white;
+  box-shadow: var(--ls-shadow-strong);
+}
+.attendance-command-copy { position: relative; padding-left: 14px; }
+.attendance-command-copy::before { position: absolute; inset: 0 auto 0 0; width: 5px; border-radius: 999px; background: var(--ac-accent); content: ''; }
+.attendance-command-kicker { margin: 0; color: var(--ls-accent-on-dark); font-size: 10px; font-weight: 950; letter-spacing: .15em; text-transform: uppercase; }
+.attendance-command-head h1 { margin: 7px 0 0; color: white; font-size: clamp(2rem,4vw,3.15rem); font-weight: 950; line-height: 1; letter-spacing: -.045em; }
+.attendance-command-copy > p:last-child { margin: 9px 0 0; max-width: 760px; color: rgba(255,255,255,.66); font-size: 12px; line-height: 1.6; }
+.attendance-command-context { display: grid; min-width: 290px; gap: 7px; }
+.attendance-command-context label > span { display: block; margin-bottom: 5px; color: rgba(255,255,255,.58); font-size: 8px; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+
+.attendance-command-modes { display: flex; gap: 6px; overflow-x: auto; border: 1px solid var(--ac-line); border-radius: 15px; background: var(--ac-surface); padding: 6px; }
+.attendance-command-modes button { flex: 1 0 auto; min-height: 40px; border: 0; border-radius: 10px; background: transparent; padding: 0 15px; color: var(--ac-muted); font-size: 10px; font-weight: 900; }
+.attendance-command-modes button[aria-pressed='true'] { background: var(--ac-dark); color: white; box-shadow: var(--ls-shadow); }
+
+.attendance-session-shell { display: grid; grid-template-columns: minmax(280px,.62fr) minmax(0,1.55fr); gap: 14px; align-items: start; }
+.attendance-session-setup,.attendance-session-roster,.attendance-recovery-list,.attendance-recovery-form,.attendance-report { overflow: hidden; border: 1px solid var(--ac-line); border-radius: 20px; background: var(--ac-surface); box-shadow: var(--ls-shadow); }
+.attendance-session-setup { position: sticky; top: 86px; }
+.attendance-section-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--ac-line); background: var(--ac-soft); padding: 15px 17px; }
+.attendance-section-head h2,.attendance-section-head h3 { margin: 3px 0 0; color: var(--ac-ink); font-size: 18px; font-weight: 950; letter-spacing: -.025em; }
+.attendance-section-head h3 { font-size: 15px; }
+.attendance-section-head p { margin: 4px 0 0; color: var(--ac-muted); font-size: 9px; line-height: 1.45; }
+.attendance-section-status { display: grid; min-width: 84px; justify-items: end; }
+.attendance-section-status strong { color: var(--ac-ink); font-size: 18px; font-weight: 950; }
+.attendance-section-status small { color: var(--ac-muted); font-size: 7px; font-weight: 900; text-transform: uppercase; }
+.attendance-verified { display: inline-flex; min-height: 26px; align-items: center; border: 1px solid var(--ac-line); border-radius: 999px; background: var(--ac-soft); padding: 0 8px; color: var(--ac-muted); font-size: 7px; font-weight: 950; letter-spacing: .05em; text-transform: uppercase; }
+.attendance-verified[data-state='verified'] { border-color: color-mix(in srgb,var(--ac-success) 25%,var(--ac-line)); color: var(--ac-success); }
+.attendance-verified[data-state='loading'] { border-color: color-mix(in srgb,var(--ac-warning) 25%,var(--ac-line)); color: var(--ac-warning); }
+.attendance-verified[data-state='error'] { border-color: color-mix(in srgb,var(--ac-danger) 25%,var(--ac-line)); color: var(--ac-danger); }
+
+.attendance-setup-body { display: grid; gap: 11px; padding: 15px 17px; }
+.attendance-field > span { display: block; margin-bottom: 5px; color: var(--ac-muted); font-size: 8px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.attendance-field-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+.attendance-toggle { display: flex; min-height: 40px; align-items: center; gap: 8px; color: var(--ac-ink); font-size: 10px; font-weight: 800; }
+.attendance-setup-note { border-left: 4px solid var(--ac-accent); background: color-mix(in srgb,var(--ac-accent) 7%,var(--ac-surface)); padding: 9px 10px; color: var(--ac-muted); font-size: 8px; line-height: 1.45; }
+
+.attendance-roster-command { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 9px; align-items: center; padding: 11px 14px; border-bottom: 1px solid var(--ac-line); }
+.attendance-roster-summary { display: flex; overflow: hidden; border: 1px solid var(--ac-line); border-radius: 11px; background: var(--ac-soft); }
+.attendance-roster-summary span { min-width: 76px; padding: 7px 8px; text-align: center; }
+.attendance-roster-summary span + span { border-left: 1px solid var(--ac-line); }
+.attendance-roster-summary strong { display: block; color: var(--ac-ink); font-size: 14px; font-weight: 950; }
+.attendance-roster-summary small { display: block; margin-top: 1px; color: var(--ac-muted); font-size: 7px; font-weight: 850; text-transform: uppercase; }
+.attendance-roster-summary .is-present strong { color: var(--ac-success); }
+.attendance-roster-summary .is-absent strong { color: var(--ac-danger); }
+.attendance-roster-summary .is-justified strong { color: var(--ac-warning); }
+.attendance-roster-tools { display: flex; gap: 6px; }
+.attendance-roster-search { min-width: 210px; }
+
+.attendance-roster-list { display: grid; max-height: min(68vh,720px); overflow-y: auto; }
+.attendance-player-row { display: grid; grid-template-columns: 42px minmax(0,1fr) auto; gap: 11px; align-items: center; min-height: 70px; border-bottom: 1px solid var(--ac-line); padding: 9px 14px; }
+.attendance-player-row:last-child { border-bottom: 0; }
+.attendance-avatar { display: grid; width: 42px; height: 42px; place-items: center; overflow: hidden; border-radius: 12px; background: var(--ac-dark); color: white; font-size: 12px; font-weight: 950; }
+.attendance-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.attendance-player-copy { min-width: 0; }
+.attendance-player-copy strong { display: block; overflow: hidden; color: var(--ac-ink); font-size: 12px; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
+.attendance-player-copy small { display: block; overflow: hidden; margin-top: 2px; color: var(--ac-muted); font-size: 8px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.attendance-medical-alert { display: inline-flex; min-height: 21px; align-items: center; margin-top: 4px; border-radius: 999px; background: color-mix(in srgb,var(--ac-warning) 8%,var(--ac-surface)); padding: 0 6px; color: var(--ac-warning); font-size: 7px; font-weight: 900; }
+.attendance-state-group { display: grid; grid-template-columns: repeat(3,1fr); gap: 4px; border: 1px solid var(--ac-line); border-radius: 11px; background: var(--ac-soft); padding: 4px; }
+.attendance-state-group button { min-height: 35px; border: 1px solid transparent; border-radius: 8px; background: transparent; padding: 0 8px; color: var(--ac-muted); font-size: 8px; font-weight: 900; }
+.attendance-state-group button[aria-pressed='true'][data-status='Presente'] { border-color: color-mix(in srgb,var(--ac-success) 30%,var(--ac-line)); background: color-mix(in srgb,var(--ac-success) 9%,var(--ac-surface)); color: var(--ac-success); }
+.attendance-state-group button[aria-pressed='true'][data-status='Ausente'] { border-color: color-mix(in srgb,var(--ac-danger) 30%,var(--ac-line)); background: color-mix(in srgb,var(--ac-danger) 7%,var(--ac-surface)); color: var(--ac-danger); }
+.attendance-state-group button[aria-pressed='true'][data-status='Justificado'] { border-color: color-mix(in srgb,var(--ac-warning) 30%,var(--ac-line)); background: color-mix(in srgb,var(--ac-warning) 8%,var(--ac-surface)); color: var(--ac-warning); }
+.attendance-empty,.attendance-loading,.attendance-error { padding: 42px 18px; color: var(--ac-muted); text-align: center; font-size: 10px; font-weight: 750; }
+.attendance-empty strong { display: block; color: var(--ac-ink); font-size: 13px; }
+.attendance-empty span { display: block; margin-top: 4px; }
+.attendance-error { color: var(--ac-danger); }
+
+.attendance-recovery-shell { display: grid; grid-template-columns: minmax(0,1fr) minmax(300px,.7fr); gap: 14px; align-items: start; }
+.attendance-recovery-rows { display: grid; }
+.attendance-recovery-row { width: 100%; border: 0; border-bottom: 1px solid var(--ac-line); background: var(--ac-surface); padding: 13px 16px; text-align: left; }
+.attendance-recovery-row:last-child { border-bottom: 0; }
+.attendance-recovery-row[aria-current='true'] { background: color-mix(in srgb,var(--ac-accent) 9%,var(--ac-surface)); box-shadow: inset 4px 0 0 var(--ac-accent); }
+.attendance-recovery-row strong { color: var(--ac-ink); font-size: 11px; font-weight: 900; }
+.attendance-recovery-row small { display: block; margin-top: 3px; color: var(--ac-muted); font-size: 8px; }
+.attendance-recovery-body { display: grid; gap: 10px; padding: 15px 17px; }
+
+.attendance-report { display: grid; gap: 0; }
+.attendance-report-toolbar { display: grid; grid-template-columns: 110px 130px auto minmax(180px,.7fr) auto; gap: 8px; align-items: end; padding: 13px 15px; border-bottom: 1px solid var(--ac-line); }
+.attendance-report-pulse { display: flex; overflow: hidden; border-bottom: 1px solid var(--ac-line); background: var(--ac-soft); }
+.attendance-report-pulse span { flex: 1 1 0; min-width: 0; padding: 11px 13px; text-align: center; }
+.attendance-report-pulse span + span { border-left: 1px solid var(--ac-line); }
+.attendance-report-pulse small { display: block; color: var(--ac-muted); font-size: 7px; font-weight: 900; text-transform: uppercase; }
+.attendance-report-pulse strong { display: block; margin-top: 2px; color: var(--ac-ink); font-size: 18px; font-weight: 950; }
+.attendance-report-pulse .is-main strong { color: var(--ac-success); }
+.attendance-report-body { display: grid; grid-template-columns: minmax(0,1fr) minmax(310px,.68fr); }
+.attendance-report-ranking { border-right: 1px solid var(--ac-line); }
+.attendance-report-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 11px 15px; border-bottom: 1px solid var(--ac-line); }
+.attendance-report-row:last-child { border-bottom: 0; }
+.attendance-report-row strong { color: var(--ac-ink); font-size: 10px; font-weight: 900; }
+.attendance-report-row span { color: var(--ac-success); font-size: 11px; font-weight: 950; }
+.attendance-report-family { padding: 15px 17px; }
+.attendance-report-family h3 { margin: 0; color: var(--ac-ink); font-size: 15px; font-weight: 950; }
+.attendance-report-family p { margin: 5px 0 12px; color: var(--ac-muted); font-size: 8px; line-height: 1.45; }
+.attendance-report-family > * + * { margin-top: 9px; }
+
+@media (max-width: 1050px) {
+  .attendance-session-shell { grid-template-columns: 280px minmax(0,1fr); }
+  .attendance-roster-command { grid-template-columns: 1fr; }
+  .attendance-roster-tools { justify-content: space-between; }
+  .attendance-report-toolbar { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .attendance-report-toolbar > :nth-child(n+3) { grid-column: auto; }
+}
+@media (max-width: 800px) {
+  .attendance-command-head { grid-template-columns: 1fr; align-items: start; }
+  .attendance-command-context { min-width: 0; }
+  .attendance-session-shell,.attendance-recovery-shell { grid-template-columns: 1fr; }
+  .attendance-session-setup { position: static; }
+  .attendance-roster-list { max-height: none; }
+  .attendance-report-body { grid-template-columns: 1fr; }
+  .attendance-report-ranking { border-right: 0; border-bottom: 1px solid var(--ac-line); }
+}
+@media (max-width: 620px) {
+  .attendance-command-modes button { min-width: max-content; }
+  .attendance-field-grid { grid-template-columns: 1fr; }
+  .attendance-roster-tools { display: grid; grid-template-columns: 1fr; }
+  .attendance-roster-search { min-width: 0; }
+  .attendance-roster-summary { width: 100%; }
+  .attendance-roster-summary span { flex: 1 1 0; min-width: 0; }
+  .attendance-player-row { grid-template-columns: 38px minmax(0,1fr); }
+  .attendance-avatar { width: 38px; height: 38px; }
+  .attendance-state-group { grid-column: 1 / -1; }
+  .attendance-report-toolbar { grid-template-columns: 1fr 1fr; }
+  .attendance-report-toolbar button { width: 100%; }
+  .attendance-report-pulse { display: grid; grid-template-columns: repeat(2,1fr); }
+  .attendance-report-pulse span:nth-child(3),.attendance-report-pulse span:nth-child(4) { border-top: 1px solid var(--ac-line); }
+}
