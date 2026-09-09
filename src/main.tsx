@@ -23,6 +23,7 @@ import './enrollment-handoff-v2.css';
 import './competition-record-v2.css';
 import './evolution-board-v2.css';
 import './availability-board-v2.css';
+import './attendance-command-v2.css';
 import './sports-dialogs-v2.css';
 import './product-design-v2-1.css';
 import './mobile-dock-v2-1-fix.css';
