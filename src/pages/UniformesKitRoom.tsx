@@ -4,14 +4,12 @@ import * as XLSX from 'xlsx';
 import {
   ArrowDownTrayIcon,
   ArrowRightIcon,
-  CheckCircleIcon,
   ExclamationTriangleIcon,
   MagnifyingGlassIcon,
   PencilSquareIcon,
   PlusIcon,
   ShoppingBagIcon,
   TrashIcon,
-  UserGroupIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import api from '../api/axiosConfig';
