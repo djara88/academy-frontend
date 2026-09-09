@@ -1,0 +1,155 @@
+/* Lestra Deportivo — Availability Board V2
+ * Health information is surfaced first as an operational roster decision.
+ * Sensitive health detail remains inside the selected-athlete workspace.
+ */
+
+.availability-board {
+  --ab-dark: var(--ls-sidebar);
+  --ab-ink: var(--ls-ink);
+  --ab-muted: var(--ls-muted);
+  --ab-line: var(--ls-line);
+  --ab-line-strong: var(--ls-line-strong);
+  --ab-surface: var(--ls-surface);
+  --ab-soft: var(--ls-surface-soft);
+  --ab-accent: var(--ls-accent);
+  --ab-success: var(--ls-success);
+  --ab-warning: var(--ls-warning);
+  --ab-danger: var(--ls-danger);
+  display: grid;
+  gap: 15px;
+}
+
+.availability-board-command {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 20px;
+  align-items: end;
+  border: 1px solid var(--ab-line);
+  border-radius: 24px;
+  background: var(--ab-dark);
+  padding: clamp(22px,3vw,32px);
+  color: white;
+  box-shadow: var(--ls-shadow-strong);
+}
+.availability-board-command-copy { position: relative; padding-left: 14px; }
+.availability-board-command-copy::before { position: absolute; inset: 0 auto 0 0; width: 5px; border-radius: 999px; background: var(--ab-accent); content: ''; }
+.availability-board-kicker { margin: 0; color: var(--ls-accent-on-dark); font-size: 10px; font-weight: 950; letter-spacing: .15em; text-transform: uppercase; }
+.availability-board-command h1 { margin: 7px 0 0; color: white; font-size: clamp(2rem,4vw,3rem); font-weight: 950; line-height: 1; letter-spacing: -.04em; }
+.availability-board-command-copy > p:last-child { margin: 10px 0 0; max-width: 760px; color: rgba(255,255,255,.67); font-size: 12px; line-height: 1.6; }
+.availability-board-command-summary { display: flex; overflow: hidden; border: 1px solid rgba(255,255,255,.12); border-radius: 15px; background: rgba(255,255,255,.05); }
+.availability-board-command-summary span { min-width: 95px; padding: 11px 13px; text-align: center; }
+.availability-board-command-summary span + span { border-left: 1px solid rgba(255,255,255,.1); }
+.availability-board-command-summary small { display: block; color: rgba(255,255,255,.55); font-size: 7px; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+.availability-board-command-summary strong { display: block; margin-top: 2px; color: white; font-size: 20px; font-weight: 950; }
+.availability-board-command-summary .is-ready strong { color: var(--ls-accent-on-dark); }
+
+.availability-board-toolbar { display: grid; grid-template-columns: minmax(210px,1fr) minmax(190px,.7fr) minmax(190px,.7fr) auto; gap: 9px; align-items: end; border: 1px solid var(--ab-line); border-radius: 17px; background: var(--ab-surface); padding: 12px; }
+.availability-board-field span { display: block; margin-bottom: 5px; color: var(--ab-muted); font-size: 8px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.availability-board-filter-states { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.availability-board-filter-states button { min-height: 37px; border: 1px solid var(--ab-line); border-radius: 999px; background: var(--ab-soft); padding: 0 10px; color: var(--ab-muted); font-size: 8px; font-weight: 900; text-transform: uppercase; }
+.availability-board-filter-states button[aria-pressed='true'] { border-color: var(--ab-line-strong); background: var(--ab-dark); color: white; }
+
+.availability-board-layout { display: grid; grid-template-columns: minmax(360px,.82fr) minmax(0,1.6fr); gap: 14px; align-items: start; }
+.availability-board-roster { overflow: hidden; border: 1px solid var(--ab-line); border-radius: 20px; background: var(--ab-surface); box-shadow: var(--ls-shadow); }
+.availability-board-roster-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--ab-line); background: var(--ab-soft); padding: 15px 17px; }
+.availability-board-roster-head h2 { margin: 3px 0 0; color: var(--ab-ink); font-size: 18px; font-weight: 950; letter-spacing: -.025em; }
+.availability-board-roster-head p { margin: 4px 0 0; color: var(--ab-muted); font-size: 9px; line-height: 1.45; }
+.availability-board-count { min-width: 58px; border-left: 3px solid var(--ab-accent); padding-left: 9px; }
+.availability-board-count strong { display: block; color: var(--ab-ink); font-size: 20px; font-weight: 950; line-height: 1; }
+.availability-board-count small { color: var(--ab-muted); font-size: 7px; font-weight: 850; text-transform: uppercase; }
+.availability-board-rows { max-height: min(66vh,760px); overflow-y: auto; }
+.availability-board-row { display: grid; grid-template-columns: 42px minmax(0,1fr) auto; gap: 10px; align-items: center; width: 100%; min-height: 70px; border: 0; border-bottom: 1px solid var(--ab-line); background: var(--ab-surface); padding: 10px 14px; text-align: left; transition: background-color .15s ease; }
+.availability-board-row:last-child { border-bottom: 0; }
+.availability-board-row:hover { background: color-mix(in srgb,var(--ab-accent) 5%,var(--ab-surface)); }
+.availability-board-row[aria-current='true'] { background: color-mix(in srgb,var(--ab-accent) 10%,var(--ab-surface)); box-shadow: inset 4px 0 0 var(--ab-accent); }
+.availability-board-avatar { display: grid; width: 42px; height: 42px; place-items: center; overflow: hidden; border-radius: 13px; background: var(--ab-dark); color: white; font-size: 14px; font-weight: 950; }
+.availability-board-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.availability-board-row-copy { min-width: 0; }
+.availability-board-row-copy strong { display: block; overflow: hidden; color: var(--ab-ink); font-size: 12px; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
+.availability-board-row-copy small { display: block; overflow: hidden; margin-top: 2px; color: var(--ab-muted); font-size: 8px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.availability-board-row-alerts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px; max-width: 125px; }
+
+.availability-status { display: inline-flex; min-height: 24px; align-items: center; border: 1px solid var(--ab-line); border-radius: 999px; padding: 0 8px; background: var(--ab-soft); color: var(--ab-muted); font-size: 7px; font-weight: 950; letter-spacing: .04em; text-transform: uppercase; }
+.availability-status[data-state='Disponible'] { border-color: color-mix(in srgb,var(--ab-success) 25%,var(--ab-line)); color: var(--ab-success); }
+.availability-status[data-state='Disponible con restricción'],.availability-status[data-state='En recuperación'] { border-color: color-mix(in srgb,var(--ab-warning) 28%,var(--ab-line)); color: var(--ab-warning); }
+.availability-status[data-state='No disponible'] { border-color: color-mix(in srgb,var(--ab-danger) 25%,var(--ab-line)); color: var(--ab-danger); }
+.availability-alert { display: inline-flex; min-height: 21px; align-items: center; border-radius: 999px; background: color-mix(in srgb,var(--ab-warning) 8%,var(--ab-surface)); padding: 0 6px; color: var(--ab-warning); font-size: 7px; font-weight: 900; }
+.availability-alert.is-danger { background: color-mix(in srgb,var(--ab-danger) 7%,var(--ab-surface)); color: var(--ab-danger); }
+
+.availability-board-detail { display: grid; gap: 12px; min-width: 0; }
+.availability-board-athlete { overflow: hidden; border: 1px solid var(--ab-line); border-radius: 20px; background: var(--ab-surface); box-shadow: var(--ls-shadow); }
+.availability-board-athlete-head { display: grid; grid-template-columns: 64px minmax(0,1fr) auto; gap: 14px; align-items: center; padding: 17px 19px; border-bottom: 1px solid var(--ab-line); }
+.availability-board-athlete-head .availability-board-avatar { width: 64px; height: 64px; border-radius: 18px; font-size: 20px; }
+.availability-board-athlete-head h2 { margin: 3px 0 0; color: var(--ab-ink); font-size: 23px; font-weight: 950; letter-spacing: -.03em; }
+.availability-board-athlete-head p { margin: 4px 0 0; color: var(--ab-muted); font-size: 9px; }
+.availability-board-signal { justify-self: end; text-align: right; }
+.availability-board-signal .availability-status { min-height: 30px; padding-inline: 11px; font-size: 8px; }
+.availability-board-signal small { display: block; margin-top: 5px; color: var(--ab-muted); font-size: 8px; }
+.availability-board-performance-strip { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); }
+.availability-board-performance-strip span { min-height: 64px; padding: 10px 12px; border-right: 1px solid var(--ab-line); }
+.availability-board-performance-strip span:last-child { border-right: 0; }
+.availability-board-performance-strip small { display: block; color: var(--ab-muted); font-size: 7px; font-weight: 900; text-transform: uppercase; }
+.availability-board-performance-strip strong { display: block; margin-top: 3px; color: var(--ab-ink); font-size: 15px; font-weight: 950; }
+.availability-board-performance-strip em { display: block; margin-top: 2px; color: var(--ab-muted); font-size: 7px; font-style: normal; }
+
+.availability-board-operational { display: grid; grid-template-columns: minmax(0,1fr) minmax(280px,.72fr); gap: 12px; }
+.availability-board-section { overflow: hidden; border: 1px solid var(--ab-line); border-radius: 18px; background: var(--ab-surface); }
+.availability-board-section-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--ab-line); background: var(--ab-soft); }
+.availability-board-section-head h3 { margin: 3px 0 0; color: var(--ab-ink); font-size: 16px; font-weight: 950; }
+.availability-board-section-head p { margin: 4px 0 0; max-width: 560px; color: var(--ab-muted); font-size: 8px; line-height: 1.45; }
+.availability-board-operational-body { padding: 15px 16px; }
+.availability-board-fields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 11px; }
+.availability-board-fields label > span,.availability-sensitive-fields label > span { display: block; margin-bottom: 5px; color: var(--ab-muted); font-size: 7px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.availability-board-save { display: flex; justify-content: flex-end; margin-top: 12px; }
+.availability-board-sensitive-note { margin: 0; border-left: 4px solid var(--ab-warning); background: color-mix(in srgb,var(--ab-warning) 6%,var(--ab-surface)); padding: 10px 12px; color: var(--ab-muted); font-size: 8px; line-height: 1.5; }
+.availability-sensitive-fields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; padding: 14px 16px; }
+.availability-sensitive-fields .span-2 { grid-column: 1 / -1; }
+
+.availability-board-lower { display: grid; grid-template-columns: minmax(0,1.1fr) minmax(310px,.75fr); gap: 12px; }
+.availability-board-followup,.availability-board-docs { overflow: hidden; border: 1px solid var(--ab-line); border-radius: 18px; background: var(--ab-surface); }
+.availability-board-form { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; padding: 13px 15px; border-bottom: 1px solid var(--ab-line); }
+.availability-board-form .span-2 { grid-column: 1 / -1; }
+.availability-board-form button { justify-self: end; }
+.availability-board-history { display: grid; }
+.availability-board-history-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px; align-items: start; padding: 12px 15px; border-bottom: 1px solid var(--ab-line); }
+.availability-board-history-row:last-child { border-bottom: 0; }
+.availability-board-history-row strong { color: var(--ab-ink); font-size: 11px; font-weight: 900; }
+.availability-board-history-row small { display: block; margin-top: 3px; color: var(--ab-muted); font-size: 8px; line-height: 1.45; }
+.availability-board-history-row p { margin: 5px 0 0; color: var(--ab-muted); font-size: 9px; line-height: 1.45; }
+.availability-board-history-row select { min-width: 165px; }
+.availability-board-empty,.availability-board-loading,.availability-board-error { padding: 42px 18px; text-align: center; color: var(--ab-muted); font-size: 11px; font-weight: 750; }
+.availability-board-error { border: 1px solid color-mix(in srgb,var(--ab-danger) 25%,var(--ab-line)); border-left: 5px solid var(--ab-danger); border-radius: 15px; background: color-mix(in srgb,var(--ab-danger) 6%,var(--ab-surface)); color: var(--ab-danger); }
+
+@media (max-width: 1180px) {
+  .availability-board-layout { grid-template-columns: 320px minmax(0,1fr); }
+  .availability-board-operational,.availability-board-lower { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  .availability-board-command { grid-template-columns: 1fr; align-items: start; }
+  .availability-board-command-summary { justify-self: stretch; }
+  .availability-board-command-summary span { flex: 1 1 0; min-width: 0; }
+  .availability-board-toolbar { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .availability-board-filter-states { grid-column: 1 / -1; }
+  .availability-board-layout { grid-template-columns: 1fr; }
+  .availability-board-rows { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); max-height: none; }
+  .availability-board-row:nth-child(odd) { border-right: 1px solid var(--ab-line); }
+  .availability-board-roster { position: static; }
+}
+@media (max-width: 640px) {
+  .availability-board-toolbar { grid-template-columns: 1fr; }
+  .availability-board-filter-states { grid-column: 1; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 3px; }
+  .availability-board-filter-states button { flex: 0 0 auto; }
+  .availability-board-rows { grid-template-columns: 1fr; }
+  .availability-board-row:nth-child(odd) { border-right: 0; }
+  .availability-board-athlete-head { grid-template-columns: 52px minmax(0,1fr); }
+  .availability-board-athlete-head .availability-board-avatar { width: 52px; height: 52px; }
+  .availability-board-signal { grid-column: 1 / -1; justify-self: start; text-align: left; }
+  .availability-board-performance-strip { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .availability-board-performance-strip span { border-bottom: 1px solid var(--ab-line); }
+  .availability-board-performance-strip span:nth-child(2n) { border-right: 0; }
+  .availability-board-performance-strip span:last-child { grid-column: 1 / -1; border-bottom: 0; }
+  .availability-board-fields,.availability-sensitive-fields,.availability-board-form { grid-template-columns: 1fr; }
+  .availability-sensitive-fields .span-2,.availability-board-form .span-2 { grid-column: 1; }
+  .availability-board-history-row { grid-template-columns: 1fr; }
+  .availability-board-history-row select { width: 100%; }
+}
