@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import { useAppDialog } from '../contexts/DialogContext';
-import { DIRECTOR_BUTTON, DIRECTOR_BUTTON_DARK, DIRECTOR_FIELD, DirectorHero, DirectorPage, DirectorPanel, DirectorStat } from '../components/director/DirectorModule';
+import { DIRECTOR_BUTTON, DIRECTOR_BUTTON_DARK, DIRECTOR_FIELD, DirectorPage } from '../components/director/DirectorModule';
 
 type Branch={id:string;nombre:string;disciplina:string;sedes?:{id:string;nombre:string}|null};
-const labelClass='mb-1.5 block text-[11px] font-black uppercase tracking-[.09em] text-[#697468]';
 
 export default function NuevoTorneoMultirama(){
   const navigate=useNavigate();
@@ -32,43 +31,69 @@ export default function NuevoTorneoMultirama(){
     }
   };
 
-  return <DirectorPage className="max-w-5xl">
-    <DirectorHero eyebrow="Competencias · Lestra" title="Registrar competencia" description="Crea la competencia, define quiénes participarán y recién después agrega partidos, duelos, pruebas o presentaciones. La participación del torneo no depende de que existan eventos." actions={<button onClick={()=>navigate('/torneos')} className={DIRECTOR_BUTTON_DARK}>← Competencias</button>} aside={selected?<div className="rounded-[20px] border border-white/15 bg-white/[.055] p-5"><p className="text-[10px] font-black uppercase tracking-[.14em] text-[#b7ff00]">Rama seleccionada</p><p className="mt-2 text-xl font-black text-white">{selected.nombre}</p><p className="mt-1 text-xs font-semibold text-[#c7d0c8]">{selected.disciplina}{selected.sedes?.nombre?` · ${selected.sedes.nombre}`:''}</p></div>:null}/>
+  return <DirectorPage className="max-w-[1250px]">
+    <div className="competition-record competition-intake">
+      <header className="competition-record-command">
+        <div className="competition-record-command-copy">
+          <p className="competition-record-kicker">Competition Intake</p>
+          <h1>Registrar competencia</h1>
+          <p>Define la competencia una sola vez. Después Lestra abre el control operacional para convocatoria, pagos, eventos, resultados e historial.</p>
+        </div>
+        <div className="competition-record-actions"><button type="button" onClick={()=>navigate('/torneos')} className={DIRECTOR_BUTTON_DARK}>← Volver a temporada</button></div>
+      </header>
 
-    <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><DirectorStat label="Paso 1" value="Rama" tone="lime"/><DirectorStat label="Paso 2" value="Datos"/><DirectorStat label="Paso 3" value="Inscripción"/><DirectorStat label="Paso 4" value="Participantes" tone="dark"/></section>
+      <section className="competition-intake-track" aria-label="Flujo de registro de competencia">
+        <span><small>01</small><strong>Rama</strong></span>
+        <span><small>02</small><strong>Competencia</strong></span>
+        <span><small>03</small><strong>Inscripción</strong></span>
+        <span className="is-next"><small>Después</small><strong>Convocatoria</strong></span>
+      </section>
 
-    <DirectorPanel className="p-5 sm:p-6">
-      <div><p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">Paso 1</p><h2 className="mt-1 text-2xl font-black tracking-[-.03em] text-[#111711]">Rama deportiva</h2><p className="mt-1 text-sm text-[#697468]">Define qué categorías, alumnos y tipo de resultados estarán disponibles.</p></div>
-      <label className="mt-5 block"><span className={labelClass}>Rama *</span><select value={form.rama_id} onChange={(event)=>setForm({...form,rama_id:event.target.value})} className={DIRECTOR_FIELD}><option value="">Selecciona rama</option>{branches.map(branch=><option key={branch.id} value={branch.id}>{branch.disciplina} · {branch.nombre}{branch.sedes?.nombre?` · ${branch.sedes.nombre}`:''}</option>)}</select></label>
-      {selected?<div className="mt-3 rounded-[16px] border border-[#cde995] bg-[#f3fadf] p-3 text-sm text-[#4f6900]">Lestra adaptará automáticamente los eventos, resultados y métricas a <strong>{selected.disciplina}</strong>.</div>:null}
-    </DirectorPanel>
+      <section className="competition-intake-workbench">
+        <div className="competition-intake-form">
+          <section className="competition-intake-section">
+            <p className="competition-record-kicker" style={{color:'var(--ls-accent-text)'}}>01 · Contexto deportivo</p>
+            <h2>Rama de la competencia</h2>
+            <p>Esta decisión determina categorías elegibles, plantel y modelo de resultados.</p>
+            <div className="competition-intake-fields"><label className="span-2"><span>Rama *</span><select value={form.rama_id} onChange={(event)=>setForm({...form,rama_id:event.target.value})} className={DIRECTOR_FIELD}><option value="">Selecciona rama</option>{branches.map(branch=><option key={branch.id} value={branch.id}>{branch.disciplina} · {branch.nombre}{branch.sedes?.nombre?` · ${branch.sedes.nombre}`:''}</option>)}</select><small>{selected?`Lestra utilizará el modelo deportivo de ${selected.disciplina}.`:'Selecciona la rama antes de continuar.'}</small></label></div>
+          </section>
 
-    <DirectorPanel className="p-5 sm:p-6">
-      <div><p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">Paso 2</p><h2 className="mt-1 text-2xl font-black tracking-[-.03em] text-[#111711]">Datos de la competencia</h2><p className="mt-1 text-sm text-[#697468]">Información general para Dirección, profesores y convocatorias.</p></div>
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        <label className="sm:col-span-2"><span className={labelClass}>Nombre *</span><input value={form.nombre} onChange={(event)=>setForm({...form,nombre:event.target.value})} className={DIRECTOR_FIELD} placeholder="Ej. Campeonato Comunal 2026"/></label>
-        <label><span className={labelClass}>Organizador</span><input value={form.organizador} onChange={(event)=>setForm({...form,organizador:event.target.value})} className={DIRECTOR_FIELD} placeholder="Ej. Asociación, liga o club"/></label>
-        <label><span className={labelClass}>Lugar / recinto general</span><input value={form.ubicacion} onChange={(event)=>setForm({...form,ubicacion:event.target.value})} className={DIRECTOR_FIELD} placeholder="Ej. Gimnasio Municipal"/></label>
-        <label><span className={labelClass}>Fecha inicio</span><input type="date" value={form.fecha_inicio} onChange={(event)=>setForm({...form,fecha_inicio:event.target.value})} className={DIRECTOR_FIELD}/></label>
-        <label><span className={labelClass}>Fecha término</span><input type="date" value={form.fecha_fin} onChange={(event)=>setForm({...form,fecha_fin:event.target.value})} className={DIRECTOR_FIELD}/></label>
-        <label className="sm:col-span-2"><span className={labelClass}>Reglamento / bases (opcional)</span><input value={form.reglamento_url} onChange={(event)=>setForm({...form,reglamento_url:event.target.value})} className={DIRECTOR_FIELD} placeholder="https://..."/><span className="mt-1.5 block text-[11px] leading-4 text-[#758074]">Guarda el enlace oficial para tener las bases a mano.</span></label>
-      </div>
-    </DirectorPanel>
+          <section className="competition-intake-section">
+            <p className="competition-record-kicker" style={{color:'var(--ls-accent-text)'}}>02 · Identidad</p>
+            <h2>Datos de la competencia</h2>
+            <p>Lo que Dirección necesita reconocer rápido durante toda la temporada.</p>
+            <div className="competition-intake-fields">
+              <label className="span-2"><span>Nombre *</span><input value={form.nombre} onChange={(event)=>setForm({...form,nombre:event.target.value})} className={DIRECTOR_FIELD} placeholder="Ej. Campeonato Comunal 2026"/></label>
+              <label><span>Organizador</span><input value={form.organizador} onChange={(event)=>setForm({...form,organizador:event.target.value})} className={DIRECTOR_FIELD} placeholder="Liga, asociación o club"/></label>
+              <label><span>Lugar / recinto general</span><input value={form.ubicacion} onChange={(event)=>setForm({...form,ubicacion:event.target.value})} className={DIRECTOR_FIELD} placeholder="Ej. Gimnasio Municipal"/></label>
+              <label><span>Fecha inicio</span><input type="date" value={form.fecha_inicio} onChange={(event)=>setForm({...form,fecha_inicio:event.target.value})} className={DIRECTOR_FIELD}/></label>
+              <label><span>Fecha término</span><input type="date" value={form.fecha_fin} onChange={(event)=>setForm({...form,fecha_fin:event.target.value})} className={DIRECTOR_FIELD}/></label>
+              <label className="span-2"><span>Reglamento / bases</span><input value={form.reglamento_url} onChange={(event)=>setForm({...form,reglamento_url:event.target.value})} className={DIRECTOR_FIELD} placeholder="https://..."/><small>Opcional. Se mantendrá disponible dentro del Competition Control Room.</small></label>
+            </div>
+          </section>
 
-    <DirectorPanel className="p-5 sm:p-6">
-      <div><p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">Paso 3</p><h2 className="mt-1 text-2xl font-black tracking-[-.03em] text-[#111711]">Inscripción del alumno</h2><p className="mt-1 text-sm text-[#697468]">Define solo lo que paga el alumno por participar. Los gastos de la academia se registran en Finanzas → Egresos.</p></div>
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        <label><span className={labelClass}>Valor de inscripción por alumno</span><input type="number" min="0" value={form.costo_inscripcion} onChange={(event)=>setForm({...form,costo_inscripcion:event.target.value})} className={DIRECTOR_FIELD}/><span className="mt-1.5 block text-[11px] text-[#758074]">Déjalo en 0 si la participación es gratuita.</span></label>
-        <div className="rounded-[18px] border border-[#dfe5dc] bg-[#f6f8f4] p-4"><label className="flex items-start gap-3 text-sm font-bold text-[#111711]"><input type="checkbox" checked={form.permite_cuotas} onChange={(event)=>setForm({...form,permite_cuotas:event.target.checked})} className="mt-1 accent-[#9fcf00]"/><span>Permitir pago en cuotas<span className="mt-1 block text-xs font-normal leading-5 text-[#697468]">La familia podrá seleccionar cuotas durante la confirmación.</span></span></label>{form.permite_cuotas?<label className="mt-3 block"><span className={labelClass}>Máximo de cuotas</span><input type="number" min="2" max="12" value={form.max_cuotas} onChange={(event)=>setForm({...form,max_cuotas:event.target.value})} className={DIRECTOR_FIELD}/></label>:null}</div>
-      </div>
-    </DirectorPanel>
+          <section className="competition-intake-section">
+            <p className="competition-record-kicker" style={{color:'var(--ls-accent-text)'}}>03 · Compromiso económico</p>
+            <h2>Inscripción por deportista</h2>
+            <p>Solo el valor asociado a participar en esta competencia. Los gastos internos continúan en Finanzas.</p>
+            <div className="competition-intake-fields">
+              <label><span>Valor por deportista</span><input type="number" min="0" value={form.costo_inscripcion} onChange={(event)=>setForm({...form,costo_inscripcion:event.target.value})} className={DIRECTOR_FIELD}/><small>0 = participación gratuita.</small></label>
+              <div className="competition-intake-payment"><label><input type="checkbox" checked={form.permite_cuotas} onChange={(event)=>setForm({...form,permite_cuotas:event.checked})}/><span>Permitir cuotas<small>La familia podrá seleccionar modalidad de pago durante su confirmación.</small></span></label>{form.permite_cuotas?<label style={{display:'block',marginTop:10}}><span style={{display:'block',marginBottom:5}}>Máximo de cuotas</span><input type="number" min="2" max="12" value={form.max_cuotas} onChange={(event)=>setForm({...form,max_cuotas:event.target.value})} className={DIRECTOR_FIELD}/></label>:null}</div>
+            </div>
+          </section>
+        </div>
 
-    <DirectorPanel className="border-[#cde995] bg-[#f3fadf] p-5 sm:p-6">
-      <p className="text-[11px] font-black uppercase tracking-[.14em] text-[#789600]">Paso 4 · después de crear</p>
-      <h2 className="mt-1 text-xl font-black text-[#111711]">Definir quiénes asistirán al torneo</h2>
-      <p className="mt-2 text-sm leading-6 text-[#5f6f4c]">Al crear la competencia entrarás directamente a su gestión para seleccionar alumnos por categoría y enviar la convocatoria. Verás <strong>Confirmados, Pendientes y No participan</strong> aunque todavía no hayas registrado ningún partido.</p>
-    </DirectorPanel>
-
-    <button disabled={saving} onClick={()=>void save()} className={`${DIRECTOR_BUTTON} w-full`}>{saving?'Creando...':'Crear y definir participantes'}</button>
+        <aside className="competition-intake-side">
+          <section className="competition-intake-preview">
+            <p className="competition-record-kicker">Registro en preparación</p>
+            <strong>{form.nombre.trim()||'Nueva competencia'}</strong>
+            <span>{selected?`${selected.disciplina} · ${selected.nombre}${selected.sedes?.nombre?` · ${selected.sedes.nombre}`:''}`:'Rama por definir'}</span>
+            <span>{form.fecha_inicio||'Inicio por definir'}{form.fecha_fin?` → ${form.fecha_fin}`:''}</span>
+          </section>
+          <section className="competition-intake-next"><strong>Qué ocurre al crearla</strong><p>Entrarás al Competition Control Room. Ahí defines el plantel por categoría, envías convocatorias y sigues respuestas, pagos y próximos eventos.</p></section>
+          <button disabled={saving} onClick={()=>void save()} className={`${DIRECTOR_BUTTON} w-full`}>{saving?'Creando…':'Crear y abrir control de competencia'}</button>
+        </aside>
+      </section>
+    </div>
   </DirectorPage>;
 }
