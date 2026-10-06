@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, type ReactNode }
 import { supabase } from '../config/supabase';
 import { BRAND } from '../config/brand';
 import { getPostAuthDestination } from '../utils/authDestination';
+import { isConfiguredSuperadminUserId } from '../config/superadmin';
 
 export interface User {
   id: string;
@@ -25,7 +26,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-const MASTER_ADMIN_EMAIL = 'd.jarazerene@gmail.com';
 const GOOGLE_LOGIN_INTENT_KEY = 'lestra_google_login_intent';
 
 const isGoogleSession = (authUser: any) => {
@@ -69,7 +69,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return;
       }
 
-      const isMasterAdmin = session.user.email?.toLowerCase() === MASTER_ADMIN_EMAIL;
+      const isMasterAdmin = isConfiguredSuperadminUserId(session.user.id);
       let usuarioBD: any = null;
 
       if (!isMasterAdmin) {
@@ -156,7 +156,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
       if (authError) throw authError;
 
-      const isMasterAdmin = authData.user.email?.toLowerCase() === MASTER_ADMIN_EMAIL;
+      const isMasterAdmin = isConfiguredSuperadminUserId(authData.user.id);
       let usuarioBD: any = null;
 
       if (!isMasterAdmin) {
