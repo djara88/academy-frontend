@@ -57,7 +57,7 @@ const Layout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [courtBright, setCourtBright] = useState(() => localStorage.getItem('lestra_court_visibility') !== 'dark');
 
-  const isSuperAdmin = user?.email === 'd.jarazerene@gmail.com' || isSuperAdminRole(user?.rol);
+  const isSuperAdmin = isSuperAdminRole(user?.rol);
   const isProfessor = isProfessorRole(user?.rol);
   const isGuardian = isGuardianRole(user?.rol);
   const nombreAcademia = getAcademyName(user?.nombre_academia);
