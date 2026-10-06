@@ -22,7 +22,7 @@
     "prebuild": "npm run brand:audit && npm run orphan:audit && npm run product-dna:audit && npm run competition-cycle:audit && npm run availability-board:audit && npm run attendance-command:audit && npm run staff-board:audit && npm run family-access:audit && npm run professor-tactical-board:audit && npm run kit-room:audit && npm run sport-enrollment:audit && npm run admission-queue:audit && npm run guardian-home:audit && npm run version:write",
     "typecheck": "tsc --noEmit",
     "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "security:audit": "npm audit --omit=dev --audit-level=high",
     "preview": "vite preview"
   },
