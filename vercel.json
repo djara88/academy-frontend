@@ -22,14 +22,22 @@
     {
       "src": "/",
       "has": [
-        { "type": "host", "value": "deportivo\\.lestra\\.app" }
+        {
+          "type": "host",
+          "value": "deportivo\\.lestra\\.app"
+        }
       ],
       "dest": "/deportivo.html"
     },
-    { "handle": "filesystem" },
+    {
+      "handle": "filesystem"
+    },
     {
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ]
+  ],
+  "github": {
+    "autoAlias": false
+  }
 }
