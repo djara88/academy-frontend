@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../config/supabase';
 import { Logo } from '../components/Logo';
 import { BRAND } from '../config/brand';
+import { getPostAuthDestination } from '../utils/authDestination';
 
 const GOOGLE_LOGIN_INTENT_KEY = 'lestra_google_login_intent';
 
@@ -25,15 +26,7 @@ const Login: React.FC = () => {
       await login(email, password);
       const storedUser = JSON.parse(sessionStorage.getItem('user') || '{}');
 
-      if (storedUser.email === 'd.jarazerene@gmail.com' || storedUser.rol === 'superadmin' || storedUser.rol === 'SUPER_ADMIN') {
-        navigate('/admin');
-      } else if (storedUser.requiere_cambio_password) {
-        navigate('/cambiar-password');
-      } else if (String(storedUser.rol).toLowerCase() === 'profesor') {
-        navigate('/profesor');
-      } else {
-        navigate('/dashboard');
-      }
+      navigate(getPostAuthDestination(storedUser));
     } catch (err: any) {
       setError(err?.message === 'ACCOUNT_DISABLED'
         ? 'Tu acceso está desactivado. Contacta a la dirección de tu academia.'

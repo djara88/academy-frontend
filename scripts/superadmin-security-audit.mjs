@@ -6,6 +6,7 @@ const files = [
   'src/contexts/AuthContext.tsx',
   'src/layouts/Layout.tsx',
   'src/config/superadmin.ts',
+  'src/pages/Login.tsx',
 ];
 
 const sources = files.map((file) => ({
@@ -17,6 +18,8 @@ const forbidden = [
   /MASTER_ADMIN_EMAIL/,
   /user\?\.email\s*===/,
   /email\?\.toLowerCase\(\)\s*===/,
+  /storedUser\.email\s*===/,
+  /d\.jarazerene@gmail\.com/i,
 ];
 
 for (const { file, source } of sources) {
