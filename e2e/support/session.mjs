@@ -87,7 +87,7 @@ export const installAuthenticatedSession = async (page, userProfile) => {
       activo: true,
       academias: userProfile.academia_id ? { nombre: userProfile.nombre_academia || 'Academia E2E', logo: null } : null,
     };
-    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(dbProfile) });
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([dbProfile]) });
   });
   await page.route(`${SUPABASE_ORIGIN}/auth/v1/token**`, async (route) => {
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(session) });
