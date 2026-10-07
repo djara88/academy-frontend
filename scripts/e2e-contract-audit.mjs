@@ -42,8 +42,9 @@ for (const expected of [
   "role: 'director'",
   "role: 'profesor'",
   "role: 'superadmin'",
-  "aal: 'aal2'",
+  "aal: 'aal1'",
   "d.jarazerene@gmail.com",
+  "Verificación en dos pasos",
 ]) {
   if (!roles.includes(expected)) throw new Error(`E2E contract audit failed: role isolation flow missing ${expected}`);
 }
