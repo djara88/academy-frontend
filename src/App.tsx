@@ -30,6 +30,7 @@ const Matricula = lazy(() => import('./pages/MatriculaPreparacion'));
 const AdmissionRequests = lazy(() => import('./pages/AdmissionRequests'));
 const InscripcionesDeportivas = lazy(() => import('./pages/InscripcionesDeportivasEnhanced'));
 const PreMatriculaPublica = lazy(() => import('./pages/PreMatriculaPublica'));
+const PaymentResult = lazy(() => import('./pages/PaymentResult'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
 const CollectionPortal = lazy(() => import('./pages/CollectionPortal'));
 const Importacion = lazy(() => import('./pages/Importacion'));
@@ -204,6 +205,7 @@ const App = () => (
                   <Route path="/a/:slug" element={<PublicAcademy />} />
                   <Route path="/a/:slug/pagos" element={<CollectionPortal />} />
                   <Route path="/pagar/:token" element={<CollectionPortal />} />
+                  <Route path="/pago-resultado" element={<PaymentResult />} />
                   <Route path="/auth/callback" element={<AuthCallback />} />
                   <Route path="/privacidad-lestra" element={<LestraPrivacyPolicy />} />
 

@@ -23,10 +23,11 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
-    "security:audit": "npm audit --omit=dev --audit-level=high && npm run superadmin-security:audit && npm run csp-security:audit",
+    "security:audit": "npm audit --omit=dev --audit-level=high && npm run superadmin-security:audit && npm run csp-security:audit && npm run e2e-critical:audit",
     "preview": "vite preview",
     "superadmin-security:audit": "node scripts/superadmin-security-audit.mjs",
-    "csp-security:audit": "node scripts/csp-security-audit.mjs"
+    "csp-security:audit": "node scripts/csp-security-audit.mjs",
+    "e2e-critical:audit": "node scripts/e2e-critical-audit.mjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.1",
