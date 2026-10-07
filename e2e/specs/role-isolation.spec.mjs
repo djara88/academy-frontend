@@ -6,7 +6,7 @@ const cases = [
     name: 'profesor no puede entrar al panel admin',
     role: 'profesor',
     path: '/admin',
-    destination: /\/profesor$/,
+    destination: /\/dashboard$/,
     id: '22222222-2222-4222-8222-222222222222',
   },
   {
