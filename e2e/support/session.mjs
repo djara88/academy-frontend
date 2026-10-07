@@ -72,11 +72,10 @@ export const installAuthenticatedSession = async (page, userProfile) => {
     sessionStorage.setItem('user', JSON.stringify(localUser));
   }, { projectRef: PROJECT_REF, sessionValue: session, localUser: userProfile });
 
-  await page.route(`${SUPABASE_ORIGIN}/auth/v1/token**`, async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(session) });
-  });
-  await page.route(`${SUPABASE_ORIGIN}/auth/v1/user**`, async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(session.user) });
+  // Playwright evalúa primero la última ruta registrada: deja los fallbacks antes
+  // y registra las respuestas específicas al final.
+  await page.route(`${SUPABASE_ORIGIN}/rest/v1/**`, async (route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
   });
   await page.route(`${SUPABASE_ORIGIN}/rest/v1/usuarios**`, async (route) => {
     const dbProfile = {
@@ -90,8 +89,11 @@ export const installAuthenticatedSession = async (page, userProfile) => {
     };
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(dbProfile) });
   });
-  await page.route(`${SUPABASE_ORIGIN}/rest/v1/**`, async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+  await page.route(`${SUPABASE_ORIGIN}/auth/v1/token**`, async (route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(session) });
+  });
+  await page.route(`${SUPABASE_ORIGIN}/auth/v1/user**`, async (route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(session.user) });
   });
 };
 
