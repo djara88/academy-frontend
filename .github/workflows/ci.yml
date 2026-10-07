@@ -66,8 +66,8 @@ jobs:
         run: npm run build
       - name: Install pinned Playwright runner
         run: npm install --no-save --no-package-lock @playwright/test@1.55.1
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Verify hosted Chrome
+        run: google-chrome --version
       - name: Critical E2E flows
         run: npx playwright test
 
