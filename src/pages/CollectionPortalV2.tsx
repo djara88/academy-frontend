@@ -190,7 +190,6 @@ export default function CollectionPortalV2() {
       form.append('monto', String(Number(transfer.monto) || 0));
       form.append('fecha_pago', transfer.fecha_pago);
       form.append('observaciones', transfer.observaciones);
-      form.append('idempotency_key', crypto.randomUUID());
       const response = await fetch(`${apiBase}/api/cobranza/recibos/public/transferencia/${encodeURIComponent(token)}`, { method: 'POST', body: form });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.error || 'No fue posible informar la transferencia.');
