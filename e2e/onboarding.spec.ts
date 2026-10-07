@@ -100,6 +100,7 @@ test('onboarding blocks operations until setup is complete and then unlocks dash
 
   await page.goto('/dashboard');
   await expect(page).toHaveURL(/\/puesta-en-marcha$/);
+  console.log('ONBOARDING_DOM:', (await page.locator('body').innerText()).slice(0, 6000));
   await expect(page.getByRole('heading', { name: 'Cómo recibirá pagos tu academia' })).toBeVisible();
 
   await page.getByRole('button', { name: 'No por ahora' }).click();
