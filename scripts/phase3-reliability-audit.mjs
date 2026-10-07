@@ -16,8 +16,9 @@ const ci = fs.readFileSync('.github/workflows/ci.yml', 'utf8');
 for (const expected of [
   'Install pinned Playwright runner',
   '@playwright/test@1.55.1',
-  'Install Chromium',
+  'Verify hosted Chrome',
   'Critical E2E flows',
+  'google-chrome --version',
   'npx playwright test',
 ]) {
   if (!ci.includes(expected)) throw new Error(`Phase 3 reliability audit failed: CI missing ${expected}.`);
