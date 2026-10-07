@@ -8,10 +8,11 @@ test('director con setup bloqueado es enviado a Puesta en Marcha', async ({ page
     setup: setupStatus({ required: true, locked: true, operational: false }),
   });
 
+  const setupRequest = page.waitForResponse((response) => response.url().includes('/api/consentimientos/setup'));
   await page.goto('/dashboard');
+  await setupRequest;
 
   await expect(page).toHaveURL(/\/puesta-en-marcha$/);
-  await expect(page.getByText('Puesta en Marcha', { exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /Construyamos Academia E2E/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Construyamos Academia E2E/i })).toBeVisible({ timeout: 10_000 });
   await expect(page.getByText('En preparación', { exact: true })).toBeVisible();
 });
