@@ -28,17 +28,18 @@ test('profesor que intenta entrar a admin termina exclusivamente en su portal', 
   await expect(page).toHaveURL(/\/profesor$/);
 });
 
-test('superadmin UUID con AAL2 puede abrir el panel maestro', async ({ page }) => {
+test('superadmin UUID entra al boundary maestro pero AAL1 exige MFA', async ({ page }) => {
   await mockRoleApi(page);
   await seedAuthenticatedUser(page, {
     id: SUPERADMIN_E2E_USER_ID,
     email: 'superadmin.e2e@example.com',
     role: 'superadmin',
     academyId: null,
-    aal: 'aal2',
+    aal: 'aal1',
   });
 
   await page.goto('/admin');
   await expect(page).toHaveURL(/\/admin$/);
-  await expect(page.getByRole('heading', { name: /Tu negocio completo/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Verificación en dos pasos' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Tu negocio completo/i })).toHaveCount(0);
 });
