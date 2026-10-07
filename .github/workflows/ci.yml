@@ -51,7 +51,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - name: Checkout exact commit
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -64,6 +64,12 @@ jobs:
         run: npm ci
       - name: Build production bundle
         run: npm run build
+      - name: Install pinned Playwright runner
+        run: npm install --no-save --no-package-lock @playwright/test@1.55.1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Critical E2E flows
+        run: npx playwright test
 
   security-audit:
     name: Security Audit
