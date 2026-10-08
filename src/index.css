@@ -18,7 +18,7 @@
   }
 
   body {
-    @apply bg-[#0d1117] text-[#e6edf3];
+    @apply bg-[#eef1eb] text-[#151a16];
     overflow-x: hidden;
   }
 
@@ -37,7 +37,7 @@
 
   input::placeholder,
   textarea::placeholder {
-    @apply text-[#8b949e];
+    @apply text-[#6f786f];
   }
 
   button {
