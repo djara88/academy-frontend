@@ -113,7 +113,7 @@ const Layout = () => {
               <div className="lestra-portal-mark flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl p-2 sm:h-12 sm:w-12"><Logo variant="mark" className="h-full w-full" /></div>
               <div className="min-w-0">
                 <p className="truncate text-sm font-black sm:text-base">{nombreAcademia}</p>
-                <p className="truncate text-[11px] font-bold sm:text-xs">{professor ? `Modo cancha · ${BRAND.name}` : `Portal de familia · ${BRAND.name}`}</p>
+                <p className="truncate text-xs font-bold">{professor ? `Modo cancha · ${BRAND.name}` : `Portal de familia · ${BRAND.name}`}</p>
               </div>
             </Link>
             <div className="flex shrink-0 items-center gap-2">
@@ -156,7 +156,7 @@ const Layout = () => {
               <button type="button" onClick={() => setMobileMenuOpen(false)} className={`absolute right-3 top-3 rounded-xl p-2 lg:hidden ${light ? 'text-slate-500 hover:bg-slate-100' : 'text-slate-400 hover:bg-white/5'}`} aria-label="Cerrar navegación"><XMarkIcon aria-hidden="true" className="h-6 w-6" /></button>
               <div className="flex items-center gap-3">
                 <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border p-2 ${light ? 'border-slate-200 bg-slate-50' : 'border-white/10 bg-[#0b1118]'}`}><Logo variant="mark" className="h-full w-full" /></div>
-                <div className="min-w-0 text-left"><p className="text-[10px] font-black uppercase tracking-[.16em] text-orange-500">Lestra</p><h1 className={`mt-1 truncate text-base font-black ${light ? 'text-slate-950' : 'text-white'}`}>{BRAND.name}</h1><p className="mt-1 truncate text-[11px] font-semibold text-orange-500">Administración global</p></div>
+                <div className="min-w-0 text-left"><p className="text-xs font-black uppercase tracking-[.14em] text-orange-500">Lestra</p><h1 className={`mt-1 truncate text-base font-black ${light ? 'text-slate-950' : 'text-white'}`}>{BRAND.name}</h1><p className="mt-1 truncate text-xs font-semibold text-orange-500">Administración global</p></div>
               </div>
             </div>
 
@@ -171,7 +171,7 @@ const Layout = () => {
 
           <div className={`space-y-2 border-t p-4 ${light ? 'border-slate-200' : 'border-white/5'}`}>
             <button onClick={toggleTheme} className={`flex min-h-11 w-full items-center rounded-xl px-4 text-sm font-bold ${light ? 'bg-slate-100 text-slate-700' : 'bg-white/5 text-slate-300'}`}>{light ? <MoonIcon aria-hidden="true" className="mr-3 h-5 w-5" /> : <SunIcon aria-hidden="true" className="mr-3 h-5 w-5" />}{light ? 'Usar modo oscuro' : 'Usar modo claro'}</button>
-            <p className={`truncate px-3 py-1 text-[11px] ${light ? 'text-slate-500' : 'text-slate-600'}`}>{user?.email}</p>
+            <p className={`truncate px-3 py-1 text-xs ${light ? 'text-slate-500' : 'text-slate-600'}`}>{user?.email}</p>
             <button onClick={handleLogout} className="flex min-h-11 w-full items-center rounded-xl px-3 text-sm font-bold text-slate-500 hover:bg-red-900/20 hover:text-red-400">Cerrar sesión</button>
           </div>
         </aside>
@@ -179,7 +179,7 @@ const Layout = () => {
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
           <header className={`sticky top-0 z-30 flex min-h-16 shrink-0 items-center gap-3 border-b px-3 py-2 backdrop-blur lg:hidden ${light ? 'border-slate-200 bg-white/95' : 'border-white/5 bg-[#101720]/95'}`}>
             <button type="button" onClick={() => setMobileMenuOpen(true)} className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${light ? 'border-slate-200 bg-slate-50 text-slate-700' : 'border-white/10 bg-white/5 text-slate-200'}`} aria-label="Abrir navegación"><Bars3Icon aria-hidden="true" className="h-6 w-6" /></button>
-            <div className="min-w-0 flex-1"><p className="truncate text-[9px] font-black uppercase tracking-[0.16em] text-orange-500">Panel maestro</p><p className={`truncate text-sm font-black ${light ? 'text-slate-900' : 'text-white'}`}>{BRAND.name}</p></div>
+            <div className="min-w-0 flex-1"><p className="truncate text-xs font-black uppercase tracking-[0.14em] text-orange-500">Panel maestro</p><p className={`truncate text-sm font-black ${light ? 'text-slate-900' : 'text-white'}`}>{BRAND.name}</p></div>
           </header>
 
           <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">

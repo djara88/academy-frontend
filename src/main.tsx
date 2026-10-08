@@ -34,26 +34,24 @@ import './public-academy-v2.css';
 import './sports-dialogs-v2.css';
 import './product-design-v2-1.css';
 import './mobile-dock-v2-1-fix.css';
+import './accessibility-contract-v3.css';
 import VersionUpdateNotice from './components/VersionUpdateNotice';
+import ClientErrorBoundary from './components/ClientErrorBoundary';
+import RoleLoadingShell from './components/RoleLoadingShell';
+import { initBrowserObservability } from './observability/browserTelemetry';
 
 const App = lazy(() => import('./App'));
 const PublicAcademy = lazy(() => import('./pages/PublicAcademy'));
 
-const isDirectPublicAcademyRoute = /^\/a\/[^/]+\/?$/.test(window.location.pathname);
+initBrowserObservability();
 
-const LoadingScreen = ({ academy = false }: { academy?: boolean }) => (
-  <div className="grid min-h-screen place-items-center bg-[#e9ece4] px-6 text-center text-[#0b100c]">
-    <div>
-      <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#cdd5ca] border-t-[#93ba00]" />
-      <p className="mt-4 text-sm font-black">{academy ? 'Cargando academia…' : 'Cargando Lestra…'}</p>
-    </div>
-  </div>
-);
+const isDirectPublicAcademyRoute = /^\/a\/[^/]+\/?$/.test(window.location.pathname);
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <VersionUpdateNotice />
-    <Suspense fallback={<LoadingScreen academy={isDirectPublicAcademyRoute} />}>
+    <ClientErrorBoundary>
+      <VersionUpdateNotice />
+      <Suspense fallback={<RoleLoadingShell role={isDirectPublicAcademyRoute ? 'public' : undefined} label={isDirectPublicAcademyRoute ? 'Cargando academia…' : 'Cargando Lestra…'} />}>
       {isDirectPublicAcademyRoute ? (
         <BrowserRouter>
           <Routes>
@@ -63,6 +61,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
       ) : (
         <App />
       )}
-    </Suspense>
+      </Suspense>
+    </ClientErrorBoundary>
   </React.StrictMode>
 );

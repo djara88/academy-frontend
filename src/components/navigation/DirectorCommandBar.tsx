@@ -157,7 +157,7 @@ export default function DirectorCommandBar({
         to={itemTarget(item)}
         aria-current={current ? 'page' : undefined}
         title={itemEnabled ? item.label : `${item.label} no está incluido en tu plan`}
-        className={`group inline-flex min-h-9 shrink-0 items-center gap-1.5 border-b-2 px-2.5 text-[11px] font-black transition ${current
+        className={`group inline-flex min-h-9 shrink-0 items-center gap-1.5 border-b-2 px-2.5 text-xs font-black transition ${current
           ? 'border-[var(--ls-accent)] text-white'
           : 'border-transparent text-white/58 hover:border-white/20 hover:text-white'} ${itemEnabled ? '' : 'opacity-55'}`}
       >
@@ -180,7 +180,7 @@ export default function DirectorCommandBar({
               <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[.04] p-1.5"><Logo variant="mark" className="h-full w-full" /></span>
             )}
             <span className="min-w-0">
-              <span className="block text-[8px] font-black uppercase tracking-[.14em] text-[var(--ls-accent-on-dark)]">Centro deportivo</span>
+              <span className="block text-xs font-black uppercase tracking-[.14em] text-[var(--ls-accent-on-dark)]">Centro deportivo</span>
               <span className="mt-0.5 block truncate text-[13px] font-black text-white">{academyName}</span>
             </span>
           </Link>
@@ -206,16 +206,16 @@ export default function DirectorCommandBar({
 
           <div className="flex min-w-[190px] items-center justify-end gap-2.5 border-l border-white/[.08] pl-4">
             <span className="min-w-0 text-right">
-              <span className="block truncate text-[9px] font-black uppercase tracking-[.07em] text-white/42">{planLabel}</span>
-              <span className="mt-0.5 block max-w-[135px] truncate text-[10px] font-semibold text-white/65">{email}</span>
+              <span className="block truncate text-xs font-black uppercase tracking-[.07em] text-white/42">{planLabel}</span>
+              <span className="mt-0.5 block max-w-[135px] truncate text-xs font-semibold text-white/65">{email}</span>
             </span>
-            <button type="button" onClick={() => void onLogout()} className="min-h-9 rounded-lg border border-white/10 px-2.5 text-[11px] font-black text-white/65 hover:bg-white/[.06] hover:text-white">Salir</button>
+            <button type="button" onClick={() => void onLogout()} className="min-h-9 rounded-lg border border-white/10 px-2.5 text-xs font-black text-white/65 hover:bg-white/[.06] hover:text-white">Salir</button>
           </div>
         </div>
 
         <div className="border-t border-white/[.055] bg-black/10">
           <div className="mx-auto flex max-w-[1680px] items-center gap-3 px-5">
-            <div className="flex min-w-[205px] items-center gap-2 py-2 text-[9px] font-black uppercase tracking-[.12em] text-white/38">
+            <div className="flex min-w-[205px] items-center gap-2 py-2 text-xs font-black uppercase tracking-[.12em] text-white/38">
               <span aria-hidden="true" className="h-px w-6 bg-[var(--ls-accent)]" />
               {activeZone.displayLabel}
             </div>
@@ -233,7 +233,7 @@ export default function DirectorCommandBar({
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[.04] p-1.5"><Logo variant="mark" className="h-full w-full" /></span>
         )}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[8px] font-black uppercase tracking-[.14em] text-[var(--ls-accent-on-dark)]">{activeZone.displayLabel}</p>
+          <p className="truncate text-xs font-black uppercase tracking-[.14em] text-[var(--ls-accent-on-dark)]">{activeZone.displayLabel}</p>
           <p className="truncate text-[13px] font-black text-white">{academyName}</p>
         </div>
         <button type="button" onClick={() => setMoreOpen(true)} className="grid h-10 w-10 place-items-center rounded-lg border border-white/10 bg-white/[.04] text-white" aria-label="Abrir navegación"><Bars3Icon aria-hidden="true" className="h-5 w-5" /></button>
@@ -244,16 +244,16 @@ export default function DirectorCommandBar({
         <MobileDockLink to="/alumnos" label="Equipo" pathname={pathname} icon={UsersIcon} />
         <MobileDockLink to="/asistencias" label="Asistencia" pathname={pathname} icon={ClipboardDocumentCheckIcon} />
         <MobileDockLink to="/partidos" label="Partidos" pathname={pathname} icon={TrophyIcon} />
-        <button type="button" onClick={() => setMoreOpen(true)} className="flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-xl text-[9px] font-black text-white/62" aria-label="Abrir todas las áreas"><Bars3Icon aria-hidden="true" className="h-4 w-4" /><span>Más</span></button>
+        <button type="button" onClick={() => setMoreOpen(true)} className="flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-xl text-xs font-black text-white/62" aria-label="Abrir todas las áreas"><Bars3Icon aria-hidden="true" className="h-4 w-4" /><span>Más</span></button>
       </nav>
 
-      <dialog ref={dialogRef} onClose={() => setMoreOpen(false)} className="m-0 mt-auto max-h-[84dvh] w-full max-w-none rounded-t-[28px] border-0 bg-[var(--ls-sidebar)] p-0 text-white shadow-2xl backdrop:bg-black/70 lg:hidden">
+      <dialog ref={dialogRef} onClose={() => setMoreOpen(false)} aria-modal="true" aria-labelledby="director-nav-dialog-title" className="m-0 mt-auto max-h-[84dvh] w-full max-w-none rounded-t-[28px] border-0 bg-[var(--ls-sidebar)] p-0 text-white shadow-2xl backdrop:bg-black/70 lg:hidden">
         <div className="mx-auto max-w-xl px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3">
           <div aria-hidden="true" className="mx-auto h-1 w-12 rounded-full bg-white/18" />
           <div className="mt-4 flex items-center justify-between gap-3 border-b border-white/[.08] pb-4">
             <div className="min-w-0">
-              <p className="text-[9px] font-black uppercase tracking-[.15em] text-[var(--ls-accent-on-dark)]">Mapa de trabajo</p>
-              <p className="mt-1 truncate text-lg font-black">{academyName}</p>
+              <p className="text-xs font-black uppercase tracking-[.15em] text-[var(--ls-accent-on-dark)]">Mapa de trabajo</p>
+              <p id="director-nav-dialog-title" className="mt-1 truncate text-lg font-black">{academyName}</p>
             </div>
             <button type="button" onClick={() => setMoreOpen(false)} className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 text-white/70" aria-label="Cerrar navegación"><XMarkIcon aria-hidden="true" className="h-5 w-5" /></button>
           </div>
@@ -264,7 +264,7 @@ export default function DirectorCommandBar({
               const currentZone = activeZone.key === zone.key;
               return (
                 <section key={zone.key} className="border-b border-white/[.07] py-4 last:border-b-0">
-                  <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.13em] text-white/42">
+                  <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[.13em] text-white/42">
                     <ZoneIcon aria-hidden="true" className={`h-3.5 w-3.5 ${currentZone ? 'text-[var(--ls-accent)]' : ''}`} />
                     {zone.displayLabel}
                   </div>
@@ -288,7 +288,7 @@ export default function DirectorCommandBar({
           </div>
 
           <div className="border-t border-white/[.08] pt-3">
-            <p className="truncate px-2 text-[11px] font-semibold text-white/40">{email}</p>
+            <p className="truncate px-2 text-xs font-semibold text-white/40">{email}</p>
             <button type="button" onClick={() => void onLogout()} className="mt-2 min-h-11 w-full rounded-xl border border-white/10 text-sm font-black text-white/70 hover:bg-white/[.05] hover:text-white">Cerrar sesión</button>
           </div>
         </div>
@@ -300,7 +300,7 @@ export default function DirectorCommandBar({
 function MobileDockLink({ to, label, pathname, icon: Icon }: { to: string; label: string; pathname: string; icon: typeof HomeIcon }) {
   const current = isPathActive(pathname, to);
   return (
-    <Link to={to} aria-current={current ? 'page' : undefined} className={`flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-xl text-[9px] font-black ${current ? 'bg-[var(--ls-accent)] text-[var(--ls-ink)]' : 'text-white/62'}`}>
+    <Link to={to} aria-current={current ? 'page' : undefined} className={`flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-xl text-xs font-black ${current ? 'bg-[var(--ls-accent)] text-[var(--ls-ink)]' : 'text-white/62'}`}>
       <Icon aria-hidden="true" className="h-4 w-4" />
       <span>{label}</span>
     </Link>

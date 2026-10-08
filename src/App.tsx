@@ -12,6 +12,7 @@ import { BRAND } from './config/brand';
 import api from './api/axiosConfig';
 import LestraRealtimeProvider from './realtime/LestraRealtimeProvider';
 import RealtimeRouteBoundary from './realtime/RealtimeRouteBoundary';
+import RoleLoadingShell from './components/RoleLoadingShell';
 
 const Layout = lazy(() => import('./layouts/Layout'));
 const SuperadminMfaGate = lazy(() => import('./components/SuperadminMfaGate'));
@@ -103,7 +104,7 @@ const LandingHome = () => {
 const ProtectedRoutes = () => {
   const { user, loading } = useAuth();
   usePresenceHeartbeat(Boolean(user) && !loading && !user?.requiere_cambio_password);
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">Cargando sistema...</div>;
+  if (loading) return <RoleLoadingShell label="Cargando sistema…" />;
   if (!user) return <Navigate to="/login" replace />;
   if (user.requiere_cambio_password) return <Navigate to="/cambiar-password" replace />;
   if (!user.academia_id && !isSuperAdminRole(user.rol)) return <Navigate to="/completar-perfil" replace />;
@@ -112,7 +113,7 @@ const ProtectedRoutes = () => {
 
 const PublicRoutes = () => {
   const { user, loading } = useAuth();
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">Comprobando sesión...</div>;
+  if (loading) return <RoleLoadingShell role="public" label="Comprobando sesión…" />;
   if (user) {
     if (isSuperAdminRole(user.rol)) return <Navigate to="/admin" replace />;
     if (user.requiere_cambio_password) return <Navigate to="/cambiar-password" replace />;
@@ -147,7 +148,7 @@ const DirectorRoutes = () => {
   if (isGuardian) return <Navigate to="/apoderado" replace />;
 
   if (setupQuery.isLoading) {
-    return <div className="grid min-h-[55vh] place-items-center bg-[#e9ece4] text-sm font-black text-[#20261f]">Preparando tu academia…</div>;
+    return <RoleLoadingShell role="director" compact label="Preparando tu academia…" />;
   }
 
   const setup = setupQuery.data;
@@ -156,7 +157,7 @@ const DirectorRoutes = () => {
   const friendliesRoute = location.pathname === '/amistosos';
 
   if (friendliesRoute && planQuery.isLoading) {
-    return <div className="grid min-h-[55vh] place-items-center bg-[#e9ece4] text-sm font-black text-[#20261f]">Validando tu plan…</div>;
+    return <RoleLoadingShell role="director" compact label="Validando tu plan…" />;
   }
 
   if (friendliesRoute) {
@@ -198,7 +199,7 @@ const App = () => (
         <AuthProvider>
           <LestraRealtimeProvider>
             <BrowserRouter>
-              <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-[#289E9D] font-bold">Cargando {BRAND.name}...</div>}>
+              <Suspense fallback={<RoleLoadingShell label={`Cargando ${BRAND.name}…`} />}>
                 <Routes>
                   <Route path="/prematricula/:token" element={<PreMatriculaPublica />} />
                   <Route path="/a/:slug" element={<PublicAcademy />} />

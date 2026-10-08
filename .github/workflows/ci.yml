@@ -78,6 +78,8 @@ jobs:
           node-version: '24.x'
       - name: Audit production dependencies
         run: npm run security:audit
+      - name: Audit Phase 4 UI contracts
+        run: node scripts/phase4-ui-audit.mjs && node scripts/css-debt-audit.mjs
 
 
   e2e-critical:

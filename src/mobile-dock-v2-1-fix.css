@@ -1,58 +1,54 @@
-/* V2.1 mobile dock correction: remove the continuous dark bar entirely. */
+/* Lestra Deportivo · mobile dock semantic contract */
 @media (max-width: 1023px) {
-  html body .lestra-shell > div > nav.lestra-mobile-dock {
-    gap: 7px !important;
-    padding: 0 !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    background: none !important;
-    background-color: transparent !important;
-    background-image: none !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    isolation: auto !important;
+  .lestra-mobile-dock {
+    gap: 7px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    isolation: auto;
   }
 
-  html body .lestra-shell > div > nav.lestra-mobile-dock::before,
-  html body .lestra-shell > div > nav.lestra-mobile-dock::after {
-    display: none !important;
-    content: none !important;
+  .lestra-mobile-dock::before,
+  .lestra-mobile-dock::after {
+    display: none;
+    content: none;
   }
 
-  html body .lestra-shell > div > nav.lestra-mobile-dock > :where(a, button) {
-    min-width: 0 !important;
-    min-height: 58px !important;
-    border: 1px solid rgba(28, 35, 29, .11) !important;
-    border-radius: 16px !important;
-    background: #ffffff !important;
-    background-color: #ffffff !important;
-    color: #5f695f !important;
-    box-shadow: 0 5px 16px rgba(18, 24, 19, .09) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
+  .lestra-mobile-dock > :where(a, button) {
+    min-width: 0;
+    min-height: 58px;
+    border: 1px solid rgba(28, 35, 29, .11);
+    border-radius: 16px;
+    background: #ffffff;
+    color: #5f695f;
+    box-shadow: 0 5px 16px rgba(18, 24, 19, .09);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
-  html body .lestra-shell > div > nav.lestra-mobile-dock > :where(a, button) svg {
-    color: #6b756c !important;
+  .lestra-mobile-dock > :where(a, button) svg {
+    color: #6b756c;
   }
 
-  html body .lestra-shell > div > nav.lestra-mobile-dock > :where(a, button):hover {
-    background: #f7f9f5 !important;
-    color: #1c221d !important;
+  .lestra-mobile-dock > :where(a, button):hover {
+    background: #f7f9f5;
+    color: #1c221d;
   }
 
-  html body .lestra-shell > div > nav.lestra-mobile-dock > a[aria-current="page"],
-  html body .lestra-shell > div > nav.lestra-mobile-dock > a.is-active {
-    border-color: #202820 !important;
-    background: #1c231d !important;
-    background-color: #1c231d !important;
-    color: #ffffff !important;
-    box-shadow: 0 8px 20px rgba(17, 23, 17, .18) !important;
+  .lestra-mobile-dock > a[aria-current="page"],
+  .lestra-mobile-dock > a.is-active {
+    border-color: #202820;
+    background: #1c231d;
+    color: #ffffff;
+    box-shadow: 0 8px 20px rgba(17, 23, 17, .18);
   }
 
-  html body .lestra-shell > div > nav.lestra-mobile-dock > a[aria-current="page"] svg,
-  html body .lestra-shell > div > nav.lestra-mobile-dock > a.is-active svg {
-    color: #d8e8a8 !important;
+  .lestra-mobile-dock > a[aria-current="page"] svg,
+  .lestra-mobile-dock > a.is-active svg {
+    color: #d8e8a8;
   }
 }

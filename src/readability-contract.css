@@ -1,8 +1,4 @@
-/* Lestra Deportivo · contrato tipográfico transversal
- *
- * No define colores, superficies, heroes ni controles. Esas responsabilidades
- * pertenecen al sistema visual de cada rol. Esta capa sólo protege legibilidad.
- */
+/* Lestra Deportivo · contrato tipográfico transversal */
 
 html {
   text-rendering: optimizeLegibility;
@@ -37,24 +33,17 @@ textarea {
   text-rendering: optimizeLegibility;
 }
 
-/* Los microtextos operativos deben seguir siendo legibles en móvil y terreno. */
-:is(.lestra-director-main .app-content, .lestra-portal-content) [class*="text-[9px]"] {
-  font-size: 11px !important;
-  line-height: 1.35 !important;
+:is(.lestra-director-main .app-content, .lestra-portal-content) small,
+.lestra-microcopy {
+  font-size: .75rem;
+  line-height: 1.45;
 }
 
-:is(.lestra-director-main .app-content, .lestra-portal-content) [class*="text-[10px]"] {
-  font-size: 11.5px !important;
-  line-height: 1.4 !important;
-}
-
-:is(.lestra-director-main .app-content, .lestra-portal-content) [class*="text-[11px]"] {
-  font-size: 12px !important;
-  line-height: 1.45 !important;
-}
-
-:is(.lestra-director-main .app-content, .lestra-portal-content) :is(p,span)[class*="uppercase"] {
+:is(.lestra-director-main .app-content, .lestra-portal-content) .lestra-kicker {
+  font-size: .75rem;
+  line-height: 1.4;
   letter-spacing: .09em;
+  text-transform: uppercase;
 }
 
 @media (max-width: 640px) {

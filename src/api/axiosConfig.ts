@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { supabase } from '../config/supabase'; // 🔥 Importamos supabase directamente
+import { supabase } from '../config/supabase';
+import { recordClientError } from '../observability/browserTelemetry';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080',
@@ -8,10 +9,8 @@ const api = axios.create({
   },
 });
 
-// Interceptor para inyectar el token en CADA petición
 api.interceptors.request.use(
   async (config) => {
-    // 🔥 Le pedimos la sesión actual y oficial directamente a Supabase
     const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;
 
@@ -20,7 +19,22 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = Number(error?.response?.status || 0);
+    if (!status || status >= 500) {
+      const failure = new Error(status
+        ? `API request failed with status ${status}`
+        : 'API network request failed');
+      failure.name = 'ApiRequestError';
+      recordClientError(failure, 'api');
+    }
+    return Promise.reject(error);
+  },
 );
 
 export default api;
