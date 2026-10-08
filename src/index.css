@@ -37,7 +37,7 @@
 
   input::placeholder,
   textarea::placeholder {
-    @apply text-[#6f786f];
+    @apply text-[#9aa6b5];
   }
 
   button {
