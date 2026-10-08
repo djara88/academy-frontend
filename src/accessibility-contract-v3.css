@@ -1,0 +1,40 @@
+:root {
+  --ls-placeholder-dark: #9aa6b5;
+  --ls-placeholder-light: #697468;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--ls-placeholder-dark);
+  opacity: 1;
+}
+
+.lestra-shell input::placeholder,
+.lestra-shell textarea::placeholder,
+.lestra-event-popup input::placeholder,
+.lestra-event-popup textarea::placeholder,
+.lestra-performance-popup input::placeholder,
+.lestra-performance-popup textarea::placeholder,
+.lestra-setup-page input::placeholder,
+.lestra-setup-page textarea::placeholder {
+  color: var(--ls-placeholder-light);
+  opacity: 1;
+}
+
+.lestra-mobile-dock > a,
+.lestra-mobile-dock > button,
+.lestra-mobile-header,
+.lestra-portal-header {
+  font-size: 0.75rem;
+}
+
+.lestra-event-popup:focus,
+.lestra-performance-popup:focus {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lestra-role-loading-pulse {
+    animation: none;
+  }
+}
