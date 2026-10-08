@@ -36,6 +36,7 @@ import './product-design-v2-1.css';
 import './mobile-dock-v2-1-fix.css';
 import VersionUpdateNotice from './components/VersionUpdateNotice';
 import ClientErrorBoundary from './components/ClientErrorBoundary';
+import RoleLoadingShell from './components/RoleLoadingShell';
 import { initBrowserObservability } from './observability/browserTelemetry';
 
 const App = lazy(() => import('./App'));
@@ -45,20 +46,11 @@ initBrowserObservability();
 
 const isDirectPublicAcademyRoute = /^\/a\/[^/]+\/?$/.test(window.location.pathname);
 
-const LoadingScreen = ({ academy = false }: { academy?: boolean }) => (
-  <div className="grid min-h-screen place-items-center bg-[#e9ece4] px-6 text-center text-[#0b100c]">
-    <div>
-      <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-[#cdd5ca] border-t-[#93ba00]" />
-      <p className="mt-4 text-sm font-black">{academy ? 'Cargando academia…' : 'Cargando Lestra…'}</p>
-    </div>
-  </div>
-);
-
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <ClientErrorBoundary>
       <VersionUpdateNotice />
-      <Suspense fallback={<LoadingScreen academy={isDirectPublicAcademyRoute} />}>
+      <Suspense fallback={<RoleLoadingShell role={isDirectPublicAcademyRoute ? 'public' : undefined} label={isDirectPublicAcademyRoute ? 'Cargando academia…' : 'Cargando Lestra…'} />}>
       {isDirectPublicAcademyRoute ? (
         <BrowserRouter>
           <Routes>
