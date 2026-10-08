@@ -34,6 +34,7 @@ import './public-academy-v2.css';
 import './sports-dialogs-v2.css';
 import './product-design-v2-1.css';
 import './mobile-dock-v2-1-fix.css';
+import './accessibility-contract-v3.css';
 import VersionUpdateNotice from './components/VersionUpdateNotice';
 import ClientErrorBoundary from './components/ClientErrorBoundary';
 import RoleLoadingShell from './components/RoleLoadingShell';
