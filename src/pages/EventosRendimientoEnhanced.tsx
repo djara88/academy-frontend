@@ -1,9 +1,11 @@
 import EventosRendimiento from './EventosRendimiento';
 import DirectorSportsResponses from '../components/DirectorSportsResponses';
 import { DirectorHero, DirectorPage } from '../components/director/DirectorModule';
+import SportsDialogAccessibility from '../components/SportsDialogAccessibility';
 
 export default function EventosRendimientoEnhanced() {
   return <DirectorPage className="max-w-[1500px]">
+    <SportsDialogAccessibility />
     <DirectorHero
       eyebrow="Match Command · Competencia"
       title="Preparar, competir y cerrar"
