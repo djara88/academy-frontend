@@ -54,7 +54,7 @@ if (!boundary.includes("recordClientError(enriched, 'react')")) {
   throw new Error('Phase 4 audit: React render failures are not captured.');
 }
 
-for (const expected of ['role="dialog"', 'aria-modal="true"', 'focusableSelector', "event.key === 'Escape'"]) {
+for (const expected of ["current.kind === 'alert' ? 'alertdialog' : 'dialog'", 'aria-modal="true"', 'focusableSelector', "event.key === 'Escape'"]) {
   if (!dialogs.includes(expected)) throw new Error(`Phase 4 audit: DialogContext missing ${expected}`);
 }
 for (const expected of ["setAttribute('role', 'dialog')", "setAttribute('aria-modal', 'true')", "event.key === 'Escape'", "event.key !== 'Tab'"]) {
