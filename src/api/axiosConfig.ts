@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { supabase } from '../config/supabase'; // 🔥 Importamos supabase directamente
+import { recordClientError } from '../observability/browserTelemetry';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080',
