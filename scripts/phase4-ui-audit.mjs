@@ -15,33 +15,27 @@ const dialogs = read('src/contexts/DialogContext.tsx');
 const command = read('src/components/navigation/DirectorCommandBar.tsx');
 
 for (const expected of [
+  "from '@opentelemetry/api'",
+  "from '@opentelemetry/sdk-trace-web'",
+  'new WebTracerProvider',
+  'new SimpleSpanProcessor',
+  'class BrowserOtlpExporter implements SpanExporter',
   '/api/observability/v1/traces',
-  'resourceSpans',
-  'exception.stacktrace',
+  'span.recordException',
+  'SpanStatusCode.ERROR',
   'MAX_EVENTS_PER_MINUTE',
-  "attr('app.route'",
-  "attr('app.role'",
-  "attr('app.error.source'",
+  "'app.route': currentRoute()",
+  "'app.role': role()",
+  "'app.error.source': source",
+  'REDACTED_EMAIL',
+  'REDACTED_JWT',
+  'REDACTED_RUT',
 ]) {
   if (!telemetry.includes(expected)) throw new Error(`Phase 4 audit: telemetry missing ${expected}`);
 }
 
-const allowedTelemetryAttributes = [
-  'service.name',
-  'service.version',
-  'deployment.environment',
-  'app.route',
-  'app.role',
-  'app.error.source',
-  'exception.type',
-  'exception.message',
-  'exception.stacktrace',
-];
-const attrCalls = Array.from(telemetry.matchAll(/attr\('([^']+)'/g)).map((match) => match[1]);
-for (const key of attrCalls) {
-  if (!allowedTelemetryAttributes.includes(key)) {
-    throw new Error(`Phase 4 audit: telemetry attribute is not allowlisted: ${key}`);
-  }
+if (/crypto\.getRandomValues|traceId\s*=\s*hex|spanId\s*=\s*hex/.test(telemetry)) {
+  throw new Error('Phase 4 audit: OpenTelemetry must create trace and span identifiers.');
 }
 
 if (!main.includes('initBrowserObservability()') || !main.includes('<ClientErrorBoundary>')) {

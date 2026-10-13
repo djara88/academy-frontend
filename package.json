@@ -23,11 +23,12 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
-    "security:audit": "npm audit --omit=dev --audit-level=high && npm run superadmin-security:audit && npm run csp-security:audit && npm run e2e-contract:audit",
+    "security:audit": "npm audit --omit=dev --audit-level=high && npm run superadmin-security:audit && npm run csp-security:audit && npm run e2e-contract:audit && npm run observability:audit",
     "preview": "vite preview",
     "superadmin-security:audit": "node scripts/superadmin-security-audit.mjs",
     "csp-security:audit": "node scripts/csp-security-audit.mjs",
-    "e2e-contract:audit": "node scripts/e2e-contract-audit.mjs"
+    "e2e-contract:audit": "node scripts/e2e-contract-audit.mjs",
+    "observability:audit": "node scripts/phase4-observability-sdk-audit.mjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.1",
@@ -40,7 +41,12 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^7.18.1",
     "recharts": "^2.12.0",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+    "@opentelemetry/api": "1.9.1",
+    "@opentelemetry/core": "2.12.0",
+    "@opentelemetry/resources": "2.12.0",
+    "@opentelemetry/sdk-trace-base": "2.12.0",
+    "@opentelemetry/sdk-trace-web": "2.12.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.19",
