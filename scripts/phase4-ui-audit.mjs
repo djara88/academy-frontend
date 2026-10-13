@@ -14,6 +14,7 @@ const sports = read('src/components/SportsDialogAccessibility.tsx');
 const dialogs = read('src/contexts/DialogContext.tsx');
 const command = read('src/components/navigation/DirectorCommandBar.tsx');
 const attendance = read('src/pages/AsistenciasDirectorCommand.tsx');
+const primitives = read('src/components/ui/LestraPrimitives.tsx');
 
 for (const expected of [
   "from '@opentelemetry/api'",
@@ -68,8 +69,11 @@ if (!attendance.includes('aria-label="Buscar deportista"')) {
   throw new Error('Phase 4 audit: attendance roster search must have an accessible name.');
 }
 
-for (const expected of ["'superadmin'", "'director'", "bg-[#0b1118]", "bg-[#eef1eb]", 'bg-orange-500']) {
+for (const expected of ["'superadmin'", "'director'", "bg-[#0b1118]", "bg-[#eef1eb]", 'LestraSurface', 'LestraStatusDot']) {
   if (!shell.includes(expected)) throw new Error(`Phase 4 audit: loading shell missing ${expected}`);
+}
+for (const expected of ['LestraSurface', 'LestraButton', 'LestraStatusDot', "variant?: SurfaceVariant", "variant?: ButtonVariant", 'bg-orange-500']) {
+  if (!primitives.includes(expected)) throw new Error(`Phase 4 audit: semantic UI primitives missing ${expected}`);
 }
 if (!app.includes('<RoleLoadingShell') || !main.includes('<RoleLoadingShell')) {
   throw new Error('Phase 4 audit: application fallbacks are not using role-aware loading shells.');

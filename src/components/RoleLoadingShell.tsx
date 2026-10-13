@@ -1,3 +1,4 @@
+import { LestraStatusDot, LestraSurface } from './ui/LestraPrimitives';
 type LoadingRole = 'director' | 'superadmin' | 'public';
 
 const storedRole = () => {
@@ -28,15 +29,13 @@ export default function RoleLoadingShell({
   const publicView = role === 'public';
 
   const background = admin ? 'bg-[#0b1118] text-white' : publicView ? 'bg-[#f4f6f1] text-[#151a16]' : 'bg-[#eef1eb] text-[#151a16]';
-  const accent = admin ? 'bg-orange-500' : 'bg-[#a3c63a]';
   const muted = admin ? 'bg-white/[.08]' : 'bg-[#dce2d8]';
-  const surface = admin ? 'border-white/10 bg-[#101720]' : 'border-[#dce2d8] bg-white';
 
   return (
     <div className={`${compact ? 'min-h-[45vh]' : 'min-h-dvh'} ${background} grid place-items-center px-4 py-8`} role="status" aria-live="polite" aria-busy="true">
-      <div className={`w-full max-w-3xl overflow-hidden rounded-[28px] border ${surface} p-5 shadow-[0_24px_70px_rgba(18,24,19,.08)] sm:p-7`}>
+      <LestraSurface variant={admin ? 'admin' : 'default'} className="w-full max-w-3xl overflow-hidden p-5 shadow-[0_24px_70px_rgba(18,24,19,.08)] sm:p-7">
         <div className="flex items-center gap-3">
-          <span className={`h-3 w-3 animate-pulse rounded-full ${accent}`} aria-hidden="true" />
+          <LestraStatusDot tone={admin ? 'admin' : 'director'} className="lestra-role-loading-pulse animate-pulse" />
           <p className={`text-xs font-black uppercase tracking-[.14em] ${admin ? 'text-orange-400' : 'text-[#617d00]'}`}>
             {admin ? 'Administración Lestra' : publicView ? 'Lestra Deportivo' : 'Centro deportivo'}
           </p>
@@ -55,7 +54,7 @@ export default function RoleLoadingShell({
           <div className={`min-h-40 animate-pulse rounded-2xl ${muted}`} />
         </div>
         <span className="sr-only">{label}</span>
-      </div>
+      </LestraSurface>
     </div>
   );
 }
