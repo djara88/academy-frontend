@@ -1,11 +1,24 @@
+import { SpanStatusCode, trace, type AttributeValue } from '@opentelemetry/api';
+import { ExportResultCode } from '@opentelemetry/core';
+import { resourceFromAttributes } from '@opentelemetry/resources';
+import {
+  SimpleSpanProcessor,
+  type ReadableSpan,
+  type SpanExporter,
+} from '@opentelemetry/sdk-trace-base';
+import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
+
 type ErrorSource = 'react' | 'window' | 'promise' | 'api' | 'csp' | 'manual';
-
-type OtlpAttribute = {
-  key: string;
-  value: { stringValue: string };
-};
-
 type ErrorLike = Error | string | unknown;
+
+type OtlpValue =
+  | { stringValue: string }
+  | { boolValue: boolean }
+  | { intValue: string }
+  | { doubleValue: number }
+  | { arrayValue: { values: OtlpValue[] } };
+
+type OtlpAttribute = { key: string; value: OtlpValue };
 
 const API_BASE = String(import.meta.env.VITE_API_URL || 'http://localhost:8080').replace(/\/$/, '');
 const SERVICE_NAME = 'lestra-deportivo-web';
@@ -16,25 +29,7 @@ const MAX_EVENTS_PER_MINUTE = 20;
 
 const seen = new Map<string, number>();
 const recent: number[] = [];
-
-const hex = (bytes: number) => {
-  const value = new Uint8Array(bytes);
-  crypto.getRandomValues(value);
-  return Array.from(value, (item) => item.toString(16).padStart(2, '0')).join('');
-};
-
-const unixNano = () => (BigInt(Date.now()) * 1_000_000n).toString();
-
-const role = () => {
-  try {
-    const parsed = JSON.parse(sessionStorage.getItem('user') || '{}');
-    return String(parsed?.rol || 'anonymous').trim().slice(0, 80) || 'anonymous';
-  } catch {
-    return 'anonymous';
-  }
-};
-
-const route = () => String(window.location.pathname || '/').slice(0, 500);
+let initialized = false;
 
 const scrub = (value: unknown, max = 4000) => String(value ?? '')
   .slice(0, max)
@@ -44,22 +39,28 @@ const scrub = (value: unknown, max = 4000) => String(value ?? '')
   .replace(/\b\d{1,2}[.]?\d{3}[.]?\d{3}-?[0-9Kk]\b/g, '[REDACTED_RUT]')
   .replace(/([?&](?:token|access_token|refresh_token|code|key|signature)=)[^&#\s]+/gi, '$1[REDACTED]');
 
-const attr = (key: string, value: unknown, max = 1200): OtlpAttribute => ({
-  key,
-  value: { stringValue: scrub(value, max) },
-});
+const role = () => {
+  try {
+    const parsed = JSON.parse(sessionStorage.getItem('user') || '{}');
+    return scrub(parsed?.rol || 'anonymous', 80) || 'anonymous';
+  } catch {
+    return 'anonymous';
+  }
+};
+
+const currentRoute = () => scrub(window.location.pathname || '/', 500);
 
 const normalizeError = (value: ErrorLike) => {
   if (value instanceof Error) {
     return {
-      type: value.name || 'Error',
-      message: value.message || 'Client error',
-      stack: value.stack || '',
+      type: scrub(value.name || 'Error', 160),
+      message: scrub(value.message || 'Client error', 1600),
+      stack: scrub(value.stack || '', 7000),
     };
   }
-  if (typeof value === 'string') return { type: 'Error', message: value, stack: '' };
+  if (typeof value === 'string') return { type: 'Error', message: scrub(value, 1600), stack: '' };
   try {
-    return { type: 'Error', message: JSON.stringify(value), stack: '' };
+    return { type: 'Error', message: scrub(JSON.stringify(value), 1600), stack: '' };
   } catch {
     return { type: 'Error', message: 'Unknown client error', stack: '' };
   }
@@ -83,87 +84,148 @@ const canSend = (fingerprint: string) => {
   return true;
 };
 
-const exportPayload = (payload: unknown) => {
+const hrTimeToUnixNano = ([seconds, nanos]: readonly [number, number]) => (
+  (BigInt(seconds) * 1_000_000_000n) + BigInt(nanos)
+).toString();
+
+const otlpValue = (value: AttributeValue | undefined): OtlpValue => {
+  if (Array.isArray(value)) {
+    return { arrayValue: { values: value.map((item) => otlpValue(item as AttributeValue)) } };
+  }
+  if (typeof value === 'boolean') return { boolValue: value };
+  if (typeof value === 'number') {
+    return Number.isInteger(value) ? { intValue: String(value) } : { doubleValue: value };
+  }
+  return { stringValue: scrub(value ?? '', 7000) };
+};
+
+const toAttributes = (attributes: Readonly<Record<string, AttributeValue | undefined>>): OtlpAttribute[] => (
+  Object.entries(attributes)
+    .filter(([, value]) => value !== undefined)
+    .map(([key, value]) => ({ key, value: otlpValue(value) }))
+);
+
+const toOtlpSpan = (span: ReadableSpan) => {
+  const context = span.spanContext();
+  return {
+    traceId: context.traceId,
+    spanId: context.spanId,
+    name: scrub(span.name, 160),
+    kind: span.kind,
+    startTimeUnixNano: hrTimeToUnixNano(span.startTime),
+    endTimeUnixNano: hrTimeToUnixNano(span.endTime),
+    attributes: toAttributes(span.attributes),
+    status: {
+      code: span.status.code,
+      message: scrub(span.status.message || '', 500),
+    },
+    events: span.events.map((event) => ({
+      timeUnixNano: hrTimeToUnixNano(event.time),
+      name: scrub(event.name, 160),
+      attributes: toAttributes(event.attributes || {}),
+    })),
+  };
+};
+
+const sendOtlpPayload = async (payload: unknown) => {
   if (!import.meta.env.PROD) return;
   const body = JSON.stringify(payload);
+  const endpoint = `${API_BASE}/api/observability/v1/traces`;
 
   try {
     if (navigator.sendBeacon) {
-      const accepted = navigator.sendBeacon(
-        `${API_BASE}/api/observability/v1/traces`,
-        new Blob([body], { type: 'application/json' }),
-      );
+      const accepted = navigator.sendBeacon(endpoint, new Blob([body], { type: 'application/json' }));
       if (accepted) return;
     }
   } catch {
-    // Fall through to fetch. Telemetry must never affect the product flow.
+    // Fall through to fetch. Telemetry must never affect product behavior.
   }
 
-  void fetch(`${API_BASE}/api/observability/v1/traces`, {
+  const response = await fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body,
     keepalive: true,
     credentials: 'omit',
-  }).catch(() => undefined);
+  });
+  if (!response.ok) throw new Error(`Telemetry export failed with status ${response.status}`);
 };
+
+class BrowserOtlpExporter implements SpanExporter {
+  export(spans: ReadableSpan[], resultCallback: (result: { code: ExportResultCode; error?: Error }) => void): void {
+    if (!import.meta.env.PROD || spans.length === 0) {
+      resultCallback({ code: ExportResultCode.SUCCESS });
+      return;
+    }
+
+    const resource = spans[0]?.resource?.attributes || {};
+    const payload = {
+      resourceSpans: [{
+        resource: { attributes: toAttributes(resource) },
+        scopeSpans: [{
+          scope: {
+            name: spans[0]?.instrumentationScope?.name || 'lestra.browser.errors',
+            version: spans[0]?.instrumentationScope?.version || '1.0.0',
+          },
+          spans: spans.map(toOtlpSpan),
+        }],
+      }],
+    };
+
+    void sendOtlpPayload(payload)
+      .then(() => resultCallback({ code: ExportResultCode.SUCCESS }))
+      .catch((error) => resultCallback({
+        code: ExportResultCode.FAILED,
+        error: error instanceof Error ? error : new Error(String(error)),
+      }));
+  }
+
+  shutdown(): Promise<void> {
+    return Promise.resolve();
+  }
+}
+
+const resource = resourceFromAttributes({
+  'service.name': SERVICE_NAME,
+  'service.version': SERVICE_VERSION,
+  'deployment.environment': ENVIRONMENT,
+});
+
+const provider = new WebTracerProvider({
+  resource,
+  spanProcessors: [new SimpleSpanProcessor(new BrowserOtlpExporter())],
+});
+
+const tracer = provider.getTracer('lestra.browser.errors', '2.0.0');
 
 export const recordClientError = (error: ErrorLike, source: ErrorSource = 'manual') => {
   if (typeof window === 'undefined') return;
   const normalized = normalizeError(error);
-  const fingerprint = `${source}:${route()}:${normalized.type}:${normalized.message.slice(0, 300)}`;
+  const fingerprint = `${source}:${currentRoute()}:${normalized.type}:${normalized.message.slice(0, 300)}`;
   if (!canSend(fingerprint)) return;
 
-  const traceId = hex(16);
-  const spanId = hex(8);
-  const timestamp = unixNano();
-  const spanAttributes = [
-    attr('app.route', route(), 500),
-    attr('app.role', role(), 80),
-    attr('app.error.source', source, 80),
-  ];
-  const exceptionAttributes = [
-    attr('exception.type', normalized.type, 160),
-    attr('exception.message', normalized.message, 1600),
-    attr('exception.stacktrace', normalized.stack, 7000),
-  ];
-
-  exportPayload({
-    resourceSpans: [{
-      resource: {
-        attributes: [
-          attr('service.name', SERVICE_NAME, 120),
-          attr('service.version', SERVICE_VERSION, 120),
-          attr('deployment.environment', ENVIRONMENT, 80),
-        ],
-      },
-      scopeSpans: [{
-        scope: { name: 'lestra.browser.errors', version: '1.0.0' },
-        spans: [{
-          traceId,
-          spanId,
-          name: `client.error.${source}`,
-          kind: 1,
-          startTimeUnixNano: timestamp,
-          endTimeUnixNano: timestamp,
-          attributes: spanAttributes,
-          status: { code: 2, message: scrub(normalized.message, 500) },
-          events: [{
-            timeUnixNano: timestamp,
-            name: 'exception',
-            attributes: exceptionAttributes,
-          }],
-        }],
-      }],
-    }],
+  const span = tracer.startSpan(`client.error.${source}`, {
+    attributes: {
+      'app.route': currentRoute(),
+      'app.role': role(),
+      'app.error.source': source,
+    },
   });
-};
 
-let initialized = false;
+  span.recordException({
+    name: normalized.type,
+    message: normalized.message,
+    stack: normalized.stack,
+  });
+  span.setStatus({ code: SpanStatusCode.ERROR, message: normalized.message.slice(0, 500) });
+  span.end();
+};
 
 export const initBrowserObservability = () => {
   if (initialized || typeof window === 'undefined') return;
   initialized = true;
+
+  if (import.meta.env.PROD) provider.register();
 
   window.addEventListener('error', (event) => {
     recordClientError(event.error || event.message || 'window error', 'window');
