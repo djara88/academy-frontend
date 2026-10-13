@@ -27,6 +27,9 @@ Los mayores focos legacy son:
 
 ## Contrato nuevo
 
+Estado de implementación: se agregó `src/components/ui/LestraPrimitives.tsx` con primitivas semánticas tipadas (`LestraSurface`, `LestraButton`, `LestraStatusDot`) y los componentes nuevos de Fase 4 ya consumen estas variantes en lugar de duplicar estilos estructurales.
+
+
 1. Componentes nuevos deben exponer clases semánticas estables (`lestra-*`) o variantes por props/data attributes.
 2. Se prohíben nuevos `!important`, `:nth-child/:nth-of-type` y selectores `[class*=]`.
 3. `mobile-dock-v2-1-fix.css`, `readability-contract.css` y `accessibility-contract-v3.css` ya están migrados a contratos semánticos y CI exige que permanezcan sin fragilidad.
@@ -42,3 +45,17 @@ P1: `FinanzasMultirama` + `finance-desk-v2`.
 P1: `MatriculaPreparacion` + `enrollment-handoff-v2`.
 
 Cada corte exige Lint, Typecheck, Build, Security Audit y E2E Critical Flows verdes.
+
+
+## Criterio de cierre Fase 4.2
+
+La Fase 4.2 se considera cerrada como **refactor gobernado**, no como reescritura total del CSS legacy:
+
+- inventario de páginas gigantes documentado con orden de extracción;
+- Design System semántico base implementado y utilizado;
+- `sports-dialogs-v2.css` migrado a 0 `!important`, 0 `nth-*` y 0 selectores por fragmento de clase;
+- hojas nuevas/modernizadas protegidas con contrato de cero selectores frágiles;
+- deuda legacy existente congelada por `css-debt-audit.mjs`: cualquier incremento rompe CI;
+- las reducciones futuras pueden hacerse incrementalmente sin aceptar nueva deuda.
+
+No se elimina CSS legacy de forma masiva porque hacerlo sin migrar cada pantalla sería un riesgo funcional superior al beneficio del refactor.
