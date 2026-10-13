@@ -35,7 +35,7 @@ Los mayores focos legacy son:
 
 ## Orden de ejecución posterior
 
-P0: `EventosRendimiento` + `sports-dialogs-v2`.
+P0: `EventosRendimiento` + `sports-dialogs-v2` — **primera pasada completada**: la hoja de diálogos quedó en 0 `!important`, 0 `nth-*` y 0 selectores por fragmento de clase; el troceo del page component continúa como refactor incremental.
 P0: `Alumnos` + `student-profile-v2`/bloques de `operational-workflows-v2`.
 P1: `AcademySetup` + `setup-v2`.
 P1: `FinanzasMultirama` + `finance-desk-v2`.
