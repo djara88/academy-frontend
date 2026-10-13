@@ -17,7 +17,7 @@ const baseline = {
   'src/staff-board-v2.css': [3, 0, 0],
   'src/performance-canvas-v2.css': [73, 12, 10],
   'src/finance-desk-v2.css': [25, 4, 0],
-  'src/sports-dialogs-v2.css': [0, 1, 30],
+  'src/sports-dialogs-v2.css': [0, 0, 0],
   'src/training-session-v2.css': [3, 2, 0],
   'src/guardian-home-v2.css': [6, 0, 0],
   'src/match-command-v2.css': [86, 4, 2],
@@ -63,7 +63,7 @@ if (regressions.length) {
   throw new Error(`CSS debt regression detected:\n${regressions.join('\n')}`);
 }
 
-for (const file of ['src/mobile-dock-v2-1-fix.css', 'src/readability-contract.css', 'src/accessibility-contract-v3.css']) {
+for (const file of ['src/mobile-dock-v2-1-fix.css', 'src/readability-contract.css', 'src/accessibility-contract-v3.css', 'src/sports-dialogs-v2.css']) {
   const source = fs.readFileSync(file, 'utf8');
   if (/!important|:nth-(?:of-type|child)\(|\[class[*^$]?=/.test(source)) {
     throw new Error(`Semantic CSS contract regressed in ${file}.`);

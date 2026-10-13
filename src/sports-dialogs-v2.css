@@ -87,8 +87,7 @@
 }
 
 .lestra-event-popup-header p,
-.lestra-performance-popup-card > div:first-child p:first-child,
-.lestra-performance-popup-card section p[class*="uppercase"] {
+.lestra-performance-popup-card .lestra-performance-kicker {
   color: var(--sports-dialog-lime-dark);
 }
 
@@ -147,11 +146,7 @@
 }
 
 .lestra-event-popup label > span,
-.lestra-performance-popup-card [class*="text-[#8b949e]"],
-.lestra-performance-popup-card [class*="text-[#697586]"],
-.lestra-performance-popup-card [class*="text-[#9aa6b5]"],
-.lestra-performance-popup-card [class*="text-[#b8ad95]"],
-.lestra-performance-popup-card [class*="text-[#8fc9c7]"] {
+.lestra-performance-popup-card .lestra-performance-muted {
   color: var(--sports-dialog-body);
 }
 
@@ -191,44 +186,35 @@
   accent-color: #7f9f22;
 }
 
-.lestra-event-popup :is(section, label[class*="bg-[#0d1117]"]),
-.lestra-performance-popup-card :is(
-  [class*="bg-[#0d1117]"],
-  [class*="bg-[#151b25]"],
-  [class*="bg-sky-500/5"],
-  [class*="bg-violet-500/5"]
-) {
+.lestra-event-popup section,
+.lestra-performance-popup-card .lestra-performance-surface {
   border-color: var(--sports-dialog-line);
   background: var(--sports-dialog-soft);
   color: var(--sports-dialog-ink);
   box-shadow: none;
 }
 
-.lestra-event-popup section p:not([class*="uppercase"]),
-.lestra-performance-popup-card section p:not([class*="uppercase"]) {
+.lestra-event-popup section p,
+.lestra-performance-popup-card .lestra-performance-muted {
   color: var(--sports-dialog-body);
 }
 
-.lestra-performance-popup-card [class*="text-[#D8BE87]"],
-.lestra-performance-popup-card [class*="text-sky-300"],
-.lestra-performance-popup-card [class*="text-violet-300"] {
+.lestra-performance-popup-card .lestra-performance-accent {
   color: var(--sports-dialog-lime-dark);
 }
 
-.lestra-performance-popup-card > section[class*="bg-[#C8A96B]"],
-.lestra-performance-popup-card > section[class*="bg-[#0d1117]"] {
+.lestra-performance-popup-card > .lestra-performance-surface {
   border-color: #cfdfa5;
   background: #f5f8eb;
 }
 
-.lestra-performance-popup-card label[class*="border"] > span:first-child,
-.lestra-performance-popup-card article span[class*="uppercase"] {
+.lestra-performance-popup-card .lestra-performance-field > span:first-child,
+.lestra-performance-popup-card .lestra-performance-card .lestra-performance-kicker {
   color: #5f695f;
 }
 
-.lestra-performance-popup-card label[class*="border"] input[class*="font-black"],
-.lestra-performance-popup-card input[class*="text-white"],
-.lestra-performance-popup-card textarea[class*="text-white"] {
+.lestra-performance-popup-card .lestra-performance-field input,
+.lestra-performance-popup-card .lestra-performance-field textarea {
   color: var(--sports-dialog-ink);
 }
 
@@ -239,9 +225,7 @@
   box-shadow: 0 5px 18px rgba(17, 23, 17, .035);
 }
 
-.lestra-performance-popup-card article > div:nth-child(2) > label,
-.lestra-performance-popup-card article > label:last-child,
-.lestra-performance-popup-card article label[class*="bg-[#151b25]"] {
+.lestra-performance-popup-card .lestra-performance-card .lestra-performance-field {
   border-color: var(--sports-dialog-line);
   background: var(--sports-dialog-soft);
   color: var(--sports-dialog-ink);
@@ -266,25 +250,17 @@
   background: #edf3df;
 }
 
-.lestra-performance-popup-card article button[class*="bg-[#C8A96B]"] {
-  border: 1px solid #bfd878;
-  background: #e8f5c6;
-  color: #425500;
-}
-
-.lestra-performance-popup-card article button[class*="border-[#C8A96B]"] {
+.lestra-performance-popup-card .lestra-performance-mvp-action {
   border-color: #cad7ad;
-  background: #fff;
-  color: #617200;
 }
 
-.lestra-performance-popup-card > label[class*="bg-[#289E9D]"] {
+.lestra-performance-popup-card > .lestra-performance-highlight {
   border-color: #c8dd91;
   background: #f1f7df;
   color: #2f3c20;
 }
 
-.lestra-performance-popup-card > label[class*="bg-[#289E9D]"] span {
+.lestra-performance-popup-card > .lestra-performance-highlight span {
   color: #485648;
 }
 
@@ -311,8 +287,7 @@
   opacity: 1;
 }
 
-.lestra-performance-popup-card .text-red-300,
-.lestra-performance-popup-card button[class*="text-red-300"] {
+.lestra-performance-popup-card .text-red-300 {
   color: var(--sports-dialog-danger);
 }
 
