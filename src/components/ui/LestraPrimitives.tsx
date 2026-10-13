@@ -1,4 +1,4 @@
-import React, { type ButtonHTMLAttributes, type HTMLAttributes, type ReactNode } from 'react';
+import { type ButtonHTMLAttributes, type HTMLAttributes, type ReactNode } from 'react';
 
 type SurfaceVariant = 'default' | 'muted' | 'admin';
 type ButtonVariant = 'primary' | 'secondary' | 'admin';
