@@ -1,4 +1,4 @@
-import { SpanStatusCode, trace, type AttributeValue } from '@opentelemetry/api';
+import { SpanStatusCode, type AttributeValue } from '@opentelemetry/api';
 import { ExportResultCode } from '@opentelemetry/core';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import {
