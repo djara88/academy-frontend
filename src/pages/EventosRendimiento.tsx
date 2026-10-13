@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router-dom';
 import api from '../api/axiosConfig';
 import { useAppDialog } from '../contexts/DialogContext';
+import { subtractMinutes, leadMinutes, formatOfficialTime } from './eventPerformance/eventTime';
+import { TimeSelect, OfficialTimeInput } from './eventPerformance/EventTimeControls';
 
 type Branch = { id: string; nombre: string; disciplina: string; sede_id: string; sedes?: { id: string; nombre: string } | null };
 type Category = { id: string; nombre: string; rama_id?: string | null; sede_id?: string | null };
@@ -74,22 +76,8 @@ type PlayerStat = {
   records?: { pb: RecordRow[]; sb: RecordRow[] };
 };
 
-type TimeValueProps = {
-  value?: number;
-  disabled?: boolean;
-  onChange: (value: number | undefined) => void;
-};
-
-type TimeSelectProps = {
-  label: string;
-  helper: string;
-  value: string;
-  onChange: (value: string) => void;
-};
-
 const panel = 'rounded-[24px] border border-white/10 lestra-performance-surface bg-[#151b25]';
 const field = 'w-full rounded-xl border border-[#30363d] lestra-performance-surface bg-[#0d1117] px-3 py-2.5 text-sm text-white outline-none focus:border-[#289E9D]';
-const smallField = 'w-full rounded-lg border border-[#30363d] lestra-performance-surface bg-[#0d1117] px-2 py-2 text-center text-sm font-black text-white outline-none focus:border-[#289E9D]';
 const TEAM_CODES = new Set(['futbol', 'futsal', 'basquetbol', 'voleibol', 'hockey', 'rugby']);
 const FIELD_EVENT_PATTERN = /(salto|lanzamiento|peso|disco|jabalina|martillo|altura|longitud|garrocha|triple)/i;
 const defaultEventUi: EventUi = { conditionMode: 'optional', equipmentMode: 'freeform', equipmentLabel: 'Indumentaria / equipamiento', equipmentPlaceholder: 'Equipamiento requerido' };
@@ -98,26 +86,7 @@ const blankForm = {
   rama_id: '', categoria_id: '', torneo_id: '', es_amistoso: false, rival: '', fecha: '', hora: '12:00', hora_citacion: '11:00',
   ubicacion: '', link_maps: '', color_uniforme: 'Titular', condicion: 'Local', cobra_arbitraje: false, monto_arbitraje_jugador: '0',
 };
-const HOUR_OPTIONS = Array.from({ length: 24 }, (_, index) => String(index).padStart(2, '0'));
-const BASE_MINUTE_OPTIONS = Array.from({ length: 12 }, (_, index) => String(index * 5).padStart(2, '0'));
-
 const numberStep = (metric: Metric) => metric.decimals ? String(1 / (10 ** metric.decimals)) : '1';
-const normalizeTime = (value: string) => /^([01]\d|2[0-3]):[0-5]\d$/.test(value) ? value : '00:00';
-const splitTime = (value: string) => normalizeTime(value).split(':');
-const replaceTimePart = (value: string, part: 'hour' | 'minute', next: string) => {
-  const [hour, minute] = splitTime(value);
-  return part === 'hour' ? `${next}:${minute}` : `${hour}:${next}`;
-};
-const subtractMinutes = (value: string, amount: number) => {
-  const [hour, minute] = splitTime(value).map(Number);
-  const total = (hour * 60 + minute - amount + 1440) % 1440;
-  return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
-};
-const leadMinutes = (eventTime: string, callTime: string) => {
-  const [eh, em] = splitTime(eventTime).map(Number);
-  const [ch, cm] = splitTime(callTime).map(Number);
-  return eh * 60 + em - (ch * 60 + cm);
-};
 const isAthleticsFieldEvent = (testName?: string) => FIELD_EVENT_PATTERN.test(String(testName || ''));
 const isTimedMetric = (profile: SportProfile, metric: Metric, testName?: string) => {
   if (profile.code === 'natacion' && metric.code === 'tiempo_segundos') return true;
@@ -136,58 +105,6 @@ const metricUnit = (profile: SportProfile, metric: Metric, testName?: string) =>
   if (profile.code === 'atletismo' && metric.code === 'marca' && isAthleticsFieldEvent(testName)) return 'm';
   return metric.unit || null;
 };
-const formatOfficialTime = (value: number) => {
-  const totalMs = Math.max(0, Math.round(Number(value || 0) * 1000));
-  const minutes = Math.floor(totalMs / 60000);
-  const seconds = Math.floor((totalMs % 60000) / 1000);
-  const millis = totalMs % 1000;
-  return `${minutes ? `${minutes}:` : ''}${minutes ? String(seconds).padStart(2, '0') : seconds}.${String(millis).padStart(3, '0')}`;
-};
-
-function TimeSelect({ label, helper, value, onChange }: TimeSelectProps) {
-  const [hour, minute] = splitTime(value);
-  const minuteOptions = BASE_MINUTE_OPTIONS.includes(minute) ? BASE_MINUTE_OPTIONS : [...BASE_MINUTE_OPTIONS, minute].sort();
-  return <div className="lestra-performance-card rounded-2xl border border-white/10 lestra-performance-surface bg-[#0d1117] p-3">
-    <p className="text-[10px] font-black uppercase tracking-[.12em] text-[#70e4df]">{label}</p>
-    <p className="mt-1 min-h-9 text-[11px] leading-4 text-[#7f8b99]">{helper}</p>
-    <div className="mt-2 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-      <label><span className="mb-1 block text-center text-[9px] uppercase text-[#5f6b78]">Hora</span><select value={hour} onChange={(event) => onChange(replaceTimePart(value, 'hour', event.target.value))} className={smallField}>{HOUR_OPTIONS.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
-      <span className="pt-5 text-lg font-black lestra-performance-muted text-[#697586]">:</span>
-      <label><span className="mb-1 block text-center text-[9px] uppercase text-[#5f6b78]">Min</span><select value={minute} onChange={(event) => onChange(replaceTimePart(value, 'minute', event.target.value))} className={smallField}>{minuteOptions.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
-    </div>
-  </div>;
-}
-
-function OfficialTimeInput({ value, disabled, onChange }: TimeValueProps) {
-  const hasValue = Number.isFinite(Number(value)) && Number(value) > 0;
-  const totalMs = hasValue ? Math.round(Number(value) * 1000) : 0;
-  const parts = {
-    minutes: hasValue ? Math.floor(totalMs / 60000) : '',
-    seconds: hasValue ? Math.floor((totalMs % 60000) / 1000) : '',
-    millis: hasValue ? totalMs % 1000 : '',
-  };
-  const update = (part: 'minutes' | 'seconds' | 'millis', raw: string) => {
-    if (raw === '' && !hasValue) return onChange(undefined);
-    const next = {
-      minutes: part === 'minutes' ? Math.max(0, Math.min(999, Number(raw) || 0)) : Number(parts.minutes || 0),
-      seconds: part === 'seconds' ? Math.max(0, Math.min(59, Number(raw) || 0)) : Number(parts.seconds || 0),
-      millis: part === 'millis' ? Math.max(0, Math.min(999, Number(raw) || 0)) : Number(parts.millis || 0),
-    };
-    const seconds = next.minutes * 60 + next.seconds + next.millis / 1000;
-    onChange(seconds > 0 ? Math.round(seconds * 1000) / 1000 : undefined);
-  };
-  return <div>
-    <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-end gap-1.5">
-      <label><span className="mb-1 block text-center text-[8px] font-bold uppercase lestra-performance-muted text-[#697586]">Min</span><input type="number" min="0" max="999" disabled={disabled} value={parts.minutes} onChange={(event) => update('minutes', event.target.value)} className={smallField} placeholder="0" /></label>
-      <span className="pb-2 lestra-performance-muted text-[#697586]">:</span>
-      <label><span className="mb-1 block text-center text-[8px] font-bold uppercase lestra-performance-muted text-[#697586]">Seg</span><input type="number" min="0" max="59" disabled={disabled} value={parts.seconds} onChange={(event) => update('seconds', event.target.value)} className={smallField} placeholder="00" /></label>
-      <span className="pb-2 lestra-performance-muted text-[#697586]">.</span>
-      <label><span className="mb-1 block text-center text-[8px] font-bold uppercase lestra-performance-muted text-[#697586]">Milésimas</span><input type="number" min="0" max="999" disabled={disabled} value={parts.millis} onChange={(event) => update('millis', event.target.value)} className={smallField} placeholder="000" /></label>
-    </div>
-    <div className="mt-1.5 flex items-center justify-between gap-2"><span className="text-[10px] lestra-performance-muted text-[#697586]">{hasValue ? `Registro: ${formatOfficialTime(Number(value))}` : 'Sin registro aún'}</span>{hasValue ? <button type="button" disabled={disabled} onClick={() => onChange(undefined)} className="text-[10px] font-bold text-red-300 disabled:opacity-30">Limpiar</button> : null}</div>
-  </div>;
-}
-
 export default function EventosRendimiento() {
   const { notify, confirmAction } = useAppDialog();
   const [searchParams] = useSearchParams();
