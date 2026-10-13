@@ -13,6 +13,7 @@ const a11y = read('src/accessibility-contract-v3.css');
 const sports = read('src/components/SportsDialogAccessibility.tsx');
 const dialogs = read('src/contexts/DialogContext.tsx');
 const command = read('src/components/navigation/DirectorCommandBar.tsx');
+const attendance = read('src/pages/AsistenciasDirectorCommand.tsx');
 
 for (const expected of [
   "from '@opentelemetry/api'",
@@ -62,6 +63,9 @@ if (/lestra-mobile-dock[\s\S]{0,250}text-\[(?:8|9|10|11)px\]/.test(command)) {
 }
 for (const expected of ['--ls-placeholder-dark: #9aa6b5', '--ls-placeholder-light: #697468']) {
   if (!a11y.includes(expected)) throw new Error(`Phase 4 audit: placeholder contract missing ${expected}`);
+}
+if (!attendance.includes('aria-label="Buscar deportista"')) {
+  throw new Error('Phase 4 audit: attendance roster search must have an accessible name.');
 }
 
 for (const expected of ["'superadmin'", "'director'", "bg-[#0b1118]", "bg-[#eef1eb]", 'bg-orange-500']) {
