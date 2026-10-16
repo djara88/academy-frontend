@@ -26,7 +26,7 @@ test('el título de Asistencia mantiene contraste legible sobre su cabecera oscu
       ? headingStyle.color
       : headingStyle.webkitTextFillColor || headingStyle.color;
     const toRgb = (value) => {
-      const channels = value.match(/[\\d.]+/g)?.slice(0, 3).map(Number);
+      const channels = value.match(/[\d.]+/g)?.slice(0, 3).map(Number);
       if (!channels || channels.length !== 3) throw new Error('Expected opaque RGB color: ' + value);
       return channels;
     };
