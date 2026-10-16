@@ -1,20 +1,31 @@
 import { test, expect } from '@playwright/test';
-import { mockRoleApi, seedAuthenticatedUser } from './helpers/session.mjs';
 
-// Regression: global Director headings must not override a dark module hero.
-// This uses a mocked session and API responses; it does not modify production.
+// Check real computed styles with the same Director DOM hierarchy.
+// An isolated markup fixture avoids creating accounts, loading the academy API,
+// or depending on authentication; the actual application CSS is still loaded.
 test('el título de Asistencia mantiene contraste legible sobre su cabecera oscura', async ({ page }) => {
-  await mockRoleApi(page);
-  await seedAuthenticatedUser(page, {
-    id: '66666666-6666-4666-8666-666666666666',
-    email: 'director.contraste.qa@example.com',
-    role: 'director',
-    academyId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+  await page.goto('/login');
+  await page.evaluate(() => {
+    const fixture = document.createElement('main');
+    fixture.className = 'lestra-director-main';
+    fixture.setAttribute('data-testid', 'contrast-fixture');
+    fixture.innerHTML = `
+      <div class="app-content">
+        <div class="attendance-command">
+          <header class="attendance-command-head">
+            <div class="attendance-command-copy">
+              <h1>Asistencia de la sesión</h1>
+            </div>
+          </header>
+          <section class="attendance-section-head" style="background:#ffffff">
+            <h2>Contexto de sesión</h2>
+          </section>
+        </div>
+      </div>`;
+    document.body.appendChild(fixture);
   });
 
-  await page.goto('/asistencias');
-
-  const heading = page.getByRole('heading', { level: 1, name: 'Asistencia de la sesión' });
+  const heading = page.getByTestId('contrast-fixture').getByRole('heading', { level: 1, name: 'Asistencia de la sesión' });
   await expect(heading).toBeVisible();
 
   const contrast = await heading.evaluate((element) => {
@@ -48,5 +59,5 @@ test('el título de Asistencia mantiene contraste legible sobre su cabecera oscu
   expect(contrast.ratio, JSON.stringify(contrast)).toBeGreaterThanOrEqual(4.5);
 
   // The surrounding light panel must retain its normal dark-text hierarchy.
-  await expect(page.locator('.attendance-section-head h2').first()).toBeVisible();
+  await expect(page.getByTestId('contrast-fixture').getByRole('heading', { level: 2, name: 'Contexto de sesión' })).toHaveCSS('color', 'rgb(22, 26, 23)');
 });
