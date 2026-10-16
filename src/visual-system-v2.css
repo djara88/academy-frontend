@@ -140,8 +140,11 @@ body {
   color: var(--ls-ink);
 }
 
+/* Heading color belongs to its actual surface. Forcing --ls-ink here
+   overrides high-contrast titles inside dark module heroes (e.g. attendance).
+   Keep only layout typography; light pages inherit --ls-ink from .app-content,
+   while dark heroes can use white or their own semantic heading color. */
 .lestra-director-main .app-content :where(h1, h2, h3) {
-  color: var(--ls-ink);
   text-wrap: balance;
 }
 
