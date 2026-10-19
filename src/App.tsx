@@ -185,7 +185,11 @@ const DirectorRoutes = () => {
 
 const SuperAdminRoutes = () => {
   const { user } = useAuth();
-  if (!isSuperAdminRole(user?.rol)) return <Navigate to="/dashboard" replace />;
+  // A forbidden admin path must return each role to its own authorized home.
+  if (!isSuperAdminRole(user?.rol)) {
+    const home = isProfessorRole(user?.rol) ? '/profesor' : isGuardianRole(user?.rol) ? '/apoderado' : '/dashboard';
+    return <Navigate to={home} replace />;
+  }
   return <SuperadminMfaGate><Outlet /></SuperadminMfaGate>;
 };
 const ProfessorRoute = () => { const { user } = useAuth(); return isProfessorRole(user?.rol) ? <RealtimeRouteBoundary><ProfesorPortal /></RealtimeRouteBoundary> : <Navigate to="/dashboard" replace />; };
