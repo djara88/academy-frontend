@@ -23,6 +23,7 @@ const LestraPrivacyPolicy = lazy(() => import('./pages/LestraPrivacyPolicy'));
 const Login = lazy(() => import('./pages/Login'));
 const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 const Registro = lazy(() => import('./pages/Registro'));
+const RecuperarAcceso = lazy(() => import('./pages/RecuperarAcceso'));
 const CompletarPerfil = lazy(() => import('./pages/CompletarPerfil'));
 const AcademySetup = lazy(() => import('./pages/AcademySetup'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -220,6 +221,7 @@ const App = () => (
                   <Route element={<PublicRoutes />}>
                     <Route path="/login" element={<Login />} />
                     <Route path="/registro" element={<Registro />} />
+                    <Route path="/recuperar-acceso" element={<RecuperarAcceso />} />
                   </Route>
                   <Route path="/completar-perfil" element={<CompletarPerfil />} />
                   <Route path="/cambiar-password" element={<CambiarPassword />} />
