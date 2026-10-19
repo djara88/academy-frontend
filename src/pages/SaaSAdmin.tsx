@@ -148,10 +148,10 @@ const SaaSAdmin = () => {
   };
 
   const handleResetPassword = async (id: string, nombre: string) => {
-    if (await confirmAction(`🔑 ¿Deseas generar y enviar una nueva contraseña temporal al director de "${nombre}"?`)) {
+    if (await confirmAction(`🔑 ¿Deseas enviar un enlace de recuperación de contraseña al director de "${nombre}"?`)) {
       try {
         await api.post(`/api/academias/${id}/reset-password`);
-        notify('Nueva contraseña generada y enviada por correo exitosamente.');
+        notify('Solicitud enviada. El director recibirá un enlace temporal para cambiar su contraseña; la clave actual permanece vigente hasta completarlo.');
       } catch (err: any) {
         notify(`Error al restablecer contraseña: ${err.response?.data?.error || err.message}`);
       }
