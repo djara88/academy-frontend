@@ -50,7 +50,9 @@ const Registro: React.FC = () => {
     try {
       const response = await api.post('/api/academias/registro-publico', formData);
       if (response.data?.success) {
-        await notify(`¡${formData.nombre_academia} fue creada con su rama principal ${formData.nombre_rama_principal}! Inicia sesión con tus credenciales.`, { title: BRAND.name });
+        await notify(response.data?.requiresEmailVerification
+          ? 'Tu academia quedó registrada. Revisa tu correo y confirma la dirección antes de iniciar sesión. Comprueba también la carpeta de spam.'
+          : `¡${formData.nombre_academia} fue creada con su rama principal ${formData.nombre_rama_principal}! Inicia sesión con tus credenciales.`, { title: BRAND.name });
         navigate('/login');
       }
     } catch (err: any) {

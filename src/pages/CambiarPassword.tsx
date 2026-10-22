@@ -5,6 +5,7 @@ import { BRAND } from '../config/brand';
 import { useAppDialog } from '../contexts/DialogContext';
 import { useAuth } from '../contexts/AuthContext';
 import { PASSWORD_REQUIREMENTS, validateStrongPassword } from '../utils/passwordPolicy';
+import { getPostAuthDestination } from '../utils/authDestination';
 
 const CambiarPassword = () => {
   const [newPassword, setNewPassword] = useState('');
@@ -38,7 +39,7 @@ const CambiarPassword = () => {
       setUser((current) => current ? { ...current, requiere_cambio_password: false } : current);
 
       await notify('✅ Contraseña actualizada con éxito. ¡Bienvenido!', { title: BRAND.name });
-      navigate(String(user?.rol).toLowerCase() === 'profesor' ? '/profesor' : '/dashboard');
+      navigate(getPostAuthDestination(user ? { ...user, requiere_cambio_password: false } : storedUser?.rol ? storedUser : null));
     } catch (err: any) {
       console.error(err);
       setError(err.response?.data?.error || 'Hubo un error al actualizar la contraseña.');
@@ -52,7 +53,7 @@ const CambiarPassword = () => {
       <div className="bg-[#161b22] p-8 rounded-xl border border-[#2d3a4f] shadow-2xl w-full max-w-md">
         <h2 className="text-2xl font-bold mb-2 text-[#00e676] text-center">¡Bienvenido!</h2>
         <p className="text-sm text-gray-400 mb-6 text-center">
-          Por tu seguridad, debes cambiar la contraseña temporal antes de entrar a tu panel.
+          Si llegaste desde un enlace de recuperación, elige una contraseña nueva. Si recibiste una clave temporal, cámbiala antes de continuar.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
