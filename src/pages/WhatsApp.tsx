@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import api from '../api/axiosConfig';
 import { useAuth } from '../contexts/AuthContext';
 import { useAppDialog } from '../contexts/DialogContext';
@@ -36,6 +36,10 @@ const phoneLabel = (value?: string | null) => {
 
 const normalizeBridgeState = (value?: string) => String(value || '').trim().toLowerCase();
 
+// Keep a displayed QR stable during phone pairing instead of asking Evolution
+// to reconnect every four seconds. The session state is still polled normally.
+const QR_REFRESH_INTERVAL_MS = 45_000;
+
 const WhatsApp: React.FC = () => {
   const { user } = useAuth();
   const { confirmAction, notify } = useAppDialog();
@@ -47,10 +51,15 @@ const WhatsApp: React.FC = () => {
   const [numero, setNumero] = useState('');
   const [mensajeError, setMensajeError] = useState('');
   const [busy, setBusy] = useState<'connect' | 'disconnect' | 'change' | 'refresh' | null>(null);
+  const qrVisibleRef = useRef(false);
+  const qrReceivedAtRef = useRef(0);
+  const statusRequestInFlightRef = useRef(false);
 
   const applyPayload = (data: ConnectionPayload, preserveQr = false) => {
     const bridgeState = normalizeBridgeState(data.estado);
     if (data.conectado || bridgeState === 'open') {
+      qrVisibleRef.current = false;
+      qrReceivedAtRef.current = 0;
       setEstado('connected');
       setQrCode('');
       setNumero(phoneLabel(data.numero));
@@ -58,6 +67,8 @@ const WhatsApp: React.FC = () => {
       return;
     }
     if (data.qrCode) {
+      qrVisibleRef.current = true;
+      qrReceivedAtRef.current = Date.now();
       setQrCode(qrImageOf(data.qrCode));
       setNumero('');
       setEstado('qr');
@@ -65,14 +76,18 @@ const WhatsApp: React.FC = () => {
       return;
     }
     if (bridgeState === 'connecting' || bridgeState === 'qr') {
-      if (preserveQr && qrCode) return;
+      if (preserveQr && qrVisibleRef.current) return;
+      qrVisibleRef.current = false;
+      qrReceivedAtRef.current = 0;
       setQrCode('');
       setNumero('');
       setEstado('connecting');
       setMensajeError('');
       return;
     }
-    if (preserveQr && qrCode) return;
+    if (preserveQr && qrVisibleRef.current) return;
+    qrVisibleRef.current = false;
+    qrReceivedAtRef.current = 0;
     setQrCode('');
     setNumero('');
     setEstado('disconnected');
@@ -80,7 +95,8 @@ const WhatsApp: React.FC = () => {
   };
 
   const checkWhatsAppStatus = async (showLoading = true) => {
-    if (!academyId) return;
+    if (!academyId || statusRequestInFlightRef.current) return;
+    statusRequestInFlightRef.current = true;
     try {
       if (showLoading) {
         setBusy('refresh');
@@ -89,9 +105,11 @@ const WhatsApp: React.FC = () => {
       setMensajeError('');
       const response = await api.get(`/api/whatsapp-bridge/connection/${academyId}`);
       const bridgeState = normalizeBridgeState(response.data?.estado);
-      // connectionState does not contain a QR image. Once pairing starts,
-      // ask the dedicated authenticated endpoint for a fresh Evolution QR.
-      if (!response.data?.conectado && !response.data?.qrCode
+      // Poll status every four seconds, but do not ask Evolution for a new QR
+      // while a recently received one may still be in use by the phone.
+      const refreshQr = estado !== 'qr' || !qrVisibleRef.current
+        || Date.now() - qrReceivedAtRef.current >= QR_REFRESH_INTERVAL_MS;
+      if (refreshQr && !response.data?.conectado && !response.data?.qrCode
         && (bridgeState === 'connecting' || estado === 'connecting' || estado === 'qr')
         && bridgeState !== 'not_created') {
         const qrResponse = await api.get(`/api/whatsapp-bridge/connection/${academyId}/qr`);
@@ -107,6 +125,7 @@ const WhatsApp: React.FC = () => {
       setEstado('error');
       setMensajeError(error?.response?.data?.error || 'No fue posible verificar la conexión de WhatsApp.');
     } finally {
+      statusRequestInFlightRef.current = false;
       if (showLoading) setBusy(null);
     }
   };
@@ -143,6 +162,8 @@ const WhatsApp: React.FC = () => {
     setBusy('disconnect');
     try {
       await api.post(`/api/whatsapp-bridge/connection/${academyId}/disconnect`);
+      qrVisibleRef.current = false;
+      qrReceivedAtRef.current = 0;
       setEstado('disconnected');
       setQrCode('');
       setNumero('');
