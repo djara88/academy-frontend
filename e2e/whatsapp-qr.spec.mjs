@@ -40,6 +40,8 @@ test('WhatsApp vuelve a pedir QR mientras Evolution se encuentra en connecting',
   });
 
   await page.goto('/whatsapp');
+  console.log('WHATSAPP_E2E_DEBUG_URL', page.url());
+  console.log('WHATSAPP_E2E_DEBUG_BODY', (await page.locator('body').innerText()).slice(0, 650));
   await expect(page.getByRole('button', { name: 'Conectar WhatsApp' })).toBeVisible();
   await page.getByRole('button', { name: 'Conectar WhatsApp' }).click();
   await expect(page.getByRole('img', { name: 'Código QR para vincular WhatsApp' }))
@@ -58,6 +60,8 @@ test('WhatsApp no solicita QR si ya está conectado', async ({ page }) => {
     });
   });
   await page.goto('/whatsapp');
+  console.log('WHATSAPP_E2E_DEBUG_URL', page.url());
+  console.log('WHATSAPP_E2E_DEBUG_BODY', (await page.locator('body').innerText()).slice(0, 650));
   await expect(page.getByRole('heading', { name: 'WhatsApp conectado' })).toBeVisible();
   expect(qrRequests).toBe(0);
 });
@@ -83,6 +87,8 @@ test('WhatsApp presenta error de proveedor al director sin mostrar un QR falso',
     });
   });
   await page.goto('/whatsapp');
+  console.log('WHATSAPP_E2E_DEBUG_URL', page.url());
+  console.log('WHATSAPP_E2E_DEBUG_BODY', (await page.locator('body').innerText()).slice(0, 650));
   await page.getByRole('button', { name: 'Conectar WhatsApp' }).click();
   await expect(page.getByText('Evolution API no pudo generar el QR.')).toBeVisible();
   await expect(page.getByRole('img', { name: 'Código QR para vincular WhatsApp' })).toHaveCount(0);
