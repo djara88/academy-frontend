@@ -127,7 +127,7 @@ export async function mockRoleApi(page) {
       return route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({ success: true, data: { plan: { code: 'competencia', name: 'Competencia', trial: false }, features: ['amistosos', 'evaluaciones'] } }),
+        body: JSON.stringify({ success: true, data: { plan: { code: 'competencia', name: 'Competencia', trial: false }, features: ['amistosos', 'evaluaciones'], subscription: { status: 'active', blocked: false, trial: false } } }),
       });
     }
 
