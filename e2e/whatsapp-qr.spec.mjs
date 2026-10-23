@@ -87,3 +87,35 @@ test('WhatsApp presenta error de proveedor al director sin mostrar un QR falso',
   await expect(page.getByText('Evolution API no pudo generar el QR.')).toBeVisible();
   await expect(page.getByRole('img', { name: 'Código QR para vincular WhatsApp' })).toHaveCount(0);
 });
+
+test('WhatsApp conserva estable el QR mientras el teléfono intenta vincularse', async ({ page }) => {
+  await setup(page);
+  let started = false;
+  let statusPolls = 0;
+  let extraQrRequests = 0;
+  await page.route(BASE + '**', async (route) => {
+    const pathname = new URL(route.request().url()).pathname;
+    let payload;
+    if (pathname.endsWith('/connect') && route.request().method() === 'POST') {
+      started = true;
+      payload = { conectado: false, estado: 'connecting', qrCode: IMAGE };
+    } else if (pathname.endsWith('/qr')) {
+      extraQrRequests += 1;
+      payload = { conectado: false, estado: 'qr', qrCode: IMAGE };
+    } else {
+      if (started) statusPolls += 1;
+      payload = { conectado: false, estado: started ? 'connecting' : 'not_created', qrCode: null };
+    }
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(payload) });
+  });
+
+  await page.goto('/whatsapp');
+  await page.getByRole('button', { name: 'Conectar WhatsApp' }).click();
+  await expect(page.getByRole('img', { name: 'Código QR para vincular WhatsApp' }))
+    .toHaveAttribute('src', IMAGE);
+  // Confirm at least two periodic state checks passed without calling /qr
+  // again during the critical phone scan window.
+  await expect.poll(() => statusPolls, { timeout: 16000 }).toBeGreaterThanOrEqual(2);
+  expect(extraQrRequests).toBe(0);
+  await expect(page.getByRole('heading', { name: 'Esperando vinculación' })).toBeVisible();
+});
