@@ -130,7 +130,7 @@ const Layout = () => {
         </header>
         <main id="main-content" className="app-content lestra-portal-content mx-auto min-w-0 max-w-6xl p-3 sm:p-6" tabIndex={-1}>
           <AcademyTrialNotice subscription={planAccess?.subscription} canManage={false} />
-          {planAccess?.subscription.blocked ? <AcademyBlocked subscription={planAccess.subscription} canManage={false} /> : <Outlet />}
+          {planAccess?.subscription?.blocked ? <AcademyBlocked subscription={planAccess.subscription} canManage={false} /> : <Outlet />}
         </main>
       </div>
     );
@@ -207,7 +207,7 @@ const Layout = () => {
         <main id="main-content" data-route={location.pathname} tabIndex={-1} className="lestra-director-main min-w-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
           <div className="app-content min-h-full min-w-0 p-3 pb-24 sm:p-6 sm:pb-8">
             <AcademyTrialNotice subscription={planAccess?.subscription} />
-            {planAccess?.subscription.blocked && location.pathname !== '/suscripcion' ? <AcademyBlocked subscription={planAccess.subscription} /> : <Outlet />}
+            {planAccess?.subscription?.blocked && location.pathname !== '/suscripcion' ? <AcademyBlocked subscription={planAccess.subscription} /> : <Outlet />}
           </div>
         </main>
       </div>
