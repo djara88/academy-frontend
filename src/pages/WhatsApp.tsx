@@ -64,7 +64,8 @@ const WhatsApp: React.FC = () => {
       setMensajeError('');
       return;
     }
-    if (bridgeState === 'connecting') {
+    if (bridgeState === 'connecting' || bridgeState === 'qr') {
+      if (preserveQr && qrCode) return;
       setQrCode('');
       setNumero('');
       setEstado('connecting');
@@ -87,7 +88,17 @@ const WhatsApp: React.FC = () => {
       }
       setMensajeError('');
       const response = await api.get(`/api/whatsapp-bridge/connection/${academyId}`);
-      applyPayload(response.data, !showLoading && estado === 'qr');
+      const bridgeState = normalizeBridgeState(response.data?.estado);
+      // connectionState does not contain a QR image. Once pairing starts,
+      // ask the dedicated authenticated endpoint for a fresh Evolution QR.
+      if (!response.data?.conectado && !response.data?.qrCode
+        && (bridgeState === 'connecting' || estado === 'connecting' || estado === 'qr')
+        && bridgeState !== 'not_created') {
+        const qrResponse = await api.get(`/api/whatsapp-bridge/connection/${academyId}/qr`);
+        applyPayload(qrResponse.data, !showLoading && estado === 'qr');
+      } else {
+        applyPayload(response.data, !showLoading && estado === 'qr');
+      }
     } catch (error: any) {
       // Un fallo puntual durante el polling no debe transformar una vinculación
       // activa en un falso estado de error/desconexión. La comprobación manual sí
@@ -106,8 +117,13 @@ const WhatsApp: React.FC = () => {
     setMensajeError('');
     try {
       const response = await api.post(`/api/whatsapp-bridge/connection/${academyId}/connect`);
-      applyPayload(response.data);
-      if (!response.data?.conectado && !response.data?.qrCode) await checkWhatsAppStatus(false);
+      if (response.data?.conectado || response.data?.qrCode) {
+        applyPayload(response.data);
+      } else {
+        setEstado('connecting');
+        const qrResponse = await api.get(`/api/whatsapp-bridge/connection/${academyId}/qr`);
+        applyPayload(qrResponse.data);
+      }
     } catch (error: any) {
       setEstado('error');
       setMensajeError(error?.response?.data?.error || 'No fue posible iniciar la vinculación con WhatsApp.');
@@ -150,8 +166,13 @@ const WhatsApp: React.FC = () => {
     setMensajeError('');
     try {
       const response = await api.post(`/api/whatsapp-bridge/connection/${academyId}/change-number`);
-      applyPayload(response.data);
-      if (!response.data?.qrCode) await checkWhatsAppStatus(false);
+      if (response.data?.conectado || response.data?.qrCode) {
+        applyPayload(response.data);
+      } else {
+        setEstado('connecting');
+        const qrResponse = await api.get(`/api/whatsapp-bridge/connection/${academyId}/qr`);
+        applyPayload(qrResponse.data);
+      }
     } catch (error: any) {
       setMensajeError(error?.response?.data?.error || 'No fue posible preparar el cambio de número.');
       setEstado('error');
