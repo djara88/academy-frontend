@@ -66,11 +66,11 @@ export default function SubscriptionCommercialV2() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const state = useQuery({ queryKey: ['lestra-commercial-contract'], queryFn: async () => {
-    const [offer, contract] = await Promise.all([
-      api.get('/api/subscriptions/plans'),
-      api.get('/api/mercadopago/platform-subscription/contract'),
-    ]);
-    return { checkoutEnabled: offer.data.data.checkoutEnabled === true, contract: contract.data.data as Contract };
+    const offer = await api.get('/api/subscriptions/plans');
+    const checkoutEnabled = offer.data.data.checkoutEnabled === true;
+    if (!checkoutEnabled) return { checkoutEnabled, contract: null };
+    const contract = await api.get('/api/mercadopago/platform-subscription/contract');
+    return { checkoutEnabled, contract: contract.data.data as Contract };
   } });
   const contract = state.data?.contract;
   const renewal = contract?.pendingRenewal;
