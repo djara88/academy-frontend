@@ -131,8 +131,8 @@ export default function EvaluationCriteriaEditor({ branch, onClose, onSaved }: P
               <div className="min-w-0">
                 <p className="font-black text-[#111711]">{allowed ? (active ? 'Perfil personalizado activo' : 'Puedes crear tu propio método de evaluación') : `Perfil estándar de ${BRAND.name}`}</p>
                 <p className="mt-1 text-sm leading-6 text-[#566356]">{allowed
-                  ? 'Competencia y Alto Rendimiento permiten adaptar los criterios a la metodología de cada rama. Cada cambio crea una nueva versión para proteger la evolución histórica.'
-                  : `Formación utiliza los criterios multideporte definidos por ${BRAND.name}. La personalización por rama está disponible desde Competencia.`}</p>
+                  ? 'Puedes adaptar los criterios a la metodología de cada rama. Cada cambio crea una nueva versión para proteger la evolución histórica.'
+                  : `Esta rama utiliza los criterios multideporte definidos por ${BRAND.name}.`}</p>
               </div>
             </div>
           </div>
