@@ -34,7 +34,7 @@ export default function RendimientoAnalytics(){
   useEffect(()=>{void loadAnalytics();},[loadAnalytics]);
   useEffect(()=>{if(categoryId&&!categoryOptions.some(item=>item.id===categoryId))setCategoryId('');},[branchId,categoryId,categoryOptions]);
 
-  if(locked)return <DirectorPage className="evolution-board max-w-5xl"><section className="evolution-board-locked"><div><p>Evolution Board · Alto Rendimiento</p><h1>Analítica deportiva avanzada</h1><span>La captura de resultados sigue disponible desde Competencia. Este espacio compara temporada, carga competitiva, rendimiento individual y marcas PB/SB cuando el plan habilita analítica avanzada.</span></div><Link to="/suscripcion" className={DIRECTOR_BUTTON}>Revisar Alto Rendimiento</Link></section></DirectorPage>;
+  if(locked)return <DirectorPage className="evolution-board max-w-5xl"><section className="evolution-board-locked"><div><p>Evolution Board · Alto Rendimiento</p><h1>Analítica deportiva avanzada</h1><span>Consulta el estado de la suscripción de tu academia para acceder al análisis de temporada.</span></div><Link to="/suscripcion" className={DIRECTOR_BUTTON}>Ver suscripción</Link></section></DirectorPage>;
 
   return <DirectorPage className="evolution-board max-w-[1450px]">
     <section className="evolution-board-command" aria-labelledby="evolution-board-title">

@@ -34,15 +34,8 @@ if (familyBoard) {
   if (familyBoard.includes('DirectorStat') || familyBoard.includes('DirectorHero') || familyBoard.includes('DirectorPanel')) violations.push('Family Access Board: no volver a composición SaaS genérica.');
 }
 
-if (licenseBoard) {
-  if (!licenseBoard.includes('Family Access · Licencia de academia')) violations.push('Guardian License Board: falta lenguaje de licencia familiar.');
-  for (const contractItem of [
-    "/api/subscriptions/plans",
-    "/api/mercadopago/status",
-    "/api/mercadopago/platform-subscription/guardian-addon",
-    'billing_cycle',
-    'confirmación por webhook',
-  ]) if (!licenseBoard.includes(contractItem)) violations.push(`Guardian License Board: falta contrato ${contractItem}.`);
+if (licenseBoard && (!licenseBoard.includes('to="/apoderados"') || licenseBoard.includes('guardian-addon'))) {
+  violations.push('El acceso familiar incluido debe abrir el directorio sin un segundo checkout.');
 }
 
 if (contract) {

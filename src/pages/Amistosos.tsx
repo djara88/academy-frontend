@@ -102,7 +102,7 @@ export default function Amistosos(){
   return (
     <DirectorPage>
       <DirectorHero
-        eyebrow="Plan Formación · agenda deportiva"
+        eyebrow="Agenda deportiva"
         title="Amistosos"
         description="Programa partidos, controles, exhibiciones o encuentros amistosos sin mezclar esta agenda con el motor competitivo avanzado."
         actions={<Link to="/suscripcion" className={DIRECTOR_BUTTON_GHOST}>Comparar con Competencia →</Link>}

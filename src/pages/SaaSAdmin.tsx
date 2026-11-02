@@ -28,8 +28,6 @@ interface Academia {
   guardian_price_clp?: number;
 }
 
-type PlanCode = 'formacion' | 'competencia' | 'alto_rendimiento';
-const PLAN_LABELS: Record<PlanCode, Exclude<Academia['plan'], 'Prueba 15 Días'>> = { formacion: 'Formación', competencia: 'Competencia', alto_rendimiento: 'Alto Rendimiento' };
 
 const SaaSAdmin = () => {
   const dialog = useAppDialog();
@@ -56,8 +54,6 @@ const SaaSAdmin = () => {
   const [correoAcademia, setCorreoAcademia] = useState('');
   const [nombreDirector, setNombreDirector] = useState('');
   const [directorEmail, setDirectorEmail] = useState('');
-  const [plan, setPlan] = useState<PlanCode>('competencia');
-  const [guardianLicense, setGuardianLicense] = useState(false);
   const [estado, setEstado] = useState<'Activa' | 'Inactiva'>('Activa');
   const [activateSubscription, setActivateSubscription] = useState(false);
   const [editingTrial, setEditingTrial] = useState(false);
@@ -73,7 +69,7 @@ const SaaSAdmin = () => {
     setEditingId(null);
     setNombre(''); setLogoFile(null); setDireccion(''); setTelefono('');
     setCorreoAcademia(''); setNombreDirector(''); setDirectorEmail('');
-    setPlan('competencia'); setGuardianLicense(false); setEstado('Activa'); setActivateSubscription(true); setEditingTrial(false);
+    setEstado('Activa'); setActivateSubscription(true); setEditingTrial(false);
     setShowModal(true);
   };
 
@@ -86,8 +82,6 @@ const SaaSAdmin = () => {
     setCorreoAcademia(a.correo_academia || '');
     setNombreDirector(a.nombre_director || '');
     setDirectorEmail(a.director_email);
-    setPlan(a.plan_codigo || (a.plan === 'Alto Rendimiento' ? 'alto_rendimiento' : a.plan === 'Competencia' ? 'competencia' : 'formacion'));
-    setGuardianLicense(a.licencia_apoderados === true);
     setEstado(a.estado);
     setEditingTrial(a.subscription_status === 'trialing');
     setActivateSubscription(false);
@@ -112,9 +106,9 @@ const SaaSAdmin = () => {
       formData.append('correo_academia', correoAcademia);
       formData.append('nombre_director', nombreDirector);
       formData.append('director_email', directorEmail);
-      formData.append('plan_codigo', plan);
-      formData.append('plan', PLAN_LABELS[plan]);
-      formData.append('licencia_apoderados', String(guardianLicense));
+      formData.append('plan_codigo', 'alto_rendimiento');
+      formData.append('plan', 'Lestra Deportivo');
+      formData.append('licencia_apoderados', 'true');
       formData.append('estado', estado);
       formData.append('activate_subscription', String(activateSubscription));
 
@@ -310,19 +304,10 @@ const SaaSAdmin = () => {
                     <input type="email" value={directorEmail} onChange={(e) => setDirectorEmail(e.target.value)} className="w-full bg-[#131722] border border-gray-700 rounded p-2 text-white text-sm focus:outline-none" required disabled={!!editingId} title={editingId ? 'No se puede cambiar el correo de login al editar' : ''} />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1">Plan SaaS *</label>
-                    <select value={plan} onChange={(e) => setPlan(e.target.value as PlanCode)} className="w-full bg-[#131722] border border-gray-700 rounded p-2 text-white text-sm focus:outline-none">
-                      <option value="formacion">Formación · 100 jugadores · 5 profesores</option>
-                      <option value="competencia">Competencia · 300 jugadores · 10 profesores</option>
-                      <option value="alto_rendimiento">Alto Rendimiento · jugadores sin límite · 30 profesores</option>
-                    </select>
-                    {editingId ? <p className="mt-1 text-[11px] text-amber-300/80">Uso administrativo excepcional. Los directores cambian de plan mediante solicitud y aprobación contractual.</p> : null}
+                    <p>Lestra Deportivo · $19.990 mensuales, IVA incluido. Portal de apoderados incluido.</p>
                   </div>
                   {editingTrial ? <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3"><div><span className="block text-sm font-black text-amber-100">Activar plan ahora</span><span className="mt-1 block text-xs text-amber-200/70">Al marcarlo finalizarás la prueba Full y aplicarás el plan seleccionado.</span></div><input type="checkbox" checked={activateSubscription} onChange={(event) => setActivateSubscription(event.target.checked)} className="mt-1 h-5 w-5 accent-amber-500" /></label> : null}
-                  <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-cyan-900/60 bg-cyan-950/25 p-3">
-                    <div><span className="block text-sm font-black text-cyan-100">Licencia Apoderados</span><span className="mt-1 block text-xs text-cyan-300/70">Parte del contrato comercial cuando la academia ya tiene un plan pagado.</span></div>
-                    <input type="checkbox" checked={guardianLicense} onChange={(event) => setGuardianLicense(event.target.checked)} className="mt-1 h-5 w-5 accent-[#289E9D]" />
-                  </label>
+
                   {editingId && (
                     <div>
                       <label className="block text-xs text-gray-400 mb-1">Estado del Cliente *</label>
