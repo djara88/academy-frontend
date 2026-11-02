@@ -32,7 +32,7 @@ export default function ApoderadosFamilyBoard(){
   const toggle=async(guardian:Guardian)=>{const active=!guardian.acceso_activo;if(!await confirmAction(`${active?'¿Reactivar':'¿Desactivar'} el acceso de ${guardian.nombre_completo}?`))return;try{await api.patch(`/api/apoderados/${guardian.id}/estado`,{activo:active});await query.refetch();}catch(error:any){await notify(error.response?.data?.error||'No fue posible cambiar el acceso.');}};
   const resetPassword=async(guardian:Guardian)=>{if(!await confirmAction(`¿Generar una nueva contraseña temporal para ${guardian.nombre_completo}?`))return;try{const response=await api.post(`/api/apoderados/${guardian.id}/reset-password`);await notify(response.data.email_sent?response.data.message:`${response.data.message}\n\nContraseña temporal: ${response.data.temporary_password}`);}catch(error:any){await notify(error.response?.data?.error||'No fue posible restablecer la contraseña.');}};
 
-  if (licenseMissing) return <DirectorPage><h1>Portal de apoderados</h1><p>Revisa el estado de tu suscripción para habilitar el acceso familiar.</p><Link to="/suscripcion">Ver suscripción</Link></DirectorPage>;
+  if (licenseMissing) return <DirectorPage><h1>Portal de apoderados</h1><p>Revisa el estado de tu suscripción para habilitar el acceso familiar.</p><Link to="/apoderados-pro">Contratar portal de apoderados</Link></DirectorPage>;
   if(query.isLoading)return <div className="family-access"><div className="family-access-loading">Verificando familias y accesos…</div></div>;
 
   return <DirectorPage className="max-w-[1450px]">

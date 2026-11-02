@@ -87,7 +87,7 @@ const Registro: React.FC = () => {
       <div className="relative mx-auto w-full max-w-2xl rounded-[30px] border border-white/10 bg-[#0B1220]/95 p-6 shadow-[0_32px_100px_rgba(0,0,0,.46)] backdrop-blur-xl sm:p-9">
         <div className="mb-8 text-center">
           <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-[24px] border border-[#3157FF]/40 bg-[#09101d] p-3 shadow-[0_18px_55px_rgba(49,87,255,.25)]"><Logo variant="mark" className="h-full w-full" /></div>
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#B8FF3D]">15 días de prueba · Luego $19.990 al mes, IVA incluido</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#B8FF3D]">15 días de prueba · Luego $19.990 al mes + IVA · Apoderados aparte</p>
           <h1 className="mt-2 text-3xl font-black text-white">Crea tu academia en {BRAND.name}</h1>
           <p className="mt-2 text-sm leading-6 text-[#8D99AA]">La primera sede y rama quedan listas desde el inicio. Después podrás crecer a más disciplinas, categorías y sedes.</p>
         </div>

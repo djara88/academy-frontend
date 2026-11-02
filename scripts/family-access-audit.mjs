@@ -34,8 +34,8 @@ if (familyBoard) {
   if (familyBoard.includes('DirectorStat') || familyBoard.includes('DirectorHero') || familyBoard.includes('DirectorPanel')) violations.push('Family Access Board: no volver a composición SaaS genérica.');
 }
 
-if (licenseBoard && (!licenseBoard.includes('to="/apoderados"') || licenseBoard.includes('guardian-addon'))) {
-  violations.push('El acceso familiar incluido debe abrir el directorio sin un segundo checkout.');
+if (licenseBoard && (!licenseBoard.includes('guardian-addon') || !licenseBoard.includes('checkoutEnabled'))) {
+  violations.push('El complemento familiar necesita contratación independiente y checkout condicionado.');
 }
 
 if (contract) {

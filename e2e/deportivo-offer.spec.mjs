@@ -6,10 +6,12 @@ for (const width of [390, 1280]) {
     await page.setViewportSize({ width, height: 850 });
     await page.goto('/deportivo');
     await expect(page.getByText('$19.990', { exact: false }).first()).toBeVisible();
+    await expect(page.getByText(/\+ IVA/).first()).toBeVisible();
+    await expect(page.getByText(/portal de apoderados/i).first()).toBeVisible();
     await expect(page.getByText(/precio fundador|elige tu plan/i)).toHaveCount(0);
     await page.getByRole('link', { name: 'Registrar mi academia' }).click();
     await expect(page).toHaveURL(/\/registro$/);
-    await expect(page.getByText(/Luego \$19.990 al mes/)).toBeVisible();
+    await expect(page.getByText(/Luego \$19.990 al mes \+ IVA/)).toBeVisible();
   });
 }
 

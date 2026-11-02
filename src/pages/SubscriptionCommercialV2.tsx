@@ -26,7 +26,7 @@ const emptyProfile: BillingProfile = {
   contacto_nombre: '',
 };
 
-function BillingProfileForm({ profile, onChange, compact = false }: { profile: BillingProfile; onChange: (next: BillingProfile) => void; compact?: boolean }) {
+export function BillingProfileForm({ profile, onChange, compact = false }: { profile: BillingProfile; onChange: (next: BillingProfile) => void; compact?: boolean }) {
   const input = 'w-full rounded-xl border border-white/10 bg-[#0d1117] px-3 py-3 text-sm text-white outline-none transition focus:border-[#289E9D]/70';
   const set = (key: keyof BillingProfile, value: string) => onChange({ ...profile, [key]: value });
   return <div className={compact ? 'space-y-4' : 'space-y-5'}>
@@ -75,7 +75,7 @@ export default function SubscriptionCommercialV2() {
   const contract = state.data?.contract;
   const renewal = contract?.pendingRenewal;
   const billing = profile || contract?.billingProfile || emptyProfile;
-  const payable = state.data?.checkoutEnabled && (!contract?.locked || renewal?.total_clp === 19990);
+  const payable = state.data?.checkoutEnabled && (!contract?.locked || renewal?.total_clp === 23788);
   const pay = async () => {
     if (!payable || busy) return;
     setBusy(true);
@@ -83,7 +83,7 @@ export default function SubscriptionCommercialV2() {
     try {
       if (contract?.locked) await api.put('/api/mercadopago/platform-subscription/billing-profile', billing);
       const response = await api.post('/api/mercadopago/platform-subscription/' + (contract?.locked ? 'renewal/checkout' : 'plan'), {
-        plan_code: 'alto_rendimiento', billing_cycle: 'monthly', guardian_license: true, billing_profile: billing,
+        plan_code: 'alto_rendimiento', billing_cycle: 'monthly', guardian_license: false, billing_profile: billing,
       });
       window.location.assign(response.data.data.checkoutUrl);
     } catch (cause) {
@@ -95,12 +95,13 @@ export default function SubscriptionCommercialV2() {
   return <section className="mx-auto max-w-3xl space-y-5 rounded-2xl bg-slate-950 p-6 text-white">
     <p className="font-bold text-lime-300">Suscripción de la academia</p>
     <h1 className="text-3xl font-black">Lestra Deportivo</h1>
-    <p><strong className="text-3xl">$19.990</strong> CLP al mes · IVA incluido</p>
-    <p>Gestión deportiva, finanzas, competencias, página pública y acceso para profesores y apoderados.</p>
+    <p><strong className="text-3xl">$19.990</strong> CLP al mes + IVA <span className="text-sm text-slate-300">(total $23.788)</span></p>
+    <p>Un solo plan de gestión deportiva: deportistas, profesores, finanzas, competencias, rendimiento y página pública.</p>
+    <p className="rounded-xl border border-white/15 bg-white/5 p-4 text-sm">El <strong>portal de apoderados</strong> se contrata por separado: $15.000 + IVA al mes. <a className="font-bold text-lime-300 underline" href="/apoderados-pro">Ver complemento familiar</a>.</p>
     {state.isPending && <p role="status">Consultando tu suscripción…</p>}
     {state.isError && <p role="alert">No pudimos consultar tu suscripción. <button onClick={() => void state.refetch()} className="underline">Reintentar</button></p>}
     {contract?.locked && <p>Próxima renovación: {contract.academy.next_billing_date || 'por confirmar'}.</p>}
-    {payable && <><BillingProfileForm profile={billing} onChange={setProfile} /><button disabled={busy} onClick={() => void pay()} className="rounded-xl bg-lime-300 px-5 py-3 font-bold text-slate-950">{busy ? 'Preparando pago…' : 'Pagar $19.990'}</button></>}
+    {payable && <><BillingProfileForm profile={billing} onChange={setProfile} /><button disabled={busy} onClick={() => void pay()} className="rounded-xl bg-lime-300 px-5 py-3 font-bold text-slate-950">{busy ? 'Preparando pago…' : 'Pagar $23.788'}</button></>}
     {state.data && !state.data.checkoutEnabled && <p>La contratación se coordina con nuestro equipo. <a className="underline" href="mailto:contacto@lestra.app?subject=Contratar%20Lestra%20Deportivo">Solicitar contratación</a></p>}
     {error && <p role="alert">{error}</p>}
   </section>;
