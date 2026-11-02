@@ -16,7 +16,7 @@ interface Academia {
   correo_academia?: string;
   nombre_director?: string;
   director_email: string;
-  plan: 'Formación' | 'Competencia' | 'Alto Rendimiento' | 'Prueba 15 Días';
+  plan: 'Lestra Deportivo' | 'Formación' | 'Competencia' | 'Alto Rendimiento' | 'Prueba 15 Días';
   plan_codigo?: 'formacion' | 'competencia' | 'alto_rendimiento';
   licencia_apoderados?: boolean;
   estado: 'Activa' | 'Inactiva';
@@ -108,7 +108,7 @@ const SaaSAdmin = () => {
       formData.append('director_email', directorEmail);
       formData.append('plan_codigo', 'alto_rendimiento');
       formData.append('plan', 'Lestra Deportivo');
-      formData.append('licencia_apoderados', 'true');
+      if (!editingId) formData.append('licencia_apoderados', 'false');
       formData.append('estado', estado);
       formData.append('activate_subscription', String(activateSubscription));
 
@@ -304,7 +304,7 @@ const SaaSAdmin = () => {
                     <input type="email" value={directorEmail} onChange={(e) => setDirectorEmail(e.target.value)} className="w-full bg-[#131722] border border-gray-700 rounded p-2 text-white text-sm focus:outline-none" required disabled={!!editingId} title={editingId ? 'No se puede cambiar el correo de login al editar' : ''} />
                   </div>
                   <div>
-                    <p>Lestra Deportivo · $19.990 mensuales, IVA incluido. Portal de apoderados incluido.</p>
+                    <p>Lestra Deportivo · $19.990 + IVA mensuales. El portal de apoderados se contrata aparte.</p>
                   </div>
                   {editingTrial ? <label className="flex cursor-pointer items-start justify-between gap-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3"><div><span className="block text-sm font-black text-amber-100">Activar plan ahora</span><span className="mt-1 block text-xs text-amber-200/70">Al marcarlo finalizarás la prueba Full y aplicarás el plan seleccionado.</span></div><input type="checkbox" checked={activateSubscription} onChange={(event) => setActivateSubscription(event.target.checked)} className="mt-1 h-5 w-5 accent-amber-500" /></label> : null}
 
