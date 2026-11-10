@@ -19,7 +19,18 @@ test('contratación asistida sin checkout ni selección de documento', async ({ 
   await mockRoleApi(page);
   await seedAuthenticatedUser(page, { id: '55555555-5555-4555-8555-555555555555',
     email: 'director.qa@example.com', role: 'director', academyId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' });
+  // Incluso con el onboarding pendiente, contratar la suscripción debe ser accesible.
+  await page.route('http://localhost:8080/api/consentimientos/setup', async (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ success: true, data: { required: true, locked: true, operational: false, completed_once: false, progress: 0 } }),
+  }));
   await page.goto('/suscripcion');
-  await expect(page.getByRole('link', { name: 'Solicitar contratación' })).toBeVisible();
+  await expect(page).toHaveURL(/\\/suscripcion$/);
+  const activation = page.getByRole('button', { name: 'Solicitar activación de Lestra Deportivo' });
+  await expect(activation).toBeVisible();
+  await activation.click();
+  await expect(page.getByRole('status')).toContainText('Solicitud de activación');
+  await expect(page.getByRole('link', { name: 'Abrir solicitud por correo' })).toHaveAttribute('href', /^mailto:/);
   await expect(page.getByRole('button', { name: /Pagar|Boleta|Factura/ })).toHaveCount(0);
 });
