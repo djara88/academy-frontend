@@ -103,7 +103,7 @@ export default function PublicPageEditor({academyName}:{academyName:string}){
   };
 
   if(loading)return <section className="rounded-2xl border border-white/10 bg-[#151b25] p-6 text-sm font-bold text-sky-200">Cargando página pública...</section>;
-  const url=config.url||config.subdominio?`https://lestra.app/a/${config.subdominio}`:'';
+  const url=config.subdominio ? `https://deportivo.lestra.app/a/${encodeURIComponent(config.subdominio)}` : '';
   const colorFields:Array<[keyof PublicConfig,string]>=[['pagina_color_primario','Color principal'],['pagina_color_secundario','Color de acento'],['pagina_color_fondo','Fondo']];
 
   return <section className="rounded-2xl border border-white/10 bg-[#151b25] p-5 sm:p-6">
@@ -113,7 +113,7 @@ export default function PublicPageEditor({academyName}:{academyName:string}){
     </div>
 
     <div className="mt-5 grid gap-4 lg:grid-cols-[.7fr_1.3fr]">
-      <div><label className="text-xs font-black text-[#aab4c1]">Enlace</label><div className="mt-1 flex rounded-xl border border-white/10 bg-[#0d1117]"><span className="px-3 py-3 text-xs text-[#596575]">lestra.app/a/</span><input value={config.subdominio} onChange={(e)=>setConfig({...config,subdominio:e.target.value})} className="min-w-0 flex-1 bg-transparent px-1 text-sm text-white outline-none"/></div></div>
+      <div><label className="text-xs font-black text-[#aab4c1]">Enlace</label><div className="mt-1 flex rounded-xl border border-white/10 bg-[#0d1117]"><span className="px-3 py-3 text-xs text-[#aab4c1]">deportivo.lestra.app/a/</span><input value={config.subdominio} onChange={(e)=>setConfig({...config,subdominio:e.target.value})} className="min-w-0 flex-1 bg-transparent px-1 text-sm text-white outline-none"/></div></div>
       <div><label className="text-xs font-black text-[#aab4c1]">Descripción pública</label><textarea value={config.descripcion_publica||''} onChange={(e)=>setConfig({...config,descripcion_publica:e.target.value})} className="mt-1 min-h-24 w-full rounded-xl border border-white/10 bg-[#0d1117] p-3 text-sm text-white outline-none focus:border-[#289E9D]" placeholder="Cuenta qué ofrece tu academia y qué la hace distinta."/></div>
     </div>
 
