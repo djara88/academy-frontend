@@ -65,6 +65,7 @@ export default function SubscriptionCommercialV2() {
   const [profile, setProfile] = useState<BillingProfile | null>(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [showAssistedRequest, setShowAssistedRequest] = useState(false);
   const state = useQuery({ queryKey: ['lestra-commercial-contract'], queryFn: async () => {
     const offer = await api.get('/api/subscriptions/plans');
     const checkoutEnabled = offer.data.data.checkoutEnabled === true;
@@ -102,7 +103,21 @@ export default function SubscriptionCommercialV2() {
     {state.isError && <p role="alert">No pudimos consultar tu suscripción. <button onClick={() => void state.refetch()} className="underline">Reintentar</button></p>}
     {contract?.locked && <p>Próxima renovación: {contract.academy.next_billing_date || 'por confirmar'}.</p>}
     {payable && <><BillingProfileForm profile={billing} onChange={setProfile} /><button disabled={busy} onClick={() => void pay()} className="rounded-xl bg-lime-300 px-5 py-3 font-bold text-slate-950">{busy ? 'Preparando pago…' : 'Pagar $23.788'}</button></>}
-    {state.data && !state.data.checkoutEnabled && <p>La contratación se coordina con nuestro equipo. <a className="underline" href="mailto:contacto@lestra.app?subject=Contratar%20Lestra%20Deportivo">Solicitar contratación</a></p>}
+    {state.data && !state.data.checkoutEnabled && <div className="space-y-4 rounded-xl border border-lime-300/25 bg-white/5 p-5">
+      <p className="font-semibold">Un único plan, sin niveles adicionales.</p>
+      <p className="text-sm leading-6 text-slate-300">La contratación se realiza con asistencia de Lestra mientras habilitamos el cobro en línea. No se efectuará ningún cargo desde esta pantalla.</p>
+      <button type="button" onClick={() => setShowAssistedRequest(true)} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-lime-300 px-6 py-3 font-black text-slate-950 transition hover:bg-lime-200">
+        Solicitar activación de Lestra Deportivo
+      </button>
+      {showAssistedRequest && <div role="status" className="space-y-3 rounded-xl border border-white/15 bg-slate-900 p-4">
+        <p className="text-sm font-bold text-white">Solicitud de activación</p>
+        <p className="text-sm leading-6 text-slate-200">Envía tu solicitud al equipo comercial indicando el nombre de tu academia y el correo del director. Te ayudarán a continuar con el plan único de $19.990 + IVA.</p>
+        <a href="mailto:contacto@lestra.app?subject=Solicitud%20de%20activaci%C3%B3n%20Lestra%20Deportivo" className="inline-flex min-h-11 items-center rounded-lg border border-lime-300/60 px-4 py-2 font-bold text-lime-300 underline">
+          Abrir solicitud por correo
+        </a>
+        <p className="text-xs text-slate-300">Si tu equipo no abre automáticamente el correo, escribe directamente a <strong className="text-white">contacto@lestra.app</strong>.</p>
+      </div>}
+    </div>}
     {error && <p role="alert">{error}</p>}
   </section>;
 }

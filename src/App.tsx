@@ -176,7 +176,7 @@ const DirectorRoutes = () => {
 
   // Fall-open deliberado: una indisponibilidad puntual del endpoint de setup no debe
   // bloquear academias ya operativas. Las academias nuevas vuelven a validarse al reconectar.
-  if (setup?.required && setup.locked && !setupRoute && !setupSupport) {
+  if (setup?.required && setup.locked && !setupRoute && !setupSupport && location.pathname !== '/suscripcion') {
     return <Navigate to="/puesta-en-marcha" replace />;
   }
   if (setup?.required === false && setupRoute) return <Navigate to="/dashboard" replace />;

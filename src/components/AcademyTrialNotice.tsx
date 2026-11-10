@@ -23,7 +23,7 @@ export const AcademyTrialNotice = ({ subscription, canManage = true }: { subscri
       <p className={`text-xs font-black uppercase tracking-[0.16em] ${critical ? 'text-amber-700' : 'text-[#647d00]'}`}>Prueba activa</p>
       <p className="mt-1 text-sm font-black text-[#172018]">{timeLeft} <span className="font-semibold text-[#8a9489]">Puedes usar todas las funciones.</span></p>
     </div>
-    {canManage ? <Link to="/suscripcion" className="min-h-10 shrink-0 rounded-xl border border-[#d3dad0] bg-white px-4 py-2 text-center text-sm font-black text-[#172018] transition hover:border-[#b9e937] hover:bg-[#f5f9e9]">Elegir plan</Link> : <span className="text-xs font-bold text-[#697469]">La dirección se encarga del plan</span>}
+    {canManage ? <Link to="/suscripcion" className="min-h-10 shrink-0 rounded-xl border border-[#d3dad0] bg-white px-4 py-2 text-center text-sm font-black text-[#172018] transition hover:border-[#b9e937] hover:bg-[#f5f9e9]">Ver plan único</Link> : <span className="text-xs font-bold text-[#697469]">La dirección se encarga del plan</span>}
   </div>;
 };
 
@@ -33,9 +33,9 @@ export const AcademyBlocked = ({ subscription, canManage = true }: { subscriptio
       <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#caff00] text-3xl text-[#0b110d]">⏳</div>
       <p className="mt-6 text-xs font-black uppercase tracking-[0.2em] text-[#caff00]">Prueba finalizada</p>
       <h1 className="mt-2 text-3xl font-black text-white sm:text-4xl">Tu información sigue aquí</h1>
-      <p className="mx-auto mt-4 max-w-xl leading-7 text-[#c7d0c8]">La prueba terminó, pero no perdiste nada. Elige un plan para seguir trabajando con tu academia.</p>
+      <p className="mx-auto mt-4 max-w-xl leading-7 text-[#c7d0c8]">La prueba terminó, pero no perdiste nada. Activa Lestra Deportivo para seguir trabajando con tu academia.</p>
       {subscription?.reason ? <p className="mt-3 text-sm text-[#dce3dc]">{subscription.reason}</p> : null}
-      {canManage ? <Link to="/suscripcion" className="mt-8 inline-flex min-h-12 items-center justify-center rounded-xl bg-[#caff00] px-7 py-3 font-black text-[#0b110d] transition hover:bg-[#b9e937]">Elegir plan y continuar</Link> : <p className="mt-8 font-black text-[#caff00]">Pide a la dirección que active un plan para continuar.</p>}
+      {canManage ? <Link to="/suscripcion" className="mt-8 inline-flex min-h-12 items-center justify-center rounded-xl bg-[#caff00] px-7 py-3 font-black text-[#0b110d] transition hover:bg-[#b9e937]">Activar Lestra Deportivo</Link> : <p className="mt-8 font-black text-[#caff00]">Pide a la dirección que active un plan para continuar.</p>}
     </section>
   </div>
 );
