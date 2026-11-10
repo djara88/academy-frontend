@@ -132,7 +132,7 @@ const Configuracion: React.FC = () => {
               <h2 className="mt-1 text-xl font-black tracking-[-.025em] text-[#111711]">{plan.entitlements.plan.name}</h2>
               <p className="mt-1 text-sm text-[#697468]">{completed}/{plan.onboarding.length} pasos operativos completados.</p>
             </div>
-            <button onClick={()=>navigate('/suscripcion')} className={DIRECTOR_BUTTON}>Ver planes</button>
+            <button onClick={()=>navigate('/suscripcion')} className={DIRECTOR_BUTTON}>Ver suscripción</button>
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
