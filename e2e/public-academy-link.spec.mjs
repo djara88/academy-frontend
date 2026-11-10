@@ -29,6 +29,25 @@ test('el enlace de la página pública utiliza el dominio de Deportivo y no lest
     });
   });
 
+  await page.route('http://localhost:8080/api/academias/plan-operativo', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        success: true,
+        data: {
+          entitlements: {
+            plan: { code: 'alto_rendimiento', name: 'Lestra Deportivo', trial: false },
+            features: [],
+            limits: { players: null, professors: 30, sites: null, branches: null },
+          },
+          usage: {},
+          structure: { requiresChoice: false },
+          onboarding: [],
+        },
+      }),
+    });
+  });
   await page.goto('/configuracion?seccion=pagina-publica');
   await expect(page.getByRole('link', { name: /abrir página/i })).toHaveAttribute('href', canonicalUrl);
   await expect(page.getByText('deportivo.lestra.app/a/')).toBeVisible();
