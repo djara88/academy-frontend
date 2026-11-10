@@ -4,6 +4,7 @@ import { useAcademyMessages } from '../hooks/useAcademyMessages';
 import FinanceSchoolDashboard from '../components/FinanceSchoolDashboard';
 import CollectionAccountsTable, { type AccountMeta, type CollectionAccount, type FinanceCharge } from '../components/finance/CollectionAccountsTable';
 import PaymentValidationPanel, { type ReportedPayment } from '../components/finance/PaymentValidationPanel';
+import StudentFeesPanel from '../components/finance/StudentFeesPanel';
 import CollectionAutomationPanel, { type CollectionConfig, type CollectionNotification } from '../components/finance/CollectionAutomationPanel';
 import {
   DIRECTOR_BUTTON,
@@ -21,7 +22,7 @@ type Summary = { totalIngresosReales: number; totalPorCobrar: number; totalVenci
 type Payment = { id: string; monto: number; metodo_pago?: string | null; fecha_pago?: string | null; observaciones?: string | null; cobro?: { concepto?: string | null; tipo_concepto?: string | null } | null; jugador?: { nombre?: string | null } | null };
 type Expense = { id: string; concepto: string; categoria_gasto?: string | null; centro_costo?: string | null; monto: number; metodo_pago?: string | null; fecha_gasto?: string | null; rama_id?: string | null; ramas?: { id: string; nombre: string; disciplina: string } | null };
 type FlowRow = { id: string; tipo: 'Ingreso' | 'Egreso'; concepto: string; monto: number; fecha?: string | null; metodo?: string | null; categoria?: string | null };
-type Tab = 'dashboard' | 'cuentas' | 'validacion' | 'pagos' | 'egresos' | 'flujo' | 'cobranza';
+type Tab = 'dashboard' | 'cuentas' | 'tarifas' | 'validacion' | 'pagos' | 'egresos' | 'flujo' | 'cobranza';
 
 const money = (value: number) => `$${Math.round(Number(value) || 0).toLocaleString('es-CL')}`;
 const emptyMeta: AccountMeta = { page: 1, page_size: 25, total: 0, pages: 0 };
@@ -370,6 +371,7 @@ export default function FinanzasMultirama() {
   const tabs: Array<[Tab, string]> = [
     ['dashboard', 'Resumen'],
     ['cuentas', 'Cuentas'],
+    ['tarifas', 'Tarifas por alumno'],
     ['validacion', `Por validar${pendingValidationCount ? ` · ${pendingValidationCount}` : ''}`],
     ['pagos', 'Pagos'],
     ['egresos', 'Egresos'],
@@ -412,13 +414,14 @@ export default function FinanzasMultirama() {
       </div>
 
       <div className="overflow-x-auto pb-1">
-        <DirectorTabs className="grid-cols-7">
+        <DirectorTabs className="grid-cols-8">
           {tabs.map(([key, label]) => <DirectorTabButton key={key} active={activeTab === key} onClick={() => setActiveTab(key)}>{label}</DirectorTabButton>)}
         </DirectorTabs>
       </div>
 
       {activeTab === 'dashboard' ? <FinanceSchoolDashboard summary={summary} accounts={legacyAccounts} payments={payments} expenses={expenses} flow={flow} branches={branches} branchId={branchId} /> : null}
       {activeTab === 'cuentas' ? accountLoading ? <DirectorPanel className="p-8 text-center text-sm font-bold text-[#697468]" role="status">Verificando cuentas corrientes…</DirectorPanel> : accountVerified ? <CollectionAccountsTable accounts={collectionAccounts} meta={accountMeta} loading={false} search={accountSearchInput} status={accountStatus} pageSize={accountPageSize} selectedTutorIds={selectedTutorIds} onSearch={setAccountSearchInput} onStatus={(value) => { setAccountStatus(value); setAccountPage(1); }} onPage={setAccountPage} onPageSize={(value) => { setAccountPageSize(value); setAccountPage(1); }} onSelection={setSelectedTutorIds} onPayment={(charge) => void openPayment(charge)} onReminder={(ids, overdue) => void sendReminders(ids, overdue)} /> : <VerificationPanel title="Cuentas no verificadas" message={accountError || 'No pudimos confirmar las cuentas corrientes.'} onRetry={() => void loadAccounts()} /> : null}
+      {activeTab === 'tarifas' ? <StudentFeesPanel branchId={branchId} onAdjusted={() => { void loadBase(); void loadAccounts(); }} /> : null}
       {activeTab === 'validacion' ? reportedLoading ? <DirectorPanel className="p-8 text-center text-sm font-bold text-[#697468]" role="status">Verificando transferencias informadas…</DirectorPanel> : reportedVerified ? <PaymentValidationPanel rows={reportedPayments} filter={reportedFilter} loading={false} busyId={validationBusyId} onFilter={setReportedFilter} onValidate={(id) => void validateReported(id)} onReject={(id, reason) => void rejectReported(id, reason)} /> : <VerificationPanel title="Pagos informados no verificados" message={reportedError || 'No pudimos confirmar la bandeja de transferencias.'} onRetry={() => void loadReported()} /> : null}
       {activeTab === 'pagos' ? <PaymentsTable rows={payments} /> : null}
       {activeTab === 'egresos' ? <ExpensesTable rows={expenses} onRemove={(item) => void removeExpense(item)} /> : null}
